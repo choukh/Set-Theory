@@ -28,7 +28,7 @@
 - 选择公理
 - 正则公理
 - 笛卡尔积
-- 函数
+- 函数（Aczel编码）
 
 ## EX4.v
 - 有限序数
@@ -38,5 +38,12 @@
 - 补集
 - 集合代数定律
 
+## EX6.v
+- 关系
+- 函数（标准编码）
+
 ## CH2.v
 - Elements of Set Theory 第1，2章习题
+
+## CH3.v
+- Elements of Set Theory 第3章习题
