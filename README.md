@@ -41,9 +41,17 @@
 ## EX6.v
 - 关系
 - 函数（标准编码）
+- 逆
+- 复合
 
-## CH2.v
-- Elements of Set Theory 第1，2章习题
+## EX7.v
+- 函数的左右逆
+- 限制
+- 像
+- 函数空间
+- 无限笛卡尔积
+- 选择公理等效表述
 
-## CH3.v
-- Elements of Set Theory 第3章习题
+## CH*.v
+- Elements of Set Theory 第*章习题
+- ch3_30 克纳斯特－塔斯基定理
