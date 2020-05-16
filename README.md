@@ -54,4 +54,4 @@
 
 ## CH*.v
 - Elements of Set Theory 第*章习题
-- ch3_30 克纳斯特－塔斯基定理
+- CH3-1.v ch3_30 克纳斯特－塔斯基定理
