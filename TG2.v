@@ -2,7 +2,7 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.EX1.
+Require Export ZFC.TG1.
 
 (*** TG集合论扩展2：二元并，集族并，建构式，任意交，二元交，有序对 ***)
 

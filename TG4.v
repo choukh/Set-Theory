@@ -2,7 +2,7 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq programming by choukh, April 2020 **)
 
-Require Export ZFC.EX3.
+Require Export ZFC.TG3.
 
 (*** TG集合论扩展4：有限序数及其递归原理 ***)
 

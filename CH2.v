@@ -1,7 +1,7 @@
 (** Solutions to "Elements of Set Theory" Chapter 1 & 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.TG_full.
+Require Export ZFC.EST_full.
 
 Example ch1_3: ∀ B C, B ⊆ C → 𝒫 B ⊆ 𝒫 C.
 Proof.

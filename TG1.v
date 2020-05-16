@@ -2,7 +2,7 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.TG.
+Require Export ZFC.TG0.
 
 (*** TG集合论扩展1：单集，壹，贰 ***)
 

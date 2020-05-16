@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 3 Part 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.EX6.
+Require Export ZFC.EST3_1.
 
 (*** TG集合论扩展7：函数的左右逆，限制，像，函数空间，无限笛卡尔积 ***)
 

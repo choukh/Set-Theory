@@ -2,7 +2,7 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.EX2.
+Require Export ZFC.TG2.
 Require Import Setoid.
 
 (*** TG集合论扩展3：选择公理，正则公理，笛卡尔积，函数(Aczel编码) ***)

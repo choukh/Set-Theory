@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.EX4.
+Require Export ZFC.TG_full.
 
 (*** TG集合论扩展5：补集，集合代数定律 ***)
 
