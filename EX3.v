@@ -5,7 +5,7 @@
 Require Export ZFC.EX2.
 Require Import Setoid.
 
-(*** TG集合论扩展3：选择公理，正则公理，笛卡尔积，函数 ***)
+(*** TG集合论扩展3：选择公理，正则公理，笛卡尔积，函数(Aczel编码) ***)
 
 (** 希尔伯特ε算子等效于选择公理 **)
 
@@ -31,10 +31,10 @@ Qed.
 (* “单选题” *)
 Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
   (∀ s t ∈ S, s ≠ t → s ∩ t = ∅) →
-  ∀s ∈ S, ∃ x, s ∩ {cho | s ∊ S} = x.
+  ∀s ∈ S, ∃ x, s ∩ {cho | s ∊ S} = ⎨x⎬.
 Proof.
   unfoldq. intros S Hi Hdj s Hs.
-  exists ⎨cho s⎬.
+  exists (cho s).
   apply sub_asym.
   - unfold Sub. introq. apply BInterE in H as [Hx1 Hx2].
     cut (x = cho s).
@@ -124,7 +124,7 @@ Qed.
 (** 笛卡儿积 **)
 Definition CProd : set → set → set := λ A B,
   ⋃ {λ a, {λ b, <a, b> | x∊B} | x∊A}.
-Notation "A × B" := (CProd A B) (at level 60).
+Notation "A × B" := (CProd A B) (at level 40).
 
 Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
 Proof.
@@ -178,53 +178,53 @@ Proof.
   introq. apply GUOPair.
   - eapply GUTrans. apply H1. apply H.
   - eapply GUTrans. apply H2. apply H0.
-Qed. 
+Qed.
 
-(** 集合论上的函数（函数本身也是集合） **)
+(** 函数（Aczel编码） **)
 
 (* 函数应用 *)
 (* ap f x := {y | <x, y> ∈ f} *)
-Definition ap : set → set → set := λ f x,
+Definition apₐ : set → set → set := λ f x,
   let P := {p ∊ f | λ p, is_pair p ∧ π1 p = x} in {π2 | p ∊ P}.
-Notation "f [ x ]" := (ap f x) (at level 60).
+Notation "f [ x ]ₐ" := (apₐ f x) (at level 60).
 
 (* 函数本身 *)
 (* Lambda X F := {<x, y> | x ∈ X ∧ y ∈ F x} *)
-Definition Lambda : set → (set → set) → set := λ X F,
+Definition Lambdaₐ : set → (set → set) → set := λ X F,
   ⋃{λ x, {λ y, <x, y> | y ∊ F x} | x ∊ X}.
-Notation "'Λ' X , F" := (Lambda X F) (at level 200).
+Notation "'Λₐ' X , F" := (Lambdaₐ X F) (at level 200).
 
 (* 函数类型 *)
 (* Π X Y := {Lambda X F | ∀x ∈ X, F x ∈ Y x}
           = {f ∈ 𝒫(X × ⋃⋃{Y|x ∊ X}) | ∀x ∈ X, F x ∈ Y x} *)
-Definition Π : set → (set → set) → set := λ X Y, 
-  {f ∊ 𝒫(X × ⋃⋃{Y|x ∊ X}) | λ f, ∀x ∈ X, f[x] ∈ Y x}.
+Definition Πₐ : set → (set → set) → set := λ X Y, 
+  {f ∊ 𝒫(X × ⋃⋃{Y|x ∊ X}) | λ f, ∀x ∈ X, f[x]ₐ ∈ Y x}.
 
 (* 非依赖类型 *)
-Definition Arrow : set → set → set := λ X Y, Π X (λ _, Y).
-Notation "X ⟶ Y" := (Arrow X Y) (at level 190).
+Definition Arrowₐ : set → set → set := λ X Y, Πₐ X (λ _, Y).
+Notation "X ⟶ₐ Y" := (Arrowₐ X Y) (at level 190).
 
 (* 常函数正好表达为笛卡尔积 *)
-Fact Λ_const_is_cprod : ∀ A B, A × B = Λ A, (λ _, B).
+Fact Λₐ_const_is_cprod : ∀ A B, A × B = Λₐ A, (λ _, B).
 Proof. reflexivity. Qed.
 
 (* 函数的成员都是这样的有序对，它的左投影是定义域的成员，右投影是值域的成员的成员 *)
-Lemma Λ_contain_pair : ∀ X F,
-  ∀p ∈ (Λ X, F), ∃x ∈ X, ∃y ∈ F x, p = <x, y>.
+Lemma Λₐ_contain_pair : ∀ X F,
+  ∀p ∈ (Λₐ X, F), ∃x ∈ X, ∃y ∈ F x, p = <x, y>.
 Proof.
-  unfoldq. unfold Lambda. intros X F p H.
+  unfoldq. unfold Lambdaₐ. intros X F p H.
   apply FUnionE in H. destruct H as [x [H1 H2]].
   apply ReplE in H2. destruct H2 as [y [H2 H3]].
   symmetry in H3. firstorder.
 Qed.
 
-Lemma ap_contain_pair : ∀ f x y, y ∈ f[x] ↔ <x, y> ∈ f.
+Lemma apₐ_contain_pair : ∀ f x y, y ∈ f[x]ₐ ↔ <x, y> ∈ f.
 Proof.
   split; intros.
   - apply ReplE in H. destruct H as [p [H1 H2]].
     apply SepE in H1. destruct H1 as [H3 [H4 H5]].
     apply op_η in H4. rewrite H4 in H3. subst. apply H3.
-  - unfold ap. apply ReplAx. unfoldq.
+  - unfold apₐ. apply ReplAx. unfoldq.
     exists <x, y>. split.
     + apply SepI. apply H. split.
       * exists x, y. reflexivity.
@@ -233,90 +233,90 @@ Proof.
 Qed.
 
 (* β规约 *)
-Theorem β_reduction : ∀ X F, ∀x ∈ X, (Λ X, F)[x] = F x.
+Theorem β_reductionₐ : ∀ X F, ∀x ∈ X, (Λₐ X, F)[x]ₐ = F x.
 Proof.
   introq. apply ExtAx. split; intros.
-  - apply ap_contain_pair in H0.
-    apply Λ_contain_pair in H0.
+  - apply apₐ_contain_pair in H0.
+    apply Λₐ_contain_pair in H0.
     destruct H0 as [a [H1 [b [H2 H3]]]].
     apply op_correct in H3. destruct H3 as [H3 H4].
     subst. apply H2.
-  - apply ap_contain_pair. eapply UnionI.
+  - apply apₐ_contain_pair. eapply UnionI.
     + apply ReplI. apply H.
     + apply ReplI. apply H0.
 Qed.
 
-Lemma β_out_0 : ∀ X F x, x ∉ X → (Λ X, F)[x] = ∅.
+Lemma β_out_0ₐ : ∀ X F x, x ∉ X → (Λₐ X, F)[x]ₐ = ∅.
 Proof.
   intros. apply EmptyI. intros y H0. apply H.
-  apply ap_contain_pair in H0.
-  apply Λ_contain_pair in H0. destruct H0 as [a [H1 [b [H2 H3]]]].
+  apply apₐ_contain_pair in H0.
+  apply Λₐ_contain_pair in H0. destruct H0 as [a [H1 [b [H2 H3]]]].
   apply op_correct in H3 as [Hx Hy]. subst a. apply H1.
 Qed.
 
-Lemma ap_0_0 : ∀ a, ∅[a] = ∅.
+Lemma apₐ_0_0 : ∀ a, ∅[a]ₐ = ∅.
 Proof.
-  unfold ap. introq. rewrite sep_0.
+  unfold apₐ. introq. rewrite sep_0.
   rewrite repl_0. reflexivity.
 Qed.
 
 (* 函数是函数类型的成员 *)
-Theorem Λ_in_Π : ∀ X Y F, (∀x ∈ X, F x ∈ Y x) → (Λ X, F) ∈ (Π X Y).
+Theorem Λₐ_in_Πₐ : ∀ X Y F, (∀x ∈ X, F x ∈ Y x) → (Λₐ X, F) ∈ (Πₐ X Y).
 Proof.
   intros. apply SepI.
   - apply PowerAx. unfold Sub. unfoldq.
-    intros p H0. apply Λ_contain_pair in H0.
+    intros p H0. apply Λₐ_contain_pair in H0.
     destruct H0 as [x [H1 [y [H2 H3]]]].
     subst. apply CProdI. apply H1.
     eapply UnionI; [|apply H2].
     eapply FUnionI. apply H1. apply H. apply H1.
-  - introq. rewrite β_reduction; auto.
+  - introq. rewrite β_reductionₐ; auto.
 Qed.
 
 (* 函数类型的成员都是良定义的函数 *)
-Theorem Π_only_Λ : ∀ X Y, ∀x ∈ X, ∀f ∈ Π X Y, f[x] ∈ Y x.
+Theorem Πₐ_only_Λₐ : ∀ X Y, ∀x ∈ X, ∀f ∈ Πₐ X Y, f[x]ₐ ∈ Y x.
 Proof.
   unfoldq. intros X Y x Hx f Hf. apply SepE2 in Hf.
   apply Hf. apply Hx.
 Qed.
 
-Corollary Π_non_dependent : ∀ X Y, ∀x ∈ X, ∀f ∈ (X ⟶ Y), f[x] ∈ Y.
-Proof. intros. exact (Π_only_Λ X (λ _, Y)). Qed.
+Corollary Πₐ_non_dependent : ∀ X Y, ∀x ∈ X, ∀f ∈ (X ⟶ₐ Y), f[x]ₐ ∈ Y.
+Proof. intros. exact (Πₐ_only_Λₐ X (λ _, Y)). Qed.
 
-Example arrow_correct : ∀ A B f a, f ∈ (A ⟶ B) → a ∈ A → f[a] ∈ B.
-Proof. intros. exact (Π_only_Λ A (λ _, B) a H0 f H). Qed.
+Example arrowₐ_correct : ∀ A B f a, f ∈ (A ⟶ₐ B) → a ∈ A → f[a]ₐ ∈ B.
+Proof. intros. exact (Πₐ_only_Λₐ A (λ _, B) a H0 f H). Qed.
 
 (* 集合2在函数类型建构下封闭 *)
-Theorem Π_close_2 : ∀ X Y, (∀ x ∈ X, Y x ∈ 2) → Π X Y ∈ 2.
+Theorem Πₐ_close_2 : ∀ X Y, (∀ x ∈ X, Y x ∈ 2) → Πₐ X Y ∈ 2.
 Proof.
   introq. apply funion_2 in H.
   apply in_2_impl_union_0 in H.
-  unfold Π. remember (λ f, ∀x ∈ X, f [x] ∈ Y x) as P.
+  unfold Πₐ. remember (λ f, ∀x ∈ X, f [x]ₐ ∈ Y x) as P.
   rewrite H. rewrite cprod_x_0.
   rewrite power_0_1. rewrite <- power_1_2.
   apply sep_power.
 Qed.
 
-Lemma Λ_sub : ∀ X f1 f2, (∀ y ∈ X, f1 y = f2 y) → (Λ X, f1) ⊆ (Λ X, f2).
+Lemma Λₐ_sub : ∀ X f1 f2, (∀ y ∈ X, f1 y = f2 y) → (Λₐ X, f1) ⊆ (Λₐ X, f2).
 Proof.
-  unfold Lambda, Sub. introq.
+  unfold Lambdaₐ, Sub. introq.
   apply FUnionE in H0. destruct H0 as [y [H1 H2]].
   eapply FUnionI. apply H1. apply H in H1.
   rewrite H1 in H2. apply H2.
 Qed.
 
 (* Λ算符的外延性 *)
-Lemma Λ_ext : ∀ X f1 f2, (∀ y ∈ X, f1 y = f2 y) → (Λ X, f1) = (Λ X, f2).
+Lemma Λₐ_ext : ∀ X f1 f2, (∀ y ∈ X, f1 y = f2 y) → (Λₐ X, f1) = (Λₐ X, f2).
 Proof.
   introq. apply sub_asym.
-  - apply Λ_sub. unfoldq. apply H.
-  - apply Λ_sub. introq. apply H in H0. auto.
+  - apply Λₐ_sub. unfoldq. apply H.
+  - apply Λₐ_sub. introq. apply H in H0. auto.
 Qed.
 
-Lemma Λ_β : ∀ X F, (Λ X, F) = Λ X, (λ x, (Λ X, F)[x]).
-Proof. intros. apply Λ_ext. introq. rewrite β_reduction; auto. Qed.
+Lemma Λₐ_β : ∀ X F, (Λₐ X, F) = Λₐ X, (λ x, (Λₐ X, F)[x]ₐ).
+Proof. intros. apply Λₐ_ext. introq. rewrite β_reductionₐ; auto. Qed.
 
-Lemma Π_sub : ∀ X Y1 Y2, (∀x ∈ X, Y1 x = Y2 x) → Π X Y1 ⊆ Π X Y2.
+Lemma Πₐ_sub : ∀ X Y1 Y2, (∀x ∈ X, Y1 x = Y2 x) → Πₐ X Y1 ⊆ Πₐ X Y2.
 Proof.
   unfold Sub. introq. 
   apply SepE in H0. destruct H0 as [H1 H2].
@@ -336,40 +336,40 @@ Proof.
 Qed.
 
 (* Π算符的外延性 *)
-Lemma Π_ext : ∀ X Y1 Y2, (∀x ∈ X, Y1 x = Y2 x) → Π X Y1 = Π X Y2.
+Lemma Πₐ_ext : ∀ X Y1 Y2, (∀x ∈ X, Y1 x = Y2 x) → Πₐ X Y1 = Πₐ X Y2.
 Proof.
   introq. apply sub_asym.
-  - apply Π_sub. unfoldq. apply H.
-  - apply Π_sub. introq. apply H in H0. auto.
+  - apply Πₐ_sub. unfoldq. apply H.
+  - apply Πₐ_sub. introq. apply H in H0. auto.
 Qed.
 
-Lemma f_sub : ∀ X F f g, f ∈ Π X F → (∀x ∈ X, f[x] ⊆ g[x]) → f ⊆ g.
+Lemma fₐ_sub : ∀ X F f g, f ∈ Πₐ X F → (∀x ∈ X, f[x]ₐ ⊆ g[x]ₐ) → f ⊆ g.
 Proof.
   unfold Sub. unfoldq. intros X F f g Hf Hsub p Hp.
   apply SepE in Hf. destruct Hf as [Hf _].
   apply PowerAx in Hf. unfold Sub in Hf.
   apply Hf in Hp as Hp'. clear Hf.
   apply CProd_correct in Hp'. destruct Hp' as [x [H1 [y [_ H2]]]].
-  subst. apply ap_contain_pair in Hp. apply (Hsub x H1) in Hp.
-  apply ap_contain_pair in Hp. apply Hp.
+  subst. apply apₐ_contain_pair in Hp. apply (Hsub x H1) in Hp.
+  apply apₐ_contain_pair in Hp. apply Hp.
 Qed.
 
 (* 函数的外延性 *)
-Theorem f_ext : ∀ X F f g, f ∈ Π X F → g ∈ Π X F →
-  (∀x ∈ X, f[x] = g[x]) → f = g.
+Theorem fₐ_ext : ∀ X F f g, f ∈ Πₐ X F → g ∈ Πₐ X F →
+  (∀x ∈ X, f[x]ₐ = g[x]ₐ) → f = g.
 Proof.
   introq. apply sub_asym.
-  - eapply f_sub. apply H. unfold Sub. introq.
+  - eapply fₐ_sub. apply H. unfold Sub. introq.
     apply H1 in H2. rewrite H2 in H3. apply H3. 
-  - eapply f_sub. apply H0. unfold Sub. introq.
+  - eapply fₐ_sub. apply H0. unfold Sub. introq.
     apply H1 in H2. rewrite H2. apply H3. 
 Qed.
 
-Lemma f_η : ∀ A B f, f ∈ Π A B → f = Λ A, (λ x, f[x]).
+Lemma fₐ_η : ∀ A B f, f ∈ Πₐ A B → f = Λₐ A, (λ x, f[x]ₐ).
 Proof.
-  intros. eapply f_ext.
+  intros. eapply fₐ_ext.
   - apply H.
-  - apply Λ_in_Π. introq.
-    apply (Π_only_Λ A B x H0) in H. apply H.
-  - introq. rewrite β_reduction; auto.
+  - apply Λₐ_in_Πₐ. introq.
+    apply (Πₐ_only_Λₐ A B x H0) in H. apply H.
+  - introq. rewrite β_reductionₐ; auto.
 Qed.

@@ -321,10 +321,6 @@ Definition injective : (set → set) → set → Prop := λ F X,
 Definition surjective : (set → set) → set → set → Prop := λ F X Y,
   ∀y ∈ Y, ∃x ∈ X, F x = y.
 
-(* 双射（一一对应） *)
-Definition bijection : (set → set) → set → set → Prop := λ F X Y,
-  injective F X ∧ surjective F X Y.
-
 (** 集合的无穷性 **)
 Definition infinite : set → Prop := λ X,
   ∃ F, close F X ∧ injective F X ∧ ¬ surjective F X X.

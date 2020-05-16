@@ -264,7 +264,8 @@ Qed.
 
 (** 有序对 **)
 Definition OPair : set → set → set := λ x y, {⎨x⎬, {x, y}}.
-Notation "< x , y >" := (OPair x y) (y at level 69).
+Notation "< x , y , .. , z >" :=
+  ( OPair .. ( OPair x y ) .. z ) (z at level 69).
 
 Definition π1 : set → set := λ p, ⋃ ⋂ p.
 Definition π2 : set → set := λ p,

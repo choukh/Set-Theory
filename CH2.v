@@ -1,16 +1,16 @@
 (** Solutions to "Elements of Set Theory" Chapter 1 & 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Import ZFC.TG_full.
+Require Export ZFC.TG_full.
 
-Example ex1_3: ∀ B C, B ⊆ C → 𝒫 B ⊆ 𝒫 C.
+Example ch1_3: ∀ B C, B ⊆ C → 𝒫 B ⊆ 𝒫 C.
 Proof.
   intros B C H x HB. apply PowerAx in HB.
   pose proof (sub_tran HB H) as HC.
   apply PowerAx. apply HC.
 Qed.
 
-Example ex1_4: ∀ B, ∀ x y ∈ B, {⎨x⎬, {x, y}} ∈ 𝒫 𝒫 B.
+Example ch1_4: ∀ B, ∀ x y ∈ B, {⎨x⎬, {x, y}} ∈ 𝒫 𝒫 B.
 Proof.
   intros B b Hb a Ha. apply PowerAx. intros p Hp.
   apply PowerAx. intros x Hx.
@@ -21,14 +21,14 @@ Proof.
     + apply Ha.
 Qed.
 
-Example ex2_3: ∀A, ∀a ∈ A, a ⊆ ⋃A.
+Example ch2_3: ∀A, ∀a ∈ A, a ⊆ ⋃A.
 Proof.
   intros A a Ha x Hx.
   apply UnionAx. unfoldq.
   exists a. auto.
 Qed.
 
-Example ex2_4: ∀ A B, A ⊆ B → ⋃A ⊆ ⋃B.
+Example ch2_4: ∀ A B, A ⊆ B → ⋃A ⊆ ⋃B.
 Proof.
   intros A B H x Hx.
   apply UnionAx in Hx. destruct Hx as [b [Hb Hx]].
@@ -37,14 +37,14 @@ Proof.
   - apply Hx.
 Qed.
 
-Example ex2_5: ∀ A B, (∀a ∈ A, a ⊆ B) → ⋃A ⊆ B.
+Example ch2_5: ∀ A B, (∀a ∈ A, a ⊆ B) → ⋃A ⊆ B.
 Proof.
   intros A B H x Hx.
   apply UnionAx in Hx. destruct Hx as [b [Hb Hx]].
   exact (H b Hb x Hx).
 Qed.
 
-Example ex_2_6_a: ∀ A, ⋃𝒫(A) = A.
+Example ch2_6_a: ∀ A, ⋃𝒫(A) = A.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H. destruct H as [y [H1 H2]].
@@ -54,13 +54,13 @@ Proof.
     apply PowerAx. apply sub_refl.
 Qed.
 
-Example ex_2_6_b: ∀ A, A ⊆ 𝒫(⋃A).
+Example ch2_6_b: ∀ A, A ⊆ 𝒫(⋃A).
 Proof.
   intros A x H. apply PowerAx.
-  apply ex2_3. apply H.
+  apply ch2_3. apply H.
 Qed.
 
-Example ex_2_7_a: ∀ A B, 𝒫(A) ∩ 𝒫(B) = 𝒫(A ∩ B).
+Example ch2_7_a: ∀ A B, 𝒫(A) ∩ 𝒫(B) = 𝒫(A ∩ B).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply PowerAx. unfold Sub. unfoldq. intros y Hy.
@@ -76,7 +76,7 @@ Proof.
       apply H in Hy. apply BInterE in Hy. tauto.
 Qed.
 
-Example ex_2_7_b: ∀A B, 𝒫(A) ∪ 𝒫(B) ⊆ 𝒫(A ∪ B).
+Example ch2_7_b: ∀A B, 𝒫(A) ∪ 𝒫(B) ⊆ 𝒫(A ∪ B).
 Proof.
   intros A B x H. apply BUnionE in H. destruct H.
   - apply PowerAx in H. apply PowerAx. unfold Sub. introq.
@@ -85,22 +85,21 @@ Proof.
     apply BUnionI2. apply H in H0. apply H0.
 Qed.
 
-Example ex_2_8: ¬∃A, ∀a, ⎨a⎬ ∈ A.
-  intros H. destruct H as [A H].
-  apply (well_founded_2 A ⎨A⎬).
+Example ch2_8: ¬∃A, ∀a, ⎨a⎬ ∈ A.
+  intros [A H]. apply (well_founded_2 A ⎨A⎬).
   - apply SingI.
   - apply H.
 Qed.
 
-Example ex_2_10: ∀ A, ∀a ∈ A, 𝒫 a ∈ 𝒫 𝒫 ⋃A.
+Example ch2_10: ∀ A, ∀a ∈ A, 𝒫 a ∈ 𝒫 𝒫 ⋃A.
 Proof.
-  intros A x H. pose proof (ex_2_6_b A).
+  intros A x H. pose proof (ch2_6_b A).
   apply H0 in H. apply PowerAx in H.
-  apply ex1_3 in H.
+  apply ch1_3 in H.
   apply PowerAx. apply H.
 Qed.
 
-Example ex_2_11_1: ∀ A B, A = (A ∩ B) ∪ (A - B).
+Example ch2_11_1: ∀ A B, A = (A ∩ B) ∪ (A - B).
 Proof.  
   intros. apply ExtAx. split; intros.
   - destruct (classic (x ∈ B)).
@@ -111,7 +110,7 @@ Proof.
     + apply CompE in H as [H _]. apply H.
 Qed.
 
-Example ex_2_11_2: ∀ A B, A ∪ (B - A) = A ∪ B.
+Example ch2_11_2: ∀ A B, A ∪ (B - A) = A ∪ B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BUnionE in H as [].
@@ -124,7 +123,7 @@ Proof.
       * apply BUnionI2. apply CompI; assumption.
 Qed.
 
-Example ex_2_13: ∀ A B C, A ⊆ B → C - B ⊆ C - A.
+Example ch2_13: ∀ A B C, A ⊆ B → C - B ⊆ C - A.
 Proof.
   intros. intros x Hcb. apply CompE in Hcb as [Hc Hb].
   apply CompI. apply Hc. intros Ha.
@@ -134,7 +133,7 @@ Qed.
 Definition SymDiff : set → set → set := λ A B, (A - B) ∪ (B - A).
 Notation "A + B" := (SymDiff A B).
 
-Example ex_2_15_a_0: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
+Example ch2_15_a_0: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BInterE in H as [H1 H2]. apply BUnionE in H2 as [].
@@ -155,14 +154,14 @@ Proof.
       intros H3. apply H2. apply BInterI; assumption.
 Qed.
 
-Example ex_2_15_a_1: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
+Example ch2_15_a_1: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
 Proof.
   intros. unfold SymDiff.
   rewrite binter_bunion_distr.
   do 2 rewrite binter_comp_distr. reflexivity.
 Qed.
 
-Example ex_2_15_b: ∀ A B C, A + (B + C) = (A + B) + C.
+Example ch2_15_b: ∀ A B C, A + (B + C) = (A + B) + C.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BUnionE in H as [].
@@ -207,7 +206,7 @@ Proof.
         apply CompI; assumption. apply H.
 Qed.
 
-Example ex_2_16: ∀ A B C, ((A∪B∪C)∩(A∪B)) - ((A∪(B-C))∩A) = B - A.
+Example ch2_16: ∀ A B C, ((A∪B∪C)∩(A∪B)) - ((A∪(B-C))∩A) = B - A.
 Proof.
   intros.
   rewrite (binter_comm (A∪B∪C) (A∪B)).
@@ -224,7 +223,7 @@ Proof.
   - intros x H. apply BUnionI1. apply H.
 Qed.
 
-Example ex_2_17_1_2: ∀ A B, A ⊆ B ↔ A - B = ∅.
+Example ch2_17_1_2: ∀ A B, A ⊆ B ↔ A - B = ∅.
 Proof.
   split; intros.
   - apply EmptyI. intros x Hx. apply CompE in Hx as [H1 H2].
@@ -234,14 +233,14 @@ Proof.
     exfalso. apply H. apply CompI; assumption.
 Qed.
 
-Example ex_2_17_1_3: ∀ A B, A ⊆ B ↔ A ∪ B = B.
+Example ch2_17_1_3: ∀ A B, A ⊆ B ↔ A ∪ B = B.
 Proof.
   split; intros.
   - apply bunion_parent. apply H.
   - rewrite <- H. intros x Hx. apply BUnionI1. apply Hx.
 Qed.
 
-Example ex_2_17_1_4: ∀ A B, A ⊆ B ↔ A ∩ B = A.
+Example ch2_17_1_4: ∀ A B, A ⊆ B ↔ A ∩ B = A.
 Proof.
   split; intros.
   - apply binter_parent. apply H.
@@ -249,7 +248,7 @@ Proof.
     apply BInterE in Hx as [_ Hx]. apply Hx.
 Qed.
 
-Example ex_2_19: ∀ A B, 𝒫(A - B) ≠ 𝒫 A - 𝒫 B.
+Example ch2_19: ∀ A B, 𝒫(A - B) ≠ 𝒫 A - 𝒫 B.
 Proof.
   intros. intros H.
   assert (∅ ∈ 𝒫 (A - B)) by apply empty_in_all_power.
@@ -257,7 +256,7 @@ Proof.
   rewrite H in H0. apply CompE in H0 as [_ H0]. auto.
 Qed.
 
-Example ex_2_20: ∀ A B C, A ∪ B = A ∪ C → A ∩ B = A ∩ C → B = C.
+Example ch2_20: ∀ A B C, A ∪ B = A ∪ C → A ∩ B = A ∩ C → B = C.
 Proof.
   intros. apply ExtAx. split; intros.
   - destruct (classic (x ∈ A)).
@@ -276,7 +275,7 @@ Proof.
       -- apply H3.
 Qed.
 
-Example ex_2_21: ∀ A B, ⋃(A ∪ B) = ⋃A ∪ ⋃B.
+Example ch2_21: ∀ A B, ⋃(A ∪ B) = ⋃A ∪ ⋃B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H as [y [H1 H2]]. apply BUnionE in H1 as [].
@@ -289,7 +288,7 @@ Proof.
       exists y. split. apply BUnionI2. apply H1. apply H2.
 Qed.
 
-Example ex_2_22: ∀ A B, ⦿ A → ⦿ B → ⋂(A ∪ B) = ⋂A ∩ ⋂B.
+Example ch2_22: ∀ A B, ⦿ A → ⦿ B → ⋂(A ∪ B) = ⋂A ∩ ⋂B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply InterE in H1 as [_ H1]. apply BInterI.
@@ -304,10 +303,10 @@ Proof.
       * apply InterE in H2 as [_ H2]. apply H2. apply H3.
 Qed.
 
-Example ex_2_23: ∀ A ℬ, ⦿ ℬ → A ∪ ⋂ℬ = ⋂{λ X, A ∪ X | X ∊ ℬ}.
+Example ch2_23: ∀ A ℬ, ⦿ ℬ → A ∪ ⋂ℬ = ⋂{λ X, A ∪ X | X ∊ ℬ}.
 Proof. exact bunion_inter_distr. Qed.
 
-Example ex_2_24_a: ∀ 𝒜, ⦿ 𝒜 → 𝒫(⋂𝒜) = ⋂{λ X, 𝒫 X | X ∊ 𝒜}.
+Example ch2_24_a: ∀ 𝒜, ⦿ 𝒜 → 𝒫(⋂𝒜) = ⋂{λ X, 𝒫 X | X ∊ 𝒜}.
 Proof.
   intros 𝒜 Hi. apply ExtAx. split; intros.
   - apply InterI.
@@ -324,7 +323,7 @@ Proof.
       apply H. apply ReplI. apply Hz.
 Qed.
 
-Example ex_2_24_b: ∀ 𝒜, ⋃{λ X, 𝒫 X | X ∊ 𝒜} ⊆ 𝒫(⋃𝒜).
+Example ch2_24_b: ∀ 𝒜, ⋃{λ X, 𝒫 X | X ∊ 𝒜} ⊆ 𝒫(⋃𝒜).
 Proof with unfoldq.
   unfold Sub... intros. 
   apply FUnionE in H as [A [HA Hp]].
@@ -333,7 +332,7 @@ Proof with unfoldq.
   split. apply HA. apply Hp. apply Hz.
 Qed.
 
-Example ex_2_25: ∀ A ℬ, ⦿ ℬ → A ∪ ⋃ℬ = ⋃{λ X, A ∪ X | X ∊ ℬ}.
+Example ch2_25: ∀ A ℬ, ⦿ ℬ → A ∪ ⋃ℬ = ⋃{λ X, A ∪ X | X ∊ ℬ}.
 Proof.
   intros A ℬ [B HB]. apply ExtAx. split; intros.
   - apply BUnionE in H as [].
@@ -347,7 +346,7 @@ Proof.
       exists X. split. apply HX. apply H.
 Qed.
 
-Example ex_2_32: ∀ a b, (a ∩ b) ∪ (b - a) = b.
+Example ch2_32: ∀ a b, (a ∩ b) ∪ (b - a) = b.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BUnionE in H as [].
@@ -358,7 +357,7 @@ Proof.
     + apply BUnionI2. apply CompI; assumption.
 Qed.
 
-Example ex_2_34: ∀ S, {∅, ⎨∅⎬} ∈ 𝒫 𝒫 𝒫 S.
+Example ch2_34: ∀ S, {∅, ⎨∅⎬} ∈ 𝒫 𝒫 𝒫 S.
 Proof.
   intros. pose proof (empty_sub_all S). apply PowerAx in H.
   assert (⎨∅⎬ ⊆ 𝒫 S). {
@@ -372,7 +371,7 @@ Proof.
   apply PowerAx in H2. apply H2.
 Qed.
 
-Example ex_2_35: ∀ A B, 𝒫 A = 𝒫 B → A = B.
+Example ch2_35: ∀ A B, 𝒫 A = 𝒫 B → A = B.
 Proof.
   intros. rewrite ExtAx in H. apply ExtAx. split; intros.
   - assert (⎨x⎬ ⊆ A). {
@@ -387,7 +386,7 @@ Proof.
     apply PowerAx in H1. apply H1. apply SingI.
 Qed.
 
-Example ex_2_36_a: ∀ A B, A - (A ∩ B) = A - B.
+Example ch2_36_a: ∀ A B, A - (A ∩ B) = A - B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2]. apply CompI. apply H1.
@@ -396,7 +395,7 @@ Proof.
     intros H3. apply BInterE in H3 as [_ H3]. auto.
 Qed.
 
-Example ex_2_36_b: ∀ A B, A - (A - B) = A ∩ B.
+Example ch2_36_b: ∀ A B, A - (A - B) = A ∩ B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2]. apply CompNE in H2 as [].
@@ -406,7 +405,7 @@ Proof.
     intros H3. apply CompE in H3 as [_ H3]. auto.
 Qed.
 
-Example ex_2_37_a: ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
+Example ch2_37_a: ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2]. apply BUnionE in H1 as [].
@@ -417,7 +416,7 @@ Proof.
     + apply CompI. apply BUnionI2. apply H1. apply H2.
 Qed.
 
-Example ex_2_37_b: ∀ A B C, A - (B - C) = (A - B) ∪ (A ∩ C).
+Example ch2_37_b: ∀ A B C, A - (B - C) = (A - B) ∪ (A ∩ C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2]. apply CompNE in H2 as [].
@@ -430,7 +429,7 @@ Proof.
       intros H3. apply CompE in H3 as [_ H3]. auto.
 Qed.
 
-Example ex_2_37_c: ∀ A B C, (A - B) - C = A - (B ∪ C).
+Example ch2_37_c: ∀ A B C, (A - B) - C = A - (B ∪ C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2]. apply CompE in H1 as [H0 H1].
@@ -442,7 +441,7 @@ Proof.
     * intros H3. apply H2. apply BUnionI2. apply H3.
 Qed.
 
-Example ex_2_38_a: ∀ A B C, A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C.
+Example ch2_38_a: ∀ A B C, A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C.
 Proof.
   unfold Sub. unfoldq. split.
   - intros [H1 H2] x Hx. apply BUnionE in Hx as [].
@@ -451,7 +450,7 @@ Proof.
     apply BUnionI1, H0. apply BUnionI2, H0.
 Qed.
 
-Example ex_2_38_b: ∀ A B C, C ⊆ A ∧ C ⊆ B ↔ C ⊆ A ∩ B.
+Example ch2_38_b: ∀ A B C, C ⊆ A ∧ C ⊆ B ↔ C ⊆ A ∩ B.
 Proof.
   unfold Sub. unfoldq. split; intros.
   - destruct H as [H1 H2]. apply BInterI.

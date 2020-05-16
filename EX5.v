@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory"  **)
+(** Based on "Elements of Set Theory" Chapter 2 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EX4.
