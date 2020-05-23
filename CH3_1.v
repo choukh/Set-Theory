@@ -1,7 +1,7 @@
 (** Solutions to "Elements of Set Theory" Chapter 3 Part 1 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.CH2.
+Require Export ZFC.EST3_3.
 
 Example ch3_2_a: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
 Proof.
@@ -281,7 +281,7 @@ Proof with eauto.
 Qed.
 
 Example ch3_17_b: ∀ F G,
-  injection F → injection G → injection (F ∘ G).
+  injective F → injective G → injective (F ∘ G).
 Proof with auto.
   intros * [Hff Hsf] [Hfg Hsg]. split.
   apply compo_func... apply ch3_17_a...
@@ -397,9 +397,9 @@ Proof with eauto.
 Qed.
 
 Example ch3_28: ∀ f A B G,
-  injection f → f: A ⇒ B →
+  injective f → f: A ⇒ B →
   is_function G → dom G = 𝒫 A → (∀x ∈ dom G, G[x] = f⟦x⟧) →
-  G: 𝒫 A ⇒ 𝒫 B ∧ injection G.
+  G: 𝒫 A ⇒ 𝒫 B ∧ injective G.
 Proof with eauto.
   intros * [Hff Hsf] [_ [Hdf Hrf]] Hfg Hdgeq Hapeq.
   split. split... split...
@@ -430,7 +430,7 @@ Qed.
 Example ch3_29: ∀ f A B G,
   f: A ⇒ B → G: B ⇒ 𝒫 A → 
   (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) →
-  ran f = B → injection G.
+  ran f = B → injective G.
 Proof with eauto.
   intros * [Hff [Hdf _]] [Hgf [Hdg _]] H Hrf. subst A B.
   split... intros y Hy. split. apply ranE in Hy... clear Hy.

@@ -1,9 +1,9 @@
 (** Based on "Elements of Set Theory" Chapter 3 Part 1 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.EST2.
+Require Export ZFC.CH2.
 
-(*** TG集合论扩展6：关系，函数(标准编码)，逆，复合 ***)
+(*** EST第三章1：关系，函数(标准编码)，逆，复合 ***)
 
 (** 二元关系 **)
 Definition Relation : set → set → (set → set → Prop) → set :=
@@ -238,7 +238,7 @@ Proof.
 Qed.
 
 (* 一一对应是单源单值关系 *)
-Definition injection : set → Prop :=
+Definition injective : set → Prop :=
   λ R, is_function R ∧ single_rooted R.
 
 (** 逆 **)
@@ -334,23 +334,23 @@ Proof.
 Qed.
 
 Theorem inv_dom_reduction : ∀ F,
-  injection F → ∀x ∈ dom F, F⁻¹[F[x]] = x.
+  injective F → ∀x ∈ dom F, F⁻¹[F[x]] = x.
 Proof.
-  unfold injection. intros F [Hf Hs] x Hx.
+  unfold injective. intros F [Hf Hs] x Hx.
   apply funcDomE2 in Hx; [|apply Hf]. apply apI.
   - apply inv_func_iff_sr. apply Hs.
   - rewrite inv_op in Hx. apply Hx.
 Qed.
 
 Theorem inv_ran_reduction : ∀ F,
-  injection F → ∀y ∈ ran F, F[F⁻¹[y]] = y.
+  injective F → ∀y ∈ ran F, F[F⁻¹[y]] = y.
 Proof.
-  unfold injection. intros F [Hf Hs] y Hy.
+  unfold injective. intros F [Hf Hs] y Hy.
   assert (Hr := Hf). destruct Hr as [Hr _].
-  rewrite <- inv_dom in Hy. cut (injection F⁻¹). intros Hinj.
+  rewrite <- inv_dom in Hy. cut (injective F⁻¹). intros Hinj.
   pose proof (inv_dom_reduction F⁻¹ Hinj y Hy).
   rewrite inv_inv_ident in H. apply H. apply Hr.
-  unfold injection. split. 
+  unfold injective. split. 
   - apply inv_func_iff_sr. apply Hs.
   - apply inv_sr_iff_func. apply Hr. apply Hf.
 Qed.
@@ -430,7 +430,7 @@ Proof.
 Qed.
 
 Example compo_inv_dom : ∀ G,
-  injection G → dom (G⁻¹ ∘ G) = dom G.
+  injective G → dom (G⁻¹ ∘ G) = dom G.
 Proof.
   intros G [Hg Hs].
   rewrite compo_dom.
@@ -443,7 +443,7 @@ Proof.
 Qed.
 
 Example compo_inv_dom_eq : ∀ G,
-  injection G → ∀x ∈ dom (G⁻¹ ∘ G), (G⁻¹ ∘ G)[x] = x.
+  injective G → ∀x ∈ dom (G⁻¹ ∘ G), (G⁻¹ ∘ G)[x] = x.
 Proof.
   intros G Hinj x Hx. rewrite compo_correct.
   - rewrite inv_dom_reduction. reflexivity. apply Hinj.
@@ -454,7 +454,7 @@ Proof.
 Qed.
 
 Example compo_inv_dom_ident : ∀ G,
-  injection G → (G⁻¹ ∘ G) = Ident (dom G).
+  injective G → (G⁻¹ ∘ G) = Ident (dom G).
 Proof with auto.
   intros G Hi. assert (Hi' := Hi).
   destruct Hi' as [Hf Hs]. apply func_ext.

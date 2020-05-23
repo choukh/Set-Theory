@@ -3,7 +3,7 @@
 
 Require Export ZFC.TG_full.
 
-(*** TG集合论扩展5：补集，集合代数定律 ***)
+(*** EST第二章：补集，集合代数定律 ***)
 
 (** 补集 **)
 Definition Comp : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.

@@ -203,7 +203,7 @@ Qed.
 (** 任意交 **)
 Definition Inter : set -> set :=
   λ Y, {x ∊ ⋃Y | (λ x, ∀y ∈ Y, x ∈ y)}.
-Notation "⋂ X" := (Inter X) (at level 9).
+Notation "⋂ X" := (Inter X) (at level 9, right associativity).
 
 Lemma InterI : ∀ x Y, ⦿ Y → (∀y ∈ Y, x ∈ y) → x ∈ ⋂Y.
 Proof.

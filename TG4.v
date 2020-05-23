@@ -22,7 +22,7 @@ Definition ordO : set := Empty.
 Definition ordS : set → set := λ N, N ∪ ⎨N⎬.
 
 (* 有限序数集 *)
-Definition ω := {N ∊ 𝒰(∅) | λ N, ∃ n, iter n ordS ordO = N}.
+Definition FinOrd := {N ∊ 𝒰(∅) | λ N, ∃ n, iter n ordS ordO = N}.
 
 (* 后继运算在宇宙中封闭 *)
 Lemma GUordS : ∀ N, ∀X ∈ 𝒰(N), ordS X ∈ 𝒰(N).
@@ -32,14 +32,14 @@ Proof.
 Qed.
 
 (* 序数0属于有限序数集 *)
-Lemma ordO_T : ordO ∈ ω.
+Lemma ordO_T : ordO ∈ FinOrd.
 Proof.
-  unfold ω. apply SepI. apply GUIn.
+  unfold FinOrd. apply SepI. apply GUIn.
   exists 0. simpl. reflexivity.
 Qed.
 
 (* 后继序数属于有限序数集 *)
-Lemma ordS_T : ∀N ∈ ω, ordS N ∈ ω.
+Lemma ordS_T : ∀N ∈ FinOrd, ordS N ∈ FinOrd.
 Proof.
   introq. apply SepE in H. destruct H as [H1 [n H2]].
   apply SepI. apply GUordS. apply H1.
@@ -47,11 +47,11 @@ Proof.
 Qed.
 
 (* 有限序数集属于𝒰(∅)宇宙 *)
-Lemma ω_T : ω ∈ 𝒰(𝒰(∅)).
+Lemma FinOrd_T : FinOrd ∈ 𝒰(𝒰(∅)).
 Proof. apply GUSep. apply GUIn. Qed.
 
 (* 后继运算迭代有限次得到的序数属于有限序数集 *)
-Lemma iter_ord_T : ∀ n, iter n ordS ordO ∈ ω.
+Lemma iter_ord_T : ∀ n, iter n ordS ordO ∈ FinOrd.
 Proof.
   induction n.
   - simpl. apply ordO_T.
@@ -132,7 +132,7 @@ Qed.
 Lemma iter_eq_embed : ∀ n : nat, iter n ordS ordO = embed n.
 Proof. intros. unfold embed. reflexivity. Qed.
 
-Lemma proj_embed_id : ∀N ∈ ω, embed (proj N) = N.
+Lemma proj_embed_id : ∀N ∈ FinOrd, embed (proj N) = N.
 Proof.
   introq. apply SepE in H. destruct H as [_ [k Heq]].
   subst. rewrite iter_eq_embed.
@@ -157,7 +157,7 @@ Proof.
   rewrite iter_eq_embed. rewrite <- H. reflexivity.
 Qed.
 
-Lemma proj_S : ∀N ∈ ω,
+Lemma proj_S : ∀N ∈ FinOrd,
   proj (ordS N) = S (proj N).
 Proof.
   introq. apply SepE in H. destruct H as [_ [k Heq]].
@@ -168,7 +168,7 @@ Proof.
 Qed.
 
 (* 有限序数构建的正确性 *)
-Theorem ωE : ∀N ∈ ω, N = ordO ∨ ∃M ∈ ω, N = ordS M.
+Theorem FinOrdE : ∀N ∈ FinOrd, N = ordO ∨ ∃M ∈ FinOrd, N = ordS M.
 Proof.
   unfoldq. intros N H.
   apply SepE in H. destruct H as [_ [n Heq]].
@@ -179,19 +179,19 @@ Proof.
     + subst. simpl. reflexivity.
 Qed.
 
-Lemma ordO_0_id : ∀N ∈ ω, 0 = proj N → N = ordO.
+Lemma ordO_0_id : ∀N ∈ FinOrd, 0 = proj N → N = ordO.
 Proof.
   intros N HN Hp.
-  apply ωE in HN. destruct HN as [H|[M [HM H]]].
+  apply FinOrdE in HN. destruct HN as [H|[M [HM H]]].
   - apply H.
   - subst. rewrite (proj_S M HM) in Hp. discriminate.
 Qed.
 
-Lemma proj_S_ordS : ∀ m, ∀N ∈ ω,
-  proj N = S m → ∃M ∈ ω, N = ordS M.
+Lemma proj_S_ordS : ∀ m, ∀N ∈ FinOrd,
+  proj N = S m → ∃M ∈ FinOrd, N = ordS M.
 Proof.
   unfoldq. intros m N HN Hp.
-  apply ωE in HN. destruct HN as [H|[M [HM H]]].
+  apply FinOrdE in HN. destruct HN as [H|[M [HM H]]].
   - subst. rewrite proj_O in Hp. discriminate.
   - exists M. auto.
 Qed.
@@ -208,7 +208,7 @@ Check nat_rect.
 *)
 
 (* 有限序数上的递归原理 *)
-Definition ω_rect : set → set → set → set := λ z f N,
+Definition FinOrd_rect : set → set → set → set := λ z f N,
   nat_rect
     (λ _, set)
     z
@@ -217,35 +217,35 @@ Definition ω_rect : set → set → set → set := λ z f N,
     (proj N).
 
 (* 递归零次等于初始值 *)
-Lemma ω_rect_O : ∀ z f, ω_rect z f ordO = z.
+Lemma FinOrd_rect_O : ∀ z f, FinOrd_rect z f ordO = z.
 Proof.
-  intros. unfold ω_rect. rewrite proj_O.
+  intros. unfold FinOrd_rect. rewrite proj_O.
   simpl. reflexivity.
 Qed.
 
 (* 递归步进表达式 *)
-Lemma ω_rect_S : ∀ z f, ∀N ∈ ω,
-  ω_rect z f (ordS N) = f[N]ₐ[ω_rect z f N]ₐ.
+Lemma FinOrd_rect_S : ∀ z f, ∀N ∈ FinOrd,
+  FinOrd_rect z f (ordS N) = f[N]ₐ[FinOrd_rect z f N]ₐ.
 Proof.
-  introq. unfold ω_rect at 1.
+  introq. unfold FinOrd_rect at 1.
   rewrite (proj_S x H). simpl.
   rewrite (proj_embed_id x H). reflexivity.
 Qed.
 
 (* 递归构建的正确性 *)
-Theorem ω_rect_T : ∀ F : set → set, ∀ z f N : set,
+Theorem FinOrd_rect_T : ∀ F : set → set, ∀ z f N : set,
   z ∈ F ordO →
-  N ∈ ω →
-  f ∈ Πₐ ω (λ N, (F N) ⟶ₐ (F (ordS N))) →
-  ω_rect z f N ∈ F N.
+  N ∈ FinOrd →
+  f ∈ Πₐ FinOrd (λ N, (F N) ⟶ₐ (F (ordS N))) →
+  FinOrd_rect z f N ∈ F N.
 Proof.
-  intros F z f N Hz HN Hf. unfold ω_rect.
+  intros F z f N Hz HN Hf. unfold FinOrd_rect.
   rewrite <- (proj_embed_id N HN) at 2.
   generalize (proj N) as k. clear HN.
   induction k.
   - unfold embed. simpl. apply Hz.
   - simpl. eapply arrowₐ_correct.
-    + assert (Hk: embed k ∈ ω) by apply iter_ord_T.
+    + assert (Hk: embed k ∈ FinOrd) by apply iter_ord_T.
       apply (Πₐ_only_Λₐ _ _ (embed k) Hk) in Hf. apply Hf.
     + apply IHk.
 Qed.

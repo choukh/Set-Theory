@@ -309,37 +309,21 @@ Qed.
 Lemma ReplE : ∀ X F, ∀y ∈ {F | x ∊ X}, ∃x ∈ X, F x = y.
 Proof. introq. apply ReplAx. apply H. Qed.
 
-(* 函数在集合上封闭 *)
-Definition close : (set → set) → set → Prop := λ F X,
-  ∀x ∈ X, F x ∈ X. 
-
-(* 单射 *)
-Definition injective : (set → set) → set → Prop := λ F X,
-  ∀ a b ∈ X, F a = F b → a = b.
-
-(* 满射 *)
-Definition surjective : (set → set) → set → set → Prop := λ F X Y,
-  ∀y ∈ Y, ∃x ∈ X, F x = y.
-
-(** 集合的无穷性 **)
-Definition infinite : set → Prop := λ X,
-  ∃ F, close F X ∧ injective F X ∧ ¬ surjective F X X.
-
 (** 集合的传递性 **)
-Definition tran : set → Prop :=
+Definition trans : set → Prop :=
   λ X, ∀ a A, a ∈ A → A ∈ X → a ∈ X.
 
 (* 传递集的成员都是该传递集的子集 *)
-Example tran_ex_1 : ∀ x X, tran X → x ∈ X → x ⊆ X.
+Example trans_ex_1 : ∀ x X, trans X → x ∈ X → x ⊆ X.
 Proof.
-  unfold tran, Sub. introq.
+  unfold trans, Sub. introq.
   eapply H. apply H1. apply H0.
 Qed.
 
 (* 传递集的并集也是该传递集的成员 *)
-Example tran_ex_2 : ∀ X, tran X → ⋃X ⊆ X.
+Example trans_ex_2 : ∀ X, trans X → ⋃X ⊆ X.
 Proof.
-  unfold tran, Sub. introq.
+  unfold trans, Sub. introq.
   apply UnionAx in H0.
   destruct H0 as [A [H1 H2]].
   eapply H. apply H2. apply H1.
@@ -351,7 +335,7 @@ Notation "'𝒰' N" := (GU N) (at level 9).
 Axiom GUIn : ∀ N, N ∈ 𝒰(N).
 
 (* 传递性 *)
-Axiom GUTrans : ∀ N, tran 𝒰(N).
+Axiom GUTrans : ∀ N, trans 𝒰(N).
 
 (* 封闭性 *)
 Axiom GUPair : ∀ N X Y, X ∈ 𝒰(N) → Y ∈ 𝒰(N) → {X, Y} ∈ 𝒰(N).
@@ -368,6 +352,24 @@ Axiom GUMin : ∀ N U, N ∈ U
   → (∀X ∈ U, ⋃X ∈ U)
   → (∀ X F, X ∈ U → (∀x ∈ X, F x ∈ U) → {F | x ∊ X} ∈ U)
   → 𝒰(N) ⊆ U.
+
+Module gu_infinite.
+
+(* 集合对函数封闭 *)
+Definition close : (set → set) → set → Prop := λ F X,
+  ∀x ∈ X, F x ∈ X. 
+
+(* 单射 *)
+Definition injective : (set → set) → set → Prop := λ F X,
+  ∀ a b ∈ X, F a = F b → a = b.
+
+(* 满射 *)
+Definition surjective : (set → set) → set → set → Prop := λ F X Y,
+  ∀y ∈ Y, ∃x ∈ X, F x = y.
+
+(** 集合的无穷性 **)
+Definition infinite : set → Prop := λ X,
+  ∃ F, close F X ∧ injective F X ∧ ¬ surjective F X X.
 
 (* 推论: 𝒰(∅)是无穷集 *)
 Theorem gu_infinite : infinite 𝒰(∅).
@@ -392,3 +394,5 @@ Proof with unfoldq.
     specialize H0 with x.
     apply H0 in H1. auto.
 Qed.
+
+End gu_infinite.

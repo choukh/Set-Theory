@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST3_1.
 
-(*** TG集合论扩展7：函数的左右逆，限制，像，函数空间，无限笛卡尔积 ***)
+(*** EST第三章2：函数的左右逆，限制，像，函数空间，无限笛卡尔积 ***)
 
 (* 射进 *)
 Definition maps_into : set → set → set → Prop :=
@@ -46,7 +46,7 @@ Qed.
 (** 函数的左逆 **)
 Theorem left_inv : ∀ F A B,
   F: A ⇒ B → ⦿ A →
-  (∃ G, G: B ⇒ A ∧ G ∘ F = Ident A) ↔ injection F.
+  (∃ G, G: B ⇒ A ∧ G ∘ F = Ident A) ↔ injective F.
 Proof with eauto.
   intros F A B [Hf [Hdf Hrf]] [a Ha]. split.
   (* -> *)
