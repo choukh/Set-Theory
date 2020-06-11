@@ -300,7 +300,17 @@ Proof with auto.
   - destruct (classic (n = 0))... subst. exfalso0.
 Qed.
 
-Lemma ineq_leq_add : ∀ a b ∈ ω, a ≤ a + b.
+Lemma ineq_leq_iff_neg_lt : ∀ a b ∈ ω, a ≤ b ↔ b ∉ a.
+Proof with eauto.
+  intros a Ha b Hb. split; intros.
+  - intros Hc. destruct H.
+    apply (nat_reg a)... eapply nat_trans...
+    apply (nat_reg a)... subst...
+  - destruct (classic (a = b)). right... left.
+    apply ω_connected in H0 as []... exfalso...
+Qed.
+
+Lemma ineq_leq_add_enlarge : ∀ a b ∈ ω, a ≤ a + b.
 Proof with eauto.
   intros a Ha b Hb. generalize dependent a.
   set {b ∊ ω | λ b, ∀ a, a ∈ ω → a ≤ a + b} as N.
@@ -312,17 +322,7 @@ Proof with eauto.
     rewrite <- H...
 Qed.
 
-Lemma ineq_leq_iff_neg_lt : ∀ a b ∈ ω, a ≤ b ↔ b ∉ a.
-Proof with eauto.
-  intros a Ha b Hb. split; intros.
-  - intros Hc. destruct H.
-    apply (nat_reg a)... eapply nat_trans...
-    apply (nat_reg a)... subst...
-  - destruct (classic (a = b)). right... left.
-    apply ω_connected in H0 as []... exfalso...
-Qed.
-
-Lemma ineq_add_enlarge : ∀ a b ∈ ω, ∀ x ∈ a, x ∈ a + b.
+Lemma ineq_lt_add_enlarge : ∀ a b ∈ ω, ∀ x ∈ a, x ∈ a + b.
 Proof with eauto.
   intros a Ha b Hb. generalize dependent a.
   set {b ∊ ω | λ b, ∀ a, a ∈ ω → ∀ x ∈ a, x ∈ a + b} as N.
@@ -333,7 +333,7 @@ Proof with eauto.
     apply add_ran... left. apply IH...
 Qed.
 
-Lemma ineq_add_shrink : ∀ a b c ∈ ω, a + b ∈ c → a ∈ c.
+Lemma ineq_lt_add_shrink : ∀ a b c ∈ ω, a + b ∈ c → a ∈ c.
 Proof with eauto.
   intros a Ha b Hb.
   set {b ∊ ω | λ b, ∀ c ∈ ω, a + b ∈ c → a ∈ c} as N.
@@ -343,11 +343,12 @@ Proof with eauto.
     eapply nat_trans; revgoals...
 Qed.
 
-Lemma ineq_mult_neg_lq : ∀ a b ∈ ω, a ⋅ b⁺ ∉ a.
+Lemma ineq_leq_mult_enlarge : ∀ a b ∈ ω, a ≤ a ⋅ b⁺.
 Proof with eauto.
-  intros a Ha b Hb Hc.
+  intros a Ha b Hb. apply ineq_leq_iff_neg_lt...
+  apply mult_ran... apply ω_inductive... intros Hc.
   rewrite mult_m_n in Hc...
-  apply ineq_add_shrink in Hc; try apply mult_ran...
+  apply ineq_lt_add_shrink in Hc; try apply mult_ran...
   eapply nat_reg; revgoals...
 Qed.
 
