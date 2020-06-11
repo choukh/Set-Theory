@@ -47,7 +47,7 @@ Theorem equiv_fld : ∀ R, is_relation R →
   symm R → tranr R → equiv R (fld R).
 Proof with eauto.
   intros R Hr Hs Ht. repeat split...
-  - intros x Hx. apply relE in Hx as Hxp... rewrite Hxp in *.
+  - intros x Hx. apply rel_pair in Hx as Hxp... rewrite Hxp in *.
     apply CProdI. apply BUnionI1. eapply domI...
     apply BUnionI2. eapply ranI...
   - intros x Hx. apply BUnionE in Hx as [].
@@ -82,19 +82,18 @@ Proof with eauto.
 Qed.
 
 Definition disjoint : set → set → Prop := λ X Y,
-  X ≠ Y → X ∩ Y = ∅.
+  X ≠ Y ∧ X ∩ Y = ∅.
 
-Lemma disjointE: ∀ A B x, disjoint A B → x ∈ A → x ∈ B → A = B.
+Lemma disjointE: ∀ A B x, disjoint A B → x ∈ A → x ∈ B → ⊥.
 Proof with eauto.
-  intros * Hdj Ha Hb. destruct (classic (A = B))...
-  exfalso. apply Hdj in H. eapply EmptyE in H.
-  apply H. apply BInterI...
+  intros * [_ H] Ha Hb.
+  eapply EmptyE in H. apply H. apply BInterI...
 Qed.
 
 (* 划分 *)
 Definition partition : set → set → Prop := λ Π A,
   (* 子集 *) (∀B ∈ Π, ⦿ B ∧ B ⊆ A) ∧ 
-  (* 不交 *) (∀ X Y ∈ Π, disjoint X Y) ∧
+  (* 不交 *) (∀ X Y ∈ Π, X ≠ Y → disjoint X Y) ∧
   (* 穷尽 *) ∀x ∈ A, ∃X ∈ Π, x ∈ X.
 
 (* 商集：等价类的集合 *)
@@ -121,7 +120,7 @@ Proof with eauto.
     + intros x Hx. apply quotE in HB as [a [Ha Heq]].
       subst B. apply eqvcE in Hx. apply Hr in Hx.
       apply CProdE1 in Hx as [_ Hx]. rewrite π2_correct in Hx... 
-  - intros X HX Y HY Hnq. apply EmptyI.
+  - intros X HX Y HY Hnq. split... apply EmptyI.
     intros t Ht. apply Hnq. apply BInterE in Ht as [H1 H2].
     apply ReplE in HX as [x [Hx Hxeq]].
     apply ReplE in HY as [y [Hy Hyeq]]. subst X Y.
@@ -155,7 +154,7 @@ Proof with eauto.
       apply op_correct in Heq2 as [Heq2 Hy2].
       subst x y1 y2. rewrite <- Heq2 in Heq1. clear Heq2.
       eapply eqvc_ident in Heq1... apply Hc in Heq1...
-      subst A. apply funcDomE2 in Ha1... apply funcDomE2 in Ha2...
+      subst A. apply func_correct in Ha1... apply func_correct in Ha2...
       eapply eqvc_ident; eauto + apply Hrf; eapply ranI...
   }
   assert (Hdf': dom F' = A/R). {
@@ -169,18 +168,18 @@ Proof with eauto.
     intros y Hy. apply ranE in Hy as [].
     apply ReplE in H as [a [Ha Heq]].
     apply op_correct in Heq as [_ Hy]. subst A y.
-    apply funcDomE2 in Ha as Hp... apply ranI in Hp as Hr.
+    apply func_correct in Ha as Hp... apply ranI in Hp as Hr.
     apply Hrf in Hr. apply quotI...
   }
   exists F'. split. split... intros a Ha.
   (* F'[[x]R] = [F[x]]R *)
   assert (Hd: [a]R ∈ A/R) by (apply quotI; auto).
-  rewrite <- Hdf' in Hd. apply funcDomE2 in Hd...
+  rewrite <- Hdf' in Hd. apply func_correct in Hd...
   apply ReplE in Hd as [b [Hb Heq]].
   apply op_correct in Heq as [H1 H2].
   eapply eqvc_ident in H1... apply Hc in H1... subst A.
-  apply funcDomE2 in Ha as Har... apply ranI in Har.
-  apply funcDomE2 in Hb as Hbr... apply ranI in Hbr.
+  apply func_correct in Ha as Har... apply ranI in Har.
+  apply func_correct in Hb as Hbr... apply ranI in Hbr.
   apply Hrf in Har. apply Hrf in Hbr.
   apply (eqvc_ident R (dom F)) in H1... congruence.
 Qed.
@@ -201,14 +200,14 @@ Theorem compatibleI : ∀ R A F, equiv R A → F: A ⇒ A →
 Proof with eauto.
   intros * Hqv [HF [Hd Hr]] [F' [[HF' [Hd' Hr']] H]].
   intros a Ha b Hb Hp. subst A.
-  apply funcDomE2 in Ha as Hp1... apply ranI in Hp1.
-  apply funcDomE2 in Hb as Hp2... apply ranI in Hp2.
+  apply func_correct in Ha as Hp1... apply ranI in Hp1.
+  apply func_correct in Hb as Hp2... apply ranI in Hp2.
   apply Hr in Hp1. apply Hr in Hp2.
   apply (eqvc_ident R (dom F)) in Hp...
   assert (Ha': [a]R ∈ dom F') by (rewrite Hd'; apply quotI; auto).
-  apply funcDomE2 in Ha'... assert (Hb' := Ha').
+  apply func_correct in Ha'... assert (Hb' := Ha').
   rewrite Hp in Hb' at 2.
-  assert (F'[[a]R] = F'[[b]R]) by (eapply funcE2; eauto).
+  assert (F'[[a]R] = F'[[b]R]) by (eapply func_sv; eauto).
   apply H in Ha. apply H in Hb.
   eapply eqvc_ident... congruence.
 Qed.

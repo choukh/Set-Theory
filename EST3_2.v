@@ -38,7 +38,7 @@ Proof with eauto.
   - intros y y' Hy Hy'.
     apply BUnionE in Hy as []; apply BUnionE in Hy' as [];
       apply domE in H as [y0 H]; apply BUnionE in H as [];
-      apply domI in H; (apply funcDomE1 in H as [_ Hu]; auto)
+      apply domI in H; (apply func_dom_sv in H as [_ Hu]; auto)
       + exfalso; apply domI in H0; apply domI in H1;
         eapply EmptyE in Hi; apply Hi; apply BInterI...
 Qed.
@@ -55,11 +55,11 @@ Proof with eauto.
   assert (Hd: ∀u ∈ dom F, u ∈ dom (G ∘ F)). {
     intros u Hu. rewrite compo_dom... apply SepI.
     apply Hu. rewrite Hdg. apply Hrf.
-    apply funcDomE2 in Hu... eapply ranI...
+    apply func_correct in Hu... eapply ranI...
   }
   apply domI in Hx as Hdx. apply domI in Hx' as Hdx'.
   apply Hd in Hdx as Hdcx. apply Hd in Hdx' as Hdcx'.
-  apply apI in Hx... apply apI in Hx'...
+  apply func_ap in Hx... apply func_ap in Hx'...
   assert (G[t] = G[t]) by reflexivity.
   rewrite <- Hx in H at 1. rewrite <- Hx' in H.
   do 2 rewrite <- compo_correct in H...
@@ -90,7 +90,7 @@ Proof with eauto.
     (* dom G ⊇ B *)
     + destruct (classic (x ∈ ran F)); eapply domI.
       * apply BUnionI1. rewrite <- inv_dom in H0.
-        apply funcDomE2 in H0... apply inv_func_iff_sr...
+        apply func_correct in H0... apply inv_func_iff_sr...
       * apply BUnionI2. apply CProdI. apply CompI... apply SingI.
     (* ran G ⊆ A *)
     + intros x Hx. apply ranE in Hx as [y Hp].
@@ -220,7 +220,7 @@ Proof with eauto.
     apply H2 in Hp1. rewrite <- inv_op in Hp1.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
     apply op_η in Hp. rewrite Hp at 3. apply op_correct. split...
-    clear H1. eapply funcE2...
+    clear H1. eapply func_sv...
   - apply ReplE in Hy as [a [Hp Heq]].
     subst y. subst B. rewrite <- inv_dom in Hp. rewrite <- H3 in Hp. 
     apply domE in Hp as [b Hpg]. assert (Hpf := Hpg).
@@ -295,7 +295,7 @@ Lemma img_correct : ∀ F A,
 Proof with eauto.
   intros F A Hf Hsub. apply ExtAx. intros y. split; intros Hy.
   - apply ReplAx. apply imgE in Hy as [x [Hx Hp]].
-    exists x. split... apply Hsub in Hx. apply apI...
+    exists x. split... apply Hsub in Hx. apply func_ap...
   - apply ReplE in Hy as [x [Hx Heq]]. apply Hsub in Hx as Hx'.
     pose proof (ap_exists F Hf x Hx') as [t [_ [Hxy Ht]]].
     subst t. rewrite Heq in Hxy. eapply imgI...
@@ -414,16 +414,16 @@ Proof with eauto.
   intros. split.
   - intros HF. apply SepE2 in HF as [Hf [Heq Hsub]].
     split... split... intros x Hx.
-    apply Hsub. eapply ranI. apply funcDomE2... subst...
+    apply Hsub. eapply ranI. apply func_correct... subst...
   - intros [Hf [Hd Hap]]. subst A. apply SepI.
     + apply PowerAx. intros p Hp.
-      assert (Hp' := Hp). apply funcE1 in Hp'...
+      assert (Hp' := Hp). apply func_pair in Hp'...
       rewrite Hp'. rewrite Hp' in Hp.
       apply CProdI. eapply domI... apply domI in Hp as Hd.
-      apply apI in Hp... rewrite <- Hp. apply Hap...
+      apply func_ap in Hp... rewrite <- Hp. apply Hap...
     + split... split... intros y Hy.
       apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
-      apply apI in Hp... subst y. apply Hap...
+      apply func_ap in Hp... subst y. apply Hap...
 Qed.
 
 (** 无限笛卡尔积 
@@ -450,7 +450,7 @@ Proof with eauto.
   - apply SepI. subst A... clear Heq.
     intros j Hj. apply H in Hj as Heq. rewrite Heq. clear Heq.
     apply SepE in Hf as [_ [Hf [Hd Hr]]]. apply Hr.
-    eapply ranI. apply funcDomE2... subst I...
+    eapply ranI. apply func_correct... subst I...
 Qed.
 
 (* 选择公理等效表述2：非空集合的笛卡尔积非空 *)
@@ -478,7 +478,7 @@ Proof with eauto.
     }
     exists F. apply SepI.
     + apply SepI. rewrite PowerAx. intros x Hp.
-      apply funcE1 in Hp as Hxeq... rewrite Hxeq in *.
+      apply func_pair in Hp as Hxeq... rewrite Hxeq in *.
       apply domI in Hp as Hd. rewrite Hdeq2 in Hd.
       apply Hsub in Hp. apply SepE in Hp as [_ Hp].
       rewrite π1_correct, π2_correct in Hp.
@@ -487,7 +487,7 @@ Proof with eauto.
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as [_ Hy]. rewrite π2_correct in Hy...
     + intros i Hi. rewrite <- Hdeq2 in Hi.
-      apply funcDomE2 in Hi... apply Hsub in Hi.
+      apply func_correct in Hi... apply Hsub in Hi.
       apply SepE in Hi as [_ Hy].
       rewrite π1_correct, π2_correct in Hy...
   - intros AC2 R Hr.
@@ -514,7 +514,7 @@ Proof with eauto.
     }
     assert (Hℱeq: ∀i ∈ I, X[i] = ℱ i). {
       intros i Hi. rewrite <- HXd in Hi.
-      apply funcDomE2 in Hi... apply SepE in Hi as [_ Heq].
+      apply func_correct in Hi... apply SepE in Hi as [_ Heq].
       rewrite π1_correct, π2_correct in Heq...
     }
     assert (HXP: ∀i ∈ I, ∀y ∈ X[i], <i, y> ∈ R). {
@@ -530,8 +530,8 @@ Proof with eauto.
     apply SepE in HF as [HF HP].
     apply Arrow_correct in HF as [Hf [Hdeq _]].
     exists F. split... split...
-    intros x Hx. apply funcE1 in Hx as Hxeq...
+    intros x Hx. apply func_pair in Hx as Hxeq...
     rewrite Hxeq in *. apply domI in Hx as Hd.
     rewrite Hdeq in Hd. apply HP in Hd as H.
-    apply HXP in H... apply apI in Hx... rewrite Hx in H...
+    apply HXP in H... apply func_ap in Hx... rewrite Hx in H...
 Qed.

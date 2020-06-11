@@ -39,7 +39,7 @@ Qed.
 
 Definition is_relation : set → Prop := λ X, ∀x ∈ X, is_pair x.
 
-Lemma relE : ∀ R, is_relation R → ∀p ∈ R, p = < π1 p, π2 p >.
+Lemma rel_pair : ∀ R, is_relation R → ∀p ∈ R, p = < π1 p, π2 p >.
 Proof.
   intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
 Qed.
@@ -108,19 +108,19 @@ Proof.
     subst. reflexivity.
 Qed.
 
-Lemma funcE1 : ∀ F, is_function F → ∀p ∈ F, p = < π1 p, π2 p >.
+Lemma func_pair : ∀ F, is_function F → ∀p ∈ F, p = < π1 p, π2 p >.
 Proof.
-  intros F Hf p Hp. destruct Hf as [Hr _]. exact (relE F Hr p Hp).
+  intros F Hf p Hp. destruct Hf as [Hr _]. exact (rel_pair F Hr p Hp).
 Qed.
 
-Lemma funcE2 : ∀ F a b c, is_function F →
+Lemma func_sv : ∀ F a b c, is_function F →
   <a, b> ∈ F → <a, c> ∈ F → b = c.
 Proof.
   intros * Hf Hb Hc. destruct Hf as [_ H].
   apply domI in Hb as Hd. apply H in Hd as [_ Hu]. apply Hu; auto.
 Qed.
 
-Lemma funcDomE1 : ∀ F x, is_function F → x ∈ dom F → ∃! y, <x, y> ∈ F.
+Lemma func_dom_sv : ∀ F x, is_function F → x ∈ dom F → ∃! y, <x, y> ∈ F.
 Proof.
   intros F x Hf Hx. destruct Hf as [_ Hu].
   exact (Hu x Hx).
@@ -139,7 +139,7 @@ Lemma pre_ap_single : ∀ F,
   is_function F → ∀x ∈ dom F, ∃! p, p ∈ pre_ap F x.
 Proof.
   intros F Hf x Hx.
-  apply funcDomE1 in Hx as [[y H] Hexu]; [|apply Hf]. split.
+  apply func_dom_sv in Hx as [[y H] Hexu]; [|apply Hf]. split.
   - exists <x, y>. apply SepI. apply H. split.
     + exists x, y. reflexivity.
     + rewrite π1_correct. reflexivity.
@@ -183,25 +183,25 @@ Proof.
     rewrite π2_correct. reflexivity.
 Qed.
 
-Lemma apI : ∀ F,
+Lemma func_ap : ∀ F,
   is_function F → ∀ x y, <x, y> ∈ F → F[x] = y.
 Proof.
   intros F Hf x y Hp. apply domI in Hp as Hd.
   pose proof (ap_exists F Hf x Hd) as [y' [_ [Hp' Heq]]].
-  subst y'. eapply funcE2; eauto.
+  subst y'. eapply func_sv; eauto.
 Qed.
 
 Lemma ident_correct : ∀ X, ∀x ∈ X, (Ident X)[x] = x.
 Proof.
-  intros X x Hx. apply apI.
+  intros X x Hx. apply func_ap.
   - apply ident_is_func.
   - apply ReplAx. exists x. split. apply Hx. reflexivity.
 Qed.
 
-Lemma funcDomE2 : ∀ F x, is_function F → x ∈ dom F → <x, F[x]> ∈ F.
+Lemma func_correct : ∀ F x, is_function F → x ∈ dom F → <x, F[x]> ∈ F.
 Proof.
   intros F x Hf Hx. apply domE in Hx as [y Hp].
-  pose proof (apI _ Hf _ _ Hp). subst y. apply Hp.
+  pose proof (func_ap _ Hf _ _ Hp). subst y. apply Hp.
 Qed.
 
 Theorem func_ext : ∀ F G,
@@ -210,19 +210,19 @@ Theorem func_ext : ∀ F G,
 Proof.
   intros F G Hf Hg Heqd Heqap.
   apply ExtAx. intros p. split; intros Hp.
-  - pose proof (funcE1 _ Hf _ Hp) as Heqp.
+  - pose proof (func_pair _ Hf _ Hp) as Heqp.
     simpl in Heqp. rewrite Heqp in Hp.
-    pose proof (apI _ Hf _ _ Hp) as Hap.
+    pose proof (func_ap _ Hf _ _ Hp) as Hap.
     apply domI in Hp as Hd. rewrite Heqap in Hap; [|apply Hd].
-    rewrite Heqd in Hd. apply funcDomE2 in Hd; [|apply Hg].
+    rewrite Heqd in Hd. apply func_correct in Hd; [|apply Hg].
     rewrite Hap in Hd. rewrite Heqp. apply Hd.
-  - pose proof (funcE1 _ Hg _ Hp) as Heqp.
+  - pose proof (func_pair _ Hg _ Hp) as Heqp.
     simpl in Heqp. rewrite Heqp in Hp.
-    pose proof (apI _ Hg _ _ Hp) as Hap.
+    pose proof (func_ap _ Hg _ _ Hp) as Hap.
     apply domI in Hp as Hd. rewrite <- Heqd in Hd.
     rewrite <- Heqap in Hap; [|apply Hd].
     rewrite Heqd in Hd. rewrite <- Heqd in Hd.
-    apply funcDomE2 in Hd; [|apply Hf].
+    apply func_correct in Hd; [|apply Hf].
     rewrite Hap in Hd. rewrite Heqp. apply Hd.
 Qed.
 
@@ -337,7 +337,7 @@ Theorem inv_dom_reduction : ∀ F,
   injective F → ∀x ∈ dom F, F⁻¹[F[x]] = x.
 Proof.
   unfold injective. intros F [Hf Hs] x Hx.
-  apply funcDomE2 in Hx; [|apply Hf]. apply apI.
+  apply func_correct in Hx; [|apply Hf]. apply func_ap.
   - apply inv_func_iff_sr. apply Hs.
   - rewrite inv_op in Hx. apply Hx.
 Qed.
@@ -393,9 +393,9 @@ Proof.
     apply compoE in Hy  as [t  [Htg  Htf]].
     apply compoE in Hy' as [t' [Ht'g Ht'f]].
     apply domI in Htg as Hdg.
-    assert (t = t') by (eapply funcE2; eauto). subst t'.
+    assert (t = t') by (eapply func_sv; eauto). subst t'.
     clear Htg Ht'g Hg. apply domI in Htf as Hdf.
-    eapply funcE2; eauto.
+    eapply func_sv; eauto.
 Qed.
 
 Lemma compo_dom : ∀ F G,
@@ -406,12 +406,12 @@ Proof.
   - apply domE in H as [y Hp].
     apply compoE in Hp as [t [Hpg Hpf]].
     apply SepI. eapply domI. apply Hpg.
-    apply apI in Hpg; [|apply Hg]. subst t.
+    apply func_ap in Hpg; [|apply Hg]. subst t.
     eapply domI. apply Hpf.
   - apply SepE in H as [Hdg Hdf].
     apply domE in Hdg as [t Hpg].
     apply domE in Hdf as [y Hpf].
-    pose proof (apI _ Hg _ _ Hpg). rewrite H in Hpf.
+    pose proof (func_ap _ Hg _ _ Hpg). rewrite H in Hpf.
     eapply domI. eapply compoI. eauto.
 Qed.
 
@@ -422,10 +422,10 @@ Proof.
   intros F G Hf Hg x Hx.
   apply domE in Hx as [y Hp].
   pose proof (compo_func _ _ Hf Hg) as Hcf.
-  pose proof (apI _ Hcf _ _ Hp).
+  pose proof (func_ap _ Hcf _ _ Hp).
   apply compoE in Hp as [t [Hpg Hpf]].
-  apply apI in Hpg; [|apply Hg].
-  apply apI in Hpf; [|apply Hf].
+  apply func_ap in Hpg; [|apply Hg].
+  apply func_ap in Hpf; [|apply Hf].
   subst t y. apply H.
 Qed.
 
@@ -437,7 +437,7 @@ Proof.
   - apply ExtAx. split; intros.
     + apply SepE in H as [H _]. apply H.
     + apply SepI. apply H. rewrite inv_dom.
-      eapply ranI. apply funcDomE2 in H. apply H. apply Hg.
+      eapply ranI. apply func_correct in H. apply H. apply Hg.
   - apply inv_func_iff_sr. apply Hs.
   - apply Hg.
 Qed.
@@ -472,7 +472,7 @@ Proof.
   intros G Hg. apply ExtAx. intros p. split; intros Hp.
   - apply SepE in Hp as [_ [[a [b Hp]] [y [H1 H2]]]].
     apply inv_op in H1. apply domI in H1 as Hd.
-    assert (π1 p = π2 p) by (eapply funcE2; eauto).
+    assert (π1 p = π2 p) by (eapply func_sv; eauto).
     rewrite Hp in H. apply ranI in H1 as Hr. rewrite Hp in Hr.
     rewrite π1_correct, π2_correct in *. clear H1 H2.
     rewrite <- H in Hp. rewrite Hp. apply ReplAx.
@@ -496,11 +496,11 @@ Proof with eauto.
   pose proof (inv_rel (F ∘ G)) as Hr1.
   pose proof (compo_rel G ⁻¹ F ⁻¹) as Hr2.
   apply ExtAx. intros x. split; intros Hx.
-  - apply relE in Hx as Heq...
+  - apply rel_pair in Hx as Heq...
     rewrite Heq in *. rewrite <-inv_op in Hx.
     apply compoE in Hx as [t [Hpg Hpf]].
     rewrite inv_op in Hpg, Hpf. eapply compoI...
-  - apply relE in Hx as Heq...
+  - apply rel_pair in Hx as Heq...
     rewrite Heq in *. rewrite <- inv_op.
     apply compoE in Hx as [t [Hpg Hpf]].
     rewrite <- inv_op in Hpg, Hpf. eapply compoI...
