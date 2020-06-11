@@ -1,5 +1,13 @@
 # Set-Theory
 
+## 编译时的依赖顺序
+TG0 -> TG1 -> TG2 -> TG3 -> TG4 ->  
+EST2 -> CH2 ->  
+EST3_1 -> EST3_2 -> EST3_3 -> CH3_1 -> CH3_2 ->  
+EST4_1 -> EST4_2 -> EST4_3 -> CH4 ->  
+EST5_1  
+※ 内容上TG3（笛卡尔积除外）和TG4相对独立，看完TG2可以接EST2
+
 ## TG0.v
 - 经典逻辑
 - 希尔伯特ε算子
