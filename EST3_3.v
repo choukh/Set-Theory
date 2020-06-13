@@ -58,7 +58,7 @@ Qed.
 (* 等价类 *)
 Definition EquivClass : set → set → set := λ x R,
   {t ∊ ran R | λ t, <x, t> ∈ R}.
-Notation "[ x ] R" := (EquivClass x R) (at level 60).
+Notation "[ x ] R" := (EquivClass x R) (at level 40).
 
 Lemma eqvcI : ∀ R x y, <x, y> ∈ R → y ∈ [x]R.
 Proof with eauto. intros. apply SepI... eapply ranI... Qed.

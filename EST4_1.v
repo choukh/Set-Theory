@@ -6,8 +6,8 @@ Require Export ZFC.CH3_2.
 (*** EST第四章1：自然数，归纳原理，皮亚诺结构，ω递归定理 ***)
 
 (* 后续运算 *)
-Definition S : set → set := λ a, a ∪ ⎨a⎬.
-Notation "a ⁺" := (S a) (at level 8).
+Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
+Notation "a ⁺" := (Suc a) (at level 8).
 
 Lemma S_has_x : ∀ x, x ∈ x⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.
@@ -125,12 +125,12 @@ Qed.
 Theorem trans_union_suc : ∀ a, trans a ↔ ⋃a⁺ = a.
 Proof with auto.
   split; intros.
-  - unfold S. rewrite ch2_21, union_sing_x_x.
+  - unfold Suc. rewrite ch2_21, union_sing_x_x.
     apply ExtAx. split; intros Hx.
     + apply BUnionE in Hx as []...
       assert (⋃a ⊆ a) by (apply trans_union_sub; auto). apply H1...
     + apply BUnionI2...
-  - unfold S in H. rewrite ch2_21, union_sing_x_x in H.
+  - unfold Suc in H. rewrite ch2_21, union_sing_x_x in H.
     apply trans_union_sub. intros x Hx. rewrite <- H.
     apply BUnionI1...
 Qed.
@@ -251,7 +251,7 @@ Proof with eauto; try congruence.
   set {λ N, N ⟶ A | N ∊ 𝒫 ω} as ℱ.
   set {v ∊ ⋃ℱ | λ v, acceptable v} as ℋ.
   set (⋃ℋ) as h. exists h.
-  Ltac des Hv :=
+  Local Ltac des Hv :=
     apply SepE in Hv as [Hv Hac];
     apply UnionAx in Hv as [u [Hu Hv]];
     apply ReplE in Hu as [w [Hw Heq]]; subst u;

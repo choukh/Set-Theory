@@ -373,3 +373,5 @@ Proof.
     apply (Πₐ_only_Λₐ A B x H0) in H. apply H.
   - introq. rewrite β_reductionₐ; auto.
 Qed.
+
+Close Scope one_two_scope.

@@ -73,7 +73,7 @@ Proof with eauto.
     set {n ∊ ω | λ n, ∀ m, m ∈ ω →
       n ≠ m → < n, m > ∈ εω ∨ < m, n > ∈ εω} as N.
     ω_induction N Hn; intros k Hk Hnq.
-    + assert (k ≠ 0) by congruence.
+    + assert (k ≠ ∅) by congruence.
       apply SI in H as [p [Hp Heq]]... left. subst.
       apply SepI; zfcrewrite. apply CProdI... apply empty_in_s...
     + ω_destruct k.
@@ -155,7 +155,7 @@ Proof with eauto.
     exfalso. eapply nat_reg; revgoals. apply H2. apply add_ran...
 Qed.
 
-Theorem ineq_both_side_mult : ∀ m n p ∈ ω, p ≠ 0 →
+Theorem ineq_both_side_mul : ∀ m n p ∈ ω, p ≠ 0 →
   m ∈ n ↔ m ⋅ p ∈ n ⋅ p.
 Proof with eauto.
   assert (Hright: ∀ m n p ∈ ω, p ≠ 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
@@ -165,12 +165,12 @@ Proof with eauto.
     set {k ∊ ω | λ k, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
       m ∈ n → m ⋅ k⁺ ∈ n ⋅ k⁺} as N.
     ω_induction N Hk; intros n Hn p Hp H.
-    + repeat rewrite mult_n_1...
-    + Ltac finish := try apply mult_ran; try apply ω_inductive; auto.
+    + repeat rewrite mul_n_1...
+    + Local Ltac finish := try apply mul_ran; try apply ω_inductive; auto.
       eapply nat_trans. finish. finish.
-      rewrite mult_m_n; [|auto|finish].
+      rewrite mul_m_n; [|auto|finish].
       apply ineq_both_side_add... finish. 
-      rewrite (mult_m_n p); [|auto|finish].
+      rewrite (mul_m_n p); [|auto|finish].
       rewrite add_comm; [|auto|finish].
       rewrite (add_comm p); [|auto|finish].
       apply (ineq_both_side_add (n⋅m⁺)); finish.
@@ -178,13 +178,13 @@ Proof with eauto.
   intros m Hm n Hn p Hp Hnq0. split. apply Hright...
   intros H. destruct (classic (m = n)).
   - subst. exfalso. eapply nat_reg; revgoals.
-    apply H. apply mult_ran...
+    apply H. apply mul_ran...
   - apply ω_connected in H0 as []...
     pose proof (Hright n Hn m Hm p Hp Hnq0 H0).
     assert (n ⋅ p ∈ n ⋅ p). {
-      eapply nat_trans... apply mult_ran...
+      eapply nat_trans... apply mul_ran...
     }
-    exfalso. eapply nat_reg; revgoals. apply H2. apply mult_ran...
+    exfalso. eapply nat_reg; revgoals. apply H2. apply mul_ran...
 Qed.
 
 Corollary add_elim : ∀ m n p ∈ ω, m + p = n + p → m = n.
@@ -198,19 +198,25 @@ Proof with eauto.
     eapply nat_reg; revgoals... apply add_ran...
 Qed.
 
-Corollary mult_elim : ∀ m n p ∈ ω, p ≠ 0 → m ⋅ p = n ⋅ p → m = n.
+Corollary add_elim' : ∀ m n p ∈ ω, p + m = p + n → m = n.
+Proof with eauto.
+  intros m Hm n Hn p Hp Heq.
+  eapply add_elim... rewrite add_comm, (add_comm n)...
+Qed.
+
+Corollary mul_elim : ∀ m n p ∈ ω, p ≠ 0 → m ⋅ p = n ⋅ p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   destruct (classic (m = n))... exfalso.
   apply ω_connected in H as []...
-  - eapply ineq_both_side_mult in H... rewrite Heq in H.
-    eapply nat_reg; revgoals... apply mult_ran...
-  - eapply ineq_both_side_mult in H... rewrite Heq in H.
-    eapply nat_reg; revgoals... apply mult_ran...
+  - eapply ineq_both_side_mul in H... rewrite Heq in H.
+    eapply nat_reg; revgoals... apply mul_ran...
+  - eapply ineq_both_side_mul in H... rewrite Heq in H.
+    eapply nat_reg; revgoals... apply mul_ran...
 Qed.
 
 Definition well_ordering : set → Prop := λ X,
-  ∀ A, A ≠ 0 → A ⊆ X → ∃m ∈ A, ∀n ∈ A, m ≤ n.
+  ∀ A, A ≠ ∅ → A ⊆ X → ∃m ∈ A, ∀n ∈ A, m ≤ n.
 
 (* 自然数上的≤构成良序关系 *)
 Theorem ω_well_ordering : well_ordering ω.
@@ -343,12 +349,12 @@ Proof with eauto.
     eapply nat_trans; revgoals...
 Qed.
 
-Lemma ineq_leq_mult_enlarge : ∀ a b ∈ ω, a ≤ a ⋅ b⁺.
+Lemma ineq_leq_mul_enlarge : ∀ a b ∈ ω, a ≤ a ⋅ b⁺.
 Proof with eauto.
   intros a Ha b Hb. apply ineq_leq_iff_neg_lt...
-  apply mult_ran... apply ω_inductive... intros Hc.
-  rewrite mult_m_n in Hc...
-  apply ineq_lt_add_shrink in Hc; try apply mult_ran...
+  apply mul_ran... apply ω_inductive... intros Hc.
+  rewrite mul_m_n in Hc...
+  apply ineq_lt_add_shrink in Hc; try apply mul_ran...
   eapply nat_reg; revgoals...
 Qed.
 

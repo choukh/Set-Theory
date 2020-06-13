@@ -25,9 +25,12 @@ Proof.
   apply GUPair; apply H.
 Qed.
 
+Declare Scope one_two_scope.
+Open Scope one_two_scope.
+
 (** 壹 **)
 Definition One := ⎨∅⎬.
-Notation "1" := One.
+Notation "1" := One : one_two_scope.
 
 Lemma OneI1 : ∅ ∈ 1.
 Proof. apply SingI. Qed.
@@ -48,7 +51,7 @@ Qed.
 
 (* 贰 *)
 Definition Two := {∅, 1}.
-Notation "2" := Two.
+Notation "2" := Two : one_two_scope.
 
 Lemma TwoI1 : ∅ ∈ 2.
 Proof. apply PairI1. Qed.
