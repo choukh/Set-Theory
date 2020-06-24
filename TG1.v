@@ -195,14 +195,14 @@ Proof.
     + apply sub_refl.
 Qed.
 
-Lemma repl_0 : ∀ F, {F | x ∊ ∅} = ∅.
+Lemma repl0I : ∀ F, {F | x ∊ ∅} = ∅.
 Proof.
   intros. apply EmptyI.
   intros x H. apply ReplE in H. unfoldq.
   destruct H as [y [H _]]. exfalso0.
 Qed.
 
-Lemma repl_0_inv : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
+Lemma repl0E : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
 Proof.
   intros. apply sub_0_iff_0. intros x Hx.
   eapply ReplI in Hx. rewrite H in Hx. exfalso0.

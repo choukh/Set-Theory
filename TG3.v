@@ -257,7 +257,7 @@ Qed.
 Lemma apₐ_0_0 : ∀ a, ∅[a]ₐ = ∅.
 Proof.
   unfold apₐ. introq. rewrite sep_0.
-  rewrite repl_0. reflexivity.
+  rewrite repl0I. reflexivity.
 Qed.
 
 (* 函数是函数类型的成员 *)
