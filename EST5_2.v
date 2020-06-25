@@ -228,6 +228,16 @@ Proof with auto.
   rewrite mul_n_1, mul_n_1, mul_m_0, mul_m_0, add_m_0, add_0_n...
 Qed.
 
+Theorem intMul_ident' : ∀ a ∈ ℤ, (-Int 1 ⋅ a = -a)%z.
+Proof with auto.
+  intros a Ha.
+  assert (H1w: 1 ∈ ω) by repeat apply ω_inductive.
+  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  unfold Int. rewrite intInv, intInv, intMul_m_n_p_q...
+  rewrite mul_0_n, mul_0_n, (mul_comm 1), (mul_comm 1)...
+  rewrite mul_n_1, mul_n_1, add_0_n, add_0_n...
+Qed.
+
 Theorem int_0_neq_1 : Int 0 ≠ Int 1.
 Proof with auto.
   assert (H1w: 1 ∈ ω) by repeat apply ω_inductive.
@@ -267,16 +277,6 @@ Proof with auto.
     |rewrite add_comm, (add_comm (n⋅q)) in H2; [|mr;auto..]
   ];
   rewrite Heq in H2; apply H2.
-Qed.
-
-Example intMul_n1_a : ∀ a ∈ ℤ, (-Int 1 ⋅ a = -a)%z.
-Proof with auto.
-  intros a Ha.
-  assert (H1w: 1 ∈ ω) by repeat apply ω_inductive.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  unfold Int. rewrite intInv, intInv, intMul_m_n_p_q...
-  rewrite mul_0_n, mul_0_n, (mul_comm 1), (mul_comm 1)...
-  rewrite mul_n_1, mul_n_1, add_0_n, add_0_n...
 Qed.
 
 (** 整数的序 **)
@@ -545,19 +545,6 @@ Proof with auto.
   rewrite intInv... apply intI...
 Qed.
 
-Lemma intInv_n1 : ∀a ∈ ℤ, -a = -Int 1 ⋅ a.
-Proof with eauto.
-  intros a Ha.
-  assert (Hw: 1 ∈ ω) by (apply ω_inductive; auto).
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  rewrite intInv... unfold Int. rewrite intInv...
-  rewrite intMul_m_n_p_q... apply int_ident...
-  rewrite mul_0_n, mul_comm, mul_n_1, add_0_n...
-  rewrite mul_0_n, mul_comm, mul_n_1, add_0_n...
-  rewrite mul_0_n, mul_comm, mul_n_1, add_0_n,
-    mul_0_n, mul_comm, mul_n_1, add_0_n...
-Qed.
-
 Lemma int_eq_mul_inv : ∀ a b c ∈ ℤ,
   a ⋅ c = b ⋅ c → a ⋅ -c = b ⋅ -c.
 Proof with auto.
@@ -571,10 +558,10 @@ Proof with auto.
   assert (Hnm: [<n, m>]~ ∈ ℤ) by (apply intI; auto).
   rewrite (intMul_comm a), (intMul_comm b) in Heq...
   assert (Heq': -([<m, n>]~ ⋅ a) = -([<m, n>]~ ⋅ b)) by congruence.
-  rewrite intInv_n1, (intInv_n1 ([< m, n >] ~ ⋅ b)) in Heq';
-    [|apply intMul_ran..]...
+  rewrite <- intMul_ident', <- (intMul_ident' ([< m, n >] ~ ⋅ b))
+    in Heq'; [|apply intMul_ran..]...
   rewrite <- intMul_assoc, <- intMul_assoc in Heq'...
-  rewrite <- intInv_n1, intInv in Heq'...
+  rewrite intMul_ident', intInv in Heq'...
   rewrite intInv, intMul_comm, (intMul_comm b)...
 Qed.
 
