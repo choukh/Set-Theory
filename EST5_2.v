@@ -7,7 +7,7 @@ Local Ltac mr := apply mul_ran.
 Local Ltac ar := apply add_ran.
 Local Ltac amr := apply add_ran; apply mul_ran.
 
-(*** EST第五章2：整数乘法，整数的序 ***)
+(*** EST第五章2：整数乘法，整数的序，自然数嵌入 ***)
 
 Close Scope Int_scope.
 Open Scope Nat_scope.
@@ -538,6 +538,13 @@ Proof with eauto.
   rewrite intAdd_comm, (intAdd_comm b)...
 Qed.
 
+Lemma negIntI : ∀a ∈ ℤ, -a ∈ ℤ.
+Proof with auto.
+  intros a Ha.
+  apply intE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
+  rewrite intInv... apply intI...
+Qed.
+
 Lemma intInv_n1 : ∀a ∈ ℤ, -a = -Int 1 ⋅ a.
 Proof with eauto.
   intros a Ha.
@@ -551,44 +558,120 @@ Proof with eauto.
     mul_0_n, mul_comm, mul_n_1, add_0_n...
 Qed.
 
+Lemma int_eq_mul_inv : ∀ a b c ∈ ℤ,
+  a ⋅ c = b ⋅ c → a ⋅ -c = b ⋅ -c.
+Proof with auto.
+  intros a Ha b Hb c Hc Heq.
+  assert (Hw1: 1 ∈ ω) by (apply ω_inductive; auto).
+  assert (Hzn1: - Int 1 ∈ ℤ). {
+    unfold Int. rewrite intInv... apply intI...
+  }
+  apply intE in Hc as [m [Hm [n [Hn Hceq]]]]. subst c.
+  assert (Hmn: [<m, n>]~ ∈ ℤ) by (apply intI; auto).
+  assert (Hnm: [<n, m>]~ ∈ ℤ) by (apply intI; auto).
+  rewrite (intMul_comm a), (intMul_comm b) in Heq...
+  assert (Heq': -([<m, n>]~ ⋅ a) = -([<m, n>]~ ⋅ b)) by congruence.
+  rewrite intInv_n1, (intInv_n1 ([< m, n >] ~ ⋅ b)) in Heq';
+    [|apply intMul_ran..]...
+  rewrite <- intMul_assoc, <- intMul_assoc in Heq'...
+  rewrite <- intInv_n1, intInv in Heq'...
+  rewrite intInv, intMul_comm, (intMul_comm b)...
+Qed.
+
 Corollary mul_cancel : ∀ a b c ∈ ℤ,
   c ≠ Int 0 → a ⋅ c = b ⋅ c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Hnq0 Heq.
   destruct (classic (a = b))... exfalso.
-  assert (Hw: 1 ∈ ω) by (apply ω_inductive; auto).
-  assert (Hzn1: - Int 1 ∈ ℤ). {
-    unfold Int. rewrite intInv... apply intI...
-  }
-  apply int_connected in Hnq0 as [];
-  apply int_connected in H as []...
-  - apply intE in Hc as [m [Hm [n [Hn Hceq]]]]. subst c.
-    assert (Hmn: [<m, n>]~ ∈ ℤ) by (apply intI; auto).
-    assert (Hnm: [<n, m>]~ ∈ ℤ) by (apply intI; auto).
-    apply int_neg_pos in H0. rewrite intInv in H0...
-    eapply int_ineq_both_side_mul in H; revgoals.
-    apply H0. apply intI... apply Hb. apply Ha.
-    rewrite (intMul_comm a), (intMul_comm b) in Heq...
-    assert (-([<m, n>]~ ⋅ a) = -([<m, n>]~ ⋅ b)) by congruence.
-    rewrite intInv_n1, (intInv_n1 ([< m, n >] ~ ⋅ b)) in H1;
-      [|apply intMul_ran..]...
-    rewrite <- intMul_assoc, <- intMul_assoc in H1...
-    rewrite <- intInv_n1, intInv in H1...
-    rewrite intMul_comm, (intMul_comm ([<n, m>]~)) in H1...
-    rewrite H1 in H. eapply intLt_not_refl; revgoals...
-    apply intMul_ran...
-  -
+  assert (Hz0: Int 0 ∈ ℤ) by (unfold Int; apply intI; auto).
+  apply int_connected in Hnq0 as [Hneg|Hpos]...
+  - apply int_neg_pos in Hneg as Hpos.
+    apply int_eq_mul_inv in Heq... 
+    assert (Hnc: -c ∈ ℤ) by (apply negIntI; auto).
+    apply int_connected in H as [H|H]; [|auto..];
+      eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
+        [apply Hpos|apply Hpos|auto..];
+      rewrite Heq in H;
+      eapply intLt_not_refl; revgoals;
+        [apply H|apply intMul_ran|apply H|apply intMul_ran]...
+  - apply int_connected in H as [H|H]; [|auto..];
+      eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
+        [apply Hpos|apply Hpos|auto..];
+      rewrite Heq in H;
+      eapply intLt_not_refl; revgoals;
+    [apply H|apply intMul_ran|apply H|apply intMul_ran]...
 Qed.
 
+(** 自然数嵌入 **)
+Definition ω_embed := Relation ω ℤ (λ n a, a = [<n, 0>]~).
 
+Theorem ω_embed_maps_into : ω_embed: ω ⇒ ℤ.
+Proof with auto.
+  repeat split.
+  - intros x Hx. apply SepE in Hx as [Hx _].
+    apply CProdE2 in Hx...
+  - apply domE in H...
+  - intros y1 y2 H1 H2.
+    apply SepE in H1 as [_ H1].
+    apply SepE in H2 as [_ H2]. zfcrewrite.
+  - apply ExtAx. intros x. split; intros Hx.
+    + apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
+      apply CProdE1 in Hx as [Hx _]. zfcrewrite.
+    + eapply domI. apply SepI; revgoals.
+      zfcrewrite. reflexivity. apply CProdI... apply intI...
+  - intros y Hy. apply ranE in Hy as [x Hp].
+    apply SepE in Hp as [Hp _].
+    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Qed.
 
+Theorem ω_embed_injective : injective ω_embed.
+Proof with auto.
+  split. destruct ω_embed_maps_into...
+  split. apply ranE in H...
+  intros x1 x2 H1 H2. clear H.
+  apply SepE in H1 as [Hx1 H1]. apply CProdE1 in Hx1 as [Hx1 _].
+  apply SepE in H2 as [Hx2 H2]. apply CProdE1 in Hx2 as [Hx2 _].
+  zfcrewrite. subst x. apply int_ident in H2...
+  rewrite add_m_0, add_m_0 in H2...
+Qed.
 
+Lemma ω_embed_n : ∀n ∈ ω, ω_embed[n] = [<n, 0>]~.
+Proof with auto.
+  intros n Hn. apply func_ap. destruct ω_embed_maps_into...
+  apply SepI. apply CProdI... apply intI... zfcrewrite.
+Qed.
 
+Theorem ω_embed_add : ∀ m n ∈ ω,
+  ω_embed[(m + n)%n] = ω_embed[m] + ω_embed[n].
+Proof with auto.
+  intros m Hm n Hn.
+  repeat rewrite ω_embed_n; [|auto;ar;auto..].
+  rewrite intAdd_m_n_p_q, add_m_0...
+Qed.
 
+Theorem ω_embed_mul : ∀ m n ∈ ω,
+  ω_embed[(m ⋅ n)%n] = ω_embed[m] ⋅ ω_embed[n].
+Proof with auto.
+  intros m Hm n Hn.
+  repeat rewrite ω_embed_n; [|auto;mr;auto..].
+  rewrite intMul_m_n_p_q, mul_m_0, mul_m_0,
+    mul_0_n, add_m_0, add_m_0... apply mul_ran...
+Qed.
 
+Theorem ω_embed_lt : ∀ m n ∈ ω,
+  m ∈ n ↔ ω_embed[m] <𝐳 ω_embed[n].
+Proof with auto.
+  intros m Hm n Hn.
+  repeat rewrite ω_embed_n...
+  assert (H0: 0 ∈ ω) by auto.
+  rewrite (intLt m Hm 0 H0 n Hn 0 H0).
+  rewrite add_m_0, add_m_0... reflexivity.
+Qed.
 
-
-
-
-
-
+Theorem ω_embed_subtr : ∀ m n ∈ ω,
+  [<m, n>]~ = ω_embed[m] - ω_embed[n].
+Proof with auto.
+  intros m Hm n Hn.
+  repeat rewrite ω_embed_n...
+  rewrite intInv, intAdd_m_n_p_q, add_m_0, add_0_n...
+Qed.

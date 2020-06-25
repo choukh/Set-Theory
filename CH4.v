@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 4 Part 1 **)
+(** Solutions to "Elements of Set Theory" Chapter 4 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST4_3.

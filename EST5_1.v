@@ -3,7 +3,7 @@
 
 Require Export ZFC.CH4.
 
-(*** EST第五章1：整数，整数加法，整数投射，整数减法 ***)
+(*** EST第五章1：整数定义，整数加法，整数投射，相反数 ***)
 
 (* 二元函数与等价关系的相容性 *)
 Definition binCompatible : set → set → set → Prop := λ R A F,
