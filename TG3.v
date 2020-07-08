@@ -374,4 +374,4 @@ Proof.
   - introq. rewrite β_reductionₐ; auto.
 Qed.
 
-Close Scope one_two_scope.
+Close Scope TG1_scope.

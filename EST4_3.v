@@ -23,10 +23,10 @@ Qed.
 (* 自然数上的∈构成全序关系 *)
 Definition εω := {p ∊ ω × ω | λ p, π1 p ∈ π2 p}.
 
-Lemma rel_εω : rel εω ω.
+Lemma εω_rel : rel εω ω.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 
-Lemma tranr_εω : tranr εω.
+Lemma εω_tranr : tranr εω.
 Proof with eauto.
   intros x y z H1 H2.
   apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx Hy].
@@ -64,9 +64,9 @@ Proof with auto.
   apply ineq_leq_iff_lt... apply ω_inductive...
 Qed.
 
-Theorem trich_εω : trich εω ω.
+Theorem εω_trich : trich εω ω.
 Proof with eauto.
-  eapply trich_iff. apply rel_εω. apply tranr_εω. split.
+  eapply trich_iff. apply εω_rel. apply εω_tranr. split.
   - intros [k [Hk Hp]]. apply SepE in Hp as [_ Hp].
     zfcrewrite. eapply lt_not_refl...
   - intros n Hn.
@@ -91,9 +91,9 @@ Proof with eauto.
         rewrite <- (ineq_both_side_s n' Hn' m Hm1)...
 Qed.
 
-Theorem totalOrd_εω : totalOrd εω ω.
+Theorem εω_totalOrd : totalOrd εω ω.
 Proof.
-   split. apply rel_εω. split. apply tranr_εω. apply trich_εω.
+   split. apply εω_rel. split. apply εω_tranr. apply εω_trich.
 Qed.
 
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
@@ -101,7 +101,7 @@ Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
 Lemma ω_connected : ∀ m n ∈ ω, m ≠ n → m ∈ n ∨ n ∈ m.
 Proof with auto.
   intros m Hm n Hn Hnq0.
-  pose proof (totalOrd_connected _ _ totalOrd_εω).
+  pose proof (totalOrd_connected _ _ εω_totalOrd).
   apply H in Hnq0 as []...
   left. apply SepE in H0 as [_ H0]; zfcrewrite.
   right. apply SepE in H0 as [_ H0]; zfcrewrite.
@@ -136,7 +136,7 @@ Proof with eauto.
     set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
       m ∈ n → m + p ∈ n + p} as N.
     ω_induction N Hp; intros n Hn k Hk H.
-    + repeat rewrite add_m_0...
+    + repeat rewrite add_0_r...
     + repeat rewrite add_m_n...
       assert (Hnm: n + m ∈ ω) by (apply add_ran; auto).
       assert (Hkm: k + m ∈ ω) by (apply add_ran; auto).
@@ -165,7 +165,7 @@ Proof with eauto.
     set {k ∊ ω | λ k, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
       m ∈ n → m ⋅ k⁺ ∈ n ⋅ k⁺} as N.
     ω_induction N Hk; intros n Hn p Hp H.
-    + repeat rewrite mul_n_1...
+    + repeat rewrite mul_1_r...
     + Local Ltac finish := try apply mul_ran; try apply ω_inductive; auto.
       eapply nat_trans. finish. finish.
       rewrite mul_m_n; [|auto|finish].
@@ -321,7 +321,7 @@ Proof with eauto.
   intros a Ha b Hb. generalize dependent a.
   set {b ∊ ω | λ b, ∀ a, a ∈ ω → a ≤ a + b} as N.
   ω_induction N Hb; intros a Ha.
-  - rewrite add_m_0...
+  - rewrite add_0_r...
   - rewrite add_m_n... assert (Ha' := Ha).
     apply IH in Ha' as []; left.
     apply ineq_leq_iff_lt... apply add_ran...
@@ -333,7 +333,7 @@ Proof with eauto.
   intros a Ha b Hb. generalize dependent a.
   set {b ∊ ω | λ b, ∀ a, a ∈ ω → ∀ x ∈ a, x ∈ a + b} as N.
   ω_induction N Hb; intros a Ha x Hx.
-  - rewrite add_m_0...
+  - rewrite add_0_r...
   - assert (Hxw: x ∈ ω) by (eapply ω_trans; eauto).
     rewrite add_m_n... apply ineq_leq_iff_lt...
     apply add_ran... left. apply IH...
@@ -344,7 +344,7 @@ Proof with eauto.
   intros a Ha b Hb.
   set {b ∊ ω | λ b, ∀ c ∈ ω, a + b ∈ c → a ∈ c} as N.
   ω_induction N Hb; intros c Hc H.
-  - rewrite add_m_0 in H...
+  - rewrite add_0_r in H...
   - rewrite add_m_n in H... apply IH...
     eapply nat_trans; revgoals...
 Qed.

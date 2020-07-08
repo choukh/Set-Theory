@@ -5,9 +5,13 @@ Require Export ZFC.TG_full.
 
 (*** EST第二章：补集，集合代数定律 ***)
 
+Declare Scope ZFC_scope.
+Open Scope ZFC_scope.
+Delimit Scope ZFC_scope with zfc.
+
 (** 补集 **)
 Definition Comp : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
-Notation "A - B" := (Comp A B).
+Notation "A - B" := (Comp A B) : ZFC_scope.
 
 Lemma CompI : ∀ A B, ∀x ∈ A, x ∉ B → x ∈ A - B.
 Proof. introq. apply SepI. apply H. apply H0. Qed.

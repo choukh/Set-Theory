@@ -58,7 +58,7 @@ Qed.
 (* 等价类 *)
 Definition EquivClass : set → set → set := λ x R,
   {t ∊ ran R | λ t, <x, t> ∈ R}.
-Notation "[ x ] R" := (EquivClass x R) (at level 40).
+Notation "[ x ] R" := (EquivClass x R) (at level 35).
 
 Lemma eqvcI : ∀ R x y, <x, y> ∈ R → y ∈ [x]R.
 Proof with eauto. intros. apply SepI... eapply ranI... Qed.
@@ -99,7 +99,7 @@ Definition partition : set → set → Prop := λ Π A,
 (* 商集：等价类的集合 *)
 Definition Quotient : set → set → set := λ R A,
   {λ x, [x]R | x ∊ A}.
-Notation "A / R" := (Quotient R A).
+Notation "A / R" := (Quotient R A) : ZFC_scope.
 
 Lemma quotI : ∀ R A, ∀a ∈ A, [a]R ∈ A / R.
 Proof. intros * a Ha. apply ReplAx. exists a. split; auto. Qed.

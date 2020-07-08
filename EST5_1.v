@@ -3,7 +3,7 @@
 
 Require Export ZFC.CH4.
 
-(*** EST第五章1：整数定义，整数加法，整数投射，相反数 ***)
+(*** EST第五章1：整数：加法，投射，加法逆元，减法 ***)
 
 (* 二元函数与等价关系的相容性 *)
 Definition binCompatible : set → set → set → Prop := λ R A F,
@@ -128,12 +128,13 @@ Proof with eauto.
   pose proof (H2 a Ha b Hb) as H4. simpl in *. congruence.
 Qed.
 
-Notation "ℕ²" := (ω × ω).
+Notation "A ²" := (A × A) (at level 9).
 
-Lemma N2xN2E : ∀x ∈ ℕ² × ℕ²,
-  ∃ m n p q ∈ ω, x = <<m, n>, <p, q>>.
+(* 整数定义和有理数定义通用的平面构造 *)
+Lemma plane2E : ∀ A B, ∀x ∈ (A × B)²,
+  ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B, x = <<m, n>, <p, q>>.
 Proof with auto.
-  intros x Hx.
+  intros * x Hx.
   apply CProd_correct in Hx as [u [Hu [v [Hv Hx]]]].
   apply CProd_correct in Hu as [m [Hm [n [Hn Hu]]]].
   apply CProd_correct in Hv as [p [Hp [q [Hq Hv]]]].
@@ -141,156 +142,168 @@ Proof with auto.
   exists p. split... exists q. split... congruence.
 Qed.
 
-Definition IntEquiv : set := Relation ℕ² ℕ² (λ a b,
-  let m := π1 a in let n := π2 a in
-  let p := π1 b in let q := π2 b in
-  m + q = p + n
-).
+Declare Scope PlaneEquiv_scope.
+Open Scope PlaneEquiv_scope.
 
-Declare Scope EST5_scope.
-Open Scope EST5_scope.
+(* 平面上的等价关系 *)
+Definition PlaneEq := set → set → set → set → Prop.
+Definition PlaneEquiv : set → set → PlaneEq → set :=
+  λ A B Eq, Relation (A × B) (A × B) (λ a b,
+    let m := π1 a in let n := π2 a in
+    let p := π1 b in let q := π2 b in
+    Eq m n p q
+  ).
+Notation "~" := PlaneEquiv : PlaneEquiv_scope.
+Notation "a ~ b" := (λ A B Eq, <a, b> ∈ PlaneEquiv A B Eq)
+  (at level 10) : PlaneEquiv_scope.
 
-Notation "~" := IntEquiv : EST5_scope.
-Notation "a ~ b" := (<a, b> ∈ IntEquiv) (at level 10): EST5_scope.
-
-Lemma intEquivI : ∀ m n p q ∈ ω,
-  m + q = p + n → <m, n> ~ <p, q>.
+Lemma planeEquivI : ∀ A B (Eq : PlaneEq),
+  ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
+  Eq m n p q → (<m, n> ~ <p, q>) A B Eq.
 Proof with auto.
-  intros m Hm n Hn p Hp q Hq Heq.
+  intros * m Hm n Hn p Hp q Hq Heq.
   apply SepI. apply CProdI; apply CProdI... zfcrewrite...
 Qed.
 
-Lemma intEquivE1 : ∀ x y, x ~ y → ∃ m n p q ∈ ω,
-  x = <m, n> ∧ y = <p, q> ∧ m + q = p + n.
+Lemma planeEquivE1 : ∀ A B Eq, ∀ x y, (x ~ y) A B Eq →
+  ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B,
+  x = <m, n> ∧ y = <p, q> ∧ Eq m n p q.
 Proof with auto.
-  intros x y Hqv. apply SepE in Hqv as [Hxy Heq].
-  apply N2xN2E in Hxy as [m [Hm [n [Hn [p [Hp [q [Hq Hxy]]]]]]]].
+  intros * Hqv. apply SepE in Hqv as [Hxy Heq].
+  apply plane2E in Hxy as [m [Hm [n [Hn [p [Hp [q [Hq Hxy]]]]]]]].
   apply op_correct in Hxy as []; subst.
   zfcrewrite. simpl in Heq.
   exists m. split... exists n. split...
   exists p. split... exists q. split...
 Qed.
 
-Lemma intEquivE2 : ∀ m n p q, <m, n> ~ <p, q> →
-  m + q = p + n ∧ m ∈ ω ∧ n ∈ ω ∧ p ∈ ω ∧ q ∈ ω.
+Lemma planeEquivE2 : ∀ A B Eq, ∀ m n p q,
+  (<m, n> ~ <p, q>) A B Eq →
+  Eq m n p q ∧ m ∈ A ∧ n ∈ B ∧ p ∈ A ∧ q ∈ B.
 Proof.
-  intros * Hqv. apply intEquivE1 in Hqv
+  intros * Hqv. apply planeEquivE1 in Hqv
     as [a [Ha [b [Hb [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
   apply op_correct in H1 as [];
   apply op_correct in H2 as []; subst a b c d. auto.
 Qed.
 
-Lemma intEquiv : ∀ m n p q ∈ ω,
-  <m, n> ~ <p, q> ↔ m + q = p + n.
-Proof with auto.
-  intros m Hm n Hn p Hp q Hq. split; intros.
-  - apply intEquivE2...
-  - apply intEquivI...
+Lemma planeEquiv : ∀ A B Eq, ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
+  (<m, n> ~ <p, q>) A B Eq ↔ Eq m n p q.
+Proof with eauto.
+  intros * m Hm n Hn p Hp q Hq. split; intros.
+  - eapply planeEquivE2...
+  - apply planeEquivI...
 Qed.
 
-Theorem intEquiv_equiv : equiv IntEquiv ℕ².
-Proof with eauto; try repeat apply add_ran; auto.
-  repeat split.
+Definition planeEqRefl : PlaneEq → Prop := λ Eq,
+  ∀ m n, Eq m n m n.
+Definition planeEqSymm : PlaneEq → Prop := λ Eq,
+  ∀ m n p q, Eq m n p q → Eq p q m n.
+Definition planeEqTran : set → set → PlaneEq → Prop := λ A B Eq,
+  ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B, ∀r ∈ A, ∀s ∈ B,
+  Eq m n p q → Eq p q r s → Eq m n r s.
+
+Theorem planeEquiv_equiv : ∀ A B (Eq : PlaneEq),
+  planeEqRefl Eq → planeEqSymm Eq → planeEqTran A B Eq →
+  equiv (PlaneEquiv A B Eq) (A × B).
+Proof with eauto.
+  intros * Hrefl Hsymm Htran. repeat split.
   - intros x Hx. apply SepE in Hx as []...
   - intros x Hx. apply SepI. apply CProdI...
     apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]].
     subst x. zfcrewrite...
-  - intros x y Hqv. apply intEquivE1 in Hqv
+  - intros x y Hqv. apply planeEquivE1 in Hqv
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy Heq]]]]]]]]]].
     subst. apply SepI. apply CProdI; apply CProdI...
-    zfcrewrite. simpl in *. symmetry...
+    zfcrewrite. simpl in *. apply Hsymm...
   - intros x y z H1 H2.
-    apply intEquivE1 in H1
+    apply planeEquivE1 in H1
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy H1]]]]]]]]]]. subst.
-    apply intEquivE1 in H2
+    apply planeEquivE1 in H2
       as [p' [_ [q' [_ [r [Hr [s [Hs [Hx [Hy H2]]]]]]]]]]. subst.
     apply op_correct in Hx as []; subst p' q'.
     apply SepI. apply CProdI; apply CProdI...
-    zfcrewrite. simpl in *.
-    assert (m + q + (p + s) = p + n + (r + q)) by congruence.
-    rewrite (add_comm (m+q)) in H...
-    rewrite (add_assoc (p+s)) in H...
-    rewrite (add_assoc (p+n)) in H...
-    assert (p + s + m = p + n + r). {
-      eapply add_cancel; revgoals...
-    }
-    rewrite <- add_assoc, <- add_assoc in H0...
-    rewrite add_comm, (add_comm p) in H0...
-    rewrite add_comm, (add_comm r)...
-    eapply add_cancel; revgoals...
+    zfcrewrite. simpl in *. eapply Htran; revgoals...
 Qed.
 
-(** 整数 **)
-Definition ℤ : set := ℕ²/~.
+(* 平面上的商集 *)
+Definition PlaneQuotient : set → set → PlaneEq → set := λ A B Eq,
+  A × B / ~ A B Eq.
 
-Lemma intI : ∀ m n ∈ ω, [<m, n>]~ ∈ ℤ.
-Proof. intros m Hm n Hn. apply quotI. apply CProdI; auto. Qed.
+Lemma pQuotI : ∀ A B Eq, ∀m ∈ A, ∀n ∈ B,
+  [<m, n>]~ A B Eq ∈ PlaneQuotient A B Eq.
+Proof. intros * m Hm n Hn. apply quotI. apply CProdI; auto. Qed.
 
-Lemma intE : ∀x ∈ ℤ, ∃ m n ∈ ω, x = [<m, n>]~.
+Lemma pQuotE : ∀ A B Eq, ∀x ∈ PlaneQuotient A B Eq,
+  ∃m ∈ A, ∃n ∈ B, x = [<m, n>]~ A B Eq.
 Proof with auto.
-  intros x Hx. apply quotE in Hx as [p [Hx Heq1]].
+  intros * x Hx. apply quotE in Hx as [p [Hx Heq1]].
   apply CProd_correct in Hx as [a [Ha [b [Hb Heq2]]]].
   exists a. split... exists b. split... congruence.
 Qed.
 
-Lemma int_ident : ∀ m n p q ∈ ω,
-  m + q = p + n ↔ [<m, n>]~ = [<p, q>]~.
+Lemma pQuot_ident : ∀ A B Eq,
+  planeEqRefl Eq → planeEqSymm Eq → planeEqTran A B Eq →
+  ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
+  Eq m n p q ↔ [<m, n>]~ A B Eq = [<p, q>]~ A B Eq.
 Proof with eauto.
-  intros m Hm n Hn p Hp q Hq. split; intros Heq.
-  - eapply eqvc_ident; swap 1 3. apply intEquiv_equiv.
-    apply CProdI... apply CProdI... apply intEquivI...
-  - cut (<m, n> ~ <p, q>). intros H.
-    apply intEquiv in H...
+  intros * Hrefl Hsymm Htran m Hm n Hn p Hp q Hq. split; intros Heq.
+  - eapply eqvc_ident; swap 1 3. apply planeEquiv_equiv...
+    apply CProdI... apply CProdI... apply planeEquivI...
+  - cut ((<m, n> ~ <p, q>) A B Eq). intros H.
+    apply planeEquiv in H...
     eapply eqvc_ident; revgoals. apply Heq.
-    apply intEquiv_equiv. apply CProdI... apply CProdI...
+    apply planeEquiv_equiv... apply CProdI... apply CProdI...
 Qed.
 
-(* 整数算术定义Helper *)
-Definition IntArith : (set → set → set → set → set) → set :=
-  λ F, Relation (ℕ² × ℕ²) ℕ² (λ x y,
+(* 平面算术定义Helper *)
+Definition PlaneF := set → set → set → set → set.
+Definition PlaneArith : set → set → PlaneF → set :=
+  λ A B F, Relation (A × B)² (A × B) (λ x y,
   let m := π1 (π1 x) in let n := π2 (π1 x) in
   let p := π1 (π2 x) in let q := π2 (π2 x) in
   y = F m n p q
 ).
 
-Lemma IntArithE : ∀ F x y, <x, y> ∈ IntArith F →
-  ∃ m n p q ∈ ω, x = <<m, n>, <p, q>> ∧ y = F m n p q.
+Lemma planeArithE : ∀ A B F x y, <x, y> ∈ PlaneArith A B F →
+  ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B,
+  x = <<m, n>, <p, q>> ∧ y = F m n p q.
 Proof with auto.
   intros * Hxy. apply SepE in Hxy as [Hxy Heq].
   apply CProdE1 in Hxy as [Hx _]; zfcrewrite.
-  apply N2xN2E in Hx as [m [Hm [n [Hn [p [Hp [q [Hq Hx]]]]]]]].
+  apply plane2E in Hx as [m [Hm [n [Hn [p [Hp [q [Hq Hx]]]]]]]].
   subst x. zfcrewrite. simpl in Heq.
   exists m. split... exists n. split...
   exists p. split... exists q. split...
 Qed.
 
-Lemma IntArithE_maps_onto : ∀ F,
-  (∀ m n p q ∈ ω, F m n p q ∈ ℕ²) →
-  (∀ a b ∈ ω, ∃ m n p q ∈ ω, <a, b> = F m n p q) →
-  (IntArith F): ℕ² × ℕ² ⟹ ℕ².
+Lemma planeArith_maps_onto : ∀ A B F,
+  (∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B, F m n p q ∈ A × B) →
+  (∀a ∈ A, ∀b ∈ B, ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B, <a, b> = F m n p q) →
+  (PlaneArith A B F): (A × B)² ⟹ A × B.
 Proof with eauto.
-  intros F HF1 HF2. repeat split.
+  intros * HF1 HF2. repeat split.
   - (* is_relation *) intros x Hx.
     apply SepE in Hx as [Hx _]. apply CProdE2 in Hx...
   - apply domE in H...
   - (* single-valued *) intros y1 y2 H1 H2.
-    apply IntArithE in H1
+    apply planeArithE in H1
       as [m1 [Hm1 [n1 [Hn1 [p1 [Hp1 [q1 [Hq1 [Hx1 Hy1]]]]]]]]].
-    apply IntArithE in H2
+    apply planeArithE in H2
       as [m2 [Hm2 [n2 [Hn2 [p2 [Hp2 [q2 [Hq2 [Hx2 Hy2]]]]]]]]].
     subst x. apply op_correct in Hx2 as [H1 H2].
     apply op_correct in H1 as [H11 H12].
     apply op_correct in H2 as [H21 H22]. congruence.
-  - (* dom PreIntAdd = ℕ² × ℕ² *)
+  - (* dom planeArith = A² × A² *)
     apply ExtAx. intros x. split; intros Hx.
     + apply domE in Hx as [y Hx]. apply SepE in Hx as [Hx _].
       apply CProdE1 in Hx as []. zfcrewrite.
     + assert (Hx' := Hx).
-      apply N2xN2E in Hx' as [m [Hm [n [Hn [p [Hp [q [Hq Hx']]]]]]]].
+      apply plane2E in Hx' as [m [Hm [n [Hn [p [Hp [q [Hq Hx']]]]]]]].
       eapply domI. apply SepI. apply CProdI...
       apply HF1. apply Hm. apply Hn. apply Hp. apply Hq.
       subst x. zfcrewrite. simpl. reflexivity.
-  - (* ran PreIntAdd = ℕ² *)
+  - (* ran planeArith = A² *)
     apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as []; zfcrewrite.
@@ -303,28 +316,77 @@ Proof with eauto.
       subst. zfcrewrite. simpl. congruence.
 Qed.
 
-Definition PreIntAdd : set :=
-  IntArith (λ m n p q, <m + p, n + q>).
-Notation "a +ᵥ b" := (PreIntAdd[<a, b>]) (at level 50).
+Close Scope PlaneEquiv_scope.
+Declare Scope PreInt_scope.
+Open Scope PreInt_scope.
+Delimit Scope PreInt_scope with pz.
 
-Lemma add_m_n_rev : ∀x ∈ ω, ∃ m n ∈ ω, x = m + n.
+(* 自然数平面上的用于构造整数的等价关系 *)
+Definition IntEq : PlaneEq := λ m n p q, m + q = p + n.
+Notation "~" := (PlaneEquiv ω ω IntEq) : PreInt_scope.
+Notation "a ~ b" := (<a, b> ∈ PlaneEquiv ω ω IntEq)
+  (at level 10) : PreInt_scope.
+
+Lemma intEqRefl : planeEqRefl IntEq.
+Proof. intros m n. reflexivity. Qed.
+
+Lemma intEqSymm : planeEqSymm IntEq.
+Proof. intros m n p q Heq. symmetry. auto. Qed.
+
+Lemma intEqTran : planeEqTran ω ω IntEq.
+Proof with eauto; try repeat apply add_ran; auto.
+  intros m Hm n Hn p Hp q Hq r Hr s Hs H1 H2. unfold IntEq.
+  assert (m + q + (p + s) = p + n + (r + q)) by congruence.
+  rewrite (add_comm (m+q)) in H...
+  rewrite <- (add_assoc (p+s)) in H...
+  rewrite <- (add_assoc (p+n)) in H...
+  assert (p + s + m = p + n + r). {
+    eapply add_cancel; revgoals...
+  }
+  rewrite add_assoc, add_assoc in H0...
+  rewrite add_comm, (add_comm p) in H0...
+  rewrite add_comm, (add_comm r)...
+  eapply add_cancel; revgoals...
+Qed.
+
+Theorem intEquiv_equiv : equiv (PlaneEquiv ω ω IntEq) ω².
+Proof with eauto; try repeat apply add_ran; auto.
+  apply planeEquiv_equiv.
+  apply intEqRefl. apply intEqSymm. apply intEqTran.
+Qed.
+
+(** 整数 **)
+Definition ℤ : set := ω²/~.
+
+Lemma int_ident : ∀ m n p q ∈ ω,
+  m + q = p + n ↔ [<m, n>]~ = [<p, q>]~.
+Proof with eauto.
+  apply pQuot_ident.
+  apply intEqRefl. apply intEqSymm. apply intEqTran.
+Qed.
+
+Definition PreIntAdd : set :=
+  PlaneArith ω ω (λ m n p q, <m + p, n + q>).
+Notation "a +ᵥ b" := (PreIntAdd[<a, b>]) (at level 50) : PreInt_scope.
+
+Lemma add_split : ∀x ∈ ω, ∃ m n ∈ ω, x = m + n.
 Proof with auto.
   intros n Hn.
   set {n ∊ ω | λ n, ∃ a b ∈ ω, n = a + b} as N.
   ω_induction N Hn.
-  - exists 0. split... exists 0. split... rewrite add_m_0...
+  - exists 0. split... exists 0. split... rewrite add_0_r...
   - destruct IH as [a [Ha [b [Hb Heq]]]].
     exists a. split... exists (b⁺). split. apply ω_inductive...
     rewrite add_m_n... congruence.
 Qed.
 
-Lemma preIntAdd_maps_onto : PreIntAdd: ℕ² × ℕ² ⟹ ℕ².
+Lemma preIntAdd_maps_onto : PreIntAdd: (ω²)² ⟹ ω².
 Proof with eauto.
-  apply IntArithE_maps_onto.
+  apply planeArith_maps_onto.
   - intros m Hm n Hn p Hp q Hq. apply CProdI; apply add_ran...
   - intros a Ha b Hb.
-    apply add_m_n_rev in Ha as [m [Hm [p [Hp Ha]]]].
-    apply add_m_n_rev in Hb as [n [Hn [q [Hq Hb]]]].
+    apply add_split in Ha as [m [Hm [p [Hp Ha]]]].
+    apply add_split in Hb as [n [Hn [q [Hq Hb]]]].
     exists m. split... exists n. split...
     exists p. split... exists q. split... congruence.
 Qed.
@@ -338,7 +400,8 @@ Proof with auto.
     try apply CProdI; try apply add_ran... zfcrewrite...
 Qed.
 
-Lemma preIntAdd_binCompatible : binCompatible IntEquiv ℕ² PreIntAdd.
+Lemma preIntAdd_binCompatible :
+  binCompatible (PlaneEquiv ω ω IntEq) ω² PreIntAdd.
 Proof with eauto.
   split. apply intEquiv_equiv. split.
   destruct preIntAdd_maps_onto as [Hf [Hd Hr]].
@@ -348,15 +411,15 @@ Proof with eauto.
   apply CProd_correct in Hy as [p [Hp [q [Hq Hyeq]]]].
   apply CProd_correct in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
   apply CProd_correct in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
-  apply intEquiv in H1... apply intEquiv in H2...
+  apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntAdd_m_n_p_q, preIntAdd_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI; apply add_ran...
-  zfcrewrite. simpl.
-  rewrite (add_comm m), add_assoc, (add_comm (p+m+n')),
-    add_assoc, add_assoc, <- add_assoc, (add_comm q');
+  zfcrewrite. simpl. unfold IntEq in *.
+  rewrite (add_comm m), <- add_assoc, (add_comm (p+m+n')),
+    <- add_assoc, <- add_assoc, add_assoc, (add_comm q');
     try repeat apply add_ran...
-  rewrite (add_comm m'), (add_assoc (p'+m')), (add_comm (p'+m'+n)),
-    (add_assoc q), (add_assoc q), <- (add_assoc (q+p')), (add_comm q);
+  rewrite (add_comm m'), <- (add_assoc (p'+m')), (add_comm (p'+m'+n)),
+    <- (add_assoc q), <- (add_assoc q), (add_assoc (q+p')), (add_comm q);
     try repeat apply add_ran... congruence.
 Qed.
 
@@ -367,7 +430,7 @@ Delimit Scope Int_scope with z.
 
 (** 整数加法 **)
 Definition IntAdd : set :=
-  QuotionFunc IntEquiv ℕ² PreIntAdd.
+  QuotionFunc (PlaneEquiv ω ω IntEq) ω² PreIntAdd.
 Notation "a + b" := (IntAdd[<a, b>]) : Int_scope.
 
 Lemma intAdd_maps_onto : IntAdd: ℤ × ℤ ⟹ ℤ.
@@ -377,7 +440,7 @@ Proof.
   apply preIntAdd_maps_onto.
 Qed.
 
-Lemma intAdd_a_b : ∀ a b ∈ ℕ², [a]~ + [b]~ = [a +ᵥ b]~.
+Lemma intAdd_a_b : ∀ a b ∈ ω², [a]~ + [b]~ = [a +ᵥ b]~.
 Proof.
   apply binCompatibleE. apply preIntAdd_binCompatible.
 Qed.
@@ -393,53 +456,63 @@ Qed.
 Lemma intAdd_ran : ∀ a b ∈ ℤ, a + b ∈ ℤ.
 Proof with auto.
   intros a Ha b Hb.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
-  rewrite intAdd_m_n_p_q... apply intI; apply add_ran...
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
+  rewrite intAdd_m_n_p_q... apply pQuotI; apply add_ran...
+Qed.
+
+Definition Int : nat → set :=  λ n, [<n, 0>]~.
+
+Lemma int_has_0 : Int 0 ∈ ℤ.
+Proof. apply pQuotI; auto. Qed.
+Hint Immediate int_has_0 : core.
+
+Example intAdd_1_2 : Int 1 + Int 2 = Int 3.
+Proof with auto.
+  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
+  assert (H3w: 3 ∈ ω) by repeat apply ω_inductive.
+  unfold Int. rewrite intAdd_m_n_p_q, add_0_r...
+  rewrite add_1_2. apply int_ident...
 Qed.
 
 Theorem intAdd_comm : ∀ a b ∈ ℤ, a + b = b + a.
 Proof with auto.
   intros a Ha b Hb.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
   repeat rewrite intAdd_m_n_p_q...
-  apply int_ident; try apply add_ran...
   rewrite (add_comm m), (add_comm q)...
 Qed.
 
 Theorem intAdd_assoc : ∀ a b c ∈ ℤ,
-  (a + b + c) = a + (b + c).
+  (a + b) + c = a + (b + c).
 Proof with auto.
   intros a Ha b Hb c Hc.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
-  apply intE in Hc as [r [Hr [s [Hs Hc]]]]. subst c.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
+  apply pQuotE in Hc as [r [Hr [s [Hs Hc]]]]. subst c.
   repeat rewrite intAdd_m_n_p_q; try apply add_ran...
-  apply int_ident; try repeat apply add_ran...
-  repeat rewrite add_assoc; try repeat apply add_ran...
+  repeat rewrite <- add_assoc; try repeat apply add_ran...
 Qed.
-
-Definition Int : nat → set :=  λ n, [<n, 0>]~.
 
 Theorem intAdd_ident : ∀a ∈ ℤ, a + Int 0 = a.
 Proof with auto.
-  intros a Ha. apply intE in Ha as [m [Hm [n [Hn Ha]]]].
-  subst a. unfold Int. rewrite intAdd_m_n_p_q, add_m_0, add_m_0...
+  intros a Ha. apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
+  subst a. unfold Int. rewrite intAdd_m_n_p_q, add_0_r, add_0_r...
 Qed.
 
-Theorem intAdd_inv_exists : ∀a ∈ ℤ, ∃b ∈ ℤ, a + b = Int 0.
+Theorem intAddInv_exists : ∀a ∈ ℤ, ∃b ∈ ℤ, a + b = Int 0.
 Proof with auto.
-  intros a Ha. apply intE in Ha as [m [Hm [n [Hn Ha]]]].
-  exists ([<n, m>]~). split. apply intI...
+  intros a Ha. apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
+  exists ([<n, m>]~). split. apply pQuotI...
   subst a. rewrite intAdd_m_n_p_q...
   apply int_ident; try apply add_ran...
-  rewrite add_m_0, add_0_n, add_comm; try apply add_ran...
+  rewrite add_0_r, add_0_l, add_comm; try apply add_ran...
 Qed.
 
-Theorem intAdd_inv_unique : ∀a ∈ ℤ, ∃!b, b ∈ ℤ ∧ a + b = Int 0.
+Theorem intAddInv_unique : ∀a ∈ ℤ, ∃!b, b ∈ ℤ ∧ a + b = Int 0.
 Proof with auto.
-  intros a Ha. split. apply intAdd_inv_exists...
+  intros a Ha. split. apply intAddInv_exists...
   intros b b' [Hb H1] [Hb' H2].
   rewrite <- intAdd_ident, <- (intAdd_ident b')...
   rewrite <- H2 at 1. rewrite <- H1.
@@ -461,7 +534,7 @@ Proof with auto.
     exists b⁺. split. apply ω_inductive...
     split. rewrite add_m_n... subst... apply S_neq_0.
   - exists 1. split. apply ω_inductive...
-    split. rewrite add_n_1... subst... apply S_neq_0.
+    split. rewrite suc_eq_add_1... subst... apply S_neq_0.
 Qed.
 
 Lemma subtrE : ∀ m n ∈ ω, (∃b ∈ ω, m + b = n ∧ b ≠ 0) → m ∈ n.
@@ -483,16 +556,16 @@ Lemma preIntProjI1 : ∀ m n p ∈ ω,
   n + p = m → <p, 0> ∈ PreIntProj ([<m, n>]~).
 Proof with auto.
   intros m Hm n Hn p Hp Heq.
-  apply SepI. apply eqvcI. apply intEquivI...
-  rewrite add_m_0... subst. rewrite add_comm... zfcrewrite...
+  apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
+  rewrite add_0_r... subst. rewrite add_comm... zfcrewrite...
 Qed.
 
 Lemma preIntProjI2 : ∀ m n q ∈ ω,
   m + q = n → <0, q> ∈ PreIntProj ([<m, n>]~).
 Proof with auto.
   intros m Hm n Hn q Hq Heq.
-  apply SepI. apply eqvcI. apply intEquivI...
-  rewrite add_0_n... zfcrewrite...
+  apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
+  rewrite add_0_l... zfcrewrite...
 Qed.
 
 Lemma preIntProjE : ∀ m n ∈ ω, ∀x ∈ PreIntProj ([<m, n>]~),
@@ -501,21 +574,21 @@ Lemma preIntProjE : ∀ m n ∈ ω, ∀x ∈ PreIntProj ([<m, n>]~),
 Proof with auto.
   intros m Hm n Hn x Hx.
   apply SepE in Hx as [Hx H0]. apply eqvcE in Hx.
-  assert (Hx' := Hx). apply intEquivE1 in Hx'
-    as [m' [Hm' [n' [Hn' [p [Hp [q [Hq [H1 [H2 H3]]]]]]]]]].
+  assert (Hx' := Hx). apply planeEquivE1 in Hx'
+    as [m' [Hm' [n' [Hn' [p [Hp [q [Hq [H1 [H2 _]]]]]]]]]].
   apply op_correct in H1 as []; subst m' n'.
-  subst x. zfcrewrite. destruct H0; subst...
+  subst x. zfcrewrite. destruct H0; subst.
   exists 0. split... exists q... split...
   exists p. split... exists 0... split...
 Qed.
 
-Lemma preIntProj_single : ∀ a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
+Lemma preIntProj_single : ∀a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
 Proof with eauto.
   intros a Ha.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]].
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   subst a. split.
   - destruct (classic (m = n)) as [Hmn|Hmn].
-    + exists <0, 0>. apply preIntProjI1... rewrite add_m_0...
+    + exists <0, 0>. apply preIntProjI1... rewrite add_0_r...
     + apply ω_connected in Hmn as []...
       * apply subtrI in H as [b [Hb [Heq _]]]...
         exists <0, b>. apply preIntProjI2...
@@ -525,22 +598,23 @@ Proof with eauto.
     apply preIntProjE in H1 as [p1 [Hp1 [q1 [Hq1 [Hx1 [H1 []]]]]]];
     apply preIntProjE in H2 as [p2 [Hp2 [q2 [Hq2 [Hx2 [H2 []]]]]]];
       subst; auto; apply op_correct;
-      apply intEquiv in H1; apply intEquiv in H2...
-    + split... rewrite add_0_n in *... subst n.
+      apply planeEquiv in H1; apply planeEquiv in H2;
+      unfold IntEq in *...
+    + split... rewrite add_0_l in *... subst n.
       eapply add_cancel'; revgoals...
-    + rewrite add_0_n in H1...
-      rewrite add_m_0 in H2... subst m.
-      rewrite <- add_assoc, add_comm,
-        <- add_assoc in H1; [|auto; apply add_ran..]...
+    + rewrite add_0_l in H1...
+      rewrite add_0_r in H2... subst m.
+      rewrite add_assoc, add_comm,
+        add_assoc in H1; [|auto; apply add_ran..]...
       apply add_a_b_a in H1...
       apply add_m_n_0 in H1 as []... apply add_ran...
-    + rewrite add_m_0 in H1...
-      rewrite add_0_n in H2... subst m.
-      rewrite <- add_assoc, add_comm,
-        <- add_assoc in H2; [|auto; apply add_ran..]...
+    + rewrite add_0_r in H1...
+      rewrite add_0_l in H2... subst m.
+      rewrite add_assoc, add_comm,
+        add_assoc in H2; [|auto; apply add_ran..]...
       apply add_a_b_a in H2...
       apply add_m_n_0 in H2 as []... apply add_ran...
-    + split... rewrite add_m_0 in *... subst m.
+    + split... rewrite add_0_r in *... subst m.
       eapply add_cancel; revgoals...
 Qed.
 
@@ -558,7 +632,7 @@ Lemma intProj : ∀ m n ∈ ω, ∃ p q ∈ ω,
 Proof with auto.
   intros m Hm n Hn.
   pose proof (preIntProj ([<m, n>]~)) as [x Hsg].
-  apply intI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
+  apply pQuotI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
   rewrite <- Hsg in Hx. apply preIntProjE in Hx
     as [p [Hp [q [Hq [Hx [H H0]]]]]]...
   exists p. split... exists q. split... split...
@@ -566,56 +640,71 @@ Proof with auto.
   apply union_sing_x_x.
 Qed.
 
-Lemma intProj_η : ∀ x ∈ ℤ, x = [IntProj x]~.
+Lemma intProj_η : ∀a ∈ ℤ, a = [IntProj a]~.
 Proof with auto.
-  intros x Hx.
-  apply intE in Hx as [m [Hm [n [Hn Hx]]]].
+  intros a Ha.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   pose proof (intProj m Hm n Hn)
     as [p [Hp [q [Hq [H1 H2]]]]].
-  apply intEquiv in H2... subst x.
+  apply planeEquiv in H2... unfold IntEq. subst a.
   rewrite H1. apply int_ident...
 Qed.
 
 Close Scope Nat_scope.
 Open Scope Int_scope.
 
-(** 整数减法 **)
-Definition IntInv : set → set := λ a,
+(** 整数加法逆元 **)
+Definition IntAddInv : set → set := λ a,
   let p := (IntProj a) in [<π2 p, π1 p>]~.
-Notation "- a" := (IntInv a) : Int_scope.
+Notation "- a" := (IntAddInv a) : Int_scope.
 Notation "a - b" := (a + (-b)) : Int_scope.
 
-Lemma intInv : ∀ m n ∈ ω, (-[<m, n>]~) = [<n, m>]~.
+Lemma intAddInv : ∀ m n ∈ ω, (-[<m, n>]~) = [<n, m>]~.
 Proof with eauto.
   intros m Hm n Hn.
   pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 H2]]]]].
-  pose proof intEquiv_equiv as [_ [_ [_ Htr]]].
+  destruct intEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
-    apply eqvcI. cut (<n, m> ~ <q, p>). intros.
-    eapply Htr... apply intEquivI... apply intEquiv in H2...
+    apply eqvcI. cut (<n, m> ~ <q, p>). intros. eapply Htr...
+    apply planeEquivI... unfold IntEq.
+    apply planeEquiv in H2... unfold IntEq in H2.
     rewrite (add_comm n), (add_comm q)...
   - apply eqvcI. rewrite H1. zfcrewrite.
-    apply eqvcE in Hx. cut (<q, p> ~ <n, m>). intros.
-    eapply Htr... apply intEquivI... apply intEquiv in H2...
+    apply eqvcE in Hx. cut (<q, p> ~ <n, m>). intros. eapply Htr...
+    apply planeEquivI... unfold IntEq.
+    apply planeEquiv in H2... unfold IntEq in H2.
     rewrite (add_comm n), (add_comm q)...
 Qed.
 
-Lemma intAdd_a_na : ∀a ∈ ℤ, a - a = Int 0.
+Lemma intAddInv_double : ∀a ∈ ℤ, --a = a.
 Proof with auto.
   intros a Ha.
-  apply intE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  rewrite intInv, intAdd_m_n_p_q...
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  rewrite intAddInv, intAddInv...
+Qed.
+
+Lemma intAddInv_in_int : ∀a ∈ ℤ, -a ∈ ℤ.
+Proof with auto.
+  intros a Ha.
+  apply pQuotE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
+  rewrite intAddInv... apply pQuotI...
+Qed.
+
+Lemma intAdd_inv : ∀a ∈ ℤ, a - a = Int 0.
+Proof with auto.
+  intros a Ha.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  rewrite intAddInv, intAdd_m_n_p_q...
   apply int_ident; try apply add_ran...
-  rewrite add_m_0, add_0_n, add_comm; try apply add_ran...
+  rewrite add_0_r, add_0_l, add_comm; try apply add_ran...
 Qed.
 
 Example intAdd_2_n3 : Int 2 - Int 3 = -Int 1.
 Proof with auto.
-  assert (H1w: 1 ∈ ω) by repeat apply ω_inductive.
   assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
   assert (H3w: 3 ∈ ω) by repeat apply ω_inductive.
-  unfold Int. rewrite intInv, intInv...
-  rewrite intAdd_m_n_p_q, add_m_0, add_0_n...
-  apply int_ident... rewrite (Pred 1), add_m_n, add_m_0, add_0_n...
+  unfold Int. rewrite intAddInv, intAddInv...
+  rewrite intAdd_m_n_p_q, add_0_r, add_0_l...
+  apply int_ident... rewrite (Pred 1), add_m_n, add_0_r, add_0_l...
 Qed.
