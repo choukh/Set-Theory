@@ -10,8 +10,15 @@ Require Export ZFC.EST4_1.
 Coercion embed := λ n, iter n Suc ∅.
 
 Lemma Pred : ∀ n, embed n =
-  match n with | O => ∅ | S n' => (iter n' Suc ∅)⁺ end.
+  match n with | O => ∅ | S n' => (embed n')⁺ end.
 Proof. intros. destruct n; auto. Qed.
+
+Lemma embed_n : ∀ n : nat, n ∈ ω.
+Proof with auto.
+  induction n.
+  - apply ω_has_0.
+  - rewrite Pred. apply ω_inductive...
+Qed.
 
 (* 算术递归定义Helper *)
 Definition PreArith : set → set → set := λ F a,
@@ -89,14 +96,11 @@ Definition BinOp : set → (set → set) → set := λ A F,
 
 (* 自动化证明 *)
 Hint Immediate ω_has_0 : core.
-Hint Immediate S_has_x : core.
+Hint Immediate suc_has_n : core.
+Hint Immediate embed_n : core.
 Hint Rewrite π1_correct π2_correct : ZFC.
 Ltac zfcrewrite :=
   autorewrite with ZFC in *; try congruence.
-
-Lemma ω_has_1 : 1 ∈ ω.
-Proof. apply ω_inductive. auto. Qed.
-Hint Immediate ω_has_1 : core.
 
 Lemma binop_is_func : ∀ A F, is_function (BinOp A F).
 Proof with auto.
@@ -230,9 +234,9 @@ Proof with auto; try congruence.
   - destruct (mul_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply ω_has_1. apply Hy. split; zfcrewrite.
+    apply Hy. apply (embed_n 1). apply Hy. split; zfcrewrite.
     split... rewrite Pred, mul_n, mul_0, add_0_r...
-    apply func_correct... rewrite Hhd. apply ω_inductive...
+    apply func_correct... rewrite Hhd...
 Qed.
 
 Lemma mul_is_func : is_function Muliplication.
@@ -321,11 +325,10 @@ Proof with auto; try congruence.
   - destruct (exp_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply ω_has_1. apply Hy.
+    apply Hy. apply (embed_n 1). apply Hy.
     split; zfcrewrite. split...
-    rewrite Pred, exp_n, exp_0,
-      Pred, mul_m_n, mul_0_r, add_0_r...
-    apply func_correct... rewrite Hhd. apply ω_inductive...
+    rewrite Pred, exp_n, exp_0, Pred, mul_m_n, mul_0_r, add_0_r...
+    apply func_correct... rewrite Hhd...
 Qed.
 
 Lemma exp_is_func : is_function Exponentiation.
@@ -370,15 +373,16 @@ Proof with auto.
 Qed.
 
 Example add_1_2 : 1 + 2 = 3.
-Proof with auto.
-  rewrite (Pred 2), add_m_n, add_m_n, add_0_r; try (apply ω_inductive)...
+Proof.
+  rewrite (Pred 2), add_m_n, (Pred 1), add_m_n, add_0_r;
+    auto; repeat apply ω_inductive...
 Qed.
 
 Example mul_2_2 : 2 ⋅ 2 = 4.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  rewrite (Pred 2), mul_m_n, mul_m_n, mul_0_r... 
-  rewrite add_0_r, add_m_n, add_m_n, add_0_r...
+  rewrite (Pred 2), mul_m_n, (Pred 1), mul_m_n, mul_0_r,
+    add_0_r, add_m_n, add_m_n, add_0_r;
+    auto; repeat apply ω_inductive...
 Qed.
 
 (* 加法结合律 *)
@@ -514,14 +518,14 @@ Proof with auto.
   ω_induction N Ha; intros Heq.
   - rewrite add_0_l in Heq...
   - rewrite add_m_n' in Heq...
-    apply S_injection in Heq... apply add_ran...
+    apply suc_injection in Heq... apply add_ran...
 Qed.
 
 Lemma add_0_l_0 : ∀n ∈ ω, 0 + n = 0 → n = 0.
 Proof with eauto.
   intros n Hn H0.
   ω_destruct n... subst n. rewrite add_m_n in H0...
-  exfalso. eapply S_neq_0...
+  exfalso. eapply suc_neq_0...
 Qed.
 
 Lemma add_m_n_0 : ∀ m n ∈ ω, m + n = 0 → m = 0 ∧ n = 0.
@@ -531,7 +535,7 @@ Proof with eauto.
   split... eapply add_a_b_a; revgoals...
   split... eapply add_a_b_a; revgoals.
   rewrite add_comm... apply Hm. apply ω_has_0.
-  rewrite add_m_n in H0... exfalso. eapply S_neq_0...
+  rewrite add_m_n in H0... exfalso. eapply suc_neq_0...
 Qed.
 
 Lemma mul_m_n_0 : ∀ m n ∈ ω, m ⋅ n = 0 → m = 0 ∨ n = 0.
@@ -540,7 +544,7 @@ Proof with eauto.
   ω_destruct m. left... ω_destruct n. right...
   exfalso. subst m n. rewrite mul_m_n, mul_m_n' in H0...
   apply add_m_n_0 in H0 as [H1 _]...
-  exfalso. eapply S_neq_0... apply add_ran... apply mul_ran...
+  exfalso. eapply suc_neq_0... apply add_ran... apply mul_ran...
 Qed.
 
 Definition even : set → Prop := λ n,

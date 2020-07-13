@@ -158,8 +158,6 @@ Qed.
 
 Example intMul_2_n2 : Int 2 ⋅ -Int 2 = -Int 4.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H4w: 4 ∈ ω) by repeat apply ω_inductive.
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intMul_m_n_p_q...
   rewrite mul_0_l, mul_0_r, mul_0_r, add_0_r, add_0_r...
@@ -240,7 +238,7 @@ Qed.
 Theorem int_0_neq_1 : Int 0 ≠ Int 1.
 Proof with auto.
   unfold Int. intros H. apply int_ident in H...
-  rewrite add_0_r, add_0_r in H... eapply S_neq_0. eauto.
+  rewrite add_0_r, add_0_r in H... eapply suc_neq_0. eauto.
 Qed.
 
 Theorem int_no_0_div : ∀ a b ∈ ℤ,
@@ -266,8 +264,8 @@ Proof with auto.
   }
   clear H1 H2.
   assert (Hw: m⋅q + n⋅p ∈ ω) by (amr; auto).
-  apply ω_connected in Hmn as [H1|H1];
-  apply ω_connected in Hpq as [H2|H2]; auto;
+  apply ωLt_connected in Hmn as [H1|H1];
+  apply ωLt_connected in Hpq as [H2|H2]; auto;
   intros Heq; eapply lt_not_refl; revgoals;
   (eapply ch4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
   try apply Hw; [|
@@ -291,7 +289,7 @@ Qed.
 Corollary intMul_ident' : ∀a ∈ ℤ, Int 1 ⋅ a = a.
 Proof with auto.
   intros a Ha.
-  rewrite intMul_comm, intMul_ident... apply pQuotI...
+  rewrite intMul_comm, intMul_ident...
 Qed.
 
 Lemma intMul_n1_l : ∀a ∈ ℤ, -Int 1 ⋅ a = -a.
@@ -444,22 +442,35 @@ Proof with auto.
   ar;[ar|]... auto. ar... ar...
 Qed.
 
+Lemma intLt_irreflexive : irreflexive IntLt ℤ.
+Proof with auto.
+  intros [x [Hx Hlt]]. apply intLtE in Hlt
+    as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
+  subst x. apply int_ident in H2... rewrite H2 in Hlt.
+  eapply lt_not_refl; revgoals; eauto; ar...
+Qed.
+
+Lemma intLt_connected : connected IntLt ℤ.
+Proof with auto.
+  intros x Hx y Hy Hnq.
+  apply pQuotE in Hx as [m [Hm [n [Hn Hx]]]].
+  apply pQuotE in Hy as [p [Hp [q [Hq Hy]]]].
+  subst x y. apply intNeqE in Hnq...
+  apply ωLt_connected in Hnq as []; [| |ar;auto..].
+  + left. apply intLtI...
+  + right. apply intLtI...
+Qed.
+
+Lemma intLt_trich : trich IntLt ℤ.
+Proof with auto.
+  eapply trich_iff. apply intLt_rel. apply intLt_tranr. split.
+  apply intLt_irreflexive. apply intLt_connected.
+Qed.
+
 Theorem intLt_totalOrd : totalOrd IntLt ℤ.
 Proof with auto.
-  pose proof intLt_rel as Hrel.
-  pose proof intLt_tranr as Htran.
-  split... split... apply trich_iff... split.
-  - intros [x [Hx Hlt]]. apply intLtE in Hlt
-      as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
-    subst x. apply int_ident in H2... rewrite H2 in Hlt.
-    eapply lt_not_refl; revgoals; eauto; ar...
-  - intros x Hx y Hy Hnq.
-    apply pQuotE in Hx as [m [Hm [n [Hn Hx]]]].
-    apply pQuotE in Hy as [p [Hp [q [Hq Hy]]]].
-    subst x y. apply intNeqE in Hnq...
-    apply ω_connected in Hnq as []; [| |ar;auto..].
-    + left. apply intLtI...
-    + right. apply intLtI...
+  split. apply intLt_rel. split. apply intLt_tranr.
+  apply intLt_trich.
 Qed.
 
 Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
@@ -483,13 +494,6 @@ Proof with auto.
   subst a q. rewrite intAddInv... apply intLtI...
   rewrite add_0_r, add_0_l... rewrite (add_comm p) in Hlt...
   apply ineq_both_side_add in Hlt...
-Qed.
-
-Lemma int_connected : ∀ a b ∈ ℤ,
-  a ≠ b → a <𝐳 b ∨ b <𝐳 a.
-Proof.
-  intros a Ha b Hb. pose proof totalOrd_connected.
-  eapply H; eauto. apply intLt_totalOrd.
 Qed.
 
 Lemma intLt_not_refl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
@@ -529,7 +533,7 @@ Proof with auto.
   apply Hright... destruct (classic (a = b)).
   subst. exfalso. eapply intLt_not_refl; revgoals.
   apply Hlt. apply intMul_ran...
-  apply int_connected in H as []... exfalso.
+  apply intLt_connected in H as []... exfalso.
   eapply (Hright b Hb a Ha c Hc Hpc) in H.
   eapply intLt_not_refl; revgoals.
   eapply intLt_tranr; eauto. apply intMul_ran...
@@ -569,7 +573,7 @@ Corollary intAdd_cancel : ∀ a b c ∈ ℤ, a + c = b + c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   destruct (classic (a = b))... exfalso.
-  apply int_connected in H as []...
+  apply intLt_connected in H as []...
   - eapply int_ineq_both_side_add in H... rewrite Heq in H.
     eapply intLt_not_refl; revgoals... apply intAdd_ran...
   - eapply int_ineq_both_side_add in H... rewrite Heq in H.
@@ -588,19 +592,19 @@ Corollary intMul_cancel : ∀ a b c ∈ ℤ,
 Proof with eauto.
   intros a Ha b Hb c Hc Hnq0 Heq.
   destruct (classic (a = b))... exfalso.
-  apply int_connected in Hnq0 as [Hneg|Hpos]...
+  apply intLt_connected in Hnq0 as [Hneg|Hpos]...
   - apply int_neg_pos in Hneg as Hpos.
     assert (Heq': a ⋅ -c = b ⋅ -c). {
       repeat rewrite intMul_addInv_r... congruence.
     }
-    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_in_int; auto).
-    apply int_connected in H as [H|H]; [|auto..];
+    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_is_int; auto).
+    apply intLt_connected in H as [H|H]; [|auto..];
       eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq' in H;
       eapply intLt_not_refl; revgoals;
         [apply H|apply intMul_ran|apply H|apply intMul_ran]...
-  - apply int_connected in H as [H|H]; [|auto..];
+  - apply intLt_connected in H as [H|H]; [|auto..];
       eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq in H;

@@ -9,12 +9,12 @@ Require Export ZFC.CH3_2.
 Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
 Notation "a ⁺" := (Suc a) (at level 8).
 
-Lemma S_has_x : ∀ x, x ∈ x⁺.
+Lemma suc_has_n : ∀ n, n ∈ n⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.
 
-Lemma S_neq_0 : ∀ x, x⁺ ≠ ∅.
+Lemma suc_neq_0 : ∀ n, n⁺ ≠ ∅.
 Proof.
-  intros x H. eapply EmptyE in H. apply H. apply S_has_x.
+  intros n H. eapply EmptyE in H. apply H. apply suc_has_n.
 Qed.
 
 (* 归纳集 *)
@@ -147,7 +147,7 @@ Proof with eauto.
     + apply SingE in H. subst. apply BUnionI1...
 Qed.
 
-Lemma S_injection : ∀ n k ∈ ω, n⁺ = k⁺ → n = k.
+Lemma suc_injection : ∀ n k ∈ ω, n⁺ = k⁺ → n = k.
 Proof.
   intros n Hn k Hk Heq.
   assert (⋃n⁺ = ⋃k⁺) by congruence.
@@ -210,14 +210,14 @@ Proof with eauto.
   split. apply ω_has_0. split; [|split].
   - intros H. apply ranE in H as [x Hp].
     apply ReplE in Hp as [n [Hn H]].
-    apply op_correct in H as [_ H]. eapply S_neq_0...
+    apply op_correct in H as [_ H]. eapply suc_neq_0...
   - split... intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply ReplE in H1 as [n [Hx1 Hn]].
     apply ReplE in H2 as [m [Hx2 Hm]].
     apply op_correct in Hn as [Hn1 Hn2].
     apply op_correct in Hm as [Hm1 Hm2]. subst.
-    apply S_injection...
+    apply suc_injection...
   - intros A HA H0 Hc. apply ω_ind... split...
     intros a Ha. apply Hc in Ha as Hsa.
     apply HA in Ha. rewrite <- Hd in Ha.
@@ -342,7 +342,7 @@ Proof with eauto; try congruence.
     assert (Hac: acceptable f0). {
       split... split. intros... intros n Hn Hn1.
       exfalso. apply func_correct in Hn1... apply SingE in Hn1.
-      apply op_correct in Hn1 as [Hn1 _]. eapply S_neq_0...
+      apply op_correct in Hn1 as [Hn1 _]. eapply suc_neq_0...
     }
     eapply domI. apply Hstar. exists f0.
     split; [|split; [apply Hac|apply SingI]].
@@ -402,7 +402,7 @@ Proof with eauto; try congruence.
         + apply domI in H0 as Hd0. apply func_ap in H0...
           destruct Hach as [_ [Hi _]]. apply Hi in Hd0...
         + apply SingE in H0. apply op_correct in H0 as [H0 _].
-          exfalso. eapply S_neq_0...
+          exfalso. eapply suc_neq_0...
       - intros n Hn Hn1.
         apply domE in Hn1 as [y Hp]. apply func_ap in Hp as Hy...
         apply BUnionE in Hp as [Hp|Hp].
@@ -416,7 +416,7 @@ Proof with eauto; try congruence.
           eapply domI. apply BUnionI1...
         + apply SingE in Hp. apply op_correct in Hp as [Heq1 Heq2].
           assert (Heq3: n = k). {
-            eapply S_injection... apply Hdhω...
+            eapply suc_injection... apply Hdhω...
           }
           subst k y. clear Heq1 Hn Hc.
           apply domE in Hk as [y Hp].

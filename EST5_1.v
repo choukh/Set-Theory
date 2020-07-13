@@ -3,7 +3,7 @@
 
 Require Export ZFC.CH4.
 
-(*** EST第五章1：整数：加法，投射，加法逆元，减法 ***)
+(*** EST第五章1：整数的定义，整数运算：加法，投射，加法逆元 ***)
 
 (* 二元函数与等价关系的相容性 *)
 Definition binCompatible : set → set → set → Prop := λ R A F,
@@ -461,16 +461,14 @@ Proof with auto.
   rewrite intAdd_m_n_p_q... apply pQuotI; apply add_ran...
 Qed.
 
-Definition Int : nat → set :=  λ n, [<n, 0>]~.
+Definition Int : nat → set := λ n, [<n, 0>]~.
 
-Lemma int_has_0 : Int 0 ∈ ℤ.
-Proof. apply pQuotI; auto. Qed.
-Hint Immediate int_has_0 : core.
+Lemma int_n : ∀ n, Int n ∈ ℤ.
+Proof. intros. apply pQuotI; auto. Qed.
+Hint Immediate int_n : core.
 
 Example intAdd_1_2 : Int 1 + Int 2 = Int 3.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H3w: 3 ∈ ω) by repeat apply ω_inductive.
   unfold Int. rewrite intAdd_m_n_p_q, add_0_r...
   rewrite add_1_2. apply int_ident...
 Qed.
@@ -532,9 +530,9 @@ Proof with auto.
   apply ineq_leq_iff_lt in Hlt as []...
   - apply IH in H as [b [Hb [H1 H2]]].
     exists b⁺. split. apply ω_inductive...
-    split. rewrite add_m_n... subst... apply S_neq_0.
+    split. rewrite add_m_n... subst... apply suc_neq_0.
   - exists 1. split. apply ω_inductive...
-    split. rewrite suc_eq_add_1... subst... apply S_neq_0.
+    split. rewrite suc_eq_add_1... subst... apply suc_neq_0.
 Qed.
 
 Lemma subtrE : ∀ m n ∈ ω, (∃b ∈ ω, m + b = n ∧ b ≠ 0) → m ∈ n.
@@ -589,7 +587,7 @@ Proof with eauto.
   subst a. split.
   - destruct (classic (m = n)) as [Hmn|Hmn].
     + exists <0, 0>. apply preIntProjI1... rewrite add_0_r...
-    + apply ω_connected in Hmn as []...
+    + apply ωLt_connected in Hmn as []...
       * apply subtrI in H as [b [Hb [Heq _]]]...
         exists <0, b>. apply preIntProjI2...
       * apply subtrI in H as [b [Hb [Heq _]]]...
@@ -684,12 +682,16 @@ Proof with auto.
   rewrite intAddInv, intAddInv...
 Qed.
 
-Lemma intAddInv_in_int : ∀a ∈ ℤ, -a ∈ ℤ.
+Lemma intAddInv_is_int : ∀a ∈ ℤ, -a ∈ ℤ.
 Proof with auto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
   rewrite intAddInv... apply pQuotI...
 Qed.
+
+Lemma neg_int_n : ∀ n, -Int n ∈ ℤ.
+Proof. intros. apply intAddInv_is_int. auto. Qed.
+Hint Immediate neg_int_n : core.
 
 Lemma intAdd_inv : ∀a ∈ ℤ, a - a = Int 0.
 Proof with auto.
@@ -702,8 +704,6 @@ Qed.
 
 Example intAdd_2_n3 : Int 2 - Int 3 = -Int 1.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H3w: 3 ∈ ω) by repeat apply ω_inductive.
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intAdd_m_n_p_q, add_0_r, add_0_l...
   apply int_ident... rewrite (Pred 1), add_m_n, add_0_r, add_0_l...

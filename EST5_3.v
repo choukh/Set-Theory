@@ -7,7 +7,8 @@ Local Ltac mr := apply intMul_ran; auto.
 Local Ltac ar := apply intAdd_ran; auto.
 Local Ltac amr := apply intAdd_ran; apply intMul_ran; auto.
 
-(*** EST第五章3：有理数：加法，投射，加法逆元，减法，乘法，乘法逆元，除法 ***)
+(*** EST第五章3：有理数的定义
+  有理数运算：加法，投射，加法逆元，乘法，乘法逆元 ***)
 
 Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
 Proof with auto.
@@ -22,17 +23,18 @@ Qed.
 (* 非零整数 *)
 Definition ℤ' := (ℤ - ⎨Int 0⎬)%zfc.
 
-Lemma int_has_1 : Int 1 ∈ ℤ.
-Proof. apply pQuotI; auto. Qed.
-
-Lemma nzInt_has_1 : Int 1 ∈ ℤ'.
-Proof with auto.
-  apply CompI... apply pQuotI...
-  apply SingNI. intros H. apply int_0_neq_1...
+Lemma int_suc_neq_0 : ∀ n, Int (S n) ≠ Int 0.
+Proof with eauto.
+  intros n H. apply int_ident in H...
+  rewrite add_0_r, add_0_r in H...
+  eapply suc_neq_0...
 Qed.
 
-Hint Immediate int_has_1 : core.
-Hint Immediate nzInt_has_1 : core.
+Lemma int_suc : ∀ n, Int (S n) ∈ ℤ'.
+Proof with auto.
+  intros. apply CompI... apply SingNI. apply int_suc_neq_0.
+Qed.
+Hint Immediate int_suc : core.
 
 Lemma nzIntI : ∀a ∈ ℤ, a ≠ Int 0 → a ∈ ℤ'.
 Proof with auto.
@@ -219,16 +221,14 @@ Proof with auto.
   rewrite ratAdd_a_b_c_d... apply pQuotI. amr;nz. nzmr.
 Qed.
 
-Definition Rat : nat → set :=  λ n, [<Int n, Int 1>]~.
+Definition Rat : nat → set := λ n, [<Int n, Int 1>]~.
 
-Lemma rat_has_0 : Rat 0 ∈ ℚ.
-Proof. apply pQuotI; auto. Qed.
-Hint Immediate rat_has_0 : core.
+Lemma rat_n : ∀ n, Rat n ∈ ℚ.
+Proof. intros. apply pQuotI; auto. Qed.
+Hint Immediate rat_n : core.
 
 Example ratAdd_1_2 : Rat 1 + Rat 2 = Rat 3.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H2z: Int 2 ∈ ℤ) by (apply pQuotI; auto).
   unfold Rat. rewrite ratAdd_a_b_c_d...
   rewrite intMul_ident, intMul_ident, intAdd_1_2...
 Qed.
@@ -266,10 +266,15 @@ Proof.
     intMul_0_l, intAdd_ident; auto; nz.
 Qed.
 
+Corollary ratAdd_ident' : ∀r ∈ ℚ, Rat 0 + r = r.
+Proof with auto.
+  intros r Hr. rewrite ratAdd_comm, ratAdd_ident...
+Qed.
+
 Theorem ratAddInv_exists : ∀r ∈ ℚ, ∃s ∈ ℚ, r + s = Rat 0.
 Proof with auto.
   intros r Hr. apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
-  assert ((-a)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
+  assert ((-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
   exists ([<(-a)%z, b>]~). split. apply pQuotI...
   subst r. rewrite ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
@@ -304,7 +309,7 @@ Lemma planeEquiv_intAddInv : ∀ a b c d,
   <a, b> ~ <c, d> → <a, b> ~ < -c, -d>.
 Proof with auto.
   intros. apply planeEquivE2 in H as [H [Ha [Hb [Hc Hd]]]].
-  apply planeEquivI... apply intAddInv_in_int...
+  apply planeEquivI... apply intAddInv_is_int...
   apply intAddInv_in_nzInt... unfold RatEq in *.
   rewrite intMul_addInv_l, intMul_addInv_r; nz... congruence.
 Qed.
@@ -320,7 +325,7 @@ Proof with auto.
   intros a Ha b Hb.
   destruct ratEquiv_equiv as [_ [Hrefl _]].
   apply nzIntE in Hb as Hb0.
-  apply int_connected in Hb0 as [Hnb|Hpb]; nz...
+  apply intLt_connected in Hb0 as [Hnb|Hpb]; nz...
   - exists < -a, -b>. apply SepI. apply eqvcI.
     apply planeEquiv_intAddInv. apply Hrefl. apply CProdI...
     zfcrewrite. apply int_neg_pos...
@@ -370,8 +375,8 @@ Lemma ratAddInv : ∀a ∈ ℤ, ∀b ∈ ℤ', (-[<a, b>]~) = [<(-a)%z, b>]~.
 Proof with eauto.
   intros a Ha b Hb.
   pose proof (ratProj a Ha b Hb) as [c [Hc [d [Hd [H1 [H2 _]]]]]].
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
-  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
+  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
   destruct ratEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
@@ -391,21 +396,25 @@ Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratAddInv, ratAddInv, intAddInv_double...
-  apply intAddInv_in_int...
+  apply intAddInv_is_int...
 Qed.
 
-Lemma ratAddInv_in_int : ∀r ∈ ℚ, -r ∈ ℚ.
+Lemma ratAddInv_is_rat : ∀r ∈ ℚ, -r ∈ ℚ.
 Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Heq]]]]. subst r.
-  rewrite ratAddInv... apply pQuotI... apply intAddInv_in_int...
+  rewrite ratAddInv... apply pQuotI... apply intAddInv_is_int...
 Qed.
+
+Lemma neg_rat_n : ∀ n, -Rat n ∈ ℚ.
+Proof. intros. apply ratAddInv_is_rat. auto. Qed.
+Hint Immediate neg_rat_n : core.
 
 Lemma ratAdd_inv : ∀r ∈ ℚ, r - r = Rat 0.
 Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
   rewrite ratAddInv, ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
   rewrite intMul_ident, intMul_0_l, intMul_addInv_l,
@@ -414,11 +423,6 @@ Qed.
 
 Example ratAdd_2_n3 : Rat 2 - Rat 3 = -Rat 1.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H3w: 3 ∈ ω) by repeat apply ω_inductive.
-  assert (H2z: Int 2 ∈ ℤ) by (apply pQuotI; auto).
-  assert (H3z: Int 3 ∈ ℤ) by (apply pQuotI; auto).
-  assert (Hn3z: (-Int 3)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
   unfold Rat. rewrite ratAddInv, ratAddInv, ratAdd_a_b_c_d...
   repeat rewrite intMul_ident... rewrite intAdd_2_n3...
 Qed.
@@ -523,12 +527,6 @@ Qed.
 
 Example ratMul_2_n2 : Rat 2 ⋅ -Rat 2 = -Rat 4.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H4w: 4 ∈ ω) by repeat apply ω_inductive.
-  assert (H2z: Int 2 ∈ ℤ) by (apply pQuotI; auto).
-  assert (H4z: Int 4 ∈ ℤ) by (apply pQuotI; auto).
-  assert (Hn2z: (-Int 2)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
-  assert (Hn4z: (-Int 4)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMul_a_b_c_d...
   rewrite intMul_2_n2, intMul_ident...
 Qed.
@@ -589,7 +587,7 @@ Qed.
 Lemma ratMul_ident' : ∀r ∈ ℚ, Rat 1 ⋅ r = r.
 Proof with auto.
   intros a Ha.
-  rewrite ratMul_comm, ratMul_ident... apply pQuotI...
+  rewrite ratMul_comm, ratMul_ident...
 Qed.
 
 Lemma ratMul_addInv : ∀r ∈ ℚ, -Rat 1 ⋅ r = -r.
@@ -598,7 +596,7 @@ Proof with auto.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMul_a_b_c_d...
   rewrite intMul_n1_l, (intMul_comm (Int 1)),
-    intMul_ident; nz... apply intAddInv_in_int...
+    intMul_ident; nz...
 Qed.
 
 Lemma ratMul_0_r : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
@@ -637,17 +635,14 @@ Qed.
 (* 非零有理数 *)
 Definition ℚ' := (ℚ - ⎨Rat 0⎬)%zfc.
 
-Lemma rat_has_1 : Rat 1 ∈ ℚ.
-Proof. apply pQuotI; auto. Qed.
-
-Lemma nzRat_has_1 : Rat 1 ∈ ℚ'.
-Proof with auto.
-  apply CompI... apply pQuotI...
-  apply SingNI. intros H. apply rat_0_neq_1...
+Lemma rat_suc : ∀ n, Rat (S n) ∈ ℚ'.
+Proof with eauto.
+  intros. apply CompI... apply SingNI.
+  intros H. apply rat_ident in H...
+  rewrite intMul_ident, intMul_ident in H...
+  eapply int_suc_neq_0...
 Qed.
-
-Hint Immediate rat_has_1 : core.
-Hint Immediate nzRat_has_1 : core.
+Hint Immediate rat_suc : core.
 
 Lemma nzRatI : ∀r ∈ ℚ, r ≠ Rat 0 → r ∈ ℚ'.
 Proof with auto.
@@ -745,7 +740,7 @@ Proof with auto.
   rewrite ratMulInv, ratMulInv...
 Qed.
 
-Lemma ratMulInv_in_int : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
+Lemma ratMulInv_in_rat : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
 Proof with auto.
   intros r Hr. assert (Hr' := Hr).
   apply CompE in Hr as [Hr _].
@@ -768,23 +763,15 @@ Qed.
 
 Example ratMul_n4_2' : -Rat 4 / Rat 2 = -Rat 2.
 Proof with auto.
-  assert (H2w: 2 ∈ ω) by repeat apply ω_inductive.
-  assert (H4w: 4 ∈ ω) by repeat apply ω_inductive.
-  assert (H2z: Int 2 ∈ ℤ) by (apply pQuotI; auto).
-  assert (H4z: Int 4 ∈ ℤ) by (apply pQuotI; auto).
-  assert (Hn4z: (-Int 4)%z ∈ ℤ) by (apply intAddInv_in_int; auto).
-  assert (H2z': Int 2 ∈ ℤ'). {
-    apply nzIntI... intros H. apply int_ident in H...
-    rewrite add_0_r, add_0_r in H... eapply S_neq_0; eauto.
-  }
+  pose proof (int_suc 1) as H2z'.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMulInv...
   rewrite ratMul_a_b_c_d...
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intMul_m_n_p_q, intMul_m_n_p_q...
   rewrite mul_1_r, mul_1_r, mul_0_r, mul_0_r,
     (mul_comm 1), mul_1_r, mul_0_r, mul_0_l,
-    add_0_r, add_0_r, add_0_l...
-  apply rat_ident... apply pQuotI... apply pQuotI...
+    add_0_r, add_0_r, add_0_l... apply rat_ident...
+  apply pQuotI... apply pQuotI... apply int_suc.
   rewrite intMul_m_n_p_q, intMul_m_n_p_q...
   rewrite mul_0_l, mul_0_l, mul_0_l, mul_0_r, mul_0_r,
     mul_1_r, mul_2_2, add_0_l, add_0_l...

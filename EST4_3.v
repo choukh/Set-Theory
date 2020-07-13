@@ -5,7 +5,7 @@ Require Export ZFC.EST4_2.
 
 (*** EST第四章3：自然数上的全序和良序，强归纳原理 ***)
 
-Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70).
+Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : Nat_scope.
 
 Lemma n_in_s : ∀n ∈ ω, n ∈ n⁺.
 Proof.
@@ -21,12 +21,12 @@ Proof with auto.
 Qed.
 
 (* 自然数上的∈构成全序关系 *)
-Definition εω := {p ∊ ω × ω | λ p, π1 p ∈ π2 p}.
+Definition ωLt := {p ∊ ω × ω | λ p, π1 p ∈ π2 p}.
 
-Lemma εω_rel : rel εω ω.
+Lemma ωLt_rel : rel ωLt ω.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 
-Lemma εω_tranr : tranr εω.
+Lemma ωLt_tranr : tranr ωLt.
 Proof with eauto.
   intros x y z H1 H2.
   apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx Hy].
@@ -56,7 +56,7 @@ Proof with auto.
   apply IH. apply ineq_both_side_s...
 Qed.
 
-Lemma empty_in_s : ∀n ∈ ω, 0 ∈ n⁺.
+Lemma suc_has_0 : ∀n ∈ ω, 0 ∈ n⁺.
 Proof with auto.
   intros n Hn.
   set {n ∊ ω | λ n, 0 ∈ n⁺} as N.
@@ -64,48 +64,55 @@ Proof with auto.
   apply ineq_leq_iff_lt... apply ω_inductive...
 Qed.
 
-Theorem εω_trich : trich εω ω.
+Lemma ωLt_irreflexive : irreflexive ωLt ω.
 Proof with eauto.
-  eapply trich_iff. apply εω_rel. apply εω_tranr. split.
-  - intros [k [Hk Hp]]. apply SepE in Hp as [_ Hp].
-    zfcrewrite. eapply lt_not_refl...
-  - intros n Hn.
-    set {n ∊ ω | λ n, ∀ m, m ∈ ω →
-      n ≠ m → < n, m > ∈ εω ∨ < m, n > ∈ εω} as N.
-    ω_induction N Hn; intros k Hk Hnq.
-    + assert (k ≠ ∅) by congruence.
-      apply SI in H as [p [Hp Heq]]... left. subst.
-      apply SepI; zfcrewrite. apply CProdI... apply empty_in_s...
-    + ω_destruct k.
-      * subst. right. apply SepI; zfcrewrite. apply CProdI...
-        apply ω_inductive... apply empty_in_s...
-      * subst. assert (m ≠ n') by congruence.
-        apply IH in H as []...
-        left. apply SepE in H as [Hm1 Hm2]; zfcrewrite.
-        apply CProdE1 in Hm1 as [Hm1 _]; zfcrewrite.
-        apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
-        rewrite <- (ineq_both_side_s m Hm1 n' Hn')...
-        right. apply SepE in H as [Hm1 Hm2]; zfcrewrite.
-        apply CProdE1 in Hm1 as [_ Hm1]; zfcrewrite.
-        apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
-        rewrite <- (ineq_both_side_s n' Hn' m Hm1)...
+  intros [k [Hk Hp]]. apply SepE in Hp as [_ Hp].
+  zfcrewrite. eapply lt_not_refl...
 Qed.
 
-Theorem εω_totalOrd : totalOrd εω ω.
+Lemma ωLt_connected_0 : connected ωLt ω.
+Proof with auto.
+  intros n Hn.
+  set {n ∊ ω | λ n, ∀ m, m ∈ ω →
+    n ≠ m → < n, m > ∈ ωLt ∨ < m, n > ∈ ωLt} as N.
+  ω_induction N Hn; intros k Hk Hnq.
+  + assert (k ≠ ∅) by congruence.
+    apply SI in H as [p [Hp Heq]]... left. subst.
+    apply SepI; zfcrewrite. apply CProdI... apply suc_has_0...
+  + ω_destruct k.
+    * subst. right. apply SepI; zfcrewrite. apply CProdI...
+      apply ω_inductive... apply suc_has_0...
+    * subst. assert (m ≠ n') by congruence.
+      apply IH in H as []...
+      left. apply SepE in H as [Hm1 Hm2]; zfcrewrite.
+      apply CProdE1 in Hm1 as [Hm1 _]; zfcrewrite.
+      apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
+      rewrite <- (ineq_both_side_s m Hm1 n' Hn')...
+      right. apply SepE in H as [Hm1 Hm2]; zfcrewrite.
+      apply CProdE1 in Hm1 as [_ Hm1]; zfcrewrite.
+      apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
+      rewrite <- (ineq_both_side_s n' Hn' m Hm1)...
+Qed.
+
+Lemma ωLt_connected : ∀ m n ∈ ω, m ≠ n → m ∈ n ∨ n ∈ m.
+Proof with auto.
+  intros m Hm n Hn Hnq0.
+  apply ωLt_connected_0 in Hnq0 as []; auto; [left|right];
+    apply SepE in H as []; zfcrewrite.
+Qed.
+
+Lemma ωLt_trich : trich ωLt ω.
+Proof with auto.
+  eapply trich_iff. apply ωLt_rel. apply ωLt_tranr. split.
+  apply ωLt_irreflexive. apply ωLt_connected_0.
+Qed.
+
+Theorem ωLt_totalOrd : totalOrd ωLt ω.
 Proof.
-   split. apply εω_rel. split. apply εω_tranr. apply εω_trich.
+   split. apply ωLt_rel. split. apply ωLt_tranr. apply ωLt_trich.
 Qed.
 
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
-
-Lemma ω_connected : ∀ m n ∈ ω, m ≠ n → m ∈ n ∨ n ∈ m.
-Proof with auto.
-  intros m Hm n Hn Hnq0.
-  pose proof (totalOrd_connected _ _ εω_totalOrd).
-  apply H in Hnq0 as []...
-  left. apply SepE in H0 as [_ H0]; zfcrewrite.
-  right. apply SepE in H0 as [_ H0]; zfcrewrite.
-Qed.
 
 Corollary lt_iff_sub : ∀ m n ∈ ω, m ∈ n ↔ m ⊂ n.
 Proof with eauto.
@@ -113,7 +120,7 @@ Proof with eauto.
   - intros H. split. intros x Hx. eapply nat_trans...
     intros Heq. subst. eapply lt_not_refl...
   - intros [H Hnq].
-    apply ω_connected in Hnq as []...
+    apply ωLt_connected in Hnq as []...
     apply H in H0. exfalso. eapply lt_not_refl...
 Qed.
 
@@ -124,7 +131,7 @@ Proof with eauto.
     + intros x Hx. eapply nat_trans...
     + subst. apply sub_refl.
   - intros H. destruct (classic (m = n)). right...
-    left. apply ω_connected in H0 as []...
+    left. apply ωLt_connected in H0 as []...
     apply H in H0. exfalso. eapply lt_not_refl...
 Qed.
 
@@ -147,7 +154,7 @@ Proof with eauto.
   intros H. destruct (classic (m = n)).
   - subst. exfalso. eapply lt_not_refl; revgoals.
     apply H. apply add_ran...
-  - apply ω_connected in H0 as []...
+  - apply ωLt_connected in H0 as []...
     pose proof (Hright n Hn m Hm p Hp H0).
     assert (n + p ∈ n + p). {
       eapply nat_trans... apply add_ran...
@@ -179,7 +186,7 @@ Proof with eauto.
   intros H. destruct (classic (m = n)).
   - subst. exfalso. eapply lt_not_refl; revgoals.
     apply H. apply mul_ran...
-  - apply ω_connected in H0 as []...
+  - apply ωLt_connected in H0 as []...
     pose proof (Hright n Hn m Hm p Hp Hnq0 H0).
     assert (n ⋅ p ∈ n ⋅ p). {
       eapply nat_trans... apply mul_ran...
@@ -191,7 +198,7 @@ Corollary add_cancel : ∀ m n p ∈ ω, m + p = n + p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Heq.
   destruct (classic (m = n))... exfalso.
-  apply ω_connected in H as []...
+  apply ωLt_connected in H as []...
   - eapply ineq_both_side_add in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply add_ran...
   - eapply ineq_both_side_add in H... rewrite Heq in H.
@@ -208,7 +215,7 @@ Corollary mul_cancel : ∀ m n p ∈ ω, p ≠ 0 → m ⋅ p = n ⋅ p → m = n
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   destruct (classic (m = n))... exfalso.
-  apply ω_connected in H as []...
+  apply ωLt_connected in H as []...
   - eapply ineq_both_side_mul in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply mul_ran...
   - eapply ineq_both_side_mul in H... rewrite Heq in H.
@@ -235,7 +242,7 @@ Proof with eauto.
   subst k. intros Hma. apply H. clear H n Hn N Hk. 
   exists m. split... intros n Hn. apply HA in Hn as Hnω.
   destruct (classic (m = n))... left.
-  apply ω_connected in H as []... exfalso. eapply IH...
+  apply ωLt_connected in H as []... exfalso. eapply IH...
 Qed.
 
 Corollary f_ran_well_ordering : ¬ ∃ f, f: ω ⇒ ω ∧
@@ -302,7 +309,7 @@ Qed.
 Lemma ineq_nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
 Proof with auto.
   intros n Hn. split; intros.
-  - apply ω_connected in H as []... exfalso0.
+  - apply ωLt_connected in H as []... exfalso0.
   - destruct (classic (n = 0))... subst. exfalso0.
 Qed.
 
@@ -313,7 +320,7 @@ Proof with eauto.
     apply (lt_not_refl a)... eapply nat_trans...
     apply (lt_not_refl a)... subst...
   - destruct (classic (a = b)). right... left.
-    apply ω_connected in H0 as []... exfalso...
+    apply ωLt_connected in H0 as []... exfalso...
 Qed.
 
 Lemma ineq_leq_add_enlarge : ∀ a b ∈ ω, a ≤ a + b.
@@ -356,12 +363,6 @@ Proof with eauto.
   rewrite mul_m_n in Hc...
   apply ineq_lt_add_shrink in Hc; try apply mul_ran...
   eapply lt_not_refl; revgoals...
-Qed.
-
-Lemma S_has_0 : ∀n ∈ ω, 0 ∈ n⁺.
-Proof with auto.
-  intros n Hn. apply ineq_nq_0_gt_0.
-  apply ω_inductive... apply S_neq_0.
 Qed.
 
 Lemma not_lt_gt : ∀ a b ∈ ω, a ∈ b → b ∈ a → ⊥.

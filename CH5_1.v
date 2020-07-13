@@ -35,7 +35,7 @@ Proof with auto.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratAddInv in Hp... apply rat_pos_neg in Hp.
   rewrite ratAddInv in Hp... rewrite intAddInv_double in Hp...
-  apply intAddInv_in_int...
+  apply intAddInv_is_int...
 Qed.
 
 Close Scope Rat_scope.
@@ -47,7 +47,7 @@ Proof with eauto.
   assert (a + c - c = b + c - c) by congruence.
   rewrite (intAdd_assoc a), (intAdd_assoc b) in H...
   rewrite intAdd_inv, intAdd_ident, intAdd_ident in H...
-  apply intAddInv_in_int... apply intAddInv_in_int...
+  apply intAddInv_is_int... apply intAddInv_is_int...
 Qed.
 
 Close Scope Int_scope.
@@ -55,13 +55,13 @@ Open Scope Nat_scope.
 
 Lemma add_1_1 : 1 + 1 = 2.
 Proof with auto.
-  rewrite Pred, add_m_n, add_m_n', add_0_r...
+  rewrite Pred, add_m_n, add_m_n', add_0_r;
+    auto; repeat apply ω_inductive.
 Qed.
 
 Lemma mul_2_l : ∀m ∈ ω, 2 ⋅ m = m + m.
 Proof with auto.
   intros n Hn.
-  assert (Hw2: 2 ∈ ω) by (apply ω_inductive; auto).
   set {n ∊ ω | λ n, 2 ⋅ n = n + n} as N.
   ω_induction N Hn.
   - rewrite mul_0_r, add_0_r...
@@ -78,7 +78,6 @@ Open Scope Int_scope.
 Lemma intMul_2_a : ∀a ∈ ℤ, Int 2 ⋅ a = a + a.
 Proof with auto.
   intros a Ha. unfold Int.
-  assert (Hw2: 2 ∈ ω) by (apply ω_inductive; auto).
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   rewrite intMul_m_n_p_q, intAdd_m_n_p_q...
   rewrite mul_0_l, mul_0_l, add_0_r, add_0_r...
@@ -89,15 +88,10 @@ Qed.
 Example ch5_14: ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
 Proof with eauto.
   intros p Hp s Hs Hlt.
-  assert (H2w: 2 ∈ ω) by (apply ω_inductive; auto).
-  assert (H2z': Int 2 ∈ ℤ'). {
-    apply nzIntI. apply pQuotI...
-    intros Heq. apply int_ident in Heq...
-    rewrite add_0_r, add_0_r in Heq... eapply S_neq_0...
-  }
-  assert (H2z: Int 2 ∈ ℤ) by nz.
+  pose proof (int_suc 1) as H2z'.
   assert (Hp2: intPos (Int 2)). {
-    apply intLt... rewrite add_0_r, add_0_r... apply empty_in_s...
+    apply intLt... rewrite add_0_r, add_0_r...
+    apply suc_has_0... apply ω_inductive...
   }
   apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]].
