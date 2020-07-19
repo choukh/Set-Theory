@@ -4,7 +4,7 @@
 
 Require Export ZFC.TG1.
 
-(*** TG集合论扩展2：二元并，集族并，建构式，任意交，二元交，有序对 ***)
+(*** TG集合论2：二元并，集族并，建构式，任意交，二元交，有序对 ***)
 
 (** 二元并 **)
 Definition BUnion : set → set → set := λ X Y, ⋃{X, Y}.
@@ -372,3 +372,5 @@ Proof.
   - apply GUSing. apply H.
   - apply GUPair; assumption.
 Qed.
+
+Close Scope TG1_scope.

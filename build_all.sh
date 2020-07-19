@@ -8,8 +8,6 @@ echo "building TG2"
 coqc -R . ZFC TG2.v
 echo "building TG3"
 coqc -R . ZFC TG3.v
-echo "building TG4"
-coqc -R . ZFC TG4.v
 coqc -R . ZFC TG_full.v
 echo "building EST2"
 coqc -R . ZFC EST2.v

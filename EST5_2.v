@@ -19,7 +19,7 @@ Notation "a ⋅ᵥ b" := (PreIntMul[<a, b>])
 
 Lemma mul_split : ∀ a b ∈ ω, ∃ m n p q ∈ ω,
   a = m⋅p + n⋅q ∧ b = m⋅q + n⋅p.
-Proof with try apply ω_inductive; auto.
+Proof with try apply ω_inductive; nauto.
   intros a Ha b Hb.
   exists a. split... exists b. split...
   exists 1. split... exists 0. split...
@@ -139,7 +139,7 @@ Proof with auto.
 Qed.
 
 Lemma intMul_0_r : ∀a ∈ ℤ, a ⋅ Int 0 = Int 0.
-Proof with auto.
+Proof with nauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   unfold Int. rewrite intMul_m_n_p_q...
@@ -157,7 +157,7 @@ Proof with auto.
 Qed.
 
 Example intMul_2_n2 : Int 2 ⋅ -Int 2 = -Int 4.
-Proof with auto.
+Proof with nauto.
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intMul_m_n_p_q...
   rewrite mul_0_l, mul_0_r, mul_0_r, add_0_r, add_0_r...
@@ -235,15 +235,16 @@ Proof with auto.
     (intMul_comm c)... apply intAdd_ran...
 Qed.
 
-Theorem int_0_neq_1 : Int 0 ≠ Int 1.
-Proof with auto.
-  unfold Int. intros H. apply int_ident in H...
-  rewrite add_0_r, add_0_r in H... eapply suc_neq_0. eauto.
+Theorem int_suc_neq_0 : ∀ n, Int (S n) ≠ Int 0.
+Proof with neauto.
+  intros n H. apply int_ident in H...
+  rewrite add_0_r, add_0_r in H... eapply suc_neq_0...
 Qed.
+Hint Immediate int_suc_neq_0 : number_hint.
 
 Theorem int_no_0_div : ∀ a b ∈ ℤ,
   (a ⋅ b = Int 0)%z → a = Int 0 ∨ b = Int 0.
-Proof with auto.
+Proof with nauto.
   intros a Ha b Hb Heq.
   destruct (classic (a = Int 0)) as [|H1];
   destruct (classic (b = Int 0)) as [|H2]... exfalso.
@@ -252,7 +253,7 @@ Proof with auto.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
   subst a b. rewrite intMul_m_n_p_q...
   cut (m⋅p + n⋅q ≠ m⋅q + n⋅p). intros Hnq Heq. apply Hnq.
-  apply int_ident in Heq; [|auto;amr..]...
+  apply int_ident in Heq; [|nauto;amr..]...
   rewrite add_0_r, add_0_l in Heq; auto; amr...
   assert (Hmn: m ≠ n). {
     intros H. apply H1. apply int_ident...
@@ -264,8 +265,8 @@ Proof with auto.
   }
   clear H1 H2.
   assert (Hw: m⋅q + n⋅p ∈ ω) by (amr; auto).
-  apply ωLt_connected in Hmn as [H1|H1];
-  apply ωLt_connected in Hpq as [H2|H2]; auto;
+  apply lt_connected in Hmn as [H1|H1];
+  apply lt_connected in Hpq as [H2|H2]; auto;
   intros Heq; eapply lt_not_refl; revgoals;
   (eapply ch4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
   try apply Hw; [|
@@ -279,7 +280,7 @@ Close Scope Nat_scope.
 Open Scope Int_scope.
 
 Theorem intMul_ident : ∀a ∈ ℤ, a ⋅ Int 1 = a.
-Proof with auto.
+Proof with nauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   unfold Int. rewrite intMul_m_n_p_q...
@@ -287,13 +288,13 @@ Proof with auto.
 Qed.
 
 Corollary intMul_ident' : ∀a ∈ ℤ, Int 1 ⋅ a = a.
-Proof with auto.
+Proof with nauto.
   intros a Ha.
   rewrite intMul_comm, intMul_ident...
 Qed.
 
-Lemma intMul_n1_l : ∀a ∈ ℤ, -Int 1 ⋅ a = -a.
-Proof with auto.
+Lemma intMul_addInv : ∀a ∈ ℤ, -Int 1 ⋅ a = -a.
+Proof with nauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   unfold Int. rewrite intAddInv, intAddInv, intMul_m_n_p_q...
@@ -302,7 +303,7 @@ Proof with auto.
 Qed.
 
 Lemma intMul_0_l : ∀a ∈ ℤ, Int 0 ⋅ a = Int 0.
-Proof. intros a Ha. rewrite intMul_comm, intMul_0_r; auto. Qed.
+Proof. intros a Ha. rewrite intMul_comm, intMul_0_r; nauto. Qed.
 
 Lemma intMul_addInv_lr : ∀ a b ∈ ℤ, a ⋅ -b = -a ⋅ b.
 Proof with auto.
@@ -343,7 +344,7 @@ Proof.
   assert (Hmq: m + q ∈ ω) by (ar; auto).
   assert (Hpn: p + n ∈ ω) by (ar; auto).
   assert (Hn'q': n' + q' ∈ ω) by (ar; auto).
-  rewrite (ineq_both_side_add _ Hmq _ Hpn _ Hn'q').
+  rewrite (lt_both_side_add _ Hmq _ Hpn _ Hn'q').
   rewrite (add_assoc m), (add_comm q), <- (add_assoc m),
   <- (add_assoc m), (add_comm n'), (add_assoc p),
     (add_comm n), <- (add_assoc p), <- (add_assoc p),
@@ -354,7 +355,7 @@ Proof.
   assert (Hm'q': m' + q' ∈ ω) by (ar; auto).
   assert (Hp'n': p' + n' ∈ ω) by (ar; auto).
   assert (Hnq: n + q ∈ ω) by (ar; auto).
-  rewrite <- (ineq_both_side_add _ Hm'q' _ Hp'n' _ Hnq).
+  rewrite <- (lt_both_side_add _ Hm'q' _ Hp'n' _ Hnq).
   reflexivity.
 Qed.
 
@@ -409,6 +410,14 @@ Proof.
   - apply intLtI; auto.
 Qed.
 
+Lemma intLt_not_refl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
+Proof with auto.
+  intros a Ha Hc.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply intLt in Hc... eapply lt_not_refl; revgoals.
+  apply Hc. ar...
+Qed.
+
 Lemma intNeqE : ∀ m n p q ∈ ω,
   [<m, n>]~ ≠ [<p, q>]~ → m + q ≠ p + n.
 Proof with auto.
@@ -431,13 +440,13 @@ Proof with auto.
     as [_ [_ [_ [_ [r [Hr [s [Hs [_ [Hz _]]]]]]]]]]. subst x y z.
   apply intLt in H1... apply intLt in H2... apply intLt...
   assert (H1': m + q + s ∈ p + n + s)
-    by (apply ineq_both_side_add; auto; ar; auto).
+    by (apply lt_both_side_add; auto; ar; auto).
   assert (H2': p + s + n ∈ r + q + n)
-    by (apply ineq_both_side_add; auto; ar; auto).
+    by (apply lt_both_side_add; auto; ar; auto).
   rewrite (add_assoc m), (add_comm q), <- (add_assoc m),
     (add_assoc p), (add_comm n), <- (add_assoc p) in H1'...
   rewrite (add_assoc r), (add_comm q), <- (add_assoc r) in H2'...
-  eapply ineq_both_side_add; revgoals.
+  eapply lt_both_side_add; revgoals.
   eapply nat_trans; revgoals; eauto.
   ar;[ar|]... auto. ar... ar...
 Qed.
@@ -456,7 +465,7 @@ Proof with auto.
   apply pQuotE in Hx as [m [Hm [n [Hn Hx]]]].
   apply pQuotE in Hy as [p [Hp [q [Hq Hy]]]].
   subst x y. apply intNeqE in Hnq...
-  apply ωLt_connected in Hnq as []; [| |ar;auto..].
+  apply lt_connected in Hnq as []; [| |ar;auto..].
   + left. apply intLtI...
   + right. apply intLtI...
 Qed.
@@ -477,34 +486,26 @@ Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
 Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
 
 Lemma int_pos_neg : ∀ a, intPos a → intNeg (-a)%z.
-Proof with auto.
+Proof with nauto.
   intros. apply intLtE in H
     as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
   apply int_ident in H1... rewrite add_0_r, add_0_l in H1...
   subst a n. rewrite intAddInv... apply intLtI...
   rewrite add_0_r, add_0_l... rewrite add_comm in Hlt...
-  apply ineq_both_side_add in Hlt...
+  apply lt_both_side_add in Hlt...
 Qed.
 
 Lemma int_neg_pos : ∀ a, intNeg a → intPos (-a)%z.
-Proof with auto.
+Proof with nauto.
   intros. apply intLtE in H
     as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
   apply int_ident in H2... rewrite add_0_r, add_0_l in H2...
   subst a q. rewrite intAddInv... apply intLtI...
   rewrite add_0_r, add_0_l... rewrite (add_comm p) in Hlt...
-  apply ineq_both_side_add in Hlt...
+  apply lt_both_side_add in Hlt...
 Qed.
 
-Lemma intLt_not_refl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
-Proof with auto.
-  intros a Ha Hc.
-  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intLt in Hc... eapply lt_not_refl; revgoals.
-  apply Hc. ar...
-Qed.
-
-Theorem int_ineq_both_side_add : ∀ a b c ∈ ℤ,
+Theorem intLt_both_side_add : ∀ a b c ∈ ℤ,
   a <𝐳 b ↔ (a + c <𝐳 b + c)%z.
 Proof with auto.
   intros a Ha b Hb c Hc.
@@ -522,12 +523,12 @@ Proof with auto.
     (add_assoc q), <- (add_assoc m),
     (add_assoc p), <- (add_assoc r), (add_comm r Hr n Hn),
     (add_assoc n), <- (add_assoc p); [|auto;ar;auto..].
-  apply ineq_both_side_add; ar...
+  apply lt_both_side_add; ar...
 Qed.
 
-Theorem int_ineq_both_side_mul : ∀ a b c ∈ ℤ,
+Theorem intLt_both_side_mul : ∀ a b c ∈ ℤ,
   intPos c → a <𝐳 b ↔ (a ⋅ c <𝐳 b ⋅ c)%z.
-Proof with auto.
+Proof with nauto.
   cut (∀ a b c ∈ ℤ, intPos c → a <𝐳 b → (a ⋅ c <𝐳 b ⋅ c)%z).
   intros Hright a Ha b Hb c Hc Hpc. split; intros Hlt.
   apply Hright... destruct (classic (a = b)).
@@ -569,14 +570,24 @@ Qed.
 Close Scope Nat_scope.
 Open Scope Int_scope.
 
+Corollary intLt_both_side_add_tran : ∀ a b c d ∈ ℤ,
+  a <𝐳 b → c <𝐳 d → a + c <𝐳 b + d.
+Proof with auto.
+  intros a Ha b Hb c Hc d Hd H1 H2.
+  apply (intLt_both_side_add a Ha b Hb c Hc) in H1.
+  apply (intLt_both_side_add c Hc d Hd b Hb) in H2.
+  rewrite (intAdd_comm c), (intAdd_comm d) in H2...
+  eapply intLt_tranr; eauto.
+Qed.
+
 Corollary intAdd_cancel : ∀ a b c ∈ ℤ, a + c = b + c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   destruct (classic (a = b))... exfalso.
   apply intLt_connected in H as []...
-  - eapply int_ineq_both_side_add in H... rewrite Heq in H.
+  - eapply intLt_both_side_add in H... rewrite Heq in H.
     eapply intLt_not_refl; revgoals... apply intAdd_ran...
-  - eapply int_ineq_both_side_add in H... rewrite Heq in H.
+  - eapply intLt_both_side_add in H... rewrite Heq in H.
     eapply intLt_not_refl; revgoals... apply intAdd_ran...
 Qed.
 
@@ -589,7 +600,7 @@ Qed.
 
 Corollary intMul_cancel : ∀ a b c ∈ ℤ,
   c ≠ Int 0 → a ⋅ c = b ⋅ c → a = b.
-Proof with eauto.
+Proof with neauto.
   intros a Ha b Hb c Hc Hnq0 Heq.
   destruct (classic (a = b))... exfalso.
   apply intLt_connected in Hnq0 as [Hneg|Hpos]...
@@ -597,26 +608,74 @@ Proof with eauto.
     assert (Heq': a ⋅ -c = b ⋅ -c). {
       repeat rewrite intMul_addInv_r... congruence.
     }
-    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_is_int; auto).
+    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_int; auto).
     apply intLt_connected in H as [H|H]; [|auto..];
-      eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
+      eapply intLt_both_side_mul in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq' in H;
       eapply intLt_not_refl; revgoals;
         [apply H|apply intMul_ran|apply H|apply intMul_ran]...
   - apply intLt_connected in H as [H|H]; [|auto..];
-      eapply int_ineq_both_side_mul in H; swap 1 5; swap 2 10;
+      eapply intLt_both_side_mul in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq in H;
       eapply intLt_not_refl; revgoals;
     [apply H|apply intMul_ran|apply H|apply intMul_ran]...
 Qed.
 
+Notation "a ≤ b" := (a <𝐳 b ∨ a = b) (at level 70) : Int_scope.
+
+Corollary intLeq_both_side_add : ∀ a b c ∈ ℤ,
+  a ≤ b ↔ a + c ≤ b + c.
+Proof with eauto.
+  intros a Ha b Hb c Hc. split; intros [].
+  - left. apply intLt_both_side_add...
+  - right. congruence.
+  - left. apply intLt_both_side_add in H...
+  - right. apply intAdd_cancel in H...
+Qed.
+
+Corollary intLeq_both_side_mul : ∀ a b c ∈ ℤ,
+  intPos c → a ≤ b ↔ a ⋅ c ≤ b ⋅ c.
+Proof with neauto.
+  intros a Ha b Hb c Hc Hpc. split; intros [].
+  - left. apply intLt_both_side_mul...
+  - right. congruence.
+  - left. apply intLt_both_side_mul in H...
+  - right. apply intMul_cancel in H...
+    destruct (classic (c = Int 0))... exfalso.
+    rewrite H0 in Hpc. eapply intLt_not_refl; revgoals...
+Qed.
+
+Lemma intLt_iff_leq_suc : ∀a b ∈ ℤ, a <𝐳 b ↔ a + Int 1 ≤ b.
+Proof with neauto.
+  intros a Ha b Hb.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
+  unfold Int. rewrite intAdd_m_n_p_q, add_0_r...
+  assert (Heq: (m + q)%n⁺ = (m + 1 + q)%n). {
+    rewrite suc_eq_add_1, add_assoc, (add_comm q),
+      <- add_assoc; nauto; ar...
+  } split; intros.
+  - apply intLt in H...
+    destruct (classic (m + 1 + q = p + n)%n).
+    + right. apply int_ident; auto; ar...
+    + left. apply intLt; auto; [ar|]...
+      apply lt_connected in H0 as []; [| |ar;[ar|]|ar]...
+      exfalso. eapply (ω_not_dense (m + q)%n); [ar|]...
+      exists (p + n)%n. split. ar... split... rewrite Heq...
+  - apply intLt... destruct H.
+    + apply intLt in H; auto; [|ar]... rewrite <- Heq in H.
+      eapply nat_trans; revgoals... ar...
+    + apply int_ident in H; auto; [|ar]...
+      assert ((m + q)%n ∈ (m + q)%n⁺) by nauto. congruence.
+Qed.
+
 (** 自然数嵌入 **)
 Definition ω_Embed := Relation ω ℤ (λ n a, a = [<n, 0>]~).
 
 Theorem ω_embed_maps_into : ω_Embed: ω ⇒ ℤ.
-Proof with auto.
+Proof with nauto.
   repeat split.
   - intros x Hx. apply SepE in Hx as [Hx _].
     apply CProdE2 in Hx...
@@ -634,8 +693,15 @@ Proof with auto.
     apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
 Qed.
 
-Theorem ω_embed_injective : injective ω_Embed.
+Corollary ω_embed_int : ∀n ∈ ω, ω_Embed[n] ∈ ℤ.
 Proof with auto.
+  pose proof ω_embed_maps_into as [Hf [Hd Hr]].
+  intros n Hn. apply Hr. eapply ranI.
+  apply func_correct... rewrite Hd...
+Qed. 
+
+Theorem ω_embed_injective : injective ω_Embed.
+Proof with nauto.
   split. destruct ω_embed_maps_into...
   split. apply ranE in H...
   intros x1 x2 H1 H2. clear H.
@@ -646,14 +712,14 @@ Proof with auto.
 Qed.
 
 Lemma ω_embed_n : ∀n ∈ ω, ω_Embed[n] = [<n, 0>]~.
-Proof with auto.
+Proof with nauto.
   intros n Hn. apply func_ap. destruct ω_embed_maps_into...
   apply SepI. apply CProdI... apply pQuotI... zfcrewrite.
 Qed.
 
 Theorem ω_embed_add : ∀ m n ∈ ω,
   ω_Embed[(m + n)%n] = ω_Embed[m] + ω_Embed[n].
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn.
   repeat rewrite ω_embed_n; [|auto;ar;auto..].
   rewrite intAdd_m_n_p_q, add_0_r...
@@ -661,7 +727,7 @@ Qed.
 
 Theorem ω_embed_mul : ∀ m n ∈ ω,
   ω_Embed[(m ⋅ n)%n] = ω_Embed[m] ⋅ ω_Embed[n].
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn.
   repeat rewrite ω_embed_n; [|auto;mr;auto..].
   rewrite intMul_m_n_p_q, mul_0_r, mul_0_r,
@@ -680,7 +746,7 @@ Qed.
 
 Theorem ω_embed_subtr : ∀ m n ∈ ω,
   [<m, n>]~ = ω_Embed[m] - ω_Embed[n].
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn.
   repeat rewrite ω_embed_n...
   rewrite intAddInv, intAdd_m_n_p_q, add_0_r, add_0_l...

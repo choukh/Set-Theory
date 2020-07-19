@@ -3,12 +3,12 @@
 
 Require Export ZFC.EST5_2.
 
-Local Ltac mr := apply intMul_ran; auto.
-Local Ltac ar := apply intAdd_ran; auto.
-Local Ltac amr := apply intAdd_ran; apply intMul_ran; auto.
+Local Ltac mr := apply intMul_ran; nauto.
+Local Ltac ar := apply intAdd_ran; nauto.
+Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
 
 (*** EST第五章3：有理数的定义
-  有理数运算：加法，投射，加法逆元，乘法，乘法逆元 ***)
+  有理数运算：加法，加法逆元，乘法，乘法逆元 ***)
 
 Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
 Proof with auto.
@@ -23,36 +23,37 @@ Qed.
 (* 非零整数 *)
 Definition ℤ' := (ℤ - ⎨Int 0⎬)%zfc.
 
-Lemma int_suc_neq_0 : ∀ n, Int (S n) ≠ Int 0.
-Proof with eauto.
-  intros n H. apply int_ident in H...
-  rewrite add_0_r, add_0_r in H...
-  eapply suc_neq_0...
-Qed.
-
-Lemma int_suc : ∀ n, Int (S n) ∈ ℤ'.
-Proof with auto.
-  intros. apply CompI... apply SingNI. apply int_suc_neq_0.
-Qed.
-Hint Immediate int_suc : core.
-
-Lemma nzIntI : ∀a ∈ ℤ, a ≠ Int 0 → a ∈ ℤ'.
+Lemma nzIntI0 : ∀a ∈ ℤ, a ≠ Int 0 → a ∈ ℤ'.
 Proof with auto.
   intros a Ha Hnq0. apply CompI... apply SingNI...
 Qed.
 
-Lemma nzIntE : ∀a ∈ ℤ', a ≠ Int 0.
+Lemma nzIntI1 : ∀ n : nat, [<(S n), 0>]~%pz ∈ ℤ'.
+Proof with neauto.
+  intros. apply CompI... apply SingNI.
+  intros H. apply int_ident in H...
+  rewrite add_0_r, add_0_l in H... eapply suc_neq_0...
+Qed.
+Hint Immediate nzIntI1 : number_hint.
+
+Lemma nzIntE0 : ∀a ∈ ℤ', a ≠ Int 0.
 Proof with auto.
   intros a Ha H0. apply CompE in Ha as [_ Ha].
   apply SingNE in Ha...
 Qed.
 
-Lemma nzInt : ∀a ∈ ℤ', a ∈ ℤ.
+Lemma nzIntE1 : ∀a ∈ ℤ', a ∈ ℤ.
 Proof with auto.
   intros a Ha. apply CompE in Ha as [Ha _]...
 Qed.
+Local Ltac nz := try (apply nzIntE1; assumption).
 
-Local Ltac nz := try (apply nzInt; assumption).
+Lemma int_sn : ∀ n, Int (S n) ∈ ℤ'.
+Proof.
+  intros. apply CompI; nauto.
+  apply SingNI. apply int_suc_neq_0.
+Qed.
+Hint Immediate int_sn : number_hint.
 
 Lemma nzIntMul_ranI : ∀ a b ∈ ℤ', a ⋅ b ∈ ℤ'.
 Proof with auto.
@@ -64,25 +65,24 @@ Proof with auto.
   apply Ha0. subst a. apply SingI.
   apply Hb0. subst b. apply SingI.
 Qed.
-
 Local Ltac amr_n := apply add_ran; apply mul_ran; auto.
 
 Lemma nzIntMul_ranE : ∀ a b ∈ ℤ, a ⋅ b ∈ ℤ' → a ∈ ℤ' ∧ b ∈ ℤ'.
-Proof with auto.
+Proof with nauto.
   intros a Ha b Hb Hab.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
-  rewrite intMul_m_n_p_q in Hab... apply nzIntE in Hab.
+  rewrite intMul_m_n_p_q in Hab... apply nzIntE0 in Hab.
   split; (apply CompI; [apply pQuotI; auto|]); apply SingNI;
     intros H; apply Hab; clear Hab;
-    apply int_ident in H; auto; rewrite add_0_r, add_0_l in H;
+    apply int_ident in H; nauto; rewrite add_0_r, add_0_l in H;
     subst; auto; apply int_ident; try amr_n...
   rewrite add_0_r, add_0_l, add_comm...
   apply mul_ran... apply mul_ran... amr_n. amr_n.
   rewrite add_0_r, add_0_l... amr_n. amr_n.
 Qed.
 
-Local Ltac nzmr := apply nzIntMul_ranI; auto.
+Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 
 Close Scope PreInt_scope.
 Declare Scope PreRat_scope.
@@ -138,7 +138,7 @@ Definition PreRatAdd : set :=
 Notation "a +ᵥ b" := (PreRatAdd[<a, b>]) (at level 50) : PreRat_scope.
 
 Lemma preRatAdd_maps_onto : PreRatAdd: (ℤ × ℤ')² ⟹ (ℤ × ℤ').
-Proof with eauto.
+Proof with neauto.
   apply planeArith_maps_onto.
   - intros a Ha b Hb c Hc d Hd. apply CProdI. amr;nz. nzmr.
   - intros a Ha b Hb.
@@ -223,12 +223,16 @@ Qed.
 
 Definition Rat : nat → set := λ n, [<Int n, Int 1>]~.
 
+Lemma ratI : ∀ m n : nat, [<Int m, Int (S n)>]~ ∈ ℚ.
+Proof. intros. apply pQuotI; nauto. Qed.
+Hint Immediate ratI : number_hint.
+
 Lemma rat_n : ∀ n, Rat n ∈ ℚ.
-Proof. intros. apply pQuotI; auto. Qed.
-Hint Immediate rat_n : core.
+Proof. intros. unfold Rat. nauto. Qed.
+Hint Immediate rat_n : number_hint.
 
 Example ratAdd_1_2 : Rat 1 + Rat 2 = Rat 3.
-Proof with auto.
+Proof with nauto.
   unfold Rat. rewrite ratAdd_a_b_c_d...
   rewrite intMul_ident, intMul_ident, intAdd_1_2...
 Qed.
@@ -263,23 +267,23 @@ Proof.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   unfold Rat. rewrite ratAdd_a_b_c_d, intMul_ident, intMul_ident,
-    intMul_0_l, intAdd_ident; auto; nz.
+    intMul_0_l, intAdd_ident; nauto; nz.
 Qed.
 
 Corollary ratAdd_ident' : ∀r ∈ ℚ, Rat 0 + r = r.
-Proof with auto.
-  intros r Hr. rewrite ratAdd_comm, ratAdd_ident...
+Proof.
+  intros r Hr. rewrite ratAdd_comm, ratAdd_ident; nauto.
 Qed.
 
 Theorem ratAddInv_exists : ∀r ∈ ℚ, ∃s ∈ ℚ, r + s = Rat 0.
-Proof with auto.
+Proof with nauto.
   intros r Hr. apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
-  assert ((-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
+  assert ((-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
   exists ([<(-a)%z, b>]~). split. apply pQuotI...
   subst r. rewrite ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
   rewrite intMul_ident, intMul_0_l, intMul_addInv_l,
-    intAdd_inv... mr;nz. nz. mr;nz. ar;mr;nz.
+    intAddInv_annih... mr;nz. nz. mr;nz. ar;mr;nz.
 Qed.
 
 Theorem ratAddInv_unique : ∀r ∈ ℚ, ∃!s, s ∈ ℚ ∧ r + s = Rat 0.
@@ -295,12 +299,12 @@ Qed.
 Close Scope Rat_scope.
 Open Scope Int_scope.
 
-Lemma intAddInv_in_nzInt : ∀a ∈ ℤ', -a ∈ ℤ'.
-Proof with auto.
-  intros a Ha'. apply nzInt in Ha' as Ha.
+Lemma intAddInv_inzInt : ∀a ∈ ℤ', -a ∈ ℤ'.
+Proof with nauto.
+  intros a Ha'. apply nzIntE1 in Ha' as Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
-  rewrite intAddInv... apply nzIntI. apply pQuotI...
-  apply nzIntE in Ha' as Hnq0. intros H0. apply Hnq0.
+  rewrite intAddInv... apply nzIntI0. apply pQuotI...
+  apply nzIntE0 in Ha' as Hnq0. intros H0. apply Hnq0.
   apply int_ident in H0... rewrite add_0_r, add_0_l in H0... subst.
   apply int_ident... rewrite add_0_r, add_0_l...
 Qed.
@@ -309,22 +313,22 @@ Lemma planeEquiv_intAddInv : ∀ a b c d,
   <a, b> ~ <c, d> → <a, b> ~ < -c, -d>.
 Proof with auto.
   intros. apply planeEquivE2 in H as [H [Ha [Hb [Hc Hd]]]].
-  apply planeEquivI... apply intAddInv_is_int...
-  apply intAddInv_in_nzInt... unfold RatEq in *.
+  apply planeEquivI... apply intAddInv_int...
+  apply intAddInv_inzInt... unfold RatEq in *.
   rewrite intMul_addInv_l, intMul_addInv_r; nz... congruence.
 Qed.
 
-(** 有理数投射 **)
+(* 有理数投射 *)
 Definition RatPosDenom : set → set := λ a,
   {p ∊ a | λ p, intPos (π2 p)}.
 Definition RatProj : set → set := λ a, cho (RatPosDenom a).
 
 Lemma ratPosDenom_inhabited : ∀a ∈ ℤ, ∀b ∈ ℤ',
   ⦿ RatPosDenom ([<a, b>]~).
-Proof with auto.
+Proof with nauto.
   intros a Ha b Hb.
   destruct ratEquiv_equiv as [_ [Hrefl _]].
-  apply nzIntE in Hb as Hb0.
+  apply nzIntE0 in Hb as Hb0.
   apply intLt_connected in Hb0 as [Hnb|Hpb]; nz...
   - exists < -a, -b>. apply SepI. apply eqvcI.
     apply planeEquiv_intAddInv. apply Hrefl. apply CProdI...
@@ -375,8 +379,8 @@ Lemma ratAddInv : ∀a ∈ ℤ, ∀b ∈ ℤ', (-[<a, b>]~) = [<(-a)%z, b>]~.
 Proof with eauto.
   intros a Ha b Hb.
   pose proof (ratProj a Ha b Hb) as [c [Hc [d [Hd [H1 [H2 _]]]]]].
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
-  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
+  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_int; auto).
   destruct ratEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
@@ -396,33 +400,33 @@ Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratAddInv, ratAddInv, intAddInv_double...
-  apply intAddInv_is_int...
+  apply intAddInv_int...
 Qed.
 
-Lemma ratAddInv_is_rat : ∀r ∈ ℚ, -r ∈ ℚ.
+Lemma ratAddInv_rat : ∀r ∈ ℚ, -r ∈ ℚ.
 Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Heq]]]]. subst r.
-  rewrite ratAddInv... apply pQuotI... apply intAddInv_is_int...
+  rewrite ratAddInv... apply pQuotI... apply intAddInv_int...
 Qed.
 
 Lemma neg_rat_n : ∀ n, -Rat n ∈ ℚ.
-Proof. intros. apply ratAddInv_is_rat. auto. Qed.
-Hint Immediate neg_rat_n : core.
+Proof. intros. apply ratAddInv_rat. nauto. Qed.
+Hint Immediate neg_rat_n : number_hint.
 
-Lemma ratAdd_inv : ∀r ∈ ℚ, r - r = Rat 0.
-Proof with auto.
+Lemma ratAddInv_annih : ∀r ∈ ℚ, r - r = Rat 0.
+Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_is_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
   rewrite ratAddInv, ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
   rewrite intMul_ident, intMul_0_l, intMul_addInv_l,
-    intAdd_inv; auto; nz; [mr|mr|amr]; nz.
+    intAddInv_annih; auto; nz; [mr|mr|amr]; nz.
 Qed.
 
 Example ratAdd_2_n3 : Rat 2 - Rat 3 = -Rat 1.
-Proof with auto.
+Proof with nauto.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratAdd_a_b_c_d...
   repeat rewrite intMul_ident... rewrite intAdd_2_n3...
 Qed.
@@ -437,7 +441,7 @@ Notation "r ⋅ᵥ s" := (PreRatMul[<r, s>])
   (at level 50) : PreRat_scope.
 
 Lemma preRatMul_maps_onto : PreRatMul: (ℤ × ℤ')² ⟹ ℤ × ℤ'.
-Proof with eauto.
+Proof with neauto.
   apply planeArith_maps_onto.
   - intros a Ha b Hb c Hc d Hd. apply CProdI; [mr|nzmr].
   - intros r Hr s Hs.
@@ -508,7 +512,7 @@ Proof with auto.
 Qed.
 
 Lemma ratMul_0_l : ∀r ∈ ℚ, r ⋅ Rat 0 = Rat 0.
-Proof with auto.
+Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   unfold Rat. rewrite ratMul_a_b_c_d...
@@ -526,7 +530,7 @@ Proof with auto.
 Qed.
 
 Example ratMul_2_n2 : Rat 2 ⋅ -Rat 2 = -Rat 4.
-Proof with auto.
+Proof with nauto.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMul_a_b_c_d...
   rewrite intMul_2_n2, intMul_ident...
 Qed.
@@ -577,7 +581,7 @@ Proof with auto.
 Qed.
 
 Lemma ratMul_ident : ∀r ∈ ℚ, r ⋅ Rat 1 = r.
-Proof with auto.
+Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   unfold Rat. rewrite ratMul_a_b_c_d...
@@ -585,39 +589,31 @@ Proof with auto.
 Qed.
 
 Lemma ratMul_ident' : ∀r ∈ ℚ, Rat 1 ⋅ r = r.
-Proof with auto.
-  intros a Ha.
-  rewrite ratMul_comm, ratMul_ident...
+Proof.
+  intros a Ha. rewrite ratMul_comm, ratMul_ident; nauto.
 Qed.
 
 Lemma ratMul_addInv : ∀r ∈ ℚ, -Rat 1 ⋅ r = -r.
-Proof with auto.
+Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMul_a_b_c_d...
-  rewrite intMul_n1_l, (intMul_comm (Int 1)),
+  rewrite intMul_addInv, (intMul_comm (Int 1)),
     intMul_ident; nz...
 Qed.
 
 Lemma ratMul_0_r : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
-Proof. intros s Hs. rewrite ratMul_comm, ratMul_0_l; auto. Qed.
-
-Lemma rat_0_neq_1 : Rat 0 ≠ Rat 1.
-Proof with auto.
-  unfold Rat. intros H. apply rat_ident in H...
-  rewrite intMul_ident, intMul_ident in H...
-  apply int_0_neq_1...
-Qed.
+Proof. intros s Hs. rewrite ratMul_comm, ratMul_0_l; nauto. Qed.
 
 Lemma zRat_zInt : ∀a ∈ ℤ, ∀b ∈ ℤ', [<a, b>]~ = Rat 0 → a = Int 0.
-Proof with auto.
+Proof with nauto.
   unfold Rat. intros a Ha b Hb H0.
   apply rat_ident in H0...
   rewrite intMul_ident, intMul_0_l in H0; nz...
 Qed.
 
 Lemma zInt_zRat : ∀a ∈ ℤ, ∀b ∈ ℤ', a = Int 0 → [<a, b>]~ = Rat 0.
-Proof with auto.
+Proof with nauto.
   unfold Rat. intros a Ha b Hb H0. subst a.
   apply rat_ident... rewrite intMul_0_l, intMul_0_l; nz...
 Qed.
@@ -635,43 +631,70 @@ Qed.
 (* 非零有理数 *)
 Definition ℚ' := (ℚ - ⎨Rat 0⎬)%zfc.
 
-Lemma rat_suc : ∀ n, Rat (S n) ∈ ℚ'.
-Proof with eauto.
+Lemma nzRatI0 : ∀r ∈ ℚ, r ≠ Rat 0 → r ∈ ℚ'.
+Proof with auto.
+  intros a Ha Hnq0. apply CompI... apply SingNI...
+Qed.
+
+Lemma nzRatI1 : ∀ n : nat, [<Int (S n), Int 1>]~ ∈ ℚ'.
+Proof with neauto.
   intros. apply CompI... apply SingNI.
   intros H. apply rat_ident in H...
   rewrite intMul_ident, intMul_ident in H...
   eapply int_suc_neq_0...
 Qed.
-Hint Immediate rat_suc : core.
+Hint Immediate nzRatI1 : number_hint.
 
-Lemma nzRatI : ∀r ∈ ℚ, r ≠ Rat 0 → r ∈ ℚ'.
+Lemma nzRatI2 : ∀ a b ∈ ℤ', [<a, b>]~ ∈ ℚ'.
 Proof with auto.
-  intros a Ha Hnq0. apply CompI... apply SingNI...
+  intros a Ha b Hb. apply nzRatI0.
+  apply pQuotI; nz... apply nzInt_nzRat; nz... apply nzIntE0...
 Qed.
 
-Lemma nzRatE : ∀r ∈ ℚ', r ≠ Rat 0.
+Lemma nzRatE0 : ∀r ∈ ℚ', r ≠ Rat 0.
 Proof with auto.
   intros a Ha H0. apply CompE in Ha as [_ Ha].
   apply SingNE in Ha...
 Qed.
 
-Lemma nzRat : ∀r ∈ ℚ', r ∈ ℚ.
+Lemma nzRatE1 : ∀r ∈ ℚ', r ∈ ℚ.
 Proof with auto.
   intros a Ha. apply CompE in Ha as [Ha _]...
 Qed.
 
-Local Ltac nz_q := try (apply nzRat; assumption).
+Lemma nzRatE2 : ∀r ∈ ℚ', ∃ a b ∈ ℤ', r = [<a, b>]~.
+Proof with auto.
+  intros r Hr. apply nzRatE0 in Hr as Hnq0. apply nzRatE1 in Hr.
+  apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
+  apply nzRat_nzInt in Hnq0...
+  exists a. split. apply nzIntI0... exists b. split...
+Qed.
+
+Lemma rat_suc_neq_0 : ∀ n, Rat (S n) ≠ Rat 0.
+Proof with neauto.
+  intros n H. apply rat_ident in H...
+  rewrite intMul_ident, intMul_ident in H...
+  eapply int_suc_neq_0...
+Qed.
+Hint Immediate rat_suc_neq_0 : number_hint.
+
+Lemma rat_sn : ∀ n, Rat (S n) ∈ ℚ'.
+Proof.
+  intros. apply CompI; nauto.
+  apply SingNI. apply rat_suc_neq_0.
+Qed.
+Hint Immediate rat_sn : number_hint.
+
+Local Ltac nz_q := try (apply nzRatE1; assumption).
 
 Theorem ratMulInv_exists : ∀r ∈ ℚ', ∃q ∈ ℚ', r ⋅ q = Rat 1.
 Proof with auto.
-  intros r Hr. apply nzRatE in Hr as Hr'. apply nzRat in Hr.
-  apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  apply nzRat_nzInt, nzIntI in Hr'...
+  intros r Hr.
+  apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   exists ([<b, a>]~). split.
-  - apply nzRatI. apply pQuotI; nz...
-    apply nzInt_nzRat; nz... apply nzIntE in Hb...
+  - apply nzRatI2...
   - rewrite ratMul_a_b_c_d; nz... unfold Rat.
-    apply rat_ident; auto; [mr;nz|nzmr|].
+    apply rat_ident; nauto; [mr;nz|nzmr|].
     rewrite intMul_ident, intMul_ident', intMul_comm;
       auto; nz; mr; nz.
 Qed.
@@ -687,10 +710,10 @@ Proof with auto.
   apply ratMul_ran; nz_q...
 Qed.
 
-Lemma nzRatMul_ranI : ∀ r s ∈ ℚ', r ⋅ s ∈ ℚ'.
-Proof with auto.
+Lemma nzRatMul_ran : ∀ r s ∈ ℚ', r ⋅ s ∈ ℚ'.
+Proof with neauto.
   intros r Hr s Hs.
-  apply nzRatI. apply ratMul_ran; nz_q...
+  apply nzRatI0. apply ratMul_ran; nz_q...
   assert (Hr' := Hr). assert (Hs' := Hs).
   apply ratMulInv_exists in Hr' as [r' [Hr' Hr1]].
   apply ratMulInv_exists in Hs' as [s' [Hs' Hs1]].
@@ -702,7 +725,7 @@ Proof with auto.
     [|apply ratMul_ran;nz_q..].
   destruct (classic (r ⋅ s = Rat 0))...
   rewrite H0 in H. rewrite ratMul_0_r in H.
-  exfalso. apply rat_0_neq_1... apply ratMul_ran; nz_q.
+  exfalso. eapply rat_suc_neq_0... apply ratMul_ran; nz_q.
 Qed.
 
 Theorem rat_no_0_div : ∀ r s ∈ ℚ,
@@ -711,8 +734,8 @@ Proof with auto.
   intros r Hr s Hs H0.
   destruct (classic (r = Rat 0)) as [|Hr'];
   destruct (classic (s = Rat 0)) as [|Hs']... exfalso.
-  apply nzRatI in Hr'... apply nzRatI in Hs'...
-  pose proof (nzRatMul_ranI r Hr' s Hs'). apply nzRatE in H...
+  apply nzRatI0 in Hr'... apply nzRatI0 in Hs'...
+  pose proof (nzRatMul_ran r Hr' s Hs'). apply nzRatE0 in H...
 Qed.
 
 (** 有理数乘法逆元 **)
@@ -723,7 +746,7 @@ Notation "a / b" := (a ⋅ b⁻¹) : Rat_scope.
 
 Lemma ratMulInv : ∀a ∈ ℤ', ∀b ∈ ℤ', ([<a, b>]~)⁻¹ = [<b, a>]~.
 Proof with eauto.
-  intros a Ha' b Hb'. apply nzInt in Ha' as Ha.
+  intros a Ha' b Hb'. apply nzIntE1 in Ha' as Ha.
   pose proof (ratProj a Ha b Hb') as [c [Hc [d [Hd [H1 [H2 [H3 _]]]]]]].
   unfold RatMulInv. rewrite H1. zfcrewrite. apply rat_ident; nz...
   apply planeEquivE2 in H2 as [H2 _]. unfold RatEq in H2.
@@ -732,38 +755,34 @@ Qed.
 
 Lemma ratMulInv_double : ∀r ∈ ℚ', r⁻¹⁻¹ = r.
 Proof with auto.
-  intros r Hr'.
-  apply nzRatE in Hr' as Hnq0. apply nzRat in Hr' as Hr.
-  apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  apply nzRat_nzInt in Hnq0...
-  assert (Ha': a ∈ ℤ') by (apply nzIntI; auto).
+  intros r Hr.
+  apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratMulInv, ratMulInv...
 Qed.
 
-Lemma ratMulInv_in_rat : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
+Lemma ratMulInv_rat : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
 Proof with auto.
-  intros r Hr. assert (Hr' := Hr).
-  apply CompE in Hr as [Hr _].
-  apply pQuotE in Hr as [a [Ha [b [Hb Heq]]]]. subst r.
-  apply nzRatE, nzRat_nzInt in Hr' as Ha'... apply nzIntI in Ha'...
-  rewrite ratMulInv... apply nzRatI. apply pQuotI; nz...
-  apply nzInt_nzRat; nz... apply nzIntE...
+  intros r Hr.
+  apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
+  rewrite ratMulInv... apply nzRatI2...
 Qed.
 
-Lemma ratMul_inv : ∀r ∈ ℚ', r / r = Rat 1.
-Proof with auto.
-  intros r Hr'. apply nzRat in Hr' as Hr.
-  apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  apply nzRatE, nzRat_nzInt, nzIntI in Hr'...
+Lemma recip_rat_sn : ∀ n, (Rat (S n))⁻¹ ∈ ℚ.
+Proof. intros. unfold Rat. rewrite ratMulInv; nauto. Qed.
+Hint Immediate recip_rat_sn : number_hint.
+
+Lemma ratMulInv_annih : ∀r ∈ ℚ', r / r = Rat 1.
+Proof with nauto.
+  intros r Hr.
+  apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratMulInv, ratMul_a_b_c_d; nz...
   apply rat_ident... mr;nz. nzmr.
   rewrite intMul_ident, intMul_ident', intMul_comm;
     auto; nz; mr; nz.
 Qed.
 
-Example ratMul_n4_2' : -Rat 4 / Rat 2 = -Rat 2.
-Proof with auto.
-  pose proof (int_suc 1) as H2z'.
+Example ratMul_n4_r2 : -Rat 4 / Rat 2 = -Rat 2.
+Proof with nauto.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratMulInv...
   rewrite ratMul_a_b_c_d...
   unfold Int. rewrite intAddInv, intAddInv...
@@ -771,7 +790,6 @@ Proof with auto.
   rewrite mul_1_r, mul_1_r, mul_0_r, mul_0_r,
     (mul_comm 1), mul_1_r, mul_0_r, mul_0_l,
     add_0_r, add_0_r, add_0_l... apply rat_ident...
-  apply pQuotI... apply pQuotI... apply int_suc.
   rewrite intMul_m_n_p_q, intMul_m_n_p_q...
   rewrite mul_0_l, mul_0_l, mul_0_l, mul_0_r, mul_0_r,
     mul_1_r, mul_2_2, add_0_l, add_0_l...

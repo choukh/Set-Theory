@@ -4,7 +4,7 @@
 
 Require Export ZFC.TG0.
 
-(*** TG集合论扩展1：单集，壹，贰 ***)
+(*** TG集合论1：单集，壹，贰 ***)
 
 (** 单集 **)
 Definition Sing : set → set := λ x, {x, x}.

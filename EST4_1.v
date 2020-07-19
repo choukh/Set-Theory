@@ -84,7 +84,7 @@ Ltac ω_induction N H := cut (N = ω); [
   ]
 ].
 
-Theorem SI : ∀n ∈ ω, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺.
+Theorem pred_exists : ∀n ∈ ω, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺.
 Proof with auto.
   intros n Hn.
   set {n ∊ ω | λ n, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺} as N.
@@ -147,7 +147,7 @@ Proof with eauto.
     + apply SingE in H. subst. apply BUnionI1...
 Qed.
 
-Lemma suc_injection : ∀ n k ∈ ω, n⁺ = k⁺ → n = k.
+Lemma suc_injective : ∀ n k ∈ ω, n⁺ = k⁺ → n = k.
 Proof.
   intros n Hn k Hk Heq.
   assert (⋃n⁺ = ⋃k⁺) by congruence.
@@ -156,7 +156,7 @@ Proof.
   apply trans_union_suc in Hk. congruence.
 Qed.
 
-Lemma f_injection : ∀ f, injective f →
+Lemma func_injective : ∀ f, injective f →
   ∀ a b ∈ dom f, f[a] = f[b] → a = b.
 Proof with eauto.
   intros f [Hf Hs] a Ha b Hb Heq.
@@ -217,7 +217,7 @@ Proof with eauto.
     apply ReplE in H2 as [m [Hx2 Hm]].
     apply op_correct in Hn as [Hn1 Hn2].
     apply op_correct in Hm as [Hm1 Hm2]. subst.
-    apply suc_injection...
+    apply suc_injective...
   - intros A HA H0 Hc. apply ω_ind... split...
     intros a Ha. apply Hc in Ha as Hsa.
     apply HA in Ha. rewrite <- Hd in Ha.
@@ -416,7 +416,7 @@ Proof with eauto; try congruence.
           eapply domI. apply BUnionI1...
         + apply SingE in Hp. apply op_correct in Hp as [Heq1 Heq2].
           assert (Heq3: n = k). {
-            eapply suc_injection... apply Hdhω...
+            eapply suc_injective... apply Hdhω...
           }
           subst k y. clear Heq1 Hn Hc.
           apply domE in Hk as [y Hp].
@@ -459,7 +459,7 @@ Qed.
 
 Ltac ω_destruct n :=
   destruct (classic (n = ∅)) as [|Hωdes]; [|
-    apply SI in Hωdes as [?n' [?Hn' ?Hn'eq]]; auto
+    apply pred_exists in Hωdes as [?n' [?Hn' ?Hn'eq]]; auto
   ].
 
 (* 皮亚诺结构同构 *)
@@ -498,7 +498,7 @@ Proof with eauto; try congruence.
       cut (h[n'] = h[m]). intros Heq.
       rewrite <- Heq. apply func_correct...
       destruct HS as [HSf [HSd _]].
-      eapply f_injection; eauto; rewrite HSd; apply Hr;
+      eapply func_injective; eauto; rewrite HSd; apply Hr;
         eapply ranI; apply func_correct...
   -  split... split...
     (* ran h = N *) apply Hiii...

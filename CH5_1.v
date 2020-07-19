@@ -3,10 +3,10 @@
 
 Require Export ZFC.EST5_4.
 
-Local Ltac nz := try (apply nzInt; assumption).
-Local Ltac mr := apply intMul_ran; auto.
-Local Ltac amr := apply intAdd_ran; apply intMul_ran; auto.
-Local Ltac nzmr := apply nzIntMul_ranI; auto.
+Local Ltac nz := try (apply nzIntE1; assumption).
+Local Ltac mr := apply intMul_ran; nauto.
+Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
+Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 
 (* ch5_4 see EST5_1 Theorem intAdd_assoc *)
 (* ch5_5 see EST5_1 Definition IntInv *)
@@ -16,17 +16,20 @@ Local Ltac nzmr := apply nzIntMul_ranI; auto.
 (* ch5_9 see EST5_2 Theorem ω_embed_subtr *)
 (* ch5_10 see EST5_3 Lemma ratMul_0_l *)
 
+Close Scope Int_scope.
+Open Scope Rat_scope.
+
 Example ch5_11: ∀ r s ∈ ℚ,
   r ⋅ s = Rat 0 → r = Rat 0 ∨ s = Rat 0.
-Proof with auto.
+Proof with nauto.
   intros r Hr s Hs H.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
   apply pQuotE in Hs as [c [Hc [d [Hd Hs]]]].
   subst r s. rewrite ratMul_a_b_c_d in H...
-  apply rat_ident in H; auto; [|mr|nzmr]...
+  apply rat_ident in H; nauto; [|mr|nzmr]...
   rewrite intMul_ident, intMul_0_l in H; [|mr;nz..].
   apply int_no_0_div in H as []; subst; auto; [left|right];
-    apply rat_ident; auto; rewrite intMul_0_l, intMul_0_l; nz...
+    apply rat_ident; nauto; rewrite intMul_0_l, intMul_0_l; nz...
 Qed.
 
 Example ch5_12: ∀r ∈ ℚ, ratNeg r ↔ ratPos (-r).
@@ -35,7 +38,7 @@ Proof with auto.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratAddInv in Hp... apply rat_pos_neg in Hp.
   rewrite ratAddInv in Hp... rewrite intAddInv_double in Hp...
-  apply intAddInv_is_int...
+  apply intAddInv_int...
 Qed.
 
 Close Scope Rat_scope.
@@ -46,8 +49,8 @@ Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   assert (a + c - c = b + c - c) by congruence.
   rewrite (intAdd_assoc a), (intAdd_assoc b) in H...
-  rewrite intAdd_inv, intAdd_ident, intAdd_ident in H...
-  apply intAddInv_is_int... apply intAddInv_is_int...
+  rewrite intAddInv_annih, intAdd_ident, intAdd_ident in H...
+  apply intAddInv_int... apply intAddInv_int...
 Qed.
 
 Close Scope Int_scope.
@@ -55,12 +58,12 @@ Open Scope Nat_scope.
 
 Lemma add_1_1 : 1 + 1 = 2.
 Proof with auto.
-  rewrite Pred, add_m_n, add_m_n', add_0_r;
+  rewrite pred, add_m_n, add_m_n', add_0_r;
     auto; repeat apply ω_inductive.
 Qed.
 
 Lemma mul_2_l : ∀m ∈ ω, 2 ⋅ m = m + m.
-Proof with auto.
+Proof with nauto.
   intros n Hn.
   set {n ∊ ω | λ n, 2 ⋅ n = n + n} as N.
   ω_induction N Hn.
@@ -76,7 +79,7 @@ Close Scope Nat_scope.
 Open Scope Int_scope.
 
 Lemma intMul_2_a : ∀a ∈ ℤ, Int 2 ⋅ a = a + a.
-Proof with auto.
+Proof with nauto.
   intros a Ha. unfold Int.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   rewrite intMul_m_n_p_q, intAdd_m_n_p_q...
@@ -86,13 +89,8 @@ Proof with auto.
 Qed.
 
 Example ch5_14: ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
-Proof with eauto.
+Proof with neauto.
   intros p Hp s Hs Hlt.
-  pose proof (int_suc 1) as H2z'.
-  assert (Hp2: intPos (Int 2)). {
-    apply intLt... rewrite add_0_r, add_0_r...
-    apply suc_has_0... apply ω_inductive...
-  }
   apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]].
   subst p s. apply ratLt in Hlt...
@@ -108,14 +106,221 @@ Proof with eauto.
     (intMul_assoc (Int 2)), (intMul_assoc (Int 2)),
     (intMul_assoc a), (intMul_comm b), <- (intMul_assoc a),
     (intAdd_comm (a⋅d)), intMul_distr', intMul_2_a;
-    nz; auto; [|mr;nz..]; [|mr;nz].
-  apply int_ineq_both_side_add; revgoals; [|mr;[mr;nz|nz]..].
-  apply int_ineq_both_side_mul; nz; auto; mr; nz.
+    nz; nauto; [|mr;nz..]; [|mr;nz].
+  apply intLt_both_side_add; revgoals; [|mr;[mr;nz|nz]..].
+  apply intLt_both_side_mul; nz; auto; mr; nz.
   rewrite
     <- (intMul_assoc c), <- (intMul_assoc c),
     (intMul_comm c Hc (Int 2)),
     (intMul_assoc (Int 2)), (intMul_assoc (Int 2)),
-    intMul_distr', intMul_2_a; nz; auto; [|mr;nz..]; [|mr;nz].
-  apply int_ineq_both_side_add; revgoals; [|mr;[mr;nz|nz]..].
-  apply int_ineq_both_side_mul; nz; auto; mr; nz.
+    intMul_distr', intMul_2_a; nz; nauto; [|mr;nz..]; [|mr;nz].
+  apply intLt_both_side_add; revgoals; [|mr;[mr;nz|nz]..].
+  apply intLt_both_side_mul; nz; auto; mr; nz.
+Qed.
+
+(* ch5_15 see EST5_5 Theorem reals_bounded_has_sup *)
+(* ch5_16 see EST5_5 Lemma realAdd_ran *)
+
+Example ch5_17: ∀ a b ∈ ℤ, intPos a →
+  ∃k ∈ ω, b <𝐳 a ⋅ ω_Embed[k].
+Proof with neauto.
+  intros a Ha b Hb Hpa.
+  destruct (classic (b = Int 0));
+    [|apply intLt_connected in H as [|Hpb]]...
+  - exists 1. split... rewrite H, ω_embed_n, intMul_ident...
+  - exists 1. split... rewrite ω_embed_n, intMul_ident...
+    eapply intLt_tranr...
+  - assert (Hb' := Hb).
+    apply pQuotE in Hb' as [m [Hm [n [Hn Heq]]]].
+    apply intLt_iff_leq_suc in Hpa as H1...
+    rewrite intAdd_ident' in H1...
+    assert (H2: Int 1 ⋅ b ≤ a ⋅ b)
+      by (apply intLeq_both_side_mul; nauto). clear H1.
+    rewrite intMul_ident' in H2...
+    assert (Hm1: (m + 1)%n ∈ ω) by (apply add_ran; nauto).
+    assert (Hm1z: ω_Embed [(m + 1)%n] ∈ ℤ)
+      by (apply ω_embed_int; auto).
+    assert (H3: b <𝐳 ω_Embed[(m + 1)%n]). {
+      rewrite Heq, ω_embed_n... apply intLt...
+      rewrite add_0_r... apply lt_add_enlarge...
+      rewrite <- suc_eq_add_1...
+    }
+    assert (H4: a ⋅ b <𝐳 a ⋅ ω_Embed[(m + 1)%n]). {
+      rewrite intMul_comm, (intMul_comm a)...
+      apply intLt_both_side_mul...
+    } clear H3.
+    exists (m + 1)%n. split...
+    destruct H2. eapply intLt_tranr... rewrite H...
+Qed.
+
+Lemma ratPos_intPos : ∀a ∈ ℤ, ∀b ∈ ℤ',
+  intPos b → ratPos ([<a, b>]~) → intPos a.
+Proof with nauto.
+  intros a Ha b Hb Hpb Hpr. apply ratLt in Hpr...
+  rewrite intMul_0_l, intMul_ident in Hpr... nz.
+Qed.
+
+Lemma intPos_natPos : ∀a ∈ ℤ, intPos a →
+  ∃m ∈ ω, a = [<m, 0>]~%pz ∧ ∅ ∈ m.
+Proof with nauto.
+  intros a Ha Hpa.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply intLt in Hpa... rewrite add_0_l, add_0_r in Hpa...
+  apply diff_exists in Hpa as [d [Hd [Heq Hpd]]]...
+  exists d. split... split. apply int_ident...
+  rewrite add_0_r, add_comm... apply nq_0_gt_0...
+Qed.
+
+Close Scope Int_scope.
+Open Scope Nat_scope.
+
+Example ch5_18: ∀ p r ∈ ℚ, ratPos p →
+  ∃k ∈ ω, r <𝐪 (p ⋅ IntEmbed[ω_Embed[k]])%q.
+Proof with neauto.
+  intros p Hp r Hr Hpp.
+  assert (Hemb: IntEmbed[ω_Embed[1]] = Rat 1). {
+    rewrite ω_embed_n, intEmbed_a...
+  }
+  destruct (classic (r = Rat 0));
+    [|apply ratLt_connected in H as [|Hpr]]...
+  - exists 1. split... rewrite H, Hemb, ratMul_ident...
+  - exists 1. split... rewrite Hemb, ratMul_ident...
+    eapply ratLt_tranr...
+  - apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
+    apply pQuotE_ratPosDenom in Hp as [c [Hc [d [Hd [Hp Hpd]]]]].
+    subst r p. assert (Hpb' := Hpb). assert (Hpd' := Hpd).
+    apply ratPos_intPos in Hpr as Hpa...
+    apply ratPos_intPos in Hpp as Hpc...
+    apply intPos_natPos in Hpa as [m [Hm [Ham Hpm]]]...
+    apply intPos_natPos in Hpb' as [n [Hn [Hbn Hpn]]]; nz...
+    apply intPos_natPos in Hpc as [s [Hs [Hcs Hps]]]...
+    apply intPos_natPos in Hpd' as [t [Ht [Hdt Hpt]]]; nz...
+    assert (H0: m⁺ ∈ ω) by (apply ω_inductive; auto).
+    assert (H1: m⋅t ∈ ω) by (apply mul_ran; auto).
+    assert (H2: m⁺⋅t ∈ ω) by (apply mul_ran; auto).
+    assert (H3: ω_Embed[m⁺⋅t] ∈ ℤ) by (apply ω_embed_int; auto).
+    assert (H4: s⋅(m⁺⋅t) ∈ ω) by (apply mul_ran; auto).
+    assert (H5: (s⋅(m ⁺⋅t))⋅n ∈ ω) by (apply mul_ran; auto).
+    assert (H6: s⋅m⁺ ∈ ω) by (apply mul_ran; auto).
+    assert (H7: (s⋅m⁺)⋅n ∈ ω) by (apply mul_ran; auto).
+    exists (m⁺⋅t). split...
+    rewrite intEmbed_a, ratMul_a_b_c_d,
+      intMul_ident, Hcs, ω_embed_n, intMul_m_n_p_q,
+      mul_0_r, mul_0_r, mul_0_l, add_0_r, add_0_r; nauto; [|nz].
+    apply ratLt... apply pQuotI...
+    rewrite Ham, Hbn, Hdt, intMul_m_n_p_q, intMul_m_n_p_q,
+      mul_0_r, mul_0_r, mul_0_r, mul_0_l, mul_0_l,
+      add_0_r, add_0_r, add_0_r...
+    apply intLt... rewrite add_0_r, add_0_r...
+    rewrite <- mul_assoc, mul_assoc, (mul_comm t), <- mul_assoc...
+    apply lt_both_side_mul... apply nq_0_gt_0...
+    clear Ha Hb Hc Hd Hpr Hpp Hpb Hpd Ham Hbn Hcs Hdt a b c d
+      Hemb H1 H2 H3 H4 H5 H6 H7.
+    rewrite (mul_comm s), mul_assoc...
+    assert (H8: s ⋅ n ∈ ω) by (apply mul_ran; auto).
+    assert (H9: ∅ ∈ s ⋅ n). {
+      rewrite <- (mul_0_l n)...
+      apply lt_both_side_mul... apply nq_0_gt_0...
+    }
+    cut (m ⋅ (s ⋅ n) ∈ m⁺ ⋅ (s ⋅ n)). intros H10.
+    cut (m ≤ m ⋅ (s ⋅ n)). intros [].
+    + eapply nat_trans... apply mul_ran...
+    + rewrite H at 1...
+    + rewrite <- (mul_1_r m) at 1 3...
+      rewrite (mul_comm m), (mul_comm m)...
+      apply leq_both_side_mul... apply nq_0_gt_0...
+      apply lt_iff_leq_suc...
+    + apply lt_both_side_mul... apply nq_0_gt_0...
+Qed.
+
+Corollary ch5_18_1: ∀ p r ∈ ℚ, ratPos p →
+  ∃a ∈ ℤ, r <𝐪 (p ⋅ IntEmbed[a])%q.
+Proof with auto.
+  intros p Hp r Hr Hpp.
+  pose proof (ch5_18 p Hp r Hr Hpp) as [k [Hk Hlt]].
+  exists (ω_Embed [k]). split... apply ω_embed_int...
+Qed.
+
+Close Scope Nat_scope.
+Open Scope Rat_scope.
+
+Lemma ratMul_addInv_l : ∀ p q ∈ ℚ, -p ⋅ q = -(p ⋅ q).
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
+  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
+    ratAddInv, intMul_addInv_l... mr. nzmr.
+  apply intAddInv_int...
+Qed.
+
+Lemma ratMul_addInv_r : ∀ p q ∈ ℚ, p ⋅ -q = -(p ⋅ q).
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
+  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
+    ratAddInv, intMul_addInv_r... mr. nzmr.
+  apply intAddInv_int...
+Qed.
+
+Lemma ratMul_addInv_lr : ∀ p q ∈ ℚ, p ⋅ -q = -p ⋅ q.
+Proof with auto.
+  intros p Hp q Hq.
+  rewrite ratMul_addInv_l, ratMul_addInv_r...
+Qed.
+
+Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ (-b <𝐳 -a)%z.
+Proof with auto.
+  intros a Ha b Hb.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
+  subst a b. split; intros.
+  - apply intLt in H...
+    rewrite intAddInv, intAddInv... apply intLt...
+    rewrite add_comm, (add_comm n)...
+  - rewrite intAddInv, intAddInv in H... apply intLt in H...
+    apply intLt... rewrite add_comm, (add_comm p)...
+Qed.
+
+Lemma ratLt_addInv : ∀ p q ∈ ℚ, p <𝐪 q ↔ -q <𝐪 -p.
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
+  apply pQuotE_ratPosDenom in Hq as [c [Hc [d [Hd [Hq Hpd]]]]].
+  subst p q. split; intros.
+  - apply ratLt in H...
+    rewrite ratAddInv, ratAddInv... apply ratLt...
+    apply intAddInv_int... apply intAddInv_int...
+    rewrite intMul_addInv_l, intMul_addInv_l; nz...
+    apply intLt_addInv in H; auto; mr; nz.
+  - rewrite ratAddInv, ratAddInv in H... apply ratLt in H...
+    rewrite intMul_addInv_l, intMul_addInv_l in H; nz...
+    apply ratLt... apply intLt_addInv; auto; mr; nz.
+    apply intAddInv_int... apply intAddInv_int...
+Qed.
+
+Example ch5_18_2: ∀ p r ∈ ℚ, ratPos p →
+  ∃a ∈ ℤ, p ⋅ IntEmbed[a] <𝐪 r.
+Proof with neauto.
+  intros p Hp r Hr Hpp.
+  destruct (classic (r = Rat 0));
+    [|apply ratLt_connected in H as [Hnr|];revgoals]...
+  - exists (-Int 1)%z. split...
+    rewrite intEmbed_addInv, ratMul_addInv_r, ratMul_ident, H...
+    apply rat_pos_neg...
+  - exists (-Int 1)%z. split...
+    rewrite intEmbed_addInv, ratMul_addInv_r, ratMul_ident...
+    eapply ratLt_tranr... apply rat_pos_neg...
+  - apply rat_neg_pos in Hnr.
+    assert (Hr': -r ∈ ℚ) by (apply ratAddInv_rat; auto).
+    pose proof (ch5_18 p Hp (-r) Hr' Hpp) as [k [Hk Hlt]].
+    remember (ω_Embed [k]) as a.
+    assert (H2: a ∈ ℤ) by (subst a; apply ω_embed_int; auto).
+    assert (H3: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
+    assert (H4: [<(-a)%z, Int 1>]~ ∈ ℚ) by (apply pQuotI; nauto).
+    rewrite <- (intAddInv_double a), intEmbed_addInv,
+      ratMul_addInv_r in Hlt... apply ratLt_addInv in Hlt...
+    exists (-a)%z. split. apply intAddInv_int...
+    rewrite intEmbed_a... apply ratMul_ran...
 Qed.

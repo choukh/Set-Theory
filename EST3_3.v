@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST3_2.
 
-(*** EST第三章3：等价关系，等价类，商集，三分律，全序 ***)
+(*** EST第三章3：等价关系，等价类，商集，三歧性，全序 ***)
 
 (* 在A上的二元关系R *)
 Definition rel : set → set → Prop := λ R A, R ⊆ A × A.
@@ -214,7 +214,7 @@ Qed.
 
 (** 序关系 **)
 
-(* 三分律 *)
+(* 三歧性 *)
 Definition trich : set → set → Prop := λ R A, ∀ x y ∈ A,
   <x, y> ∈ R ∧ x ≠ y ∧ <y, x> ∉ R ∨
   <x, y> ∉ R ∧ x = y ∧ <y, x> ∉ R ∨

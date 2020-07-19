@@ -3,7 +3,7 @@
 
 Require Export ZFC.CH4.
 
-(*** EST第五章1：整数的定义，整数运算：加法，投射，加法逆元 ***)
+(*** EST第五章1：整数的定义，整数运算：加法，加法逆元 ***)
 
 (* 二元函数与等价关系的相容性 *)
 Definition binCompatible : set → set → set → Prop := λ R A F,
@@ -370,7 +370,7 @@ Definition PreIntAdd : set :=
 Notation "a +ᵥ b" := (PreIntAdd[<a, b>]) (at level 50) : PreInt_scope.
 
 Lemma add_split : ∀x ∈ ω, ∃ m n ∈ ω, x = m + n.
-Proof with auto.
+Proof with nauto.
   intros n Hn.
   set {n ∊ ω | λ n, ∃ a b ∈ ω, n = a + b} as N.
   ω_induction N Hn.
@@ -463,12 +463,16 @@ Qed.
 
 Definition Int : nat → set := λ n, [<n, 0>]~.
 
+Lemma intI : ∀ m n : nat, [<m, n>]~ ∈ ℤ.
+Proof. intros. apply pQuotI; nauto. Qed.
+Hint Immediate intI : number_hint.
+
 Lemma int_n : ∀ n, Int n ∈ ℤ.
-Proof. intros. apply pQuotI; auto. Qed.
-Hint Immediate int_n : core.
+Proof. intros. unfold Int. nauto. Qed.
+Hint Immediate int_n : number_hint.
 
 Example intAdd_1_2 : Int 1 + Int 2 = Int 3.
-Proof with auto.
+Proof with nauto.
   unfold Int. rewrite intAdd_m_n_p_q, add_0_r...
   rewrite add_1_2. apply int_ident...
 Qed.
@@ -494,13 +498,18 @@ Proof with auto.
 Qed.
 
 Theorem intAdd_ident : ∀a ∈ ℤ, a + Int 0 = a.
-Proof with auto.
+Proof with nauto.
   intros a Ha. apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   subst a. unfold Int. rewrite intAdd_m_n_p_q, add_0_r, add_0_r...
 Qed.
 
+Corollary intAdd_ident' : ∀a ∈ ℤ, Int 0 + a = a.
+Proof with nauto.
+  intros a Ha. rewrite intAdd_comm, intAdd_ident...
+Qed.
+
 Theorem intAddInv_exists : ∀a ∈ ℤ, ∃b ∈ ℤ, a + b = Int 0.
-Proof with auto.
+Proof with nauto.
   intros a Ha. apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   exists ([<n, m>]~). split. apply pQuotI...
   subst a. rewrite intAdd_m_n_p_q...
@@ -521,30 +530,20 @@ Qed.
 Close Scope Int_scope.
 Open Scope Nat_scope.
 
-(* 自然数减法 *)
-Lemma subtrI : ∀ m n ∈ ω, m ∈ n → ∃b ∈ ω, m + b = n ∧ b ≠ 0.
-Proof with auto.
+Lemma diff_exists : ∀ m n ∈ ω, m ∈ n → ∃d ∈ ω, m + d = n ∧ d ≠ 0.
+Proof with nauto.
   intros k Hk n Hn.
-  set {n ∊ ω | λ n, k ∈ n → ∃b ∈ ω, k + b = n ∧ b ≠ 0} as N.
+  set {n ∊ ω | λ n, k ∈ n → ∃d ∈ ω, k + d = n ∧ d ≠ 0} as N.
   ω_induction N Hn; intros Hlt. exfalso0.
-  apply ineq_leq_iff_lt in Hlt as []...
-  - apply IH in H as [b [Hb [H1 H2]]].
-    exists b⁺. split. apply ω_inductive...
+  apply leq_iff_lt_suc in Hlt as []...
+  - apply IH in H as [d [Hd [H1 H2]]].
+    exists d⁺. split. apply ω_inductive...
     split. rewrite add_m_n... subst... apply suc_neq_0.
   - exists 1. split. apply ω_inductive...
     split. rewrite suc_eq_add_1... subst... apply suc_neq_0.
 Qed.
 
-Lemma subtrE : ∀ m n ∈ ω, (∃b ∈ ω, m + b = n ∧ b ≠ 0) → m ∈ n.
-Proof with auto.
-  intros m Hm n Hn [b [Hb [Heq Hnq0]]]. subst n.
-  apply SI in Hnq0 as [c [Hc Heq]]... subst b. apply ch4_22...
-Qed.
-
-Lemma subtr_iff : ∀ m n ∈ ω, m ∈ n ↔ ∃b ∈ ω, m + b = n ∧ b ≠ 0.
-Proof with auto. split. apply subtrI... apply subtrE... Qed.
-
-(** 整数投射 **)
+(* 整数投射 *)
 Definition PreIntProj : set → set := λ a,
   {p ∊ a | λ p, π1 p = 0 ∨ π2 p = 0}.
 Definition IntProj : set → set := λ a,
@@ -552,7 +551,7 @@ Definition IntProj : set → set := λ a,
 
 Lemma preIntProjI1 : ∀ m n p ∈ ω,
   n + p = m → <p, 0> ∈ PreIntProj ([<m, n>]~).
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn p Hp Heq.
   apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
   rewrite add_0_r... subst. rewrite add_comm... zfcrewrite...
@@ -560,7 +559,7 @@ Qed.
 
 Lemma preIntProjI2 : ∀ m n q ∈ ω,
   m + q = n → <0, q> ∈ PreIntProj ([<m, n>]~).
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn q Hq Heq.
   apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
   rewrite add_0_l... zfcrewrite...
@@ -581,16 +580,16 @@ Proof with auto.
 Qed.
 
 Lemma preIntProj_single : ∀a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
-Proof with eauto.
+Proof with neauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   subst a. split.
   - destruct (classic (m = n)) as [Hmn|Hmn].
     + exists <0, 0>. apply preIntProjI1... rewrite add_0_r...
-    + apply ωLt_connected in Hmn as []...
-      * apply subtrI in H as [b [Hb [Heq _]]]...
+    + apply lt_connected in Hmn as []...
+      * apply diff_exists in H as [b [Hb [Heq _]]]...
         exists <0, b>. apply preIntProjI2...
-      * apply subtrI in H as [b [Hb [Heq _]]]...
+      * apply diff_exists in H as [b [Hb [Heq _]]]...
         exists <b, 0>. apply preIntProjI1...
   - intros x1 x2 H1 H2.
     apply preIntProjE in H1 as [p1 [Hp1 [q1 [Hq1 [Hx1 [H1 []]]]]]];
@@ -682,7 +681,7 @@ Proof with auto.
   rewrite intAddInv, intAddInv...
 Qed.
 
-Lemma intAddInv_is_int : ∀a ∈ ℤ, -a ∈ ℤ.
+Lemma intAddInv_int : ∀a ∈ ℤ, -a ∈ ℤ.
 Proof with auto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
@@ -690,11 +689,13 @@ Proof with auto.
 Qed.
 
 Lemma neg_int_n : ∀ n, -Int n ∈ ℤ.
-Proof. intros. apply intAddInv_is_int. auto. Qed.
-Hint Immediate neg_int_n : core.
+Proof with nauto.
+  intros. apply intAddInv_int...
+Qed.
+Hint Immediate neg_int_n : number_hint.
 
-Lemma intAdd_inv : ∀a ∈ ℤ, a - a = Int 0.
-Proof with auto.
+Lemma intAddInv_annih : ∀a ∈ ℤ, a - a = Int 0.
+Proof with nauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   rewrite intAddInv, intAdd_m_n_p_q...
@@ -703,8 +704,8 @@ Proof with auto.
 Qed.
 
 Example intAdd_2_n3 : Int 2 - Int 3 = -Int 1.
-Proof with auto.
+Proof with nauto.
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intAdd_m_n_p_q, add_0_r, add_0_l...
-  apply int_ident... rewrite (Pred 1), add_m_n, add_0_r, add_0_l...
+  apply int_ident... rewrite (pred 1), add_m_n, add_0_r, add_0_l...
 Qed.

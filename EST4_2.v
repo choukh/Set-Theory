@@ -1,24 +1,74 @@
 (** Based on "Elements of Set Theory" Chapter 4 Part 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Global Set Warnings "-notation-overridden,-parsing".
 Require Export ZFC.EST4_1.
 
-(*** EST第四章2：自然数算术：加法，乘法，运算律 ***)
+(*** EST第四章2：nat的嵌入与投射，自然数算术：加法，乘法，运算律 ***)
 
-(* 自动类型转换 *)
-Coercion embed := λ n, iter n Suc ∅.
+(* 自动化证明 *)
+Hint Immediate ω_has_0 : number_hint.
+Hint Immediate suc_has_n : number_hint.
+Hint Immediate suc_neq_0 : number_hint.
+Hint Rewrite π1_correct π2_correct : zfc_hint.
+Ltac nauto := auto with number_hint.
+Ltac neauto := eauto with number_hint.
+Ltac zfcrewrite := autorewrite with zfc_hint in *; try congruence.
 
-Lemma Pred : ∀ n, embed n =
-  match n with | O => ∅ | S n' => (embed n')⁺ end.
+(** nat的嵌入与投射 **)
+
+(* 元语言自然数嵌入到集合论自然数（自动类型转换） *)
+Coercion Embed := λ n, iter n Suc ∅.
+
+Lemma pred : ∀ n, Embed n =
+  match n with | O => ∅ | S n' => (Embed n')⁺ end.
 Proof. intros. destruct n; auto. Qed.
 
-Lemma embed_n : ∀ n : nat, n ∈ ω.
+Lemma ωI : ∀ n : nat, n ∈ ω.
+Proof with nauto. induction n... apply ω_inductive... Qed.
+Hint Immediate ωI : number_hint.
+
+(* 集合论自然数投射出元语言自然数 *)
+Definition Proj (N : set) : nat :=
+  match dit (sig (λ n, iter n Suc ∅ = N)) with
+    | inl (exist _ n _) => n
+    | inr _ => 0
+  end.
+
+Lemma proj : ∀n ∈ ω, ∃ m : nat, Embed m = n.
 Proof with auto.
-  induction n.
-  - apply ω_has_0.
-  - rewrite Pred. apply ω_inductive...
+  intros n Hn.
+  set {n ∊ ω | λ n, ∃ k : nat, Embed k = n} as N.
+  ω_induction N Hn. exists 0...
+  destruct IH as [k' Heq]. subst. exists (S k')...
 Qed.
+
+(* 嵌入操作是单射 *)
+Lemma embed_injective : ∀ m n : nat,
+  Embed m = Embed n → m = n.
+Proof with auto.
+  induction m; destruct n; unfold Embed; simpl; intros.
+  - reflexivity.
+  - exfalso. eapply suc_neq_0. symmetry. apply H.
+  - exfalso. eapply suc_neq_0. apply H.
+  - apply suc_injective in H... apply ωI. apply ωI.
+Qed.
+
+(* 集合论序数与元语言自然数同构 *)
+Lemma embed_proj_id : ∀ n: nat, Proj (Embed n) = n. 
+Proof.
+  intros. unfold Proj.
+  destruct (dit (sig (λ k, iter k Suc ∅ = Embed n))).
+  - destruct s as [k H]. apply embed_injective in H. apply H.
+  - exfalso. apply f. exists n. reflexivity.
+Qed.
+
+Lemma proj_embed_id : ∀n ∈ ω, Embed (Proj n) = n.
+Proof.
+  intros n Hn. destruct (proj n Hn) as [m Heq].
+  subst. rewrite embed_proj_id. reflexivity.
+Qed.
+
+(** 自然数算术 **)
 
 (* 算术递归定义Helper *)
 Definition PreArith : set → set → set := λ F a,
@@ -94,14 +144,6 @@ Definition BinOp : set → (set → set) → set := λ A F,
     m ∈ A ∧ n ∈ A ∧ p = (F m)[n]
   }.
 
-(* 自动化证明 *)
-Hint Immediate ω_has_0 : core.
-Hint Immediate suc_has_n : core.
-Hint Immediate embed_n : core.
-Hint Rewrite π1_correct π2_correct : ZFC.
-Ltac zfcrewrite :=
-  autorewrite with ZFC in *; try congruence.
-
 Lemma binop_is_func : ∀ A F, is_function (BinOp A F).
 Proof with auto.
   repeat split.
@@ -135,7 +177,7 @@ Definition Addition : set := BinOp ω Add.
 Notation "x + y" := (Addition[<x, y>]) : Nat_scope.
 
 Lemma add_maps_onto : Addition: ω × ω ⟹ ω.
-Proof with eauto; try congruence.
+Proof with neauto; try congruence.
   split. apply binop_is_func.
   split. apply binop_dom. intros a Ha.
   destruct (add_correct a) as [h [Hh [Hheq _]]]...
@@ -160,7 +202,7 @@ Proof with auto.
 Qed.
 
 Theorem add_0_r : ∀m ∈ ω, m + 0 = m.
-Proof with auto.
+Proof with nauto.
   intros m Hm. eapply func_ap... apply add_is_func.
   apply SepI. apply CProdI... apply CProdI...
   split; zfcrewrite. split... rewrite add_0...
@@ -196,7 +238,7 @@ Definition Mul : set → set := λ m, Arith (Add m) 0.
 Lemma mul_correct : ∀m ∈ ω,
   ∃h, h: ω ⇒ ω ∧ (Mul m) = h ∧
   h[0] = 0 ∧ ∀n ∈ ω, h[n⁺] = m + h[n].
-Proof with auto; try congruence.
+Proof with nauto; try congruence.
   intros m Hm.
   destruct (add_correct m) as [g [Hg [Hgeq _]]]...
   destruct (arith_correct (Add m) 0) as [h [Hh [Hheq [Hh0 Hh1]]]]...
@@ -224,7 +266,7 @@ Notation "x ⋅ y" := (Muliplication[<x, y>])
   (at level 40) : Nat_scope.
 
 Lemma mul_maps_onto : Muliplication: ω × ω ⟹ ω.
-Proof with auto; try congruence.
+Proof with nauto; try congruence.
   split. apply binop_is_func.
   split. apply binop_dom. intros a Ha.
   destruct (mul_correct a) as [h [Hh [Hheq _]]]...
@@ -234,8 +276,8 @@ Proof with auto; try congruence.
   - destruct (mul_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply (embed_n 1). apply Hy. split; zfcrewrite.
-    split... rewrite Pred, mul_n, mul_0, add_0_r...
+    apply Hy. apply (ωI 1). apply Hy. split; zfcrewrite.
+    split... rewrite pred, mul_n, mul_0, add_0_r...
     apply func_correct... rewrite Hhd...
 Qed.
 
@@ -250,7 +292,7 @@ Proof with auto.
 Qed.
 
 Theorem mul_0_r : ∀m ∈ ω, m ⋅ 0 = 0.
-Proof with auto.
+Proof with nauto.
   intros m Hm. eapply func_ap. apply mul_is_func.
   apply SepI... apply CProdI... apply CProdI...
   split; zfcrewrite. split... rewrite mul_0...
@@ -286,7 +328,7 @@ Definition Exp : set → set := λ m, Arith (Mul m) 1.
 Lemma exp_correct : ∀m ∈ ω,
   ∃h, h: ω ⇒ ω ∧ (Exp m) = h ∧
   h[0] = 1 ∧ ∀n ∈ ω, h[n⁺] = m ⋅ h[n].
-Proof with auto; try congruence.
+Proof with nauto; try congruence.
   intros m Hm.
   destruct (mul_correct m) as [g [Hg [Hgeq _]]]...
   destruct (arith_correct (Mul m) 1)
@@ -315,7 +357,7 @@ Definition Exponentiation : set := BinOp ω Exp.
 Notation "x ^ y" := (Exponentiation[<x, y>]) : Nat_scope.
 
 Lemma exp_maps_onto : Exponentiation: ω × ω ⟹ ω.
-Proof with auto; try congruence.
+Proof with nauto; try congruence.
   split. apply binop_is_func.
   split. apply binop_dom. intros a Ha.
   destruct (exp_correct a) as [h [Hh [Hheq _]]]...
@@ -325,9 +367,9 @@ Proof with auto; try congruence.
   - destruct (exp_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply (embed_n 1). apply Hy.
+    apply Hy. apply (ωI 1). apply Hy.
     split; zfcrewrite. split...
-    rewrite Pred, exp_n, exp_0, Pred, mul_m_n, mul_0_r, add_0_r...
+    rewrite pred, exp_n, exp_0, pred, mul_m_n, mul_0_r, add_0_r...
     apply func_correct... rewrite Hhd...
 Qed.
 
@@ -342,7 +384,7 @@ Proof with auto.
 Qed.
 
 Theorem exp_m_0 : ∀m ∈ ω, m ^ 0 = 1.
-Proof with auto.
+Proof with nauto.
   intros m Hm. eapply func_ap. apply exp_is_func.
   apply SepI... apply CProdI... apply CProdI...
   split; zfcrewrite. split... rewrite exp_0...
@@ -374,13 +416,13 @@ Qed.
 
 Example add_1_2 : 1 + 2 = 3.
 Proof.
-  rewrite (Pred 2), add_m_n, (Pred 1), add_m_n, add_0_r;
+  rewrite (pred 2), add_m_n, (pred 1), add_m_n, add_0_r;
     auto; repeat apply ω_inductive...
 Qed.
 
 Example mul_2_2 : 2 ⋅ 2 = 4.
 Proof with auto.
-  rewrite (Pred 2), mul_m_n, (Pred 1), mul_m_n, mul_0_r,
+  rewrite (pred 2), mul_m_n, (pred 1), mul_m_n, mul_0_r,
     add_0_r, add_m_n, add_m_n, add_0_r;
     auto; repeat apply ω_inductive...
 Qed.
@@ -398,7 +440,7 @@ Proof with auto.
 Qed.
 
 Lemma add_0_l : ∀n ∈ ω, 0 + n = n.
-Proof with auto.
+Proof with nauto.
   intros n Hn.
   set {n ∊ ω | λ n, 0 + n = n} as N.
   ω_induction N Hn. rewrite add_0_r...
@@ -465,7 +507,7 @@ Proof with auto.
 Qed.
 
 Lemma mul_0_l : ∀n ∈ ω, 0 ⋅ n = 0.
-Proof with auto.
+Proof with nauto.
   intros n Hn.
   set {n ∊ ω | λ n, 0 ⋅ n = 0} as N.
   ω_induction N Hn. rewrite mul_0_r...
@@ -473,7 +515,7 @@ Proof with auto.
 Qed.
 
 Lemma mul_m_n' : ∀ m n ∈ ω, m⁺ ⋅ n = n + (m ⋅ n).
-Proof with auto.
+Proof with nauto.
   intros m Hm n Hn. generalize dependent m.
   set {n ∊ ω | λ n, ∀ m, m ∈ ω → m⁺ ⋅ n = n + (m ⋅ n)} as N.
   ω_induction N Hn; intros k Hk.
@@ -488,7 +530,7 @@ Qed.
 
 (* 乘法交换律 *)
 Theorem mul_comm : ∀ m n ∈ ω, m ⋅ n = n ⋅ m.
-Proof with auto.
+Proof with nauto.
   intros n Hn m Hm. ω_destruct m; subst m.
   rewrite mul_0_l, mul_0_r...
   rewrite mul_m_n...
@@ -518,11 +560,11 @@ Proof with auto.
   ω_induction N Ha; intros Heq.
   - rewrite add_0_l in Heq...
   - rewrite add_m_n' in Heq...
-    apply suc_injection in Heq... apply add_ran...
+    apply suc_injective in Heq... apply add_ran...
 Qed.
 
 Lemma add_0_l_0 : ∀n ∈ ω, 0 + n = 0 → n = 0.
-Proof with eauto.
+Proof with neauto.
   intros n Hn H0.
   ω_destruct n... subst n. rewrite add_m_n in H0...
   exfalso. eapply suc_neq_0...
@@ -554,7 +596,7 @@ Definition odd : set → Prop := λ n,
   n ∈ ω ∧ ∃p ∈ ω, n = 2 ⋅ p + 1.
 
 Lemma suc_eq_add_1 : ∀n ∈ ω, n⁺ = n + 1.
-Proof with eauto.
+Proof with neauto.
   intros n Hn.
   set {n ∊ ω | λ n, n⁺ = n + 1} as N.
   ω_induction N Hn.
@@ -563,7 +605,7 @@ Proof with eauto.
 Qed.
 
 Lemma mul_1_r : ∀n ∈ ω, n ⋅ 1 = n.
-Proof with eauto.
+Proof with neauto.
   intros n Hn.
   set {n ∊ ω | λ n, n ⋅ 1 = n} as N.
   ω_induction N Hn.
