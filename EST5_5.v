@@ -136,6 +136,11 @@ Proof with auto.
   intros x Hx y Hy. split. apply realLtE. apply realLtI...
 Qed.
 
+Lemma realLt_not_refl : ∀x ∈ ℝ, x <𝐫 x → ⊥.
+Proof with auto.
+  intros x Hx Hc. apply realLt in Hc as []...
+Qed.
+
 Lemma realLt_rel : rel RealLt ℝ.
 Proof with auto.
   intros x Hx. apply SepE in Hx as []...
@@ -637,7 +642,7 @@ Proof with nauto.
   apply intLt... rewrite add_0_r, add_0_r, (pred 2)...
 Qed.
 
-Theorem realAdd_annih : ∀x ∈ ℝ, x - x = Real 0.
+Theorem realAddInv_annih : ∀x ∈ ℝ, x - x = Real 0.
 Proof with neauto.
   intros x Hx. apply ExtAx.
   assert (Hnx: -x ∈ ℝ) by (apply realAddInv_real; auto).
@@ -680,7 +685,65 @@ Proof with auto.
   intros x Hx.
   assert (Hn: -x ∈ ℝ) by (apply realAddInv_real; auto).
   assert (Hnn: --x ∈ ℝ) by (apply realAddInv_real; auto).
-  rewrite <- (realAdd_ident (--x)), <- (realAdd_annih x),
-    realAdd_comm, realAdd_assoc, realAdd_annih, realAdd_ident...
+  rewrite <- (realAdd_ident (--x)), <- (realAddInv_annih x),
+    realAdd_comm, realAdd_assoc, realAddInv_annih, realAdd_ident...
   apply realAdd_ran...
+Qed.
+
+Corollary realAdd_cancel : ∀ x y z ∈ ℝ, x + z = y + z → x = y.
+Proof with auto.
+  intros x Hx y Hy z Hz Heq.
+  assert (x + z - z = y + z - z) by congruence.
+  rewrite realAdd_assoc, (realAdd_assoc y) in H...
+  rewrite realAddInv_annih, realAdd_ident, realAdd_ident in H...
+  apply realAddInv_real... apply realAddInv_real...
+Qed.
+
+Corollary realAdd_cancel' : ∀ x y z ∈ ℝ, z + x = z + y → x = y.
+Proof with eauto.
+  intros x Hx y Hy z Hz Heq.
+  eapply realAdd_cancel...
+  rewrite realAdd_comm, (realAdd_comm y)...
+Qed.
+
+Theorem realLeq_both_side_add : ∀ x y z ∈ ℝ,
+  x ≤ y → x + z ≤ y + z.
+Proof with eauto.
+  intros x Hx y Hy z Hz Hleq.
+  apply realLeqE in Hleq. apply realLeqI.
+  apply realAdd_ran... apply realAdd_ran...
+  intros p Hp. apply realAddE in Hp
+    as [q [Hq [r [Hr [[Hqx Hrz] Heq]]]]]...
+  eapply realAddI1... apply Hleq...
+Qed.
+
+Theorem realLt_both_side_add : ∀ x y z ∈ ℝ,
+  x <𝐫 y → x + z <𝐫 y + z.
+Proof with eauto.
+  intros x Hx y Hy z Hz Hlt.
+  destruct (classic (x = y)).
+  - exfalso. subst. eapply realLt_not_refl; revgoals...
+  - assert (Hleq: x ≤ y) by auto.
+    apply (realLeq_both_side_add _ Hx _ Hy _ Hz) in Hleq as []...
+    exfalso. apply H. eapply realAdd_cancel...
+Qed.
+
+Theorem realLt_both_side_subtr : ∀ x y z ∈ ℝ,
+  x + z <𝐫 y + z → x <𝐫 y.
+Proof with eauto.
+  intros x Hx y Hy z Hz Hlt.
+  destruct (classic (x = y)). subst. exfalso.
+  eapply realLt_not_refl; revgoals... apply realAdd_ran...
+  apply realLt_connected in H as []... exfalso.
+  eapply realLt_both_side_add in H...
+  eapply realLt_not_refl; revgoals.
+  eapply realLt_tranr... apply realAdd_ran...
+Qed.
+
+Theorem realLeq_both_side_subtr : ∀ x y z ∈ ℝ,
+  x + z ≤ y + z → x ≤ y.
+Proof with eauto.
+  intros x Hx y Hy z Hz [].
+  left. apply realLt_both_side_subtr in H...
+  right. apply realAdd_cancel in H...
 Qed.

@@ -56,14 +56,12 @@ Qed.
 Hint Immediate int_sn : number_hint.
 
 Lemma nzIntMul_ranI : ∀ a b ∈ ℤ', a ⋅ b ∈ ℤ'.
-Proof with auto.
-  intros a Ha b Hb.
-  apply CompE in Ha as [Ha Ha0].
-  apply CompE in Hb as [Hb Hb0].
-  apply CompI. mr. intros H. apply SingE in H.
-  apply int_no_0_div in H as []...
-  apply Ha0. subst a. apply SingI.
-  apply Hb0. subst b. apply SingI.
+Proof with neauto.
+  intros a Ha' b Hb'.
+  apply nzIntE1 in Ha' as Ha. apply nzIntE1 in Hb' as Hb.
+  apply nzIntI0. apply intMul_ran; nz...
+  apply nzIntE0 in Ha' as Ha0. apply nzIntE0 in Hb' as Hb0.
+  intros H0. apply int_no_0_div in H0 as []...
 Qed.
 Local Ltac amr_n := apply add_ran; apply mul_ran; auto.
 

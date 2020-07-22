@@ -16,9 +16,6 @@ Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 (* ch5_9 see EST5_2 Theorem ω_embed_subtr *)
 (* ch5_10 see EST5_3 Lemma ratMul_0_l *)
 
-Close Scope Int_scope.
-Open Scope Rat_scope.
-
 Example ch5_11: ∀ r s ∈ ℚ,
   r ⋅ s = Rat 0 → r = Rat 0 ∨ s = Rat 0.
 Proof with nauto.
@@ -243,62 +240,6 @@ Qed.
 
 Close Scope Nat_scope.
 Open Scope Rat_scope.
-
-Lemma ratMul_addInv_l : ∀ p q ∈ ℚ, -p ⋅ q = -(p ⋅ q).
-Proof with auto.
-  intros p Hp q Hq.
-  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
-  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
-  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
-    ratAddInv, intMul_addInv_l... mr. nzmr.
-  apply intAddInv_int...
-Qed.
-
-Lemma ratMul_addInv_r : ∀ p q ∈ ℚ, p ⋅ -q = -(p ⋅ q).
-Proof with auto.
-  intros p Hp q Hq.
-  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
-  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
-  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
-    ratAddInv, intMul_addInv_r... mr. nzmr.
-  apply intAddInv_int...
-Qed.
-
-Lemma ratMul_addInv_lr : ∀ p q ∈ ℚ, p ⋅ -q = -p ⋅ q.
-Proof with auto.
-  intros p Hp q Hq.
-  rewrite ratMul_addInv_l, ratMul_addInv_r...
-Qed.
-
-Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ (-b <𝐳 -a)%z.
-Proof with auto.
-  intros a Ha b Hb.
-  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
-  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
-  subst a b. split; intros.
-  - apply intLt in H...
-    rewrite intAddInv, intAddInv... apply intLt...
-    rewrite add_comm, (add_comm n)...
-  - rewrite intAddInv, intAddInv in H... apply intLt in H...
-    apply intLt... rewrite add_comm, (add_comm p)...
-Qed.
-
-Lemma ratLt_addInv : ∀ p q ∈ ℚ, p <𝐪 q ↔ -q <𝐪 -p.
-Proof with auto.
-  intros p Hp q Hq.
-  apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
-  apply pQuotE_ratPosDenom in Hq as [c [Hc [d [Hd [Hq Hpd]]]]].
-  subst p q. split; intros.
-  - apply ratLt in H...
-    rewrite ratAddInv, ratAddInv... apply ratLt...
-    apply intAddInv_int... apply intAddInv_int...
-    rewrite intMul_addInv_l, intMul_addInv_l; nz...
-    apply intLt_addInv in H; auto; mr; nz.
-  - rewrite ratAddInv, ratAddInv in H... apply ratLt in H...
-    rewrite intMul_addInv_l, intMul_addInv_l in H; nz...
-    apply ratLt... apply intLt_addInv; auto; mr; nz.
-    apply intAddInv_int... apply intAddInv_int...
-Qed.
 
 Example ch5_18_2: ∀ p r ∈ ℚ, ratPos p →
   ∃a ∈ ℤ, p ⋅ IntEmbed[a] <𝐪 r.

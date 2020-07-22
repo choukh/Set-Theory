@@ -482,28 +482,46 @@ Proof with auto.
   apply intLt_trich.
 Qed.
 
+Close Scope Nat_scope.
+Open Scope Int_scope.
+
+Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ -b <𝐳 -a.
+Proof with auto.
+  intros a Ha b Hb.
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
+  apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
+  subst a b. split; intros.
+  - apply intLt in H...
+    rewrite intAddInv, intAddInv... apply intLt...
+    rewrite add_comm, (add_comm n)...
+  - rewrite intAddInv, intAddInv in H... apply intLt in H...
+    apply intLt... rewrite add_comm, (add_comm p)...
+Qed.
+
+Lemma intAddInv_0 : -Int 0 = Int 0.
+Proof. unfold Int. rewrite intAddInv; nauto. Qed.
+
 Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
 Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
 
-Lemma int_pos_neg : ∀ a, intPos a → intNeg (-a)%z.
+Lemma int_pos_neg : ∀ a, intPos a → intNeg (-a).
 Proof with nauto.
-  intros. apply intLtE in H
-    as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
-  apply int_ident in H1... rewrite add_0_r, add_0_l in H1...
-  subst a n. rewrite intAddInv... apply intLtI...
-  rewrite add_0_r, add_0_l... rewrite add_comm in Hlt...
-  apply lt_both_side_add in Hlt...
+  intros. assert (Ha: a ∈ ℤ). {
+    apply SepE in H as [H _]. apply CProdE1 in H as [_ H]. zfcrewrite.
+  }
+  apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.
 
-Lemma int_neg_pos : ∀ a, intNeg a → intPos (-a)%z.
+Lemma int_neg_pos : ∀ a, intNeg a → intPos (-a).
 Proof with nauto.
-  intros. apply intLtE in H
-    as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
-  apply int_ident in H2... rewrite add_0_r, add_0_l in H2...
-  subst a q. rewrite intAddInv... apply intLtI...
-  rewrite add_0_r, add_0_l... rewrite (add_comm p) in Hlt...
-  apply lt_both_side_add in Hlt...
+  intros. assert (Ha: a ∈ ℤ). {
+    apply SepE in H as [H _]. apply CProdE1 in H as [H _]. zfcrewrite.
+  }
+  apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.
+
+Close Scope Int_scope.
+Open Scope Nat_scope.
 
 Theorem intLt_both_side_add : ∀ a b c ∈ ℤ,
   a <𝐳 b ↔ (a + c <𝐳 b + c)%z.

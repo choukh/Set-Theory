@@ -242,33 +242,44 @@ Qed.
 Close Scope Int_scope.
 Open Scope Rat_scope.
 
+Lemma ratLt_addInv : ∀ p q ∈ ℚ, p <𝐪 q ↔ -q <𝐪 -p.
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
+  apply pQuotE_ratPosDenom in Hq as [c [Hc [d [Hd [Hq Hpd]]]]].
+  subst p q. split; intros.
+  - apply ratLt in H...
+    rewrite ratAddInv, ratAddInv... apply ratLt...
+    apply intAddInv_int... apply intAddInv_int...
+    rewrite intMul_addInv_l, intMul_addInv_l; nz...
+    apply intLt_addInv in H; auto; mr; nz.
+  - rewrite ratAddInv, ratAddInv in H... apply ratLt in H...
+    rewrite intMul_addInv_l, intMul_addInv_l in H; nz...
+    apply ratLt... apply intLt_addInv; auto; mr; nz.
+    apply intAddInv_int... apply intAddInv_int...
+Qed.
+
+Lemma ratAddInv_0 : -Rat 0 = Rat 0.
+Proof. unfold Rat. rewrite ratAddInv, intAddInv_0; nauto. Qed.
+
 Definition ratPos : set → Prop := λ r, Rat 0 <𝐪 r.
 Definition ratNeg : set → Prop := λ r, r <𝐪 Rat 0.
 
 Lemma rat_pos_neg : ∀ r, ratPos r → ratNeg (-r).
 Proof with nauto.
-  intros. apply ratLtE in H
-    as [a [Ha [b [Hb [c [Hc [d [Hd [Hpb [Hpd [H1 [H2 Hlt]]]]]]]]]]]].
-  apply rat_ident in H1...
-  rewrite intMul_0_l, intMul_ident in H1; nz...
-  subst r a. rewrite intMul_0_l in Hlt; nz.
-  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_int; auto).
-  rewrite ratAddInv... apply ratLt...
-  rewrite intMul_0_l, intMul_ident; nz... apply int_pos_neg.
-  eapply intMul_pos_factor; revgoals; eauto; nz.
+  intros. assert (Hr: r ∈ ℚ). {
+    apply SepE in H as [H _]. apply CProdE1 in H as [_ H]. zfcrewrite.
+  }
+  apply ratLt_addInv... apply ratAddInv_rat...
+  rewrite ratAddInv_0, ratAddInv_double...
 Qed.
 
 Lemma rat_neg_pos : ∀ r, ratNeg r → ratPos (-r).
 Proof with nauto.
-  intros. apply ratLtE in H
-    as [a [Ha [b [Hb [c [Hc [d [Hd [Hpb [Hpd [H1 [H2 Hlt]]]]]]]]]]]].
-  apply rat_ident in H2...
-  rewrite intMul_0_l, intMul_ident in H2; nz...
-  subst r c. rewrite intMul_0_l in Hlt; nz.
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
-  rewrite ratAddInv... apply ratLt...
-  rewrite intMul_0_l, intMul_ident; nz... apply int_neg_pos.
-  eapply intMul_neg_factor; revgoals; eauto; nz.
+  intros. assert (Hr: r ∈ ℚ). {
+    apply SepE in H as [H _]. apply CProdE1 in H as [H _]. zfcrewrite.
+  }
+  apply ratLt_addInv in H... rewrite ratAddInv_0 in H...
 Qed.
 
 Lemma ratPos_sm_sn : ∀ m n, ratPos ([<Int (S m), Int (S n)>]~).
@@ -290,6 +301,7 @@ Lemma ratPos_r_sn : ∀ n, ratPos (Rat (S n))⁻¹.
 Proof. intros n. unfold Rat. rewrite ratMulInv; nauto. Qed.
 Hint Immediate ratPos_r_sn : number_hint.
 
+(* 有理数绝对值 *)
 Definition RatAbs : set → set := λ r,
   match (ixm (ratPos (-r))) with
   | inl _ => -r
@@ -299,7 +311,7 @@ Definition RatAbs : set → set := λ r,
 Notation "| r |" := (RatAbs r) (at level 60) : Rat_scope.
 Notation " r ≥ s " := (r = s ∨ s <𝐪 r) (at level 70): Rat_scope.
 
-Lemma ratAbs_leq_0 : ∀r ∈ ℚ, |r| ≥ Rat 0.
+Lemma ratAbs_geq_0 : ∀r ∈ ℚ, |r| ≥ Rat 0.
 Proof with nauto.
   intros r Hr. unfold RatAbs.
   destruct (ixm (ratPos (-r)))...
@@ -354,7 +366,7 @@ Proof with nauto.
   subst. exfalso. eapply ratLt_not_refl; revgoals.
   apply Hlt. apply ratMul_ran...
   apply ratLt_connected in H as []... exfalso.
-  eapply (Hright s Hs r Hr t Ht Hpt) in H.
+  apply (Hright s Hs r Hr t Ht Hpt) in H.
   eapply ratLt_not_refl; revgoals.
   eapply ratLt_tranr; eauto. apply ratMul_ran...
   intros r Hr s Hs t Ht Hpt Hlt.
@@ -392,7 +404,7 @@ Theorem ratAdd_cancel : ∀ r s t ∈ ℚ, r + t = s + t → r = s.
 Proof with eauto.
   intros r Hr s Hs t Ht Heq.
   assert (r + t - t = s + t - t) by congruence.
-  rewrite (ratAdd_assoc r), (ratAdd_assoc s) in H...
+  rewrite ratAdd_assoc, (ratAdd_assoc s) in H...
   rewrite ratAddInv_annih, ratAdd_ident, ratAdd_ident in H...
   apply ratAddInv_rat... apply ratAddInv_rat...
 Qed.
@@ -578,36 +590,55 @@ Proof with auto.
   rewrite intMul_addInv_l; nz... apply intAddInv_int...
 Qed.
 
-Lemma ratAddInv_diff : ∀ r s ∈ ℚ, (-(r - s) = s - r)%q.
+Close Scope Int_scope.
+Open Scope Rat_scope.
+
+Lemma ratAddInv_diff : ∀ r s ∈ ℚ, -(r - s) = s - r.
 Proof with auto.
   intros r Hr s Hs.
   rewrite ratAddInv_sum, ratAddInv_double, ratAdd_comm;
     auto; apply ratAddInv_rat...
 Qed.
 
-Lemma nzIntMul_ran : ∀ a b ∈ ℤ', a ⋅ b ∈ ℤ'.
-Proof with neauto.
-  intros a Ha' b Hb'.
-  apply nzIntE1 in Ha' as Ha. apply nzIntE1 in Hb' as Hb.
-  apply nzIntI0. apply intMul_ran; nz...
-  apply nzIntE0 in Ha' as Ha0. apply nzIntE0 in Hb' as Hb0.
-  intros H0. apply int_no_0_div in H0 as []...
-Qed.
-
-Lemma ratMulInv_prod : ∀ r s ∈ ℚ', ((r ⋅ s)⁻¹ = r⁻¹ ⋅ s⁻¹)%q.
+Lemma ratMulInv_prod : ∀ r s ∈ ℚ', (r ⋅ s)⁻¹ = r⁻¹ ⋅ s⁻¹.
 Proof with auto.
   intros r Hr s Hs.
   apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   apply nzRatE2 in Hs as [c [Hc [d [Hd Hs]]]]. subst s.
   rewrite ratMulInv, ratMulInv, ratMul_a_b_c_d,
-    ratMul_a_b_c_d, ratMulInv; nz...
-  apply nzIntMul_ran... apply nzIntMul_ran...
+    ratMul_a_b_c_d, ratMulInv; nz; auto; nzmr.
 Qed.
 
-Lemma ratMulInv_quot : ∀ r s ∈ ℚ', ((r / s)⁻¹ = s / r)%q.
+Lemma ratMulInv_quot : ∀ r s ∈ ℚ', (r / s)⁻¹ = s / r.
 Proof with auto.
   intros r Hr s Hs.
   rewrite ratMulInv_prod, ratMulInv_double, ratMul_comm...
   apply nzRatE1. apply ratMulInv_rat...
   apply nzRatE1... apply ratMulInv_rat...
+Qed.
+
+Lemma ratMul_addInv_l : ∀ p q ∈ ℚ, -p ⋅ q = -(p ⋅ q).
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
+  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
+    ratAddInv, intMul_addInv_l... mr. nzmr.
+  apply intAddInv_int...
+Qed.
+
+Lemma ratMul_addInv_r : ∀ p q ∈ ℚ, p ⋅ -q = -(p ⋅ q).
+Proof with auto.
+  intros p Hp q Hq.
+  apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]]. subst q.
+  rewrite ratAddInv, ratMul_a_b_c_d, ratMul_a_b_c_d,
+    ratAddInv, intMul_addInv_r... mr. nzmr.
+  apply intAddInv_int...
+Qed.
+
+Lemma ratMul_addInv_lr : ∀ p q ∈ ℚ, p ⋅ -q = -p ⋅ q.
+Proof with auto.
+  intros p Hp q Hq.
+  rewrite ratMul_addInv_l, ratMul_addInv_r...
 Qed.
