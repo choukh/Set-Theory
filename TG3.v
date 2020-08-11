@@ -53,7 +53,8 @@ Proof.
     + apply ReplI. apply Hs.
 Qed.
 
-(** 更多经典逻辑引理 **)
+(* 更多经典逻辑引理 *)
+(* Library Coq.Logic.Classical_Pred_Type *)
 
 Lemma double_negation : ∀ P : Prop, ¬¬P ↔ P.
 Proof.
@@ -62,16 +63,16 @@ Proof.
   - destruct (classic (¬P)) as [HF | HFF]; firstorder.
 Qed.
 
-Lemma classic_neg_all_1 : ∀ P : set → Prop, ¬ (∀ X, ¬ P X) ↔ (∃ X, P X).
+Lemma not_all_not_ex : ∀ P : set → Prop, ¬ (∀ X, ¬ P X) ↔ (∃ X, P X).
 Proof.
   split; intros.
   - destruct (classic (∃ X, P X)); firstorder.
   - firstorder.
 Qed.
 
-Lemma classic_neg_all_2 : ∀ P : set → Prop, ¬ (∀ X, P X) ↔ (∃ X, ¬ P X).
+Lemma not_all_ex_not : ∀ P : set → Prop, ¬ (∀ X, P X) ↔ (∃ X, ¬ P X).
 Proof.
-  intros. pose proof (classic_neg_all_1 (λ x, ¬ P x)).
+  intros. pose proof (not_all_not_ex (λ x, ¬ P x)).
   simpl in H. rewrite <- H. clear H.
   split; intros.
   - intros H1. apply H. intros. specialize H1 with X.
@@ -88,8 +89,8 @@ Proof.
   remember (∀ X, ¬ P X) as B.
   assert (∀ P Q: Prop, (P → Q) → (¬ Q → ¬ P)) by auto.
   pose proof (H0 A B H). subst. clear H H0.
-  rewrite classic_neg_all_1 in H1.
-  rewrite classic_neg_all_2 in H1.
+  rewrite not_all_not_ex in H1.
+  rewrite not_all_ex_not in H1.
   intros. apply H1 in H. destruct H as [X H].
   exists X. clear H1.
   assert (∀ A B : Prop, ¬ (A → ¬ B) ↔ ¬¬B ∧ ¬¬A) by firstorder.

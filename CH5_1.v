@@ -31,11 +31,11 @@ Qed.
 
 Example ch5_12: ∀r ∈ ℚ, ratNeg r ↔ ratPos (-r).
 Proof with auto.
-  intros r Hr. split. apply rat_neg_pos. intros Hp.
+  intros r Hr. split. apply ratNeg_pos. intros Hp.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  rewrite ratAddInv in Hp... apply rat_pos_neg in Hp.
+  rewrite ratAddInv in Hp... apply ratPos_neg in Hp.
   rewrite ratAddInv in Hp... rewrite intAddInv_double in Hp...
-  apply intAddInv_int...
+  apply intAddInv_ran...
 Qed.
 
 Close Scope Rat_scope.
@@ -47,7 +47,7 @@ Proof with eauto.
   assert (a + c - c = b + c - c) by congruence.
   rewrite (intAdd_assoc a), (intAdd_assoc b) in H...
   rewrite intAddInv_annih, intAdd_ident, intAdd_ident in H...
-  apply intAddInv_int... apply intAddInv_int...
+  apply intAddInv_ran... apply intAddInv_ran...
 Qed.
 
 Close Scope Int_scope.
@@ -136,7 +136,7 @@ Proof with neauto.
     rewrite intMul_ident' in H2...
     assert (Hm1: (m + 1)%n ∈ ω) by (apply add_ran; nauto).
     assert (Hm1z: ω_Embed [(m + 1)%n] ∈ ℤ)
-      by (apply ω_embed_int; auto).
+      by (apply ω_embed_ran; auto).
     assert (H3: b <𝐳 ω_Embed[(m + 1)%n]). {
       rewrite Heq, ω_embed_n... apply intLt...
       rewrite add_0_r... apply lt_add_enlarge...
@@ -148,13 +148,6 @@ Proof with neauto.
     } clear H3.
     exists (m + 1)%n. split...
     destruct H2. eapply intLt_tranr... rewrite H...
-Qed.
-
-Lemma ratPos_intPos : ∀a ∈ ℤ, ∀b ∈ ℤ',
-  intPos b → ratPos ([<a, b>]~) → intPos a.
-Proof with nauto.
-  intros a Ha b Hb Hpb Hpr. apply ratLt in Hpr...
-  rewrite intMul_0_l, intMul_ident in Hpr... nz.
 Qed.
 
 Lemma intPos_natPos : ∀a ∈ ℤ, intPos a →
@@ -195,7 +188,7 @@ Proof with neauto.
     assert (H0: m⁺ ∈ ω) by (apply ω_inductive; auto).
     assert (H1: m⋅t ∈ ω) by (apply mul_ran; auto).
     assert (H2: m⁺⋅t ∈ ω) by (apply mul_ran; auto).
-    assert (H3: ω_Embed[m⁺⋅t] ∈ ℤ) by (apply ω_embed_int; auto).
+    assert (H3: ω_Embed[m⁺⋅t] ∈ ℤ) by (apply ω_embed_ran; auto).
     assert (H4: s⋅(m⁺⋅t) ∈ ω) by (apply mul_ran; auto).
     assert (H5: (s⋅(m ⁺⋅t))⋅n ∈ ω) by (apply mul_ran; auto).
     assert (H6: s⋅m⁺ ∈ ω) by (apply mul_ran; auto).
@@ -235,7 +228,7 @@ Corollary ch5_18_1: ∀ p r ∈ ℚ, ratPos p →
 Proof with auto.
   intros p Hp r Hr Hpp.
   pose proof (ch5_18 p Hp r Hr Hpp) as [k [Hk Hlt]].
-  exists (ω_Embed [k]). split... apply ω_embed_int...
+  exists (ω_Embed [k]). split... apply ω_embed_ran...
 Qed.
 
 Close Scope Nat_scope.
@@ -249,19 +242,41 @@ Proof with neauto.
     [|apply ratLt_connected in H as [Hnr|];revgoals]...
   - exists (-Int 1)%z. split...
     rewrite intEmbed_addInv, ratMul_addInv_r, ratMul_ident, H...
-    apply rat_pos_neg...
+    apply ratPos_neg...
   - exists (-Int 1)%z. split...
     rewrite intEmbed_addInv, ratMul_addInv_r, ratMul_ident...
-    eapply ratLt_tranr... apply rat_pos_neg...
-  - apply rat_neg_pos in Hnr.
-    assert (Hr': -r ∈ ℚ) by (apply ratAddInv_rat; auto).
+    eapply ratLt_tranr... apply ratPos_neg...
+  - apply ratNeg_pos in Hnr.
+    assert (Hr': -r ∈ ℚ) by (apply ratAddInv_ran; auto).
     pose proof (ch5_18 p Hp (-r) Hr' Hpp) as [k [Hk Hlt]].
     remember (ω_Embed [k]) as a.
-    assert (H2: a ∈ ℤ) by (subst a; apply ω_embed_int; auto).
-    assert (H3: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
+    assert (H2: a ∈ ℤ) by (subst a; apply ω_embed_ran; auto).
+    assert (H3: (-a)%z ∈ ℤ) by (apply intAddInv_ran; auto).
     assert (H4: [<(-a)%z, Int 1>]~ ∈ ℚ) by (apply pQuotI; nauto).
     rewrite <- (intAddInv_double a), intEmbed_addInv,
       ratMul_addInv_r in Hlt... apply ratLt_addInv in Hlt...
-    exists (-a)%z. split. apply intAddInv_int...
+    exists (-a)%z. split. apply intAddInv_ran...
     rewrite intEmbed_a... apply ratMul_ran...
+Qed.
+
+(* ch5_19 see EST5_5 Lemma ch5_19 *)
+(* ch5_20 see EST5_6 Theorem realAbs_nonNeg *)
+(* ch5_21 see EST5_7 Theorem realDense *)
+(* ch5_22 see EST5_6 Lemma realAbs_ran *)
+
+Lemma ratDense : ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
+Proof. exact ch5_14. Qed.
+
+Lemma ratArchimedean : ∀q ∈ ℚ, ∃r ∈ ℚ, q <𝐪 r.
+Proof with nauto.
+  intros q Hq. exists (q + Rat 1). split. apply ratAdd_ran...
+  rewrite <- (ratAdd_ident q) at 1...
+  apply ratLt_both_side_add'... apply ratPos_sn.
+Qed.
+
+Lemma ratArchimedean' : ∀q ∈ ℚ, ∃r ∈ ℚ, r <𝐪 q.
+Proof with nauto.
+  intros q Hq. exists (q - Rat 1). split. apply ratAdd_ran...
+  rewrite <- (ratAdd_ident q) at 2...
+  apply ratLt_both_side_add'... apply ratNeg_sn.
 Qed.

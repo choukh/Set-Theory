@@ -681,7 +681,7 @@ Proof with auto.
   rewrite intAddInv, intAddInv...
 Qed.
 
-Lemma intAddInv_int : ∀a ∈ ℤ, -a ∈ ℤ.
+Lemma intAddInv_ran : ∀a ∈ ℤ, -a ∈ ℤ.
 Proof with auto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Heq]]]]. subst a.
@@ -690,9 +690,12 @@ Qed.
 
 Lemma neg_int_n : ∀ n, -Int n ∈ ℤ.
 Proof with nauto.
-  intros. apply intAddInv_int...
+  intros. apply intAddInv_ran...
 Qed.
 Hint Immediate neg_int_n : number_hint.
+
+Lemma intAddInv_0 : -Int 0 = Int 0.
+Proof. unfold Int. rewrite intAddInv; nauto. Qed.
 
 Lemma intAddInv_annih : ∀a ∈ ℤ, a - a = Int 0.
 Proof with nauto.

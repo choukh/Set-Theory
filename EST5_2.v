@@ -485,6 +485,15 @@ Qed.
 Close Scope Nat_scope.
 Open Scope Int_scope.
 
+Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
+Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
+
+Lemma int_neq_0 : ∀a ∈ ℤ, intPos a ∨ intNeg a → a ≠ Int 0.
+Proof.
+  intros a Ha [Hpa|Hna]; intros H; subst;
+  eapply intLt_not_refl; revgoals; eauto.
+Qed.
+
 Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ -b <𝐳 -a.
 Proof with auto.
   intros a Ha b Hb.
@@ -498,13 +507,7 @@ Proof with auto.
     apply intLt... rewrite add_comm, (add_comm p)...
 Qed.
 
-Lemma intAddInv_0 : -Int 0 = Int 0.
-Proof. unfold Int. rewrite intAddInv; nauto. Qed.
-
-Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
-Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
-
-Lemma int_pos_neg : ∀ a, intPos a → intNeg (-a).
+Lemma intPos_neg : ∀ a, intPos a → intNeg (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
     apply SepE in H as [H _]. apply CProdE1 in H as [_ H]. zfcrewrite.
@@ -512,7 +515,7 @@ Proof with nauto.
   apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.
 
-Lemma int_neg_pos : ∀ a, intNeg a → intPos (-a).
+Lemma intNeg_pos : ∀ a, intNeg a → intPos (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
     apply SepE in H as [H _]. apply CProdE1 in H as [H _]. zfcrewrite.
@@ -622,11 +625,11 @@ Proof with neauto.
   intros a Ha b Hb c Hc Hnq0 Heq.
   destruct (classic (a = b))... exfalso.
   apply intLt_connected in Hnq0 as [Hneg|Hpos]...
-  - apply int_neg_pos in Hneg as Hpos.
+  - apply intNeg_pos in Hneg as Hpos.
     assert (Heq': a ⋅ -c = b ⋅ -c). {
       repeat rewrite intMul_addInv_r... congruence.
     }
-    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_int; auto).
+    assert (Hnc: -c ∈ ℤ) by (apply intAddInv_ran; auto).
     apply intLt_connected in H as [H|H]; [|auto..];
       eapply intLt_both_side_mul in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
@@ -661,8 +664,7 @@ Proof with neauto.
   - right. congruence.
   - left. apply intLt_both_side_mul in H...
   - right. apply intMul_cancel in H...
-    destruct (classic (c = Int 0))... exfalso.
-    rewrite H0 in Hpc. eapply intLt_not_refl; revgoals...
+    destruct (classic (c = Int 0))... apply int_neq_0...
 Qed.
 
 Lemma intLt_iff_leq_suc : ∀a b ∈ ℤ, a <𝐳 b ↔ a + Int 1 ≤ b.
@@ -711,7 +713,7 @@ Proof with nauto.
     apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
 Qed.
 
-Corollary ω_embed_int : ∀n ∈ ω, ω_Embed[n] ∈ ℤ.
+Corollary ω_embed_ran : ∀n ∈ ω, ω_Embed[n] ∈ ℤ.
 Proof with auto.
   pose proof ω_embed_maps_into as [Hf [Hd Hr]].
   intros n Hn. apply Hr. eapply ranI.
@@ -734,6 +736,9 @@ Proof with nauto.
   intros n Hn. apply func_ap. destruct ω_embed_maps_into...
   apply SepI. apply CProdI... apply pQuotI... zfcrewrite.
 Qed.
+
+Theorem ω_embed : ∀ n : nat, ω_Embed[n] = Int n.
+Proof. intros. rewrite ω_embed_n; nauto. Qed.
 
 Theorem ω_embed_add : ∀ m n ∈ ω,
   ω_Embed[(m + n)%n] = ω_Embed[m] + ω_Embed[n].

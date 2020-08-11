@@ -43,3 +43,7 @@ echo "building CH5_1"
 coqc -R . ZFC CH5_1.v
 echo "building EST5_5"
 coqc -R . ZFC EST5_5.v
+echo "building EST5_6"
+coqc -R . ZFC EST5_6.v
+echo "building EST5_7"
+coqc -R . ZFC EST5_7.v

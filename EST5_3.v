@@ -276,7 +276,7 @@ Qed.
 Theorem ratAddInv_exists : ∀r ∈ ℚ, ∃s ∈ ℚ, r + s = Rat 0.
 Proof with nauto.
   intros r Hr. apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
-  assert ((-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
+  assert ((-a)%z ∈ ℤ) by (apply intAddInv_ran; auto).
   exists ([<(-a)%z, b>]~). split. apply pQuotI...
   subst r. rewrite ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
@@ -311,7 +311,7 @@ Lemma planeEquiv_intAddInv : ∀ a b c d,
   <a, b> ~ <c, d> → <a, b> ~ < -c, -d>.
 Proof with auto.
   intros. apply planeEquivE2 in H as [H [Ha [Hb [Hc Hd]]]].
-  apply planeEquivI... apply intAddInv_int...
+  apply planeEquivI... apply intAddInv_ran...
   apply intAddInv_inzInt... unfold RatEq in *.
   rewrite intMul_addInv_l, intMul_addInv_r; nz... congruence.
 Qed.
@@ -330,7 +330,7 @@ Proof with nauto.
   apply intLt_connected in Hb0 as [Hnb|Hpb]; nz...
   - exists < -a, -b>. apply SepI. apply eqvcI.
     apply planeEquiv_intAddInv. apply Hrefl. apply CProdI...
-    zfcrewrite. apply int_neg_pos...
+    zfcrewrite. apply intNeg_pos...
   - exists <a, b>. apply SepI. apply eqvcI.
     apply Hrefl. apply CProdI... zfcrewrite...
 Qed.
@@ -377,8 +377,8 @@ Lemma ratAddInv : ∀a ∈ ℤ, ∀b ∈ ℤ', (-[<a, b>]~) = [<(-a)%z, b>]~.
 Proof with eauto.
   intros a Ha b Hb.
   pose proof (ratProj a Ha b Hb) as [c [Hc [d [Hd [H1 [H2 _]]]]]].
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
-  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_ran; auto).
+  assert (Hnc: (-c)%z ∈ ℤ) by (apply intAddInv_ran; auto).
   destruct ratEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
@@ -398,25 +398,28 @@ Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratAddInv, ratAddInv, intAddInv_double...
-  apply intAddInv_int...
+  apply intAddInv_ran...
 Qed.
 
-Lemma ratAddInv_rat : ∀r ∈ ℚ, -r ∈ ℚ.
+Lemma ratAddInv_ran : ∀r ∈ ℚ, -r ∈ ℚ.
 Proof with auto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Heq]]]]. subst r.
-  rewrite ratAddInv... apply pQuotI... apply intAddInv_int...
+  rewrite ratAddInv... apply pQuotI... apply intAddInv_ran...
 Qed.
 
 Lemma neg_rat_n : ∀ n, -Rat n ∈ ℚ.
-Proof. intros. apply ratAddInv_rat. nauto. Qed.
+Proof. intros. apply ratAddInv_ran. nauto. Qed.
 Hint Immediate neg_rat_n : number_hint.
+
+Lemma ratAddInv_0 : -Rat 0 = Rat 0.
+Proof. unfold Rat. rewrite ratAddInv, intAddInv_0; nauto. Qed.
 
 Lemma ratAddInv_annih : ∀r ∈ ℚ, r - r = Rat 0.
 Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
-  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_int; auto).
+  assert (Hna: (-a)%z ∈ ℤ) by (apply intAddInv_ran; auto).
   rewrite ratAddInv, ratAdd_a_b_c_d...
   apply rat_ident... amr;nz. nzmr.
   rewrite intMul_ident, intMul_0_l, intMul_addInv_l,
@@ -509,7 +512,7 @@ Proof with auto.
   apply CProdI... apply CProdI...
 Qed.
 
-Lemma ratMul_0_l : ∀r ∈ ℚ, r ⋅ Rat 0 = Rat 0.
+Lemma ratMul_0_r : ∀r ∈ ℚ, r ⋅ Rat 0 = Rat 0.
 Proof with nauto.
   intros r Hr.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
@@ -578,6 +581,13 @@ Proof with auto.
   Unshelve. nz. nz. nz.
 Qed.
 
+Corollary ratMul_distr' : ∀ p q r ∈ ℚ, (q + r) ⋅ p = q ⋅ p + r ⋅ p.
+Proof with auto.
+  intros p Hp q Hq r Hr.
+  rewrite (ratMul_comm (q + r)), ratMul_distr, ratMul_comm,
+    (ratMul_comm r)... apply ratAdd_ran...
+Qed.
+
 Lemma ratMul_ident : ∀r ∈ ℚ, r ⋅ Rat 1 = r.
 Proof with nauto.
   intros r Hr.
@@ -600,8 +610,8 @@ Proof with nauto.
     intMul_ident; nz...
 Qed.
 
-Lemma ratMul_0_r : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
-Proof. intros s Hs. rewrite ratMul_comm, ratMul_0_l; nauto. Qed.
+Lemma ratMul_0_l : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
+Proof. intros s Hs. rewrite ratMul_comm, ratMul_0_r; nauto. Qed.
 
 Lemma zRat_zInt : ∀a ∈ ℤ, ∀b ∈ ℤ', [<a, b>]~ = Rat 0 → a = Int 0.
 Proof with nauto.
@@ -722,7 +732,7 @@ Proof with neauto.
     (ratMul_assoc s), <- ratMul_assoc in H; nz_q;
     [|apply ratMul_ran;nz_q..].
   destruct (classic (r ⋅ s = Rat 0))...
-  rewrite H0 in H. rewrite ratMul_0_r in H.
+  rewrite H0 in H. rewrite ratMul_0_l in H.
   exfalso. eapply rat_suc_neq_0... apply ratMul_ran; nz_q.
 Qed.
 
@@ -758,16 +768,19 @@ Proof with auto.
   rewrite ratMulInv, ratMulInv...
 Qed.
 
-Lemma ratMulInv_rat : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
+Lemma ratMulInv_ran : ∀r ∈ ℚ', r⁻¹ ∈ ℚ'.
 Proof with auto.
   intros r Hr.
   apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   rewrite ratMulInv... apply nzRatI2...
 Qed.
 
-Lemma recip_rat_sn : ∀ n, (Rat (S n))⁻¹ ∈ ℚ.
+Lemma rat_sn_mulInv : ∀ n, (Rat (S n))⁻¹ ∈ ℚ.
 Proof. intros. unfold Rat. rewrite ratMulInv; nauto. Qed.
-Hint Immediate recip_rat_sn : number_hint.
+Hint Immediate rat_sn_mulInv : number_hint.
+
+Lemma ratMulInv_1 : (Rat 1)⁻¹ = Rat 1.
+Proof. unfold Rat. rewrite ratMulInv; nauto. Qed.
 
 Lemma ratMulInv_annih : ∀r ∈ ℚ', r / r = Rat 1.
 Proof with nauto.
@@ -791,4 +804,51 @@ Proof with nauto.
   rewrite intMul_m_n_p_q, intMul_m_n_p_q...
   rewrite mul_0_l, mul_0_l, mul_0_l, mul_0_r, mul_0_r,
     mul_1_r, mul_2_2, add_0_l, add_0_l...
+Qed.
+
+Example ratAdd_r2_r2_1 : (Rat 2) ⁻¹ + (Rat 2) ⁻¹ = Rat 1.
+Proof with nauto.
+  unfold Rat. repeat rewrite ratMulInv...
+  rewrite ratAdd_a_b_c_d, intMul_ident'...
+  unfold Int. rewrite intAdd_m_n_p_q, intMul_m_n_p_q...
+  rewrite mul_0_l, mul_0_l, mul_0_r, add_0_r...
+  replace (2 + 2)%n with (Embed 4).
+  replace (2 ⋅ 2)%n with (Embed 4).
+  rewrite add_0_r... apply rat_ident...
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
+  repeat rewrite mul_0_l... repeat rewrite mul_0_r...
+  rewrite mul_1_r, (mul_comm 1), mul_1_r...
+  rewrite (pred 2), mul_m_n, mul_1_r, add_m_n, <- suc_eq_add_1;
+    repeat apply ω_inductive...
+  rewrite (pred 2), add_m_n, <- suc_eq_add_1;
+    repeat apply ω_inductive...
+Qed.
+
+Example ratAdd_r6_r3_r2 : (Rat 6) ⁻¹ + (Rat 3) ⁻¹ = (Rat 2) ⁻¹.
+Proof with nauto.
+  unfold Rat. repeat rewrite ratMulInv...
+  rewrite ratAdd_a_b_c_d, intMul_ident', intMul_ident'...
+  unfold Int. rewrite intAdd_m_n_p_q, intMul_m_n_p_q...
+  rewrite mul_0_l, mul_0_l, mul_0_r, add_0_r...
+  replace (3 + 6)%n with (Embed 9).
+  replace (6 ⋅ 3)%n with (Embed 18).
+  rewrite add_0_r... apply rat_ident...
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
+  repeat rewrite mul_0_l... repeat rewrite mul_0_r...
+  replace (9 ⋅ 2)%n with (Embed 18).
+  replace (1 ⋅ 18)%n with (Embed 18).
+  - repeat rewrite add_0_r... - rewrite mul_comm, mul_1_r...
+  - repeat rewrite pred.
+    repeat rewrite mul_m_n; repeat apply ω_inductive...
+    rewrite mul_0_r, add_0_r; repeat apply ω_inductive...
+    repeat rewrite add_m_n; try rewrite add_0_r;
+      repeat apply ω_inductive...
+  - repeat rewrite pred.
+    repeat rewrite mul_m_n; repeat apply ω_inductive...
+    rewrite mul_0_r, add_0_r; repeat apply ω_inductive...
+    repeat (repeat rewrite add_m_n; try rewrite add_0_r;
+      repeat apply ω_inductive)...
+  - repeat rewrite pred.
+    repeat rewrite add_m_n; try rewrite add_0_r;
+      repeat apply ω_inductive...
 Qed.
