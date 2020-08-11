@@ -8,7 +8,7 @@ Local Ltac ar := apply intAdd_ran; nauto.
 Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
 
 (*** EST第五章3：有理数的定义
-  有理数运算：加法，加法逆元，乘法，乘法逆元 ***)
+  有理数算术：加法，加法逆元，乘法，乘法逆元 ***)
 
 Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
 Proof with auto.

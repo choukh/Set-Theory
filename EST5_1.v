@@ -3,7 +3,7 @@
 
 Require Export ZFC.CH4.
 
-(*** EST第五章1：整数的定义，整数运算：加法，加法逆元 ***)
+(*** EST第五章1：整数的定义，整数算术：加法，加法逆元 ***)
 
 (* 二元函数与等价关系的相容性 *)
 Definition binCompatible : set → set → set → Prop := λ R A F,

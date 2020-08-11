@@ -1055,6 +1055,11 @@ Qed.
 Notation "ℤ₊" := {a ∊ ℤ | intPos}.
 Definition EE : set → set := λ a, RatEmbed[IntEmbed[a]].
 
+Lemma ee_ran : ∀a ∈ ℤ, EE a ∈ ℝ.
+Proof with auto.
+  intros a Ha. apply ratEmbed_ran... apply intEmbed_ran...
+Qed.
+
 Lemma realLt_sup : ∀ A, ∀ x z ∈ ℝ, A ⊆ ℝ →
   x <𝐫 z → sup RealLt A z → ∃y ∈ A, x <𝐫 y.
 Proof with eauto.
@@ -1069,17 +1074,12 @@ Proof with eauto.
   pose proof (realLt_trich _ Hx _ Hz) as []; tauto.
 Qed.
 
-Lemma comboEmb_ran : ∀a ∈ ℤ, EE a ∈ ℝ.
-Proof with auto.
-  intros a Ha. apply ratEmbed_ran... apply intEmbed_ran...
-Qed.
-
 Lemma realArchimedean : ∀ x y ∈ ℝ, realPos x →
   ∃a ∈ ℤ₊, y <𝐫 x ⋅ EE a.
 Proof with neauto.
   intros x Hx y Hy Hpx.
   assert (Hpdr: ∀w ∈ ℝ, ∀a ∈ ℤ₊, w ⋅ EE a ∈ ℝ). {
-    intros w Hw a Ha. apply realMul_ran... apply comboEmb_ran...
+    intros w Hw a Ha. apply realMul_ran... apply ee_ran...
     apply SepE in Ha as []... 
   }
   destruct (classic (∃a ∈ ℤ₊, y <𝐫 x ⋅ EE a))...
@@ -1120,7 +1120,7 @@ Proof with neauto.
   apply realLt_both_side_subtr in H; auto; [|apply realAdd_ran]...
   rewrite <- (realMul_ident x), <- ratEmbed, <- intEmbed in H...
   subst x'. clear Hx'. apply SepE in Ha as [Ha Hpa]. unfold EE in H.
-  rewrite <- realMul_distr in H; auto; [|apply comboEmb_ran..]...
+  rewrite <- realMul_distr in H; auto; [|apply ee_ran..]...
   rewrite <- ratEmbed_add in H; [|apply intEmbed_ran..]...
   rewrite <- intEmbed_add in H...
   remember (x ⋅ RatEmbed[IntEmbed[(a + Int 1)%z]]) as x'.
@@ -1149,7 +1149,7 @@ Proof with neauto.
   }
   pose proof (realArchimedean _ Hyx _ (real_n 1) Hpyx) as [a [Ha H1]].
   apply SepE in Ha as [Ha Hpa].
-  assert (Heea: EE a ∈ ℝ) by (apply comboEmb_ran; auto).
+  assert (Heea: EE a ∈ ℝ) by (apply ee_ran; auto).
   assert (Hxa: x ⋅ EE a ∈ ℝ) by (apply realMul_ran; auto).
   assert (Hnxa: -(x ⋅ EE a) ∈ ℝ) by (apply realAddInv_ran; auto).
   rewrite realMul_distr', realMul_addInv_l,
@@ -1161,13 +1161,13 @@ Proof with neauto.
   (* b c *)
   pose proof (realArchimedean _ (real_n 1) _ Hxa (realPos_sn 0)) as [b [Hb H2]].
   apply SepE in Hb as [Hb Hpb].
-  assert (Heeb: EE b ∈ ℝ) by (apply comboEmb_ran; auto).
+  assert (Heeb: EE b ∈ ℝ) by (apply ee_ran; auto).
   rewrite realMul_ident' in H2...
   assert (Hneea: -EE a ∈ ℝ) by (apply realAddInv_ran; auto).
   assert (Hxna: x ⋅ -EE a ∈ ℝ) by (apply realMul_ran; auto).
   pose proof (realArchimedean _ (real_n 1) _ Hxna (realPos_sn 0)) as [c [Hc H3]].
   apply SepE in Hc as [Hc Hpc].
-  assert (Heec: EE c ∈ ℝ) by (apply comboEmb_ran; auto).
+  assert (Heec: EE c ∈ ℝ) by (apply ee_ran; auto).
   rewrite realMul_ident', realMul_addInv_r in H3...
   apply realLt_addInv in H3; auto; [|apply realAddInv_ran]...
   rewrite realAddInv_double in H3...
@@ -1187,20 +1187,20 @@ Proof with neauto.
   (* d *)
   apply SepE in Hd as [Hd Hlt1].
   assert (Hdm: (d - Int 1)%z ∈ ℤ) by (apply intAdd_ran; nauto).
-  assert (Heedm: EE (d - Int 1)%z ∈ ℝ) by (apply comboEmb_ran; auto).
+  assert (Heedm: EE (d - Int 1)%z ∈ ℝ) by (apply ee_ran; auto).
   assert (H2: EE (d - Int 1)%z ≤ x ⋅ EE a). {
     destruct (classic (EE (d - Int 1)%z ≤ x ⋅ EE a))...
     exfalso. apply Hd'. apply SepI...
     pose proof (realLt_trich _ Heedm _ Hxa) as []; tauto.
   }
-  assert (Hee1: EE (Int 1) ∈ ℝ) by (apply comboEmb_ran; nauto).
+  assert (Hee1: EE (Int 1) ∈ ℝ) by (apply ee_ran; nauto).
   assert (Hnee1: -EE (Int 1) ∈ ℝ) by (apply realAddInv_ran; auto).
   unfold EE in H2. rewrite intEmbed_add, ratEmbed_add,
     intEmbed_addInv, <- intEmbed_a, ratEmbed_addInv, <- ratEmbed_q,
     <- (realAdd_ident (x ⋅ EE a)), <- (realAddInv_annih (EE (Int 1))),
     <- realAdd_assoc in H2; nauto; [|apply intEmbed_ran..]...
   apply realLeq_both_side_subtr in H2; auto;
-    [|apply comboEmb_ran|apply realAdd_ran]...
+    [|apply ee_ran|apply realAdd_ran]...
   unfold EE in H2. rewrite intEmbed, ratEmbed in H2.
   assert (Hlt2: EE d <𝐫 y ⋅ EE a). {
     destruct H2. eapply realLt_tranr...
@@ -1218,7 +1218,7 @@ Proof with neauto.
   assert (Heea': EE a ∈ ℝ'). { apply nzRealI0... apply real_neq_0... }
   assert (Hra: (EE a)⁻¹ ∈ ℝ). { apply nzRealE. apply realMulInv_ran'... }
   assert (Hpra: realPos (EE a)⁻¹) by (apply realPos_mulInv; auto).
-  assert (Heed: EE d ∈ ℝ) by (apply comboEmb_ran; auto).
+  assert (Heed: EE d ∈ ℝ) by (apply ee_ran; auto).
   assert (Hya: y ⋅ EE a ∈ ℝ) by (apply realMul_ran; auto).
   assert (Ha': a ∈ ℤ'). { apply nzIntI0... apply int_neq_0... }
   assert (Hed: IntEmbed [d] ∈ ℚ) by (apply intEmbed_ran; auto).
