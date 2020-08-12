@@ -53,7 +53,7 @@ Proof with auto.
   - apply suc_injective in H... apply ωI. apply ωI.
 Qed.
 
-(* 集合论序数与元语言自然数同构 *)
+(* 集合论自然数与元语言自然数同构 *)
 Lemma embed_proj_id : ∀ n: nat, Proj (Embed n) = n. 
 Proof.
   intros. unfold Proj.
