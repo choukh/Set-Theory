@@ -6,7 +6,6 @@ Require Export ZFC.ZFC0.
 
 (*** ZFC集合论1：配对，单集，二元并，集族的并 ***)
 
-(** 配对 **)
 Definition Doubleton : set := 𝒫 𝒫 ∅.
 
 Lemma DoubletonI1 : ∅ ∈ Doubleton.
@@ -25,6 +24,7 @@ Definition PairRepl : set → set → set → set := λ a b x,
   | inr _ => a
   end.
 
+(** 配对 **)
 Definition Pair : set → set → set := λ x y,
   {PairRepl x y | w ∊ Doubleton}.
 Notation "{ x , y }" := (Pair x y).
