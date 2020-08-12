@@ -1,14 +1,14 @@
 #!/bin/sh
 
-echo "building TG0"
-coqc -R . ZFC TG0.v
-echo "building TG1"
-coqc -R . ZFC TG1.v
-echo "building TG2"
-coqc -R . ZFC TG2.v
-echo "building TG3"
-coqc -R . ZFC TG3.v
-coqc -R . ZFC TG_full.v
+echo "building ZFC0"
+coqc -R . ZFC ZFC0.v
+echo "building ZFC1"
+coqc -R . ZFC ZFC1.v
+echo "building ZFC2"
+coqc -R . ZFC ZFC2.v
+echo "building ZFC3"
+coqc -R . ZFC ZFC3.v
+coqc -R . ZFC ZFC_full.v
 echo "building EST2"
 coqc -R . ZFC EST2.v
 echo "building CH2"

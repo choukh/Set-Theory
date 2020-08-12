@@ -24,8 +24,7 @@ Qed.
 Example ch2_3: ∀A, ∀a ∈ A, a ⊆ ⋃A.
 Proof.
   intros A a Ha x Hx.
-  apply UnionAx. unfoldq.
-  exists a. auto.
+  apply UnionAx. exists a. split; auto.
 Qed.
 
 Example ch2_4: ∀ A B, A ⊆ B → ⋃A ⊆ ⋃B.
@@ -63,26 +62,25 @@ Qed.
 Example ch2_7_a: ∀ A B, 𝒫(A) ∩ 𝒫(B) = 𝒫(A ∩ B).
 Proof.
   intros. apply ExtAx. split; intros.
-  - apply PowerAx. unfold Sub. unfoldq. intros y Hy.
+  - apply PowerAx. intros y Hy.
     apply BInterE in H. destruct H as [H1 H2].
     apply PowerAx in H1. apply H1 in Hy as HA.
     apply PowerAx in H2. apply H2 in Hy as HB.
     apply BInterI. apply HA. apply HB.
-  - apply PowerAx in H. unfold Sub in H. unfoldq.
-    apply BInterI.
-    + apply PowerAx. unfold Sub. unfoldq. intros y Hy.
+  - apply PowerAx in H. apply BInterI.
+    + apply PowerAx. intros y Hy.
       apply H in Hy. apply BInterE in Hy. tauto.
-    + apply PowerAx. unfold Sub. unfoldq. intros y Hy.
+    + apply PowerAx. intros y Hy.
       apply H in Hy. apply BInterE in Hy. tauto.
 Qed.
 
 Example ch2_7_b: ∀A B, 𝒫(A) ∪ 𝒫(B) ⊆ 𝒫(A ∪ B).
 Proof.
-  intros A B x H. apply BUnionE in H. destruct H.
-  - apply PowerAx in H. apply PowerAx. unfold Sub. introq.
-    apply BUnionI1. apply H in H0. apply H0.
-  - apply PowerAx in H. apply PowerAx. unfold Sub. introq.
-    apply BUnionI2. apply H in H0. apply H0.
+  intros A B x Hx. apply BUnionE in Hx. destruct Hx.
+  - apply PowerAx in H. apply PowerAx. intros y Hy.
+    apply BUnionI1. apply H in Hy. apply Hy.
+  - apply PowerAx in H. apply PowerAx. intros y Hy.
+    apply BUnionI2. apply H in Hy. apply Hy.
 Qed.
 
 Example ch2_8: ¬∃A, ∀a, ⎨a⎬ ∈ A.
@@ -282,9 +280,9 @@ Proof.
     + apply BUnionI1. exact (UnionI H H2).
     + apply BUnionI2. exact (UnionI H H2).
   - apply BUnionE in H as [].
-    + apply UnionAx in H as [y [H1 H2]]. apply UnionAx. unfoldq.
+    + apply UnionAx in H as [y [H1 H2]]. apply UnionAx.
       exists y. split. apply BUnionI1. apply H1. apply H2.
-    + apply UnionAx in H as [y [H1 H2]]. apply UnionAx. unfoldq.
+    + apply UnionAx in H as [y [H1 H2]]. apply UnionAx.
       exists y. split. apply BUnionI2. apply H1. apply H2.
 Qed.
 
@@ -292,13 +290,13 @@ Example ch2_22: ∀ A B, ⦿ A → ⦿ B → ⋂(A ∪ B) = ⋂A ∩ ⋂B.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply InterE in H1 as [_ H1]. apply BInterI.
-    + apply InterI. apply H. introq.
-      apply H1. apply BUnionI1. apply H2.
-    + apply InterI. apply H0. introq.
-      apply H1. apply BUnionI2. apply H2.
+    + apply InterI. apply H. intros y Hy.
+      apply H1. apply BUnionI1. apply Hy.
+    + apply InterI. apply H0. intros y Hy.
+      apply H1. apply BUnionI2. apply Hy.
   - apply BInterE in H1 as [H1 H2]. apply InterI.
     + destruct H as [a Ha]. exists a. apply BUnionI1. apply Ha.
-    + introq. apply BUnionE in H3 as [].
+    + intros y Hy. apply BUnionE in Hy as [].
       * apply InterE in H1 as [_ H1]. apply H1. apply H3.
       * apply InterE in H2 as [_ H2]. apply H2. apply H3.
 Qed.
@@ -312,20 +310,20 @@ Proof.
   - apply InterI.
     + destruct Hi as [y Hy]. exists (𝒫 y).
       apply ReplI. apply Hy.
-    + unfoldq. intros y Hy. apply ReplE in Hy as [z [Hz Heq]].
+    + intros y Hy. apply ReplE in Hy as [z [Hz Heq]].
       subst y. apply PowerAx. apply PowerAx in H.
-      unfold Sub. unfoldq. intros y Hy. apply H in Hy.
+      intros y Hy. apply H in Hy.
       apply InterE in Hy as [_ Hy]. apply Hy. apply Hz.
-  - apply PowerAx. unfold Sub. unfoldq. intros y Hy.
-    apply InterI. apply Hi. unfoldq. intros z Hz. cut (x ⊆ z).
+  - apply PowerAx. intros y Hy.
+    apply InterI. apply Hi. intros z Hz. cut (x ⊆ z).
     + intros. apply H0. apply Hy.
     + apply PowerAx. apply InterE in H as [_ H].
       apply H. apply ReplI. apply Hz.
 Qed.
 
 Example ch2_24_b: ∀ 𝒜, ⋃{λ X, 𝒫 X | X ∊ 𝒜} ⊆ 𝒫(⋃𝒜).
-Proof with unfoldq.
-  unfold Sub... intros. 
+Proof.
+  intros 𝒜 x H. 
   apply FUnionE in H as [A [HA Hp]].
   apply PowerAx in Hp. apply PowerAx. unfold Sub...
   intros z Hz. apply UnionAx... exists A.
@@ -443,18 +441,18 @@ Qed.
 
 Example ch2_38_a: ∀ A B C, A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C.
 Proof.
-  unfold Sub. unfoldq. split.
+  split.
   - intros [H1 H2] x Hx. apply BUnionE in Hx as [].
     apply H1, H. apply H2, H.
-  - split; intros; apply H.
-    apply BUnionI1, H0. apply BUnionI2, H0.
+  - intros. split; intros x Hx; apply H.
+    apply BUnionI1, Hx. apply BUnionI2, Hx.
 Qed.
 
 Example ch2_38_b: ∀ A B C, C ⊆ A ∧ C ⊆ B ↔ C ⊆ A ∩ B.
 Proof.
-  unfold Sub. unfoldq. split; intros.
-  - destruct H as [H1 H2]. apply BInterI.
-    apply H1, H0. apply H2, H0.
-  - split; intros; apply H in H0;
-      apply BInterE in H0 as [H1 H2]; assumption.
+  split; intros.
+  - intros x Hx. destruct H as [H1 H2]. apply BInterI.
+    apply H1, Hx. apply H2, Hx.
+  - split; intros x Hx; apply H in Hx;
+      apply BInterE in Hx as [H1 H2]; assumption.
 Qed.

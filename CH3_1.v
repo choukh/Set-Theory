@@ -46,7 +46,7 @@ Qed.
 Lemma well_founded_3 : ∀ X Y Z, X ∈ Y → Y ∈ Z → Z ∉ X.
 Proof.
   intros X Y Z H. pose proof (ε_ind (λ X, ∀ Y Z, X ∈ Y → Y ∈ Z → Z ∉ X)).
-  apply H0; [|apply H]. clear X Y Z H H0. unfoldq.
+  apply H0; [|apply H]. clear X Y Z H H0.
   intros X H Y Z H1 H2 H3.
   pose proof (H Z H3 X Y H3 H1). auto.
 Qed.
@@ -128,7 +128,7 @@ Qed.
 
 Example ch3_9_a: ∀ 𝒜, dom ⋂𝒜 ⊆ ⋂{λ R, dom R | R ∊ 𝒜}.
 Proof.
-  unfold Sub. introq.
+  intros 𝒜 x H.
   apply domE in H as [y Hxy].
   apply InterE in Hxy as [[A HA] Hxy]. apply InterI.
   exists (dom A). apply ReplI. apply HA.
@@ -138,7 +138,7 @@ Qed.
 
 Example ch3_9_b: ∀ 𝒜, ran ⋂𝒜 ⊆ ⋂{λ R, ran R | R ∊ 𝒜}.
 Proof.
-  unfold Sub. introq.
+  intros 𝒜 x H.
   apply ranE in H as [y Hxy].
   apply InterE in Hxy as [[A HA] Hxy]. apply InterI.
   exists (ran A). apply ReplI. apply HA.

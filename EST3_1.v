@@ -155,7 +155,7 @@ Qed.
 Lemma pre_ap_exists : ∀ F,
   is_function F → ∀x ∈ dom F, ∃y ∈ ran F, pre_ap F x = ⎨<x, y>⎬.
 Proof.
-  unfoldq. intros F Hf x Hd.
+  intros F Hf x Hd.
   pose proof (pre_ap_single F Hf x Hd) as [[p Hp] Hu].
   pose proof (SepE F _ p Hp) as [Hp' [Hpp Hπp]].
   apply (op_η p) in Hpp.
@@ -172,7 +172,7 @@ Qed.
 Lemma ap_exists : ∀ F,
   is_function F → ∀x ∈ dom F, ∃y ∈ ran F, <x, y> ∈ F ∧ F[x] = y.
 Proof.
-  unfoldq. intros F H x Hd.
+  intros F H x Hd.
   pose proof (pre_ap_exists F H x Hd) as [y [Hr Heq]].
   exists y. repeat split.
   - apply Hr.

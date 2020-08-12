@@ -3,9 +3,9 @@
 
 Require Export ZFC.EST5_1.
 
-Local Ltac mr := apply mul_ran.
-Local Ltac ar := apply add_ran.
-Local Ltac amr := apply add_ran; apply mul_ran.
+Local Ltac mr := apply mul_ran; auto.
+Local Ltac ar := apply add_ran; auto.
+Local Ltac amr := apply add_ran; apply mul_ran; auto.
 
 (*** EST第五章2：整数乘法，整数的序，自然数嵌入 ***)
 
@@ -79,34 +79,34 @@ Proof with auto.
   assert (H35: m⋅p + n'⋅p + (m'⋅q' + m'⋅p) =
     n⋅p + m'⋅p + (m'⋅p' + m'⋅q)) by congruence.
   rewrite (add_comm (n⋅p + m'⋅p)) in H35; [|amr;auto..].
-  rewrite <- add_assoc, <- add_assoc in H35; [|amr|mr|mr|amr|mr..]...
-  apply add_cancel in H35; [|ar;[amr|mr]|ar;[amr|mr]|mr]...
+  rewrite <- add_assoc, <- add_assoc in H35; [|amr|mr|mr|amr|mr..].
+  apply add_cancel in H35; [|ar;[amr|mr]|ar;[amr|mr]|mr].
   assert (H46: m'⋅q + n⋅q + (n'⋅p' + n'⋅q) =
                m⋅q + n'⋅q + (n'⋅p + n'⋅q')) by congruence.
   rewrite (add_comm (m⋅q + n'⋅q)) in H46; [|amr;auto..].
-  rewrite <- add_assoc, <- add_assoc in H46; [|amr|mr|mr|amr|mr..]...
-  apply add_cancel in H46; swap 2 4; [|mr|ar;[amr|mr]..]...
+  rewrite <- add_assoc, <- add_assoc in H46; [|amr|mr|mr|amr|mr..].
+  apply add_cancel in H46; swap 2 4; [|mr|ar;[amr|mr]..].
   rewrite (add_comm (m⋅p)), add_assoc in H35; [|mr;auto..].
   assert (H: n'⋅p + (m⋅p + m'⋅q') + (m'⋅q + n⋅q + n'⋅p') =
     m'⋅p' + m'⋅q + n⋅p + (n'⋅p + n'⋅q' + m⋅q)) by congruence.
-  rewrite add_assoc in H; [|mr|amr|ar;[amr|mr]]...
+  rewrite add_assoc in H; [|mr|amr|ar;[amr|mr]].
   rewrite (add_comm (m'⋅p' + m'⋅q + n⋅p)) in H; [|ar;[amr|mr];auto..].
   rewrite (add_assoc (n'⋅p)) in H; [|mr;auto..].
-  rewrite (add_assoc (n'⋅p)) in H; [|mr|amr|ar;[amr|mr]]...
-  apply add_cancel' in H; swap 2 4; [|mr|ar;[ar|ar;[ar|]];mr..]...
+  rewrite (add_assoc (n'⋅p)) in H; [|mr|amr|ar;[amr|mr]].
+  apply add_cancel' in H; swap 2 4; [|mr|ar;[ar|ar;[ar|]];mr..].
   rewrite (add_comm (m'⋅q)) in H; [|mr;auto..].
-  rewrite (add_comm (n⋅q + m'⋅q)) in H; [|amr|mr]...
-  rewrite <- add_assoc in H; [|amr|mr|amr]...
-  rewrite <- add_assoc in H; [|ar;[ar|];mr|mr..]...
-  rewrite (add_comm (m'⋅p' + m'⋅q)) in H; [|amr|mr]...
-  rewrite <- add_assoc in H; [|amr|mr|amr]...
-  rewrite <- add_assoc in H; [|ar;[ar|];mr|mr..]...
-  apply add_cancel in H; swap 2 4; [|mr|ar;[ar;[ar|]|];mr..]...
-  rewrite add_assoc; [|mr|mr|amr]...
-  rewrite (add_comm (n⋅q)); [|mr|amr]...
-  rewrite <- add_assoc, <- add_assoc; swap 2 6; [|amr|mr..]...
-  rewrite (add_assoc (m'⋅p')); [|mr|mr|amr]...
-  rewrite (add_comm (m'⋅p')); [|mr|ar;[mr|amr]]...
+  rewrite (add_comm (n⋅q + m'⋅q)) in H; [|amr|mr].
+  rewrite <- add_assoc in H; [|amr|mr|amr].
+  rewrite <- add_assoc in H; [|ar;[ar|];mr|mr..].
+  rewrite (add_comm (m'⋅p' + m'⋅q)) in H; [|amr|mr].
+  rewrite <- add_assoc in H; [|amr|mr|amr].
+  rewrite <- add_assoc in H; [|ar;[ar|];mr|mr..].
+  apply add_cancel in H; swap 2 4; [|mr|ar;[ar;[ar|]|];mr..].
+  rewrite add_assoc; [|mr|mr|amr].
+  rewrite (add_comm (n⋅q)); [|mr|amr].
+  rewrite <- add_assoc, <- add_assoc; swap 2 6; [|amr|mr..].
+  rewrite (add_assoc (m'⋅p')); [|mr|mr|amr].
+  rewrite (add_comm (m'⋅p')); [|mr|ar;[mr|amr]].
   rewrite <- (add_assoc (n'⋅q')); [|mr;auto..]. apply H.
 Qed.
 
@@ -168,14 +168,14 @@ Close Scope Int_scope.
 Open Scope Nat_scope.
 
 Theorem intMul_comm : ∀ a b ∈ ℤ, (a ⋅ b = b ⋅ a)%z.
-Proof with auto.
+Proof with try assumption.
   intros a Ha b Hb.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst.
   rewrite intMul_m_n_p_q, intMul_m_n_p_q...
   rewrite (mul_comm p), (mul_comm n)...
   rewrite (mul_comm m Hm q), (mul_comm n Hn p)...
-  rewrite (add_comm (q⋅m)); [|apply mul_ran; auto ..]...
+  rewrite (add_comm (q⋅m)); [|apply mul_ran; auto..]. reflexivity.
 Qed.
 
 Theorem intMul_assoc : ∀ a b c ∈ ℤ, (a ⋅ b ⋅ c = a ⋅ (b ⋅ c))%z.
@@ -184,14 +184,14 @@ Proof.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
   apply pQuotE in Hc as [r [Hr [s [Hs Hc]]]]. subst.
-  repeat rewrite intMul_m_n_p_q; [|auto;amr;auto..].
-  apply int_ident; swap 1 5; [|ar;mr;auto;ar;mr;auto..].
-  repeat rewrite mul_distr, mul_distr'; [|auto;mr;auto..].
+  repeat rewrite intMul_m_n_p_q; [|auto;amr..].
+  apply int_ident; swap 1 5; [|ar;mr;ar;mr..].
+  repeat rewrite mul_distr, mul_distr'; [|auto;mr..].
   repeat rewrite <- mul_assoc; [|auto..].
   cut (∀ x1 x2 x3 x4 x5 x6 x7 x8 ∈ ω,
     x1 + x4 + (x2 + x3) + (x5 + x7 + (x8 + x6)) =
     x1 + x2 + (x3 + x4) + (x5 + x6 + (x7 + x8))).
-  intros H. apply H; mr; auto; mr; auto.
+  intros H. apply H; mr; mr.
   clear Hm Hn Hp Hq Hr Hs m n p q r s.
   intros x1 H1 x2 H2 x3 H3 x4 H4 x5 H5 x6 H6 x7 H7 x8 H8.
   rewrite (add_assoc x1), (add_comm x4); [|auto;ar;auto..].
@@ -208,10 +208,10 @@ Proof.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
   apply pQuotE in Hc as [r [Hr [s [Hs Hc]]]]. subst.
   rewrite intAdd_m_n_p_q; [|auto..].
-  repeat rewrite intMul_m_n_p_q; [|auto;ar;auto..].
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q, intMul_m_n_p_q; [|auto;ar..].
   repeat rewrite intAdd_m_n_p_q; [|amr;auto..].
-  apply int_ident; [ar;mr;auto;ar;auto|ar;mr;auto;ar;auto|
-    ar;amr;auto|ar;amr;auto|].
+  apply int_ident; [ar;mr;ar|ar;mr;ar|
+    ar;amr|ar;amr|].
   repeat rewrite mul_distr; [|auto..].
   cut (∀ x1 x2 x3 x4 x5 x6 x7 x8 ∈ ω,
     x1 + x3 + (x2 + x4) + (x5 + x7 + (x6 + x8)) =
@@ -221,10 +221,10 @@ Proof.
   intros x1 H1 x2 H2 x3 H3 x4 H4 x5 H5 x6 H6 x7 H7 x8 H8.
   rewrite (add_assoc x1), <- (add_assoc x3),
     (add_comm x3), (add_assoc x2), <- (add_assoc x1);
-    swap 2 4; swap 3 15; [|ar;auto|ar;auto|auto..].
+    swap 2 4; swap 3 15; [|ar|ar|auto..].
   rewrite (add_assoc x5), <- (add_assoc x7),
     (add_comm x7), (add_assoc x6), <- (add_assoc x5);
-    swap 2 4; swap 3 15; [|ar;auto|ar;auto|auto..].
+    swap 2 4; swap 3 15; [|ar|ar|auto..].
   reflexivity.
 Qed.
 
@@ -446,9 +446,8 @@ Proof with auto.
   rewrite (add_assoc m), (add_comm q), <- (add_assoc m),
     (add_assoc p), (add_comm n), <- (add_assoc p) in H1'...
   rewrite (add_assoc r), (add_comm q), <- (add_assoc r) in H2'...
-  eapply lt_both_side_add; revgoals.
-  eapply nat_trans; revgoals; eauto.
-  ar;[ar|]... auto. ar... ar...
+  eapply lt_both_side_add; revgoals; swap 1 2; [apply Hq| |ar..].
+  eapply nat_trans; revgoals; eauto; ar; ar.
 Qed.
 
 Lemma intLt_irreflexive : irreflexive IntLt ℤ.
@@ -681,7 +680,7 @@ Proof with neauto.
     destruct (classic (m + 1 + q = p + n)%n).
     + right. apply int_ident; auto; ar...
     + left. apply intLt; auto; [ar|]...
-      apply lt_connected in H0 as []; [| |ar;[ar|]|ar]...
+      apply lt_connected in H0 as []; [| |ar;ar|ar]...
       exfalso. eapply (ω_not_dense (m + q)%n); [ar|]...
       exists (p + n)%n. split. ar... split... rewrite Heq...
   - apply intLt... destruct H.

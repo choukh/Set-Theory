@@ -3,11 +3,12 @@
 
 Require Export ZFC.CH3_2.
 
-(*** EST第四章1：自然数，归纳原理，皮亚诺结构，ω递归定理 ***)
+(*** EST第四章1：自然数，归纳原理，传递集，皮亚诺结构，ω递归定理 ***)
 
-(* 后续运算 *)
-Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
-Notation "a ⁺" := (Suc a) (at level 8).
+(* 后继运算 *)
+Print Suc.
+(* Suc = λ a : set, a ∪ ⎨ a ⎬
+	 : set → set *)
 
 Lemma suc_has_n : ∀ n, n ∈ n⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.
@@ -17,48 +18,33 @@ Proof.
   intros n H. eapply EmptyE in H. apply H. apply suc_has_n.
 Qed.
 
-(* 归纳集 *)
-Definition inductive : set → Prop := λ A,
-  ∅ ∈ A ∧ ∀a ∈ A, a⁺ ∈ A.
-
-Lemma GU0_inductive : inductive 𝒰(∅).
-Proof with auto.
-  split. apply GUIn. intros a Ha.
-  apply GUBUnion... apply GUSing...
-Qed.
-
-(* 由宇宙公理导出原ZFC无穷公理，即归纳集的存在性 *)
-Theorem Infinity : ∃ A, inductive A.
-Proof. exists (𝒰(∅)). apply GU0_inductive. Qed.
+(** 自然数 **)
 
 Definition is_nat : set → Prop := λ n, ∀ A, inductive A → n ∈ A.
 
 Theorem ω_exists : ∃ ω, ∀ n, n ∈ ω ↔ is_nat n.
 Proof with auto.
-  destruct Infinity as [A HA].
-  set {x ∊ A | λ x, ∀ B, inductive B → x ∈ B} as ω.
-  exists ω. split.
-  - intros Hn B HB. apply SepE in Hn as [_ H]. apply H in HB...
-  - intros Hn. apply SepI. apply Hn in HA...
-    intros B HB. apply Hn in HB...
+  exists {x ∊ 𝐈 | is_nat}. split.
+  - intros Hn A HA. apply SepE in Hn as [_ H]. apply H in HA...
+  - intros Hn. apply SepI. apply Hn. apply InfAx.
+    intros A HA. apply Hn in HA...
 Qed.
 
-(** 自然数 **)
-Definition ω : set := {n ∊ 𝒰(∅) | λ n, ∀ A, inductive A → n ∈ A}.
+Definition ω : set := {n ∊ 𝐈 | is_nat}.
 
 Lemma ω_has_0 : ∅ ∈ ω.
-Proof. apply SepI. apply GU0_inductive. intros A [H _]. auto. Qed.
+Proof with auto.
+  apply SepI... apply InfAx. intros x []...
+Qed.
 
 (* ω是归纳集 *)
 Theorem ω_inductive : inductive ω.
 Proof with auto.
-  split.
-  - apply SepI. apply GUIn. intros A [H _]...
-  - intros a Ha. apply SepE in Ha as [_ H]. apply SepI.
-    + apply GUBUnion. apply H. apply GU0_inductive.
-      apply GUSing. apply H. apply GU0_inductive.
-    + intros A HA. apply H in HA as Ha.
-      destruct HA as [_ H1]. apply H1 in Ha...
+  split. apply ω_has_0.
+  intros a Ha. apply SepE in Ha as [_ H]. apply SepI.
+  - apply InfAx. apply H. apply InfAx.
+  - intros A HA. apply H in HA as Ha.
+    destruct HA as [_ H1]. apply H1...
 Qed. 
 
 Theorem ω_sub_inductive : ∀ A, inductive A → ω ⊆ A.
@@ -94,9 +80,20 @@ Proof with auto.
 Qed.
 
 (* 传递集 *)
-Print trans.
-(* trans = λ X : set, ∀ a A : set, a ∈ A → A ∈ X → a ∈ X
-   : set → Prop *)
+Definition trans : set → Prop :=
+  λ X, ∀ a A, a ∈ A → A ∈ X → a ∈ X.
+
+(* 传递集的成员都是该传递集的子集 *)
+Example trans_ex_1 : ∀ x X, trans X → x ∈ X → x ⊆ X.
+Proof. intros x X Htr Hx y Hy. eapply Htr; eauto. Qed.
+
+(* 传递集的并集也是该传递集的成员 *)
+Example trans_ex_2 : ∀ X, trans X → ⋃X ⊆ X.
+Proof.
+  intros X Htr y Hy.
+  apply UnionAx in Hy as [A [H1 H2]].
+  eapply Htr; eauto.
+Qed.
 
 Lemma trans_union_sub : ∀ A, trans A ↔ ⋃A ⊆ A.
 Proof with eauto.

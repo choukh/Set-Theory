@@ -247,7 +247,7 @@ Qed.
 
 Example restr_dom_included : ∀ F A, dom (F ↾ A) ⊆ dom F.
 Proof.
-  unfold Sub. introq. apply domE in H as [y Hy].
+  intros F A x H. apply domE in H as [y Hy].
   apply SepE in Hy as [Hp _]. eapply domI. apply Hp.
 Qed.
 

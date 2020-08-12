@@ -2,10 +2,22 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.TG2.
+Require Export ZFC.ZFC2.
 Require Import Setoid.
 
-(*** TG集合论3：选择公理，正则公理，笛卡尔积 ***)
+(*** ZFC集合论3：无穷公理，选择公理，正则公理 ***)
+
+(* 后续运算 *)
+Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
+Notation "a ⁺" := (Suc a) (at level 8).
+
+(* 归纳集 *)
+Definition inductive : set → Prop := λ A,
+  ∅ ∈ A ∧ ∀a ∈ A, a⁺ ∈ A.
+
+(**=== 公理6: 无穷公理 ===**)
+Parameter 𝐈 : set. 
+Axiom InfAx : inductive 𝐈.
 
 (** 希尔伯特ε算子等效于选择公理 **)
 
@@ -19,10 +31,8 @@ Proof. intros s. exact (ε_spec (inhabits ∅) (λ x, x ∈ s)). Qed.
 (* “答案集包含在问题集的并集里” *)
 Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {cho | s ∊ S} ⊆ ⋃S.
 Proof.
-  unfold Sub. unfoldq. intros.
-  apply ReplE in H0. unfoldq.
-  destruct H0 as [s [H1 H2]].
-  specialize H with s.
+  intros S H x Hx.
+  apply ReplE in Hx as [s [H1 H2]].
   eapply UnionI. apply H1.
   apply H in H1. subst.
   apply chosen_contained. apply H1.
@@ -33,10 +43,10 @@ Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
   (∀ s t ∈ S, s ≠ t → s ∩ t = ∅) →
   ∀s ∈ S, ∃ x, s ∩ {cho | s ∊ S} = ⎨x⎬.
 Proof.
-  unfoldq. intros S Hi Hdj s Hs.
+  intros S Hi Hdj s Hs.
   exists (cho s).
   apply sub_asym.
-  - unfold Sub. introq. apply BInterE in H as [Hx1 Hx2].
+  - intros x Hx. apply BInterE in Hx as [Hx1 Hx2].
     cut (x = cho s).
     + intros. subst. apply SingI.
     + apply ReplE in Hx2.
@@ -80,6 +90,12 @@ Proof.
   - firstorder.
 Qed.
 
+(**=== 公理7: ∈归纳原理 ===**)
+(* 对于集合的任意性质P，如果可以通过证明"集合A的所有成员都具有性质P"来证明A具有性质P，
+  那么所有集合都具有性质P。 *)
+Axiom ε_ind : ∀ P : set → Prop,
+  (∀ A, (∀a ∈ A, P a) → P A) → ∀ A, P A.
+
 (** ∈归纳原理等效于正则公理模式 **)
 Theorem reg_schema : ∀ P,
   (∃ X, P X) → ∃ X, P X ∧ ¬∃x ∈ X, P x.
@@ -102,13 +118,13 @@ Qed.
   所有非空集合X中至少有一个成员x，它与X的交集为空集。*)
 Theorem regularity : ∀ X, ⦿ X → ∃x ∈ X, x ∩ X = ∅.
 Proof.
-  introq.
+  intros.
   pose proof (reg_schema (λ x, x ∈ X)).
   simpl in H0. apply H0 in H.
   destruct H as [x [H1 H2]].
   exists x. split. apply H1.
   apply EmptyI. intros y H3.
-  apply H2. apply BInterE in H3. unfoldq.
+  apply H2. apply BInterE in H3.
   exists y. apply H3.
 Qed.
 
@@ -119,87 +135,21 @@ Proof.
   pose proof (reg_schema (λ x, x ∈ x)).
   simpl in H0. apply H0 in H.
   destruct H as [x [H1 H2]].
-  apply H2. unfoldq. exists x; auto.
+  apply H2. exists x. split; auto.
 Qed.
 
 (* 没有循环单链 *)
 Lemma well_founded_1 : ∀ X, X ∉ X.
 Proof.
   intros X. pose proof (ε_ind (λ X, X ∉ X)). simpl in H.
-  apply H. introq. intros Ht. apply H0 in Ht as Hf. auto.
+  apply H. intros. intros Ht. apply H0 in Ht as Hf. auto.
 Qed.
 
 (* 没有循环双链 *)
 Lemma well_founded_2 : ∀ X Y, X ∈ Y → Y ∉ X.
 Proof.
   intros X Y H. pose proof (ε_ind (λ X, ∀ Y, X ∈ Y → Y ∉ X)).
-  apply H0; [|apply H]. clear X Y H H0. unfoldq.
+  apply H0; [|apply H]. clear X Y H H0.
   intros X H Y H1 H2.
   pose proof (H Y H2 X H2). auto.
 Qed.
-
-(** 笛卡儿积 **)
-Definition CProd : set → set → set := λ A B,
-  ⋃ {λ a, {λ b, <a, b> | x∊B} | x∊A}.
-Notation "A × B" := (CProd A B) (at level 40).
-
-Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
-Proof.
-  introq. eapply UnionI.
-  - apply ReplI. apply H.
-  - apply ReplI. apply H0.
-Qed.
-
-Lemma CProdE1 : ∀ p A B, p ∈ A × B → π1 p ∈ A ∧ π2 p ∈ B.
-Proof.
-  intros. apply UnionAx in H. destruct H as [x [H1 H2]].
-  apply ReplE in H1. destruct H1 as [a [H3 H4]].
-  subst x. apply ReplE in H2. destruct H2 as [b [H1 H2]].
-  symmetry in H2. split.
-  - rewrite H2. rewrite π1_correct. apply H3.
-  - rewrite H2. rewrite π2_correct. apply H1.
-Qed.
-
-Lemma CProdE2 : ∀ p A B, p ∈ A × B → is_pair p.
-Proof.
-  intros. apply UnionAx in H. destruct H as [x [H1 H2]].
-  apply ReplE in H1. destruct H1 as [a [H3 H4]].
-  subst x. apply ReplE in H2. destruct H2 as [b [H1 H2]].
-  exists a, b. auto.
-Qed.
-
-Lemma CProd_correct : ∀ p A B, p ∈ A × B ↔ ∃a ∈ A, ∃b ∈ B, p = <a, b>.
-Proof.
-  unfoldq. split; intros.
-  - apply CProdE1 in H as H0. destruct H0 as [H1 H2].
-    apply CProdE2 in H. destruct H as [a [b H]].
-    rewrite H in *. rewrite π1_correct in H1.
-    rewrite π2_correct in H2. firstorder.
-  - destruct H as [a [H1 H2]]. destruct H2 as [b [H2 H3]].
-    subst. apply CProdI. apply H1. apply H2.
-Qed.
-
-Example cprod_0_x : ∀ B, ∅ × B = ∅.
-Proof. unfold CProd. intros. rewrite funion_0. reflexivity. Qed.
-
-Example cprod_x_0 : ∀ A, A × ∅ = ∅.
-Proof.
-  intros. apply sub_0_iff_0. unfold CProd, Sub. introq.
-  apply CProdE1 in H. destruct H as [_ H]. exfalso0.
-Qed.
-
-Lemma GUCProd : ∀ N, ∀X ∈ 𝒰(N), ∀Y ∈ 𝒰(N), X × Y ∈ 𝒰(N).
-Proof.
-  introq. apply GUFUnion. apply H.
-  introq. apply GURepl. apply H0.
-  introq. apply GUOPair.
-  - eapply GUTrans. apply H1. apply H.
-  - eapply GUTrans. apply H2. apply H0.
-Qed.
-
-(* 对x迭代n次f：特别地，有 iter n S O = n *)
-Fixpoint iter (n : nat) {X : Type} (f : X → X) (x : X) :=
-  match n with
-  | O => x
-  | S n' => f (iter n' f x)
-  end.

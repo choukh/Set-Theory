@@ -111,7 +111,7 @@ Proof with eauto.
   rewrite H2' in H1'.
   rewrite intMul_assoc, (intMul_comm d), <- intMul_assoc,
     (intMul_assoc e), (intMul_comm d), <- (intMul_assoc e) in H1'...
-  eapply intMul_cancel; revgoals...
+  eapply intMul_cancel; revgoals; [apply H1'|..]...
   intros Heq. apply Hd2. rewrite Heq. apply SingI. mr... mr...
 Qed.
 
@@ -240,7 +240,7 @@ Proof with auto.
   intros r Hr s Hs.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   apply pQuotE in Hs as [c [Hc [d [Hd Hs]]]]. subst s.
-  repeat rewrite ratAdd_a_b_c_d...
+  rewrite ratAdd_a_b_c_d, ratAdd_a_b_c_d; [|auto..].
   rewrite (intAdd_comm (a⋅d)%z), (intMul_comm d); auto;nz;mr;nz.
 Qed.
 
@@ -252,7 +252,7 @@ Proof with auto.
   apply pQuotE in Hr as [c [Hc [d [Hd Hr]]]]. subst r.
   apply pQuotE in Hs as [e [He [f [Hf Hs]]]]. subst s.
   repeat rewrite ratAdd_a_b_c_d;
-    auto; [|amr|nzmr|amr|nzmr]; nz.
+    try assumption; [|amr|nzmr|amr|nzmr]; nz.
   erewrite intMul_distr', intMul_distr', intAdd_assoc,
     (intMul_assoc a), (intMul_assoc b),
     (intMul_assoc e), (intMul_assoc c), (intMul_assoc c),
@@ -383,14 +383,14 @@ Proof with eauto.
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
     apply eqvcI. cut (<(-a)%z, b> ~ <(-c)%z, d>). intros.
-    eapply Htr... apply planeEquivI... unfold RatEq.
-    apply planeEquiv in H2... unfold RatEq in H2.
-    rewrite intMul_addInv_l, intMul_addInv_l; nz... congruence.
+    eapply Htr; [apply H|..]... apply planeEquivI... unfold RatEq.
+    apply planeEquiv in H2; [|auto..]. unfold RatEq in H2.
+    rewrite intMul_addInv_l, intMul_addInv_l; nz; [|auto..]. congruence.
   - apply eqvcI. rewrite H1. zfcrewrite.
     apply eqvcE in Hx. cut (<(-c)%z, d> ~ <(-a)%z, b>). intros.
-    eapply Htr... apply planeEquivI... unfold RatEq.
-    apply planeEquiv in H2... unfold RatEq in H2.
-    rewrite intMul_addInv_l, intMul_addInv_l; nz... congruence.
+    eapply Htr; [apply H|..]... apply planeEquivI... unfold RatEq.
+    apply planeEquiv in H2; [|auto..]. unfold RatEq in H2.
+    rewrite intMul_addInv_l, intMul_addInv_l; nz; [|auto..]. congruence.
 Qed.
 
 Lemma ratAddInv_double : ∀r ∈ ℚ, --r = r.
@@ -429,7 +429,7 @@ Qed.
 Example ratAdd_2_n3 : Rat 2 - Rat 3 = -Rat 1.
 Proof with nauto.
   unfold Rat. rewrite ratAddInv, ratAddInv, ratAdd_a_b_c_d...
-  repeat rewrite intMul_ident... rewrite intAdd_2_n3...
+  rewrite intMul_ident, intMul_ident, intMul_ident, intAdd_2_n3...
 Qed.
 
 Close Scope Rat_scope.
@@ -563,7 +563,8 @@ Proof with auto.
   apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]].
   apply pQuotE in Hr as [e [He [f [Hf Hr]]]]. subst.
   rewrite ratAdd_a_b_c_d; [|auto; nz..].
-  repeat rewrite ratMul_a_b_c_d; auto; [|amr;nz|nzmr].
+  rewrite ratMul_a_b_c_d, ratMul_a_b_c_d, ratMul_a_b_c_d;
+    try assumption; [|amr;nz|nzmr].
   rewrite ratAdd_a_b_c_d; [|try mr;try nzmr..].
   erewrite
     (intMul_assoc a), (intMul_comm c Hc (b⋅f)%z),
@@ -733,7 +734,8 @@ Proof with neauto.
     [|apply ratMul_ran;nz_q..].
   destruct (classic (r ⋅ s = Rat 0))...
   rewrite H0 in H. rewrite ratMul_0_l in H.
-  exfalso. eapply rat_suc_neq_0... apply ratMul_ran; nz_q.
+  exfalso. eapply rat_suc_neq_0. symmetry. apply H.
+  apply ratMul_ran; nz_q.
 Qed.
 
 Theorem rat_no_0_div : ∀ r s ∈ ℚ,
@@ -793,17 +795,19 @@ Proof with nauto.
 Qed.
 
 Example ratMul_n4_r2 : -Rat 4 / Rat 2 = -Rat 2.
-Proof with nauto.
-  unfold Rat. rewrite ratAddInv, ratAddInv, ratMulInv...
-  rewrite ratMul_a_b_c_d...
-  unfold Int. rewrite intAddInv, intAddInv...
-  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
-  rewrite mul_1_r, mul_1_r, mul_0_r, mul_0_r,
+Proof.
+  unfold Rat. rewrite ratAddInv, ratAddInv, ratMulInv,
+    ratMul_a_b_c_d; [|nauto..].
+  unfold Int. rewrite intAddInv, intAddInv,
+    intMul_m_n_p_q, intMul_m_n_p_q,
+    mul_1_r, mul_1_r, mul_0_r, mul_0_r,
     (mul_comm 1), mul_1_r, mul_0_r, mul_0_l,
-    add_0_r, add_0_r, add_0_l... apply rat_ident...
-  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
-  rewrite mul_0_l, mul_0_l, mul_0_l, mul_0_r, mul_0_r,
-    mul_1_r, mul_2_2, add_0_l, add_0_l...
+    add_0_r, add_0_r, add_0_l; [|nauto..].
+  apply rat_ident; [nauto..|].
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q,
+    mul_0_l, mul_0_l, mul_0_l, mul_0_r, mul_0_r,
+    mul_1_r, mul_2_2, add_0_l, add_0_l; [|nauto..].
+  reflexivity.
 Qed.
 
 Example ratAdd_r2_r2_1 : (Rat 2) ⁻¹ + (Rat 2) ⁻¹ = Rat 1.
@@ -815,8 +819,9 @@ Proof with nauto.
   replace (2 + 2)%n with (Embed 4).
   replace (2 ⋅ 2)%n with (Embed 4).
   rewrite add_0_r... apply rat_ident...
-  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
-  repeat rewrite mul_0_l... repeat rewrite mul_0_r...
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q; [|nauto..].
+  repeat rewrite mul_0_l; [|nauto..].
+  repeat rewrite mul_0_r; [|nauto..].
   rewrite mul_1_r, (mul_comm 1), mul_1_r...
   rewrite (pred 2), mul_m_n, mul_1_r, add_m_n, <- suc_eq_add_1;
     repeat apply ω_inductive...
@@ -833,8 +838,9 @@ Proof with nauto.
   replace (3 + 6)%n with (Embed 9).
   replace (6 ⋅ 3)%n with (Embed 18).
   rewrite add_0_r... apply rat_ident...
-  rewrite intMul_m_n_p_q, intMul_m_n_p_q...
-  repeat rewrite mul_0_l... repeat rewrite mul_0_r...
+  rewrite intMul_m_n_p_q, intMul_m_n_p_q; [|nauto..].
+  repeat rewrite mul_0_l; [|nauto..].
+  repeat rewrite mul_0_r; [|nauto..].
   replace (9 ⋅ 2)%n with (Embed 18).
   replace (1 ⋅ 18)%n with (Embed 18).
   - repeat rewrite add_0_r... - rewrite mul_comm, mul_1_r...

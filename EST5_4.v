@@ -216,8 +216,9 @@ Proof with auto.
   rewrite
     (intMul_assoc e), (intMul_comm d), <- (intMul_assoc e)
     in H2'; nz...
-  eapply intLt_both_side_mul; revgoals.
-  eapply intLt_tranr; revgoals; eauto. apply Hpd. nz. mr;nz. mr;nz.
+  eapply intLt_both_side_mul; revgoals; [
+    eapply intLt_tranr; revgoals|..
+  ]; try eassumption; nz; mr; nz.
 Qed.
 
 Lemma ratLt_irreflexive : irreflexive RatLt ℚ.
@@ -325,7 +326,8 @@ Qed.
 Lemma ratNeg_pos : ∀ r, ratNeg r → ratPos (-r).
 Proof with nauto.
   intros. assert (Hr: r ∈ ℚ) by (apply ratNeg_rat; auto).
-  apply ratLt_addInv in H... rewrite ratAddInv_0 in H...
+  rewrite (ratLt_addInv _ Hr _ (rat_n 0)) in H.
+  rewrite ratAddInv_0 in H...
 Qed.
 
 Lemma ratPos_mulInv : ∀ r, ratPos r → ratPos r⁻¹.

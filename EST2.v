@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.TG_full.
+Require Export ZFC.ZFC_full.
 
 (*** EST第二章：补集，集合代数定律 ***)
 
@@ -14,10 +14,10 @@ Definition Comp : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
 Notation "A - B" := (Comp A B) : ZFC_scope.
 
 Lemma CompI : ∀ A B, ∀x ∈ A, x ∉ B → x ∈ A - B.
-Proof. introq. apply SepI. apply H. apply H0. Qed.
+Proof. intros A B x Hx H. apply SepI. apply Hx. apply H. Qed.
 
 Lemma CompE : ∀ A B, ∀x ∈ A - B, x ∈ A ∧ x ∉ B.
-Proof. introq. apply SepE in H. apply H. Qed.
+Proof. intros A B x Hx. apply SepE in Hx. apply Hx. Qed.
 
 Lemma CompNE : ∀ A B x, x ∉ A - B → x ∉ A ∨ x ∈ B.
 Proof.
@@ -293,11 +293,11 @@ Qed.
 (* 二元并任意交分配律 *)
 Lemma bunion_inter_distr : ∀ A ℬ,
   ⦿ ℬ → A ∪ ⋂ℬ = ⋂{λ X, A ∪ X | X ∊ ℬ}.
-Proof with unfoldq.
+Proof.
   intros * Hi. apply ExtAx. split; intros.
   - apply InterI...
     + destruct Hi as [b Hb]. exists (A ∪ b).
-      apply ReplAx... exists b. auto.
+      apply ReplAx... exists b. split; auto.
     + intros y Hy. apply ReplE in Hy as [z [Hz Hu]]. subst y. 
       apply BUnionE in H as [].
       * apply BUnionI1. apply H.
@@ -369,7 +369,7 @@ Lemma not_in_inter_intro : ∀ 𝒜 x, ⦿ 𝒜 → x ∉ ⋂ 𝒜 → ∃A ∈ 
 Proof.
   intros * Hi Hx. apply classic_n_al_im_ex_n.
   intros H. apply Hx. apply InterI.
-  apply Hi. unfoldq. apply H.
+  apply Hi. intros y Hy. apply H. apply Hy.
 Qed.
 
 (* 补交德摩根定律 *)

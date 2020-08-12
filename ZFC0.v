@@ -3,16 +3,14 @@
 (** Coq coding by choukh, April 2020 **)
 
 Require Export Coq.Unicode.Utf8_core.
-(* 导入以下两个库就不需要元定律里添加的公理 *)
-(* Require Export Coq.Logic.Classical_Prop. *)
-(* Require Export Coq.Logic.Epsilon. *)
-
-(*** 元定律 ***)
-
-(* 基于归纳构造演算CiC *)
 
 Notation "⊤" := (True).
 Notation "⊥" := (False).
+
+(*** 元理论 ***)
+(* 与以下两个库等效 *)
+(* Require Export Coq.Logic.Classical_Prop. *)
+(* Require Export Coq.Logic.Epsilon. *)
 
 (**=== 排中律 ===**)
 Axiom classic : ∀ P : Prop, P ∨ ¬P.
@@ -38,8 +36,8 @@ Print inhabited.
 
 Set Implicit Arguments.
 (**=== 希尔伯特ε算子 ===**) 
-(* (在经典逻辑下，结合替代公理和空集公理可以导出Zermelo分类公理(见TG2)，
-  可以单独导出ZFC选择公理(见TG3)) *)
+(* (在经典逻辑下，结合替代公理和空集公理可以导出Zermelo分类公理(见ZFC2)，
+  可以单独导出ZFC选择公理(见ZFC3)) *)
 (* 存在ε算子，对于任意类型A和该类型上的任意谓词P，只要A是被居留的，
   用ε算子就可以得到A上的某个x，它使命题P成立，只要存在A上的某个y使P成立。 *)
 Axiom ε_statement : ∀ (A : Type) (P : A → Prop),
@@ -85,7 +83,7 @@ Proof.
     apply inhabits. apply t.
 Qed.
 
-(*** Tarski-Grothendieck集合论公理 ***)
+(*** Zermelo–Fraenkel集合论公理 ***)
 
 Parameter set : Type.
 
@@ -111,9 +109,6 @@ Definition ex_in `(X : set, P : set → Prop) : set → Prop :=
 Notation "∃ x .. y ∈ X , P" :=
   ( ex ( ex_in X ( λ x, .. ( ex ( ex_in X ( λ y, P ))) .. )))
   (at level 200, x binder, y binder, right associativity).
-
-Ltac unfoldq := unfold all, all_in, ex_in in *.
-Ltac introq := unfoldq; intros.
 
 (** Sub是集合的子集关系。
     我们用 X ⊆ Y 表示 "X是Y的子集"，用 X ⊈ Y 表示 "X表示Y的子集"。 *)
@@ -146,13 +141,7 @@ Proof.
   split. apply H1. apply H2.
 Qed.
 
-(**=== 公理2: ∈归纳原理 (在经典逻辑下可以导出ZFC正则公理(见TG3)) ===**)
-(* 对于集合的任意性质P，如果可以通过证明"集合A的所有成员都具有性质P"来证明A具有性质P，
-  那么所有集合都具有性质P。 *)
-Axiom ε_ind : ∀ P : set → Prop,
-  (∀ A, (∀a ∈ A, P a) → P A) → ∀ A, P A.
-
-(**=== 公理3: 空集公理 ===**)
+(**=== 公理2: 空集公理 ===**)
 (* 空集公理保证了集合类型是居留的，即存在最底层的集合，
   任何其他集合都不是它的成员，这样的集合就是空集。 *)
 Parameter Empty : set.
@@ -172,6 +161,7 @@ Proof.
   eapply EmptyAx. apply H.
 Qed.
 
+(* Introduction rule of empty set (空集的导入) *)
 Lemma EmptyI : ∀ X, (∀ x, x ∉ X) → X = ∅.
 Proof.
   intros X E. apply ExtAx.
@@ -180,14 +170,15 @@ Proof.
   - exfalso0.
 Qed.
 
+(* Elimination rule of empty set (空集的导出) *)
 Lemma EmptyE : ∀ X, X = ∅ → (∀ x, x ∉ X).
 Proof. intros. subst X. apply EmptyAx. Qed.
 
 Lemma EmptyNI : ∀ X, ⦿ X -> X ≠ ∅.
 Proof.
-  unfold not. introq.
-  destruct H as [x H].
-  eapply EmptyAx. rewrite H0 in H. apply H.
+  intros X Hi H0.
+  destruct Hi as [x Hx].
+  eapply EmptyAx. rewrite H0 in Hx. apply Hx.
 Qed.
 
 Lemma EmptyNE : ∀ X, X ≠ ∅ → ⦿ X.
@@ -203,7 +194,7 @@ Proof.
       rewrite H1 in H. exfalso. apply H. reflexivity.
 Qed.
 
-Example emtpy_is_unique : ∀ X Y, (∀ x, x ∉ X) → (∀ y, y ∉ Y) → X = Y.
+Fact emtpy_is_unique : ∀ X Y, (∀ x, x ∉ X) → (∀ y, y ∉ Y) → X = Y.
 Proof.
   intros.
   apply EmptyI in H.
@@ -212,41 +203,9 @@ Proof.
 Qed.
 
 Lemma empty_sub_all : ∀ X, ∅ ⊆ X.
-Proof. unfold Sub. introq. exfalso0. Qed.
+Proof. intros X x Hx. exfalso0. Qed.
 
-(**=== 公理4: 配对公理 ===**)
-(* 任意两个集合可以组成一个新的集合，新集合的成员就是原来的两个集合 *)
-Parameter Pair : set → set → set.
-Notation "{ x , y }" := (Pair x y).
-Axiom PairAx : ∀ w x y, w ∈ {x, y} ↔ w = x ∨ w = y.
-
-(* Introduction rule of pairing (配对的导入规则) *)
-Lemma PairI1 : ∀ x y, x ∈ {x, y}.
-Proof. intros. apply PairAx. left. reflexivity. Qed.
-
-Lemma PairI2 : ∀ x y, y ∈ {x, y}.
-Proof. intros. apply PairAx. right. reflexivity. Qed.
-
-(* Elimination rule of pairing (配对的导出规则) *)
-Lemma PairE : ∀ x y, ∀w ∈ {x, y}, w = x ∨ w = y.
-Proof. introq. apply PairAx. apply H. Qed.
-
-(* 配对是顺序无关的 *)
-Theorem pair_ordering_agnostic : ∀ a b, {a, b} = {b, a}.
-Proof.
-  intros. apply ExtAx.
-  split; intros.
-  - apply PairE in H.
-    destruct H as [H1|H2].
-    + subst x. apply PairI2.
-    + subst x. apply PairI1.
-  - apply PairE in H.
-    destruct H as [H1|H2].
-    + subst x. apply PairI2.
-    + subst x. apply PairI1.
-Qed.
-
-(**=== 公理5: 并集公理 ===**)
+(**=== 公理3: 并集公理 ===**)
 (* 给定集合X，存在X的并集⋃X，它的成员都是X的某个成员的成员 *)
 Parameter Union : set → set.
 Notation "⋃ X" := (Union X) (at level 9, right associativity).
@@ -254,7 +213,7 @@ Axiom UnionAx : ∀ a X, a ∈ ⋃X ↔ ∃x ∈ X, a ∈ x.
 
 Lemma UnionI : ∀ X, ∀x ∈ X, ∀a ∈ x, a ∈ ⋃X.
 Proof.
-  introq. apply UnionAx.
+  intros X x Hx a Ha. apply UnionAx.
   exists x. split; assumption.
 Qed.
 
@@ -272,19 +231,19 @@ Proof.
   exists x. apply H.
 Qed.
 
-(**=== 公理6: 幂集公理 ===**)
+(**=== 公理4: 幂集公理 ===**)
 (* 存在幂集，它是给定集合的所有子集组成的集合 *)
 Parameter Power : set → set.
 Notation "'𝒫' X" := (Power X) (at level 9, right associativity).
 Axiom PowerAx : ∀ X Y, Y ∈ 𝒫(X) ↔ Y ⊆ X.
 
-Lemma empty_in_all_power: ∀ X, ∅ ∈ 𝒫(X).
+Lemma empty_in_all_power: ∀ X, ∅ ∈ 𝒫 X.
 Proof. intros. apply PowerAx. apply empty_sub_all. Qed.
 
-Lemma all_in_its_power: ∀ X, X ∈ 𝒫(X).
+Lemma all_in_its_power: ∀ X, X ∈ 𝒫 X.
 Proof. intros. apply PowerAx. apply sub_refl. Qed.
 
-Example only_empty_in_power_empty: ∀ x, x ∈ 𝒫(∅) → x = ∅.
+Example only_empty_in_power_empty: ∀ x, x ∈ 𝒫 ∅ → x = ∅.
 Proof.
   intros.
   apply PowerAx in H.
@@ -294,7 +253,7 @@ Proof.
   - exfalso0.
 Qed.
 
-(**=== 公理7: 替代公理（模式） ===**)
+(**=== 公理5: 替代公理（模式） ===**)
 (* 给定任意集合X，和集合间的任意函数F，存在一个集合，它的成员都是对A的成员应用F得到的 *)
 Parameter Repl : (set → set) → set → set.
 Notation "{ F | x ∊ X }" := (Repl (λ x, F x) X).
@@ -302,97 +261,9 @@ Axiom ReplAx : ∀ y F X, y ∈ {F | x ∊ X} ↔ ∃x ∈ X, F x = y.
 
 Lemma ReplI : ∀ X F, ∀x ∈ X, F x ∈ {F | x ∊ X}.
 Proof.
-  introq. apply ReplAx.
-  exists x. split. apply H. reflexivity.
+  intros X F x Hx. apply ReplAx.
+  exists x. split. apply Hx. reflexivity.
 Qed.
 
 Lemma ReplE : ∀ X F, ∀y ∈ {F | x ∊ X}, ∃x ∈ X, F x = y.
-Proof. introq. apply ReplAx. apply H. Qed.
-
-(** 集合的传递性 **)
-Definition trans : set → Prop :=
-  λ X, ∀ a A, a ∈ A → A ∈ X → a ∈ X.
-
-(* 传递集的成员都是该传递集的子集 *)
-Example trans_ex_1 : ∀ x X, trans X → x ∈ X → x ⊆ X.
-Proof.
-  unfold trans, Sub. introq.
-  eapply H. apply H1. apply H0.
-Qed.
-
-(* 传递集的并集也是该传递集的成员 *)
-Example trans_ex_2 : ∀ X, trans X → ⋃X ⊆ X.
-Proof.
-  unfold trans, Sub. introq.
-  apply UnionAx in H0.
-  destruct H0 as [A [H1 H2]].
-  eapply H. apply H2. apply H1.
-Qed.
-
-(**=== 公理8: 格罗滕迪克宇宙公理 ===**)
-Parameter GU : set → set.
-Notation "'𝒰' N" := (GU N) (at level 9).
-Axiom GUIn : ∀ N, N ∈ 𝒰(N).
-
-(* 传递性 *)
-Axiom GUTrans : ∀ N, trans 𝒰(N).
-
-(* 封闭性 *)
-Axiom GUPair : ∀ N X Y, X ∈ 𝒰(N) → Y ∈ 𝒰(N) → {X, Y} ∈ 𝒰(N).
-Axiom GUPower : ∀ N X, X ∈ 𝒰(N) → 𝒫(X) ∈ 𝒰(N).
-Axiom GUUnion : ∀ N X, X ∈ 𝒰(N) → ⋃X ∈ 𝒰(N).
-Axiom GURepl : ∀ N X F, X ∈ 𝒰(N) →
-  (∀x ∈ X, F x ∈ 𝒰(N)) → {F | x ∊ X} ∈ 𝒰(N).
-
-(* 最小性 *)
-Axiom GUMin : ∀ N U, N ∈ U
-  → (∀ X Y, X ∈ U → Y ∈ X → Y ∈ U)
-  → (∀ X Y, X ∈ U → Y ∈ U → {X, Y} ∈ U)
-  → (∀X ∈ U, 𝒫(X) ∈ U)
-  → (∀X ∈ U, ⋃X ∈ U)
-  → (∀ X F, X ∈ U → (∀x ∈ X, F x ∈ U) → {F | x ∊ X} ∈ U)
-  → 𝒰(N) ⊆ U.
-
-Module gu_infinite.
-
-(* 集合对函数封闭 *)
-Definition close : (set → set) → set → Prop := λ F X,
-  ∀x ∈ X, F x ∈ X. 
-
-(* 单射 *)
-Definition injective : (set → set) → set → Prop := λ F X,
-  ∀ a b ∈ X, F a = F b → a = b.
-
-(* 满射 *)
-Definition surjective : (set → set) → set → set → Prop := λ F X Y,
-  ∀y ∈ Y, ∃x ∈ X, F x = y.
-
-(** 集合的无穷性 **)
-Definition infinite : set → Prop := λ X,
-  ∃ F, close F X ∧ injective F X ∧ ¬ surjective F X X.
-
-(* 推论: 𝒰(∅)是无穷集 *)
-Theorem gu_infinite : infinite 𝒰(∅).
-Proof with unfoldq.
-  unfold infinite. exists Power. repeat split.
-  - unfold close... intros. apply GUPower. apply H.
-  - unfold injective... intros a _ b _ Heq.
-    apply sub_asym.
-    + pose proof (all_in_its_power a) as Hin.
-      rewrite Heq in Hin.
-      apply PowerAx. apply Hin.
-    + pose proof (all_in_its_power b) as Hin.
-      rewrite <- Heq in Hin.
-      apply PowerAx. apply Hin.
-  - unfold surjective, not... intros.
-    pose proof (H ∅ (GUIn ∅)).
-    destruct H0 as [x [H1 H2]].
-    assert (∀A ∈ 𝒰(∅), 𝒫(A) ≠ ∅)... {
-      introq. apply EmptyNI.
-      exists ∅. apply empty_in_all_power.
-    }
-    specialize H0 with x.
-    apply H0 in H1. auto.
-Qed.
-
-End gu_infinite.
+Proof. intros X F y Hy. apply ReplAx. apply Hy. Qed.

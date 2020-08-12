@@ -1,3 +1,3 @@
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.TG3.
+Require Export ZFC.ZFC3.

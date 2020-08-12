@@ -16,6 +16,13 @@ Ltac zfcrewrite := autorewrite with zfc_hint in *; try congruence.
 
 (** nat的嵌入与投射 **)
 
+(* 对x迭代n次f：特别地，有 iter n S O = n *)
+Fixpoint iter (n : nat) {X : Type} (f : X → X) (x : X) :=
+  match n with
+  | O => x
+  | S n' => f (iter n' f x)
+  end.
+
 (* 元语言自然数嵌入到集合论自然数（自动类型转换） *)
 Coercion Embed := λ n, iter n Suc ∅.
 
