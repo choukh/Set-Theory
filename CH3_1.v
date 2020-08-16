@@ -397,11 +397,11 @@ Proof with eauto.
 Qed.
 
 Example ch3_28: ∀ f A B G,
-  injective f → f: A ⇒ B →
-  is_function G → dom G = 𝒫 A → (∀x ∈ dom G, G[x] = f⟦x⟧) →
+  f: A ⇔ B → is_function G →
+  dom G = 𝒫 A → (∀x ∈ dom G, G[x] = f⟦x⟧) →
   G: 𝒫 A ⇒ 𝒫 B ∧ injective G.
 Proof with eauto.
-  intros * [Hff Hsf] [_ [Hdf Hrf]] Hfg Hdgeq Hapeq.
+  intros * [[Hff Hfs] [Hdf Hrf]] Hfg Hdgeq Hapeq.
   split. split... split...
   - intros y Hy. apply ranE in Hy as [x Hp].
     apply domI in Hp as Hdg. apply Hapeq in Hdg.
@@ -428,18 +428,17 @@ Proof with eauto.
 Qed.
 
 Example ch3_29: ∀ f A B G,
-  f: A ⇒ B → G: B ⇒ 𝒫 A → 
-  (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) →
-  ran f = B → injective G.
+  f: A ⟹ B → G: B ⇒ 𝒫 A → 
+  (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) → injective G.
 Proof with eauto.
-  intros * [Hff [Hdf _]] [Hgf [Hdg _]] H Hrf. subst A B.
+  intros * [Hff [Hdf Hrf]] [Hgf [Hdg _]] H. subst A B.
   split... intros y Hy. split. apply ranE in Hy... clear Hy.
   intros b b' Hb Hb'. 
   apply domI in Hb as Hd. apply domI in Hb' as Hd'.
   apply func_ap in Hb... apply func_ap in Hb'... subst y.
   apply H in Hd as Heq. apply H in Hd' as Heq'.
   rewrite <- Hb' in Heq. rewrite Heq' in Heq.
-  rewrite <- Hrf in Hd. clear Hb' Hd' Heq'.
+  rewrite Hdg in Hd. clear Hb' Hd' Heq'.
   apply ranE in Hd as [x Hp]. apply func_ap in Hp as Hap...
   assert (Hx: x ∈ Sep (dom f) (λ x, f [x] = b)). {
     apply SepI... apply domI in Hp...

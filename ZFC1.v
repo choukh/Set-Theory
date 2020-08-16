@@ -84,6 +84,7 @@ Proof.
 Qed.
 
 Declare Scope ZFC1_scope.
+Delimit Scope ZFC1_scope with zfc1.
 Open Scope ZFC1_scope.
 
 (* 壹 *)

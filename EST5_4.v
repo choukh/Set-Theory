@@ -28,8 +28,8 @@ Open Scope Int_scope.
 
 Lemma intPos_sn : ∀ n, intPos (Int (S n)).
 Proof with nauto.
-  intros. apply intLt...
-  rewrite add_0_r, add_0_r... apply suc_has_0. apply ωI.
+  intros. apply intLt... rewrite add_0_r, add_0_r...
+  apply suc_has_0. apply embed_ran.
 Qed.
 Hint Immediate intPos_sn : number_hint.
 

@@ -5,20 +5,73 @@ Require Export ZFC.EST3_1.
 
 (*** EST第三章2：函数的左右逆，限制，像，函数空间，无限笛卡尔积 ***)
 
-(* 射进 *)
+(* 映射 *)
 Definition maps_into : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F ⊆ B.
 Notation "F : A ⇒ B" := (maps_into F A B) (at level 60).
 
-(* 射到 *)
+(* 单射 *) (* one-to-on function *)
+Definition maps_one_to_one : set → set → set → Prop :=
+  λ F A B, injective F ∧ dom F = A ∧ ran F ⊆ B.
+Notation "F : A ⇔ B" := (maps_one_to_one F A B) (at level 60).
+
+(* 满射 *) (* surjection *)
 Definition maps_onto : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F = B.
 Notation "F : A ⟹ B" := (maps_onto F A B) (at level 60).
 
+(* 双射 *) (* one-to-one correspondence *)
+Definition bijection : set → set → set → Prop :=
+  λ F A B, injective F ∧ dom F = A ∧ ran F = B.
+  Notation "F : A ⟺ B" := (bijection F A B) (at level 60).
+
+Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.
+Proof with auto.
+  intros. split. split.
+  apply ident_is_func. apply ident_single_rooted.
+  split. apply ident_dom. apply ident_ran.
+Qed.
+
+Lemma inv_bijection : ∀ F A B, F: A ⟺ B → F⁻¹: B ⟺ A.
+Proof with auto.
+  intros * [[Hf Hs] [Hd Hr]]. split. split.
+  apply inv_func_iff_sr... apply inv_sr_iff_func...
+  split. rewrite inv_dom... rewrite inv_ran...
+Qed.
+
+Lemma compo_bijection : ∀ F G A B C,
+  F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
+Proof with eauto.
+  intros * [[Hf Hfs] [Hfd Hfr]] [[Hg Hgs] [Hgd Hgr]].
+  split; split. apply compo_func...
+  - split. eapply ranE in H...
+    intros y1 y2 H1 H2.
+    apply compoE in H1 as [s [H11 H12]].
+    apply compoE in H2 as [t [H21 H22]].
+    pose proof (singrE _ _ _ _ Hgs H12 H22). subst s.
+    apply (singrE _ _ _ _ Hfs H11 H21).
+  - apply ExtAx. intros x. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply compoE in Hp as [t [H1 H2]].
+      rewrite <- Hfd. eapply domI...
+    + rewrite <- Hfd in Hx.
+      apply domE in Hx as [y Hp]. apply ranI in Hp as Hr.
+      rewrite Hfr, <- Hgd in Hr. apply domE in Hr as [z Hp'].
+      eapply domI. eapply compoI. split...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply compoE in Hp as [t [H1 H2]].
+      rewrite <- Hgr. eapply ranI...
+    + rewrite <- Hgr in Hy.
+      apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
+      rewrite Hgd, <- Hfr in Hd. eapply ranE in Hd as [w Hp'].
+      eapply ranI. eapply compoI. split...
+Qed.
+
 Lemma cprod_single_func : ∀ F a, is_function (F × ⎨a⎬).
 Proof with auto.
   repeat split.
-  - intros x Hx. apply CProdE2 in Hx...
+  - apply cprod_is_rel.
   - apply domE in H as [y H]. exists y...
   - intros y y' Hy Hy'.
     apply CProdE1 in Hy  as [_ Hy ]. rewrite π2_correct in Hy.
@@ -251,6 +304,25 @@ Proof.
   apply SepE in Hy as [Hp _]. eapply domI. apply Hp.
 Qed.
 
+Lemma restr_ran_included : ∀ F A, ran (F ↾ A) ⊆ ran F.
+Proof.
+  intros F A y H. apply ranE in H as [x Hx].
+  apply SepE in Hx as [Hp _]. eapply ranI. apply Hp.
+Qed.
+
+Lemma restr_dom : ∀ F A, is_function F →
+  A ⊆ dom F ↔ dom (F ↾ A) = A.
+Proof with auto.
+  intros * Hf. split; intros.
+  - apply ExtAx. intros x. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply restrE in Hp as [a [b [Ha [Hp Heq]]]].
+      apply op_correct in Heq as []. congruence.
+    + eapply domI. apply restrI...
+      apply func_correct... apply H...
+  - rewrite <- H. apply restr_dom_included.
+Qed.
+
 Example restr_func : ∀ F A,
   is_function F → is_function (F ↾ A).
 Proof.
@@ -264,6 +336,18 @@ Proof.
       apply SepE in Hy2 as [Hy2 _].
       apply restr_dom_included in Hx.
       apply H2 in Hx as [_ H]. apply H; assumption.
+Qed.
+
+Lemma restr_injective : ∀ F A, injective F → injective (F ↾ A).
+Proof with eauto.
+  intros * [Hf Hs]. split. apply restr_func...
+  split. apply ranE in H... clear H.
+  intros y1 y2 H1 H2.
+  apply restrE in H1 as [a [b [Ha [H11 H12]]]].
+  apply restrE in H2 as [c [d [Hc [H21 H22]]]].
+  apply op_correct in H12 as []; subst.
+  apply op_correct in H22 as []; subst.
+  eapply Hs; revgoals... eapply ranI...
 Qed.
 
 (** 像 **)
@@ -393,14 +477,14 @@ Corollary img_inv_inter_distr : ∀ F 𝒜,
   is_function F → F⁻¹⟦⋂𝒜⟧ = ⋂{λ A, F⁻¹⟦A⟧ | A ∊ 𝒜}.
 Proof with auto.
   intros. apply img_inter_distr.
-  apply inv_sr_iff_func... destruct H as []...
+  apply inv_sr_iff_func...
 Qed.
 
 Corollary img_inv_comp_distr : ∀ F A B,
   is_function F → F⁻¹⟦A⟧ - F⁻¹⟦B⟧ = F⁻¹⟦A - B⟧.
 Proof with auto.
   intros. apply img_comp_distr.
-  apply inv_sr_iff_func... destruct H as []...
+  apply inv_sr_iff_func...
 Qed.
 
 (** 函数空间 **)
@@ -462,11 +546,8 @@ Proof with eauto.
   unfold AC_1st_form, AC_2nd_form. split.
   - intros * AC1 I X Hxi.
     set (I × ⋃{λ i, X[i] | i ∊ I}) as P.
-    set ({p ∊ P | λ p, π2 p ∈ X[π1 p]}) as R.
-    assert (H: is_relation R). {
-      intros x Hx. apply SepE in Hx as [Hx _].
-      apply CProdE2 in Hx...
-    }
+    set {p ∊ P | λ p, π2 p ∈ X[π1 p]} as R.
+    assert (H: is_relation R) by apply sep_cp_is_rel.
     apply AC1 in H as [F [Hf [Hsub Hdeq]]].
     assert (Hdeq2: dom F = I). {
       rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
@@ -495,8 +576,7 @@ Proof with eauto.
     set (λ i, {y ∊ ran R | λ y, <i, y> ∈ R}) as ℱ.
     set ({p ∊ I × 𝒫(ran R) | λ p, π2 p = ℱ (π1 p)}) as X.
     assert (HXf: is_function X). {
-      split. intros x Hx.
-      apply SepE in Hx as [Hp _]. apply CProdE2 in Hp...
+      split. apply sep_cp_is_rel.
       intros i. split. apply domE in H...
       intros Y Y' HY HY'.
       apply SepE in HY as [_ Hp].

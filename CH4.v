@@ -418,7 +418,7 @@ Proof with nauto.
 Qed.
 
 Definition count : set → set → Prop := λ S n,
-  n ∈ ω ∧ ∃ f, injective f ∧ f: n ⟹ S.
+  n ∈ ω ∧ ∃ f, f: n ⟺ S.
 
 Lemma ch4_37_0: ∀ x m n ∈ ω, x ∈ m + n⁺ → x ∉ m →
   ∃b ∈ n⁺, x = m + b.
@@ -459,16 +459,15 @@ Example ch4_37_a: ∀ A B m n,
   count A m → count B n → disjoint A B →
   count (A ∪ B) (m + n).
 Proof with eauto; try congruence.
-  intros * [Hm [f [[Hff Hfs] [_ [Hfd Hfr]]]]]
-           [Hn [g [[Hgf Hgs] [_ [Hgd Hgr]]]]] Hdj.
+  intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
+           [Hn [g [[Hgf Hgs] [Hgd Hgr]]]] Hdj.
   split. apply add_ran...
   set (Relation (m + n) (A ∪ B) (λ a y,
     (a ∈ m ∧ y = f[a]) ∨
     (∃b ∈ n, a = m + b ∧ y = g[b])
   )) as h.
   assert (Hhf: is_function h). {
-    split. intros x Hx.
-    apply SepE in Hx as [Hx _]. apply CProdE2 in Hx...
+    split. apply rel_is_rel.
     intros x Hx. split. apply domE in Hx...
     intros y1 y2 H1 H2.
     apply SepE in H1 as [Hp [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
@@ -487,7 +486,7 @@ Proof with eauto; try congruence.
       rewrite add_comm in H11, H21... rewrite H11 in H21.
       apply add_cancel in H21...
   }
-  exists h. split; [split; auto | split; [auto|split]].
+  exists h. split; split...
   - (* single_rooted h *)
     intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
@@ -664,8 +663,8 @@ Example ch4_37_b: ∀ A B m n,
   count A m → count B n → disjoint A B →
   count (A × B) (m ⋅ n).
 Proof with eauto; try congruence.
-  intros * [Hm [f [[Hff Hfs] [_ [Hfd Hfr]]]]]
-           [Hn [g [[Hgf Hgs] [_ [Hgd Hgr]]]]] Hdj.
+intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
+         [Hn [g [[Hgf Hgs] [Hgd Hgr]]]] Hdj.
   split. apply mul_ran...
   set (Relation (m ⋅ n) (A × B) (λ x y,
     let u := π1 y in let v := π2 y in
@@ -673,8 +672,7 @@ Proof with eauto; try congruence.
     x = m ⋅ j + i
   )) as h.
   assert (Hhf: is_function h). {
-    split. intros x Hx.
-    apply SepE in Hx as [Hx _]. apply CProdE2 in Hx...
+    split. apply rel_is_rel.
     intros x Hx. split. apply domE in Hx...
     intros y1 y2 H1 H2.
     apply SepE in H1 as
@@ -696,7 +694,7 @@ Proof with eauto; try congruence.
       try apply mul_ran... cut (i1 = i2)...
     eapply add_cancel; revgoals... apply mul_ran...
   }
-  exists h. split; [split; auto | split; [auto|split]].
+  exists h. split; split...
   - (* single_rooted h *)
     intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.

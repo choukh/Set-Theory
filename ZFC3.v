@@ -11,6 +11,17 @@ Require Import Setoid.
 Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
 Notation "a ⁺" := (Suc a) (at level 8).
 
+Lemma suc_has_n : ∀ n, n ∈ n⁺.
+Proof. intros. apply BUnionI2. apply SingI. Qed.
+
+Lemma suc_inc_n : ∀ n, n ⊆ n⁺.
+Proof. intros n x Hx. apply BUnionI1. apply Hx. Qed.
+
+Lemma suc_neq_0 : ∀ n, n⁺ ≠ ∅.
+Proof.
+  intros n H. eapply EmptyE in H. apply H. apply suc_has_n.
+Qed.
+
 (* 归纳集 *)
 Definition inductive : set → Prop := λ A,
   ∅ ∈ A ∧ ∀a ∈ A, a⁺ ∈ A.

@@ -8,6 +8,7 @@ Require Export ZFC.EST4_1.
 (* 自动化证明 *)
 Hint Immediate ω_has_0 : number_hint.
 Hint Immediate suc_has_n : number_hint.
+Hint Immediate suc_inc_n : number_hint.
 Hint Immediate suc_neq_0 : number_hint.
 Hint Rewrite π1_correct π2_correct : zfc_hint.
 Ltac nauto := auto with number_hint.
@@ -30,9 +31,28 @@ Lemma pred : ∀ n, Embed n =
   match n with | O => ∅ | S n' => (Embed n')⁺ end.
 Proof. intros. destruct n; auto. Qed.
 
-Lemma ωI : ∀ n : nat, n ∈ ω.
+Lemma embed_ran : ∀ n : nat, n ∈ ω.
 Proof with nauto. induction n... apply ω_inductive... Qed.
-Hint Immediate ωI : number_hint.
+Hint Immediate embed_ran : number_hint.
+
+Lemma one : Embed 1 = 1%zfc1.
+Proof.
+  apply ExtAx. intros x. split; intros Hx.
+  - apply BUnionE in Hx as []. exfalso0. apply H.
+  - apply BUnionI2. apply Hx.
+Qed.
+
+Lemma two : Embed 2 = 2%zfc1.
+Proof.
+  apply ExtAx. intros x. split; intros Hx.
+  - rewrite pred in Hx.
+    apply BUnionE in Hx as []; rewrite one in H.
+    + apply PairE in H as []; subst; apply PairI1.
+    + apply SingE in H. subst. apply PairI2.
+  - apply PairE in Hx as []; subst.
+    + apply BUnionI1. apply suc_has_n.
+    + rewrite <- one. apply suc_has_n.
+Qed.
 
 (* 集合论自然数投射出元语言自然数 *)
 Definition Proj (N : set) : nat :=
@@ -57,7 +77,7 @@ Proof with auto.
   - reflexivity.
   - exfalso. eapply suc_neq_0. symmetry. apply H.
   - exfalso. eapply suc_neq_0. apply H.
-  - apply suc_injective in H... apply ωI. apply ωI.
+  - apply suc_injective in H... apply embed_ran. apply embed_ran.
 Qed.
 
 (* 集合论自然数与元语言自然数同构 *)
@@ -283,7 +303,7 @@ Proof with nauto; try congruence.
   - destruct (mul_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply (ωI 1). apply Hy. split; zfcrewrite.
+    apply Hy. apply (embed_ran 1). apply Hy. split; zfcrewrite.
     split... rewrite pred, mul_n, mul_0, add_0_r...
     apply func_correct... rewrite Hhd...
 Qed.
@@ -374,7 +394,7 @@ Proof with nauto; try congruence.
   - destruct (exp_correct y) as [h [[Hh [Hhd Hhr]] [Hheq _]]]...
     cut (<1, h[1]> ∈ h). intros H0.
     eapply ranI. apply SepI. apply CProdI. apply CProdI.
-    apply Hy. apply (ωI 1). apply Hy.
+    apply Hy. apply (embed_ran 1). apply Hy.
     split; zfcrewrite. split...
     rewrite pred, exp_n, exp_0, pred, mul_m_n, mul_0_r, add_0_r...
     apply func_correct... rewrite Hhd...

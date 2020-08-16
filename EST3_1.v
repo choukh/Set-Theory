@@ -12,7 +12,7 @@ Definition Relation : set → set → (set → set → Prop) → set :=
 (* 恒等关系 *)
 Definition Ident : set → set := λ X, {λ x, <x, x> | x ∊ X}.
 
-Example ident_rel_ident : ∀ X,
+Example ident_is_rel : ∀ X,
   Ident X = Relation X X (λ a b, a = b).
 Proof.
   intros. apply ExtAx. split; intros.
@@ -42,6 +42,21 @@ Definition is_relation : set → Prop := λ X, ∀x ∈ X, is_pair x.
 Lemma rel_pair : ∀ R, is_relation R → ∀p ∈ R, p = < π1 p, π2 p >.
 Proof.
   intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
+Qed.
+
+Lemma cprod_is_rel : ∀ A B, is_relation (A × B).
+Proof. intros * x Hx. apply CProdE2 in Hx. apply Hx. Qed.
+
+Lemma sep_cp_is_rel : ∀ A B P, is_relation {p ∊ A × B | P}.
+Proof.
+  intros * x Hx. apply SepE in Hx as [Hx _].
+  apply CProdE2 in Hx. apply Hx.
+Qed.
+
+Lemma rel_is_rel : ∀ A B P, is_relation (Relation A B P).
+Proof.
+  intros * x Hx. apply SepE in Hx as [Hx _].
+  apply CProdE2 in Hx. apply Hx.
 Qed.
 
 (* 定义域 *)
@@ -79,10 +94,18 @@ Proof. intros R x Hx. apply SepE in Hx as [_ H]. apply H. Qed.
 
 Lemma ident_dom : ∀ X, dom (Ident X) = X.
 Proof.
-  intros. apply ExtAx. split; intros.
-  - apply domE in H as [y Hp]. apply identE in Hp as []. auto.
+  intros. apply ExtAx. intros x. split; intros Hx.
+  - apply domE in Hx as [y Hp]. apply identE in Hp as []. auto.
   - eapply domI. apply ReplAx. exists x. split.
-    apply H. reflexivity.
+    apply Hx. reflexivity.
+Qed.
+
+Lemma ident_ran : ∀ X, ran (Ident X) = X.
+Proof.
+  intros. apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp]. apply identE in Hp as []. subst. auto.
+  - eapply ranI. apply ReplAx. exists y. split.
+    apply Hy. reflexivity.
 Qed.
 
 (* 存在唯一 *)
@@ -237,7 +260,16 @@ Proof.
   apply Hs in Hr as [_ Hu]. apply Hu; auto.
 Qed.
 
-(* 一一对应是单源单值关系 *)
+Lemma ident_single_rooted : ∀ A, single_rooted (Ident A).
+Proof.
+  intros A. split. apply ranE in H. apply H.
+  intros y1 y2 H1 H2.
+  apply ReplE in H1 as [x1 [Hx1 H1]]. apply op_correct in H1 as [].
+  apply ReplE in H2 as [x2 [Hx2 H2]]. apply op_correct in H2 as [].
+  congruence.
+Qed.
+
+(* 单射是单源单值关系 *) (* one-to-one *)
 Definition injective : set → Prop :=
   λ R, is_function R ∧ single_rooted R.
 
@@ -318,19 +350,18 @@ Proof.
 Qed.
 
 Theorem inv_sr_iff_func : ∀ F, 
-  is_relation F → single_rooted F⁻¹ ↔ is_function F.
-Proof.
-  intros F Hr. unfold single_rooted, is_function. split.
-  - intros Hs. split.
-    + apply Hr.
-    + intros x Hx. rewrite <- inv_ran in Hx.
-      apply Hs in Hx as [[y Hp] H]. split.
-      * exists y. rewrite inv_op. apply Hp.
-      * intros y1 y2 H1 H2. apply H; rewrite <- inv_op; assumption.
-  - intros [_ Hs]. intros y Hy. rewrite inv_ran in Hy.
+  (is_relation F ∧ single_rooted F⁻¹) ↔ is_function F.
+Proof with auto.
+  unfold single_rooted, is_function. split.
+  - intros [Hr Hs]. split...
+    intros x Hx. rewrite <- inv_ran in Hx.
+    apply Hs in Hx as [[y Hp] H]. split.
+    + exists y. rewrite inv_op...
+    + intros y1 y2 H1 H2. apply H; rewrite <- inv_op...
+  - intros [Hr Hs]. split... intros y Hy. rewrite inv_ran in Hy.
     apply Hs in Hy as [[x Hp] H]. split.
-    + exists x. rewrite <- inv_op. apply Hp.
-    + intros x1 x2 H1 H2. apply H; rewrite inv_op; assumption.
+    + exists x. rewrite <- inv_op...
+    + intros x1 x2 H1 H2. apply H; rewrite inv_op...
 Qed.
 
 Theorem inv_dom_reduction : ∀ F,
@@ -352,7 +383,7 @@ Proof.
   rewrite inv_inv_ident in H. apply H. apply Hr.
   unfold injective. split. 
   - apply inv_func_iff_sr. apply Hs.
-  - apply inv_sr_iff_func. apply Hr. apply Hf.
+  - apply inv_sr_iff_func. apply Hf.
 Qed.
 
 (** 复合 **)

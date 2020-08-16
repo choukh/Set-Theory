@@ -5,21 +5,7 @@ Require Export ZFC.CH3_2.
 
 (*** EST第四章1：自然数，归纳原理，传递集，皮亚诺结构，ω递归定理 ***)
 
-(* 后继运算 *)
-Print Suc.
-(* Suc = λ a : set, a ∪ ⎨ a ⎬
-	 : set → set *)
-
-Lemma suc_has_n : ∀ n, n ∈ n⁺.
-Proof. intros. apply BUnionI2. apply SingI. Qed.
-
-Lemma suc_neq_0 : ∀ n, n⁺ ≠ ∅.
-Proof.
-  intros n H. eapply EmptyE in H. apply H. apply suc_has_n.
-Qed.
-
 (** 自然数 **)
-
 Definition is_nat : set → Prop := λ n, ∀ A, inductive A → n ∈ A.
 
 Theorem ω_exists : ∃ ω, ∀ n, n ∈ ω ↔ is_nat n.
@@ -461,15 +447,15 @@ Ltac ω_destruct n :=
 
 (* 皮亚诺结构同构 *)
 Theorem Peano_isomorphism : ∀ N S e, is_Peano N S e →
-  ∃ h, injective h ∧ h: ω ⟹ N ∧
+  ∃ h, h: ω ⟺ N ∧
   ∀n ∈ ω, h[σ[n]] = S[h[n]] ∧
   h[∅] = e.
 Proof with eauto; try congruence.
   intros N S e [HS [He [Hi [Hii Hiii]]]].
   pose proof (ω_recursion_0 S N e HS He) as [h [H1 [H2 H3]]].
   destruct H1 as [Hf [Hd Hr]].
-  exists h. split; [|split].
-  - (* injective h *) split...
+  exists h. split. split; split...
+  - (* single_rooted h *)
     intros y Hy. split. apply ranE in Hy...
     assert (Hnq0: ∀p ∈ ω, h[∅] ≠ h[p⁺]). {
       intros p Hp. apply H3 in Hp as Heq. rewrite H2, Heq.
@@ -497,8 +483,7 @@ Proof with eauto; try congruence.
       destruct HS as [HSf [HSd _]].
       eapply func_injective; eauto; rewrite HSd; apply Hr;
         eapply ranI; apply func_correct...
-  -  split... split...
-    (* ran h = N *) apply Hiii...
+  - (* ran h = N *) apply Hiii...
     + rewrite <- H2. eapply ranI. apply func_correct...
       rewrite Hd. apply ω_has_0.
     + intros x Hx. apply ranE in Hx as [n Hp].

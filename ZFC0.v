@@ -111,7 +111,7 @@ Notation "∃ x .. y ∈ X , P" :=
   (at level 200, x binder, y binder, right associativity).
 
 (** Sub是集合的子集关系。
-    我们用 X ⊆ Y 表示 "X是Y的子集"，用 X ⊈ Y 表示 "X表示Y的子集"。 *)
+    我们用 X ⊆ Y 表示 "X是Y的子集"，用 X ⊈ Y 表示 "X不是Y的子集"。 *)
 Definition Sub : set → set → Prop :=
   λ X Y, ∀x ∈ X, x ∈ Y.
   
