@@ -98,7 +98,7 @@
 - 实数的稠密性
 
 ## EST6_1.v (TODO)
-- 等势
+- 等势，康托定理，鸽笼原理
 
 ## CH*.v
 - Elements of Set Theory 第*章习题
