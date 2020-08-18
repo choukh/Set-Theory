@@ -2,18 +2,20 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export Coq.Unicode.Utf8_core.
+Require Export Utf8_core.
+Require Export Classical.
+Require Export Epsilon.
 
-Notation "⊤" := (True).
-Notation "⊥" := (False).
+Set Implicit Arguments.
+
+Notation "⊤" := True.
+Notation "⊥" := False.
 
 (*** 元理论 ***)
-(* 与以下两个库等效 *)
-(* Require Export Coq.Logic.Classical_Prop. *)
-(* Require Export Coq.Logic.Epsilon. *)
 
-(**=== 排中律 ===**)
-Axiom classic : ∀ P : Prop, P ∨ ¬P.
+(** 排中律 **)
+Print classic.
+(* Axiom classic : ∀ P : Prop, P ∨ ¬ P *)
 
 (** 和类型 **)
 (* 类似于逻辑或[or]，和类型封装了类型A或B *)
@@ -34,53 +36,55 @@ Print inhabited.
 (* Inductive inhabited (A : Type) : Prop :=
     inhabits : A → inhabited A *)
 
-Set Implicit Arguments.
-(**=== 希尔伯特ε算子 ===**) 
-(* (在经典逻辑下，结合替代公理和空集公理可以导出Zermelo分类公理(见ZFC2)，
-  可以单独导出ZFC选择公理(见ZFC3)) *)
+(** 希尔伯特ε算子 **)
+(* 在经典逻辑下，结合替代公理和空集公理可以导出Zermelo分类公理(见ZFC2)，
+  可以单独导出ZFC选择公理(见ZFC3) *)
+
 (* 存在ε算子，对于任意类型A和该类型上的任意谓词P，只要A是被居留的，
   用ε算子就可以得到A上的某个x，它使命题P成立，只要存在A上的某个y使P成立。 *)
-Axiom ε_statement : ∀ (A : Type) (P : A → Prop),
-  inhabited A → {x : A | (∃ y, P y) → P x}.
+Print epsilon_statement.
+(* Axiom epsilon_statement : ∀ (A : Type) (P : A → Prop),
+    inhabited A → {x : A | (∃ y, P y) → P x}. *)
 
 (* 用ε算子可以得到εAP，它是在A上任意选择的一个使P成立的a。
   若这样的a不存在，则εAP为任意A上的a *)
-Definition ε (A : Type) (i : inhabited A) (P : A → Prop) : A :=
-  proj1_sig (ε_statement P i).
+Print epsilon.
+(* Definition epsilon (A : Type) (i : inhabited A) (P : A → Prop) : A :=
+  proj1_sig (epsilon_statement P i). *)
 
 (* 用ε_spec可以得到εAP满足P的证据，只要存在一个A上的a使P成立。
   若这样的a不存在，则可以证明P(εAP)不成立 *)
-Definition ε_spec (A : Type) (i : inhabited A) (P : A → Prop) :
-  (∃ x, P x) → P (ε i P) :=
-  proj2_sig (ε_statement P i).
+Print epsilon_spec.
+(* Definition epsilon_spec (A : Type) (i : inhabited A) (P : A → Prop) :
+  (∃ x, P x) → P (epsilon i P) :=
+  proj2_sig (epsilon_statement P i). *)
 
-(* 在经典逻辑下，由ε算子可以得到以下结论 *)
+(** 排中律是信息丰富的 **)
+Definition informative_excluded_middle : Type :=
+  ∀ P : Prop, P + ¬P.
 
-(** Informative Excluded Middle (排中律是信息丰富的) **)
-Definition IXM : Type := ∀ P : Prop, P + ¬P.
-
-Theorem ixm : IXM.
+Theorem ixm : informative_excluded_middle.
 Proof.
-  unfold IXM. intros P.
+  unfold informative_excluded_middle. intros P.
   assert (H := classic P).
   assert (I: inhabited (P + ¬P)). {
     destruct H.
     - apply inhabits. apply inl. apply H.
     - apply inhabits. apply inr. apply H.
   }
-  apply (ε I (λ _, ⊤)).
+  apply (epsilon I (λ _, ⊤)).
 Qed.
 
-(** Decidability of the Inhabitance of Types (类型的居留性是可判定的) **)
-Definition DIT : Type := ∀ T : Type, T + (T → ⊥).
+(** 类型的居留性是可判定的 **)
+Definition decidable_inhabitance_of_type : Type :=
+  ∀ T : Type, T + (T → ⊥).
 
-Theorem dit : DIT.
+Theorem dit : decidable_inhabitance_of_type.
 Proof.
-  unfold DIT. intros T.
+  unfold decidable_inhabitance_of_type. intros T.
   destruct (ixm (inhabited T)) as [I|I].
-  - left. apply (ε I (λ _, ⊤)).
-  - right. intros t. apply I.
-    apply inhabits. apply t.
+  - left. apply (epsilon I (λ _, ⊤)).
+  - right. intros t. apply I. apply inhabits. apply t.
 Qed.
 
 (*** Zermelo–Fraenkel集合论公理 ***)
@@ -110,6 +114,25 @@ Notation "∃ x .. y ∈ X , P" :=
   ( ex ( ex_in X ( λ x, .. ( ex ( ex_in X ( λ y, P ))) .. )))
   (at level 200, x binder, y binder, right associativity).
 
+(* 关于集合的经典逻辑引理 *)
+
+Lemma set_not_all_not_ex : ∀ X P, ¬(∀x ∈ X, ¬P x) ↔ (∃x ∈ X, P x).
+Proof.
+  split; intros.
+  - destruct (classic (∃x ∈ X, P x)); firstorder.
+  - firstorder.
+Qed.
+
+Lemma set_not_all_ex_not : ∀ X P, ¬(∀x ∈ X, P x) ↔ (∃x ∈ X, ¬P x).
+Proof.
+  intros. pose proof (set_not_all_not_ex X (λ x, ¬P x)).
+  simpl in H. rewrite <- H. clear H.
+  split; intros.
+  - intros H1. apply H. intros x Hx. apply H1 in Hx.
+    apply NNPP in Hx. apply Hx.
+  - firstorder.
+Qed.
+
 (** Sub是集合的子集关系。
     我们用 X ⊆ Y 表示 "X是Y的子集"，用 X ⊈ Y 表示 "X不是Y的子集"。 *)
 Definition Sub : set → set → Prop :=
@@ -121,6 +144,7 @@ Notation "X ⊈ Y" := (¬Sub X Y) (at level 70).
 (* 子集关系是自反的 *)
 Lemma sub_refl : ∀ A, A ⊆ A.
 Proof. unfold Sub. intros A x H. apply H. Qed.
+Hint Immediate sub_refl : core.
 
 (* 子集关系是传递的 *)
 Lemma sub_tran : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
@@ -132,6 +156,13 @@ Qed.
 (**=== 公理1: 外延公理 ===**)
 (* 两个集合相等当且仅当它们包含相同的成员 *)
 Axiom ExtAx : ∀ A B, A = B ↔ (∀ x, x ∈ A ↔ x ∈ B).
+
+Lemma ExtNI : ∀ A B, (∃x ∈ B, x ∉ A) → A ≠ B.
+Proof.
+  intros A B [x [Hx Hx']] Hext.
+  rewrite ExtAx in Hext. apply Hext in Hx.
+  apply Hx'. apply Hx.
+Qed.
 
 (* 子集关系是反对称的。至此，子集关系构成了集合上的偏序。 *)
 Lemma sub_asym: ∀ A B, A ⊆ B → B ⊆ A → A = B.

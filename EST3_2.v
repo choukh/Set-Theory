@@ -210,13 +210,13 @@ Proof with eauto.
     apply SepE in Hxs as [_ Hxz].
     apply SepE in Hxt as [_ Hxw]. subst...
   }
-  assert (Hsub: {cho | s ∊ S} ⊆ R). {
+  assert (Hsub: {Choice | s ∊ S} ⊆ R). {
     intros x Hx. apply ReplE in Hx as [s [Hs Hx]]. subst x.
     pose proof (chosen_contained s (Hi s Hs)) as Hc.
     apply ReplE in Hs as [a [_ Hs]]. rewrite <- Hs in Hc at 2.
     apply SepE in Hc as []...
   }
-  exists {cho | s ∊ S}. repeat split...
+  exists {Choice | s ∊ S}. repeat split...
   - intros x Hx. apply ReplE in Hx as [s [Hs Heq]].
     pose proof (chosen_contained s (Hi s Hs)) as Hx.
     rewrite Heq in Hx. eapply Hsp...
@@ -291,11 +291,18 @@ Proof with auto.
   rewrite π1_correct...
 Qed.
 
-Lemma restrE : ∀ F A, ∀x ∈ F ↾ A,
+Lemma restrE1 : ∀ F A, ∀x ∈ F ↾ A,
   ∃ a b, a ∈ A ∧ <a, b> ∈ F ∧ x = <a, b>.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx [[a [b Hp]] Ha]].
   subst x. rewrite π1_correct in Ha. exists a, b; auto.
+Qed.
+
+Lemma restrE2 : ∀ F A x y, <x, y> ∈ F ↾ A →
+  <x, y> ∈ F ∧ x ∈ A.
+Proof.
+  intros * Hp. apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]].
+  apply op_correct in Heq as []; subst. split; auto.
 Qed.
 
 Example restr_dom_included : ∀ F A, dom (F ↾ A) ⊆ dom F.
@@ -316,8 +323,7 @@ Proof with auto.
   intros * Hf. split; intros.
   - apply ExtAx. intros x. split; intros Hx.
     + apply domE in Hx as [y Hp].
-      apply restrE in Hp as [a [b [Ha [Hp Heq]]]].
-      apply op_correct in Heq as []. congruence.
+      apply restrE2 in Hp as []...
     + eapply domI. apply restrI...
       apply func_correct... apply H...
   - rewrite <- H. apply restr_dom_included.
@@ -343,10 +349,8 @@ Proof with eauto.
   intros * [Hf Hs]. split. apply restr_func...
   split. apply ranE in H... clear H.
   intros y1 y2 H1 H2.
-  apply restrE in H1 as [a [b [Ha [H11 H12]]]].
-  apply restrE in H2 as [c [d [Hc [H21 H22]]]].
-  apply op_correct in H12 as []; subst.
-  apply op_correct in H22 as []; subst.
+  apply restrE2 in H1 as [H1 _].
+  apply restrE2 in H2 as [H2 _].
   eapply Hs; revgoals... eapply ranI...
 Qed.
 

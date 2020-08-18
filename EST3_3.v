@@ -81,15 +81,6 @@ Proof with eauto.
     + apply eqvcE in Hw. apply eqvcI...
 Qed.
 
-Definition disjoint : set → set → Prop := λ X Y,
-  X ≠ Y ∧ X ∩ Y = ∅.
-
-Lemma disjointE: ∀ A B x, disjoint A B → x ∈ A → x ∈ B → ⊥.
-Proof with eauto.
-  intros * [_ H] Ha Hb.
-  eapply EmptyE in H. apply H. apply BInterI...
-Qed.
-
 (* 划分 *)
 Definition partition : set → set → Prop := λ Π A,
   (* 子集 *) (∀B ∈ Π, ⦿ B ∧ B ⊆ A) ∧ 
@@ -120,7 +111,7 @@ Proof with eauto.
     + intros x Hx. apply quotE in HB as [a [Ha Heq]].
       subst B. apply eqvcE in Hx. apply Hr in Hx.
       apply CProdE1 in Hx as [_ Hx]. rewrite π2_correct in Hx... 
-  - intros X HX Y HY Hnq. split... apply EmptyI.
+  - intros X HX Y HY Hnq. apply EmptyI.
     intros t Ht. apply Hnq. apply BInterE in Ht as [H1 H2].
     apply ReplE in HX as [x [Hx Hxeq]].
     apply ReplE in HY as [y [Hy Hyeq]]. subst X Y.

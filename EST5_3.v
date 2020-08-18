@@ -10,16 +10,6 @@ Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
 (*** EST第五章3：有理数的定义
   有理数算术：加法，加法逆元，乘法，乘法逆元 ***)
 
-Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
-Proof with auto.
-  intros * Hnq H. apply Hnq. apply SingE in H...
-Qed.
-
-Lemma SingNE : ∀ A B, A ∉ ⎨B⎬ → A ≠ B.
-Proof with auto.
-  intros * H Heq. apply H. subst A. apply SingI.
-Qed.
-
 (* 非零整数 *)
 Definition ℤ' := (ℤ - ⎨Int 0⎬)%zfc.
 
@@ -112,7 +102,7 @@ Proof with eauto.
   rewrite intMul_assoc, (intMul_comm d), <- intMul_assoc,
     (intMul_assoc e), (intMul_comm d), <- (intMul_assoc e) in H1'...
   eapply intMul_cancel; revgoals; [apply H1'|..]...
-  intros Heq. apply Hd2. rewrite Heq. apply SingI. mr... mr...
+  intros Heq. apply Hd2. rewrite Heq... mr... mr...
 Qed.
 
 Theorem ratEquiv_equiv : equiv (PlaneEquiv ℤ ℤ' RatEq) (ℤ × ℤ').
@@ -319,7 +309,7 @@ Qed.
 (* 有理数投射 *)
 Definition RatPosDenom : set → set := λ a,
   {p ∊ a | λ p, intPos (π2 p)}.
-Definition RatProj : set → set := λ a, cho (RatPosDenom a).
+Definition RatProj : set → set := λ a, Choice (RatPosDenom a).
 
 Lemma ratPosDenom_inhabited : ∀a ∈ ℤ, ∀b ∈ ℤ',
   ⦿ RatPosDenom ([<a, b>]~).

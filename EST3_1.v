@@ -364,6 +364,13 @@ Proof with auto.
     + intros x1 x2 H1 H2. apply H; rewrite inv_op...
 Qed.
 
+Theorem inv_injective : ∀ F, injective F → injective F⁻¹.
+Proof with auto.
+  intros F [Hf Hs]. split.
+  - apply inv_func_iff_sr...
+  - apply inv_sr_iff_func...
+Qed.
+
 Theorem inv_dom_reduction : ∀ F,
   injective F → ∀x ∈ dom F, F⁻¹[F[x]] = x.
 Proof.
@@ -444,6 +451,25 @@ Proof.
     apply domE in Hdf as [y Hpf].
     pose proof (func_ap _ Hg _ _ Hpg). rewrite H in Hpf.
     eapply domI. eapply compoI. eauto.
+Qed.
+
+Lemma compo_ran : ∀ F G,
+  injective F → is_function G →
+  ran (F ∘ G) = {x ∊ ran F | λ x, F⁻¹[x] ∈ ran G}.
+Proof with eauto.
+  intros F G [Hf Hs] Hg.
+  assert (Hf': is_function F ⁻¹) by (apply inv_func_iff_sr; auto).
+  apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply compoE in Hp as [t [Hpg Hpf]].
+    apply SepI. eapply ranI. apply Hpf.
+    apply inv_op in Hpf. apply func_ap in Hpf...
+    subst t. eapply ranI. apply Hpg.
+  - apply SepE in Hy as [Hrf Hrg].
+    apply ranE in Hrf as [t Hpf].
+    apply ranE in Hrg as [x Hpg].
+    apply inv_op in Hpf as Hpf'. apply func_ap in Hpf'...
+    subst t. eapply ranI. eapply compoI...
 Qed.
 
 Theorem compo_correct : ∀ F G,

@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 4 Part 1 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.CH3_2.
+Require Export ZFC.lib.Relation.
 
 (*** EST第四章1：自然数，归纳原理，传递集，皮亚诺结构，ω递归定理 ***)
 
