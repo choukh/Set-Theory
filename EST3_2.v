@@ -57,7 +57,7 @@ Proof with eauto.
     + rewrite <- Hfd in Hx.
       apply domE in Hx as [y Hp]. apply ranI in Hp as Hr.
       rewrite Hfr, <- Hgd in Hr. apply domE in Hr as [z Hp'].
-      eapply domI. eapply compoI. split...
+      eapply domI. eapply compoI...
   - apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp].
       apply compoE in Hp as [t [H1 H2]].
@@ -65,7 +65,7 @@ Proof with eauto.
     + rewrite <- Hgr in Hy.
       apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
       rewrite Hgd, <- Hfr in Hd. eapply ranE in Hd as [w Hp'].
-      eapply ranI. eapply compoI. split...
+      eapply ranI. eapply compoI...
 Qed.
 
 Lemma cprod_single_func : ∀ F a, is_function (F × ⎨a⎬).
@@ -163,7 +163,7 @@ Proof with eauto.
         rewrite π1_correct in H2. apply CompE in H2 as []...
     + apply ReplE in Hx as [b [Hb Heq]]. subst x.
       rewrite <- Hdf in Hb. apply domE in Hb as [c Hb].
-      eapply compoI. split... apply BUnionI1. rewrite <- inv_op...
+      eapply compoI... apply BUnionI1. rewrite <- inv_op...
 Qed.
 
 Lemma binter_unique : ∀ a b s C,
@@ -210,13 +210,13 @@ Proof with eauto.
     apply SepE in Hxs as [_ Hxz].
     apply SepE in Hxt as [_ Hxw]. subst...
   }
-  assert (Hsub: {cho | s ∊ S} ⊆ R). {
+  assert (Hsub: {Choice | s ∊ S} ⊆ R). {
     intros x Hx. apply ReplE in Hx as [s [Hs Hx]]. subst x.
     pose proof (chosen_contained s (Hi s Hs)) as Hc.
     apply ReplE in Hs as [a [_ Hs]]. rewrite <- Hs in Hc at 2.
     apply SepE in Hc as []...
   }
-  exists {cho | s ∊ S}. repeat split...
+  exists {Choice | s ∊ S}. repeat split...
   - intros x Hx. apply ReplE in Hx as [s [Hs Heq]].
     pose proof (chosen_contained s (Hi s Hs)) as Hx.
     rewrite Heq in Hx. eapply Hsp...
@@ -291,14 +291,21 @@ Proof with auto.
   rewrite π1_correct...
 Qed.
 
-Lemma restrE : ∀ F A, ∀x ∈ F ↾ A,
+Lemma restrE1 : ∀ F A, ∀x ∈ F ↾ A,
   ∃ a b, a ∈ A ∧ <a, b> ∈ F ∧ x = <a, b>.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx [[a [b Hp]] Ha]].
   subst x. rewrite π1_correct in Ha. exists a, b; auto.
 Qed.
 
-Example restr_dom_included : ∀ F A, dom (F ↾ A) ⊆ dom F.
+Lemma restrE2 : ∀ F A x y, <x, y> ∈ F ↾ A →
+  <x, y> ∈ F ∧ x ∈ A.
+Proof.
+  intros * Hp. apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]].
+  apply op_correct in Heq as []; subst. split; auto.
+Qed.
+
+Lemma restr_dom_included : ∀ F A, dom (F ↾ A) ⊆ dom F.
 Proof.
   intros F A x H. apply domE in H as [y Hy].
   apply SepE in Hy as [Hp _]. eapply domI. apply Hp.
@@ -310,14 +317,21 @@ Proof.
   apply SepE in Hx as [Hp _]. eapply ranI. apply Hp.
 Qed.
 
+Lemma restr_to_dom : ∀ F, is_relation F → F ↾ (dom F) = F.
+Proof with eauto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply restrE1 in Hx as [a [b [Ha [Hx Heq]]]]. subst...
+  - apply rel_pair in Hx as Heq... rewrite Heq.
+    rewrite Heq in Hx. apply restrI... eapply domI...
+Qed.
+
 Lemma restr_dom : ∀ F A, is_function F →
   A ⊆ dom F ↔ dom (F ↾ A) = A.
 Proof with auto.
   intros * Hf. split; intros.
   - apply ExtAx. intros x. split; intros Hx.
     + apply domE in Hx as [y Hp].
-      apply restrE in Hp as [a [b [Ha [Hp Heq]]]].
-      apply op_correct in Heq as []. congruence.
+      apply restrE2 in Hp as []...
     + eapply domI. apply restrI...
       apply func_correct... apply H...
   - rewrite <- H. apply restr_dom_included.
@@ -343,10 +357,8 @@ Proof with eauto.
   intros * [Hf Hs]. split. apply restr_func...
   split. apply ranE in H... clear H.
   intros y1 y2 H1 H2.
-  apply restrE in H1 as [a [b [Ha [H11 H12]]]].
-  apply restrE in H2 as [c [d [Hc [H21 H22]]]].
-  apply op_correct in H12 as []; subst.
-  apply op_correct in H22 as []; subst.
+  apply restrE2 in H1 as [H1 _].
+  apply restrE2 in H2 as [H2 _].
   eapply Hs; revgoals... eapply ranI...
 Qed.
 

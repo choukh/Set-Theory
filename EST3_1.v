@@ -273,6 +273,14 @@ Qed.
 Definition injective : set → Prop :=
   λ R, is_function R ∧ single_rooted R.
 
+Lemma func_injective : ∀ f, injective f →
+  ∀ a b ∈ dom f, f[a] = f[b] → a = b.
+Proof with eauto.
+  intros f [Hf Hs] a Ha b Hb Heq.
+  apply func_correct in Ha... apply func_correct in Hb...
+  eapply Hs... eapply ranI... rewrite Heq...
+Qed.
+
 (** 逆 **)
 Definition Inverse : set → set := λ F,
   {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
@@ -300,6 +308,15 @@ Proof.
     rewrite π1_correct, π2_correct in H. apply H.
 Qed.
 
+Lemma inv_ident : ∀ A, (Ident A)⁻¹ = Ident A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [_ [[a [b H]] Hx]]. subst x. zfcrewrite.
+    apply identE in Hx as [Hb H]. subst. apply identI...
+  - apply ReplAx in Hx as [a [Ha Hx]]. subst x.
+    rewrite <- inv_op. apply identI...
+Qed.
+
 Theorem inv_dom : ∀ F, dom F⁻¹ = ran F.
 Proof.
   intros. apply ExtAx. split; intros.
@@ -318,7 +335,7 @@ Proof.
     eapply ranI. apply Hp.
 Qed.
 
-Theorem inv_inv_ident : ∀ F, is_relation F → (F⁻¹)⁻¹ = F.
+Theorem inv_inv : ∀ F, is_relation F → (F⁻¹)⁻¹ = F.
 Proof.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ [Hp Hx]]. rewrite <- inv_op in Hx.
@@ -364,6 +381,13 @@ Proof with auto.
     + intros x1 x2 H1 H2. apply H; rewrite inv_op...
 Qed.
 
+Theorem inv_injective : ∀ F, injective F → injective F⁻¹.
+Proof with auto.
+  intros F [Hf Hs]. split.
+  - apply inv_func_iff_sr...
+  - apply inv_sr_iff_func...
+Qed.
+
 Theorem inv_dom_reduction : ∀ F,
   injective F → ∀x ∈ dom F, F⁻¹[F[x]] = x.
 Proof.
@@ -380,7 +404,7 @@ Proof.
   assert (Hr := Hf). destruct Hr as [Hr _].
   rewrite <- inv_dom in Hy. cut (injective F⁻¹). intros Hinj.
   pose proof (inv_dom_reduction F⁻¹ Hinj y Hy).
-  rewrite inv_inv_ident in H. apply H. apply Hr.
+  rewrite inv_inv in H. apply H. apply Hr.
   unfold injective. split. 
   - apply inv_func_iff_sr. apply Hs.
   - apply inv_sr_iff_func. apply Hf.
@@ -393,9 +417,9 @@ Definition Composition : set → set → set := λ F G,
 Notation "F ∘ G" := (Composition F G) (at level 60).
 
 Lemma compoI : ∀ F G x y t,
-  <x, t> ∈ G ∧ <t, y> ∈ F → <x, y> ∈ (F ∘ G).
+  <x, t> ∈ G → <t, y> ∈ F → <x, y> ∈ (F ∘ G).
 Proof with eauto.
-  intros * [Hpg Hpf]. apply SepI; try split.
+  intros * Hpg Hpf. apply SepI; try split.
   - apply CProdI. eapply domI... eapply ranI...
   - exists x, y...
   - rewrite π1_correct, π2_correct. exists t...
@@ -443,7 +467,26 @@ Proof.
     apply domE in Hdg as [t Hpg].
     apply domE in Hdf as [y Hpf].
     pose proof (func_ap _ Hg _ _ Hpg). rewrite H in Hpf.
-    eapply domI. eapply compoI. eauto.
+    eapply domI. eapply compoI; eauto.
+Qed.
+
+Lemma compo_ran : ∀ F G,
+  injective F → is_function G →
+  ran (F ∘ G) = {x ∊ ran F | λ x, F⁻¹[x] ∈ ran G}.
+Proof with eauto.
+  intros F G [Hf Hs] Hg.
+  assert (Hf': is_function F ⁻¹) by (apply inv_func_iff_sr; auto).
+  apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply compoE in Hp as [t [Hpg Hpf]].
+    apply SepI. eapply ranI. apply Hpf.
+    apply inv_op in Hpf. apply func_ap in Hpf...
+    subst t. eapply ranI. apply Hpg.
+  - apply SepE in Hy as [Hrf Hrg].
+    apply ranE in Hrf as [t Hpf].
+    apply ranE in Hrg as [x Hpg].
+    apply inv_op in Hpf as Hpf'. apply func_ap in Hpf'...
+    subst t. eapply ranI. eapply compoI...
 Qed.
 
 Theorem compo_correct : ∀ F G,
@@ -511,7 +554,7 @@ Proof.
   - apply ReplE in Hp as [b [Hb Hp]]. subst p.
     pose proof (ranE _ _ Hb) as [a Hp].
     assert (Hp' := Hp). rewrite inv_op in Hp'.
-    eapply compoI. eauto.
+    eapply compoI; eauto.
 Qed.
 
 Example compo_inv_ran : ∀ G,

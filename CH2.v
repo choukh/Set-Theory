@@ -74,7 +74,7 @@ Proof.
       apply H in Hy. apply BInterE in Hy. tauto.
 Qed.
 
-Example ch2_7_b: ∀A B, 𝒫(A) ∪ 𝒫(B) ⊆ 𝒫(A ∪ B).
+Example ch2_7_b: ∀ A B, 𝒫(A) ∪ 𝒫(B) ⊆ 𝒫(A ∪ B).
 Proof.
   intros A B x Hx. apply BUnionE in Hx. destruct Hx.
   - apply PowerAx in H. apply PowerAx. intros y Hy.
@@ -83,10 +83,12 @@ Proof.
     apply BUnionI2. apply H in Hy. apply Hy.
 Qed.
 
-Example ch2_8: ¬∃A, ∀a, ⎨a⎬ ∈ A.
-  intros [A H]. apply (well_founded_2 A ⎨A⎬).
-  - apply SingI.
-  - apply H.
+Example ch2_8: ¬ ∃ A, ∀ a, ⎨a⎬ ∈ A.
+Proof.
+  intros [A H].
+  apply no_set_of_all_set.
+  exists (⋃A). intros x. apply UnionAx.
+  exists ⎨x⎬. split. apply H. apply SingI.
 Qed.
 
 Example ch2_10: ∀ A, ∀a ∈ A, 𝒫 a ∈ 𝒫 𝒫 ⋃A.
@@ -221,15 +223,7 @@ Proof.
   - intros x H. apply BUnionI1. apply H.
 Qed.
 
-Example ch2_17_1_2: ∀ A B, A ⊆ B ↔ A - B = ∅.
-Proof.
-  split; intros.
-  - apply EmptyI. intros x Hx. apply CompE in Hx as [H1 H2].
-    apply H2. apply H. apply H1.
-  - intros x Hx. apply EmptyE with (A - B) x in H.
-    destruct (classic (x ∈ B)). apply H0.
-    exfalso. apply H. apply CompI; assumption.
-Qed.
+(* ch2_17_1_2: see EST2.v Lemma sub_iff_no_comp *) 
 
 Example ch2_17_1_3: ∀ A B, A ⊆ B ↔ A ∪ B = B.
 Proof.
@@ -271,6 +265,13 @@ Proof.
       rewrite <- H in H3. apply BUnionE in H3 as [].
       -- exfalso. auto.
       -- apply H3.
+Qed.
+
+Corollary ch2_20': ∀ A B C, B ∪ A = C ∪ A → B ∩ A = C ∩ A → B = C.
+Proof.
+  intros. rewrite bunion_comm, (bunion_comm C) in H.
+  rewrite binter_comm, (binter_comm C) in H0.
+  eapply ch2_20; eauto.
 Qed.
 
 Example ch2_21: ∀ A B, ⋃(A ∪ B) = ⋃A ∪ ⋃B.

@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 4 Part 1 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.CH3_2.
+Require Export ZFC.lib.Relation.
 
 (*** EST第四章1：自然数，归纳原理，传递集，皮亚诺结构，ω递归定理 ***)
 
@@ -137,14 +137,6 @@ Proof.
   apply nat_trans in Hn. apply nat_trans in Hk.
   apply trans_union_suc in Hn.
   apply trans_union_suc in Hk. congruence.
-Qed.
-
-Lemma func_injective : ∀ f, injective f →
-  ∀ a b ∈ dom f, f[a] = f[b] → a = b.
-Proof with eauto.
-  intros f [Hf Hs] a Ha b Hb Heq.
-  apply func_correct in Ha... apply func_correct in Hb...
-  eapply Hs... eapply ranI... rewrite Heq...
 Qed.
 
 (* 集合对函数封闭 *)

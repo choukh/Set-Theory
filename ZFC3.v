@@ -3,7 +3,6 @@
 (** Coq coding by choukh, April 2020 **)
 
 Require Export ZFC.ZFC2.
-Require Import Setoid.
 
 (*** ZFC集合论3：无穷公理，选择公理，正则公理 ***)
 
@@ -30,17 +29,17 @@ Definition inductive : set → Prop := λ A,
 Parameter 𝐈 : set. 
 Axiom InfAx : inductive 𝐈.
 
-(** 希尔伯特ε算子等效于选择公理 **)
+(** 希尔伯特epsilon算子等效于选择公理 **)
 
 (* 选择函数 *)
-Definition cho : set → set := λ s, ε (inhabits ∅) (λ x, x ∈ s).
+Definition Choice : set → set := λ s, epsilon (inhabits ∅) (λ x, x ∈ s).
 
 (* “答案确实是在题目选项里选的” *)
-Lemma chosen_contained : ∀ s, ⦿s → cho s ∈ s.
-Proof. intros s. exact (ε_spec (inhabits ∅) (λ x, x ∈ s)). Qed.
+Lemma chosen_contained : ∀ s, ⦿s → Choice s ∈ s.
+Proof. intros s. exact (epsilon_spec (inhabits ∅) (λ x, x ∈ s)). Qed.
 
 (* “答案集包含在问题集的并集里” *)
-Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {cho | s ∊ S} ⊆ ⋃S.
+Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {Choice | s ∊ S} ⊆ ⋃S.
 Proof.
   intros S H x Hx.
   apply ReplE in Hx as [s [H1 H2]].
@@ -51,55 +50,31 @@ Qed.
 
 (* “单选题” *)
 Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
-  (∀ s t ∈ S, s ≠ t → s ∩ t = ∅) →
-  ∀s ∈ S, ∃ x, s ∩ {cho | s ∊ S} = ⎨x⎬.
-Proof.
+  (∀ s t ∈ S, s ≠ t → disjoint s t) →
+  ∀s ∈ S, ∃ x, s ∩ {Choice | s ∊ S} = ⎨x⎬.
+Proof with eauto.
   intros S Hi Hdj s Hs.
-  exists (cho s).
-  apply sub_asym.
+  exists (Choice s). apply sub_asym.
   - intros x Hx. apply BInterE in Hx as [Hx1 Hx2].
-    cut (x = cho s).
-    + intros. subst. apply SingI.
-    + apply ReplE in Hx2.
-      destruct Hx2 as [t [Ht Hteq]].
-      destruct (classic (s = t)).
-      * subst. reflexivity.
-      * pose proof (Hdj s Hs t Ht H).
-        pose proof ((EmptyE H0) x).
-        exfalso. apply H1. apply BInterI. apply Hx1.
-        pose proof (chosen_contained t (Hi t Ht)).
-        rewrite Hteq in H2. apply H2.
+    cut (x = Choice s).
+    + intros. subst...
+    + apply ReplE in Hx2 as [t [Ht Hteq]].
+      destruct (classic (s = t)) as [|Hnq].
+      * congruence.
+      * pose proof (chosen_contained t (Hi t Ht)) as Hx2.
+        rewrite Hteq in Hx2. apply Hdj in Hnq...
+        exfalso. eapply disjointE...
   - apply in_impl_sing_sub. apply BInterI.
-    + apply chosen_contained. apply Hi. apply Hs.
-    + apply ReplI. apply Hs.
+    + apply chosen_contained. apply Hi...
+    + apply ReplI...
 Qed.
 
 (* 更多经典逻辑引理 *)
-(* Library Coq.Logic.Classical_Pred_Type *)
+Lemma not_all_not_iff_ex : ∀ P : set → Prop, ¬ (∀ X, ¬ P X) ↔ (∃ X, P X).
+Proof. split. exact (not_all_not_ex _ P). firstorder. Qed.
 
-Lemma double_negation : ∀ P : Prop, ¬¬P ↔ P.
-Proof.
-  split; intros.
-  - destruct (classic P) as [HP | HF]; firstorder.
-  - destruct (classic (¬P)) as [HF | HFF]; firstorder.
-Qed.
-
-Lemma not_all_not_ex : ∀ P : set → Prop, ¬ (∀ X, ¬ P X) ↔ (∃ X, P X).
-Proof.
-  split; intros.
-  - destruct (classic (∃ X, P X)); firstorder.
-  - firstorder.
-Qed.
-
-Lemma not_all_ex_not : ∀ P : set → Prop, ¬ (∀ X, P X) ↔ (∃ X, ¬ P X).
-Proof.
-  intros. pose proof (not_all_not_ex (λ x, ¬ P x)).
-  simpl in H. rewrite <- H. clear H.
-  split; intros.
-  - intros H1. apply H. intros. specialize H1 with X.
-    rewrite double_negation in H1. apply H1.
-  - firstorder.
-Qed.
+Lemma not_all_iff_ex_not : ∀ P : set → Prop, ¬ (∀ X, P X) ↔ (∃ X, ¬ P X).
+Proof. split. exact (not_all_ex_not _ P). firstorder. Qed.
 
 (**=== 公理7: ∈归纳原理 ===**)
 (* 对于集合的任意性质P，如果可以通过证明"集合A的所有成员都具有性质P"来证明A具有性质P，
@@ -115,14 +90,14 @@ Proof.
   remember (∀ X, (∀x ∈ X, ¬ P x) → ¬ P X) as A.
   remember (∀ X, ¬ P X) as B.
   assert (∀ P Q: Prop, (P → Q) → (¬ Q → ¬ P)) by auto.
-  pose proof (H0 A B H). subst. clear H H0.
-  rewrite not_all_not_ex in H1.
-  rewrite not_all_ex_not in H1.
+  pose proof (H0 A B H). subst. clear H H0.  
+  rewrite not_all_not_iff_ex in H1.
+  rewrite not_all_iff_ex_not in H1.
   intros. apply H1 in H. destruct H as [X H].
   exists X. clear H1.
   assert (∀ A B : Prop, ¬ (A → ¬ B) ↔ ¬¬B ∧ ¬¬A) by firstorder.
-  rewrite H0 in H. clear H0.
-  repeat rewrite double_negation in H. firstorder.
+  rewrite H0 in H. clear H0. destruct H.
+  apply NNPP in H. apply NNPP in H0. firstorder.
 Qed.
 
 (* 由正则公理模式导出原始正则公理：

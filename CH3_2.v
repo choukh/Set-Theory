@@ -24,7 +24,7 @@ Proof with eauto.
   split.
   - intros [Hr [Hsy Htr]]. apply ExtAx. intros p. split; intros Hp.
     + apply rel_pair in Hp as Heq... rewrite Heq in *.
-      eapply compoI. split... rewrite <- inv_op...
+      eapply compoI... rewrite <- inv_op...
     + apply SepE in Hp as [_ [Hpp [y [H1 H2]]]].
       apply op_η in Hpp. rewrite Hpp. apply inv_op in H2...
   - intros H.
@@ -36,7 +36,7 @@ Proof with eauto.
       intros x y Hp. rewrite H in *.
       apply compoE in Hp as [t [H1 H2]].
       rewrite inv_op in H1. rewrite <- inv_op in H2.
-      eapply compoI. split...
+      eapply compoI...
     }
     repeat split... intros x y z H1 H2.
     rewrite H. rewrite H in H1, H2.
@@ -47,7 +47,7 @@ Proof with eauto.
     assert (Hst: <s, t> ∈ R ⁻¹ ∘ R) by (eapply compoI; eauto).
     rewrite <- H in Hst. apply Hsy in Hst. rewrite inv_op in Hst.
     assert (Hxt: <x, t> ∈ R ⁻¹ ∘ R) by (eapply compoI; eauto).
-    rewrite <- H in Hxt. eapply compoI. split...
+    rewrite <- H in Hxt. eapply compoI...
 Qed.
 
 Example ch3_34: ∀ 𝒜, (∀A ∈ 𝒜, tranr A) → tranr (⋂𝒜).
@@ -62,7 +62,7 @@ Qed.
 Example ch3_35: ∀ R x, [x]R = R⟦⎨x⎬⟧.
 Proof with eauto.
   intros. apply ExtAx. intros y. split; intros Hy.
-  - apply eqvcE in Hy. eapply imgI... apply SingI.
+  - apply eqvcE in Hy. eapply imgI...
   - apply imgE in Hy as [w [Hw Hp]].
     apply SingE in Hw. subst w. apply eqvcI...
 Qed.
@@ -281,8 +281,8 @@ Proof with eauto.
   - apply InterI.
     + exists x. apply InterI.
       * exists ⎨x⎬. apply PairI1.
-      * intros b Hb. apply PairE in Hb as []; subst.
-        apply SingI. apply PairI1.
+      * intros b Hb.
+        apply PairE in Hb as []; subst... apply PairI1.
     + intros b Hb. apply InterE in Hb as [[c Hc] Hb].
       apply Hb in Hc as Hbc.
       apply PairE in Hc as []; subst c.
@@ -441,19 +441,19 @@ Proof with eauto.
   - apply BUnionE in Hx as []; apply compo_rel in H as Hp;
       apply op_η in Hp; rewrite Hp in *;
       apply compoE in H as [t [H1 H2]].
-    + eapply compoI. split... apply BUnionI1...
-    + eapply compoI. split... apply BUnionI2...
+    + eapply compoI... apply BUnionI1...
+    + eapply compoI... apply BUnionI2...
 Qed.
 
 Example ch3_59_a: ∀ Q A B, Q ↾ (A ∩ B) = (Q ↾ A) ∩ (Q ↾ B).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
     apply BInterE in Ha as [Ha1 Ha2].
     apply BInterI; apply restrI...
   - apply BInterE in Hx as [H1 H2].
-    apply restrE in H1 as [a [b [Ha [Hp1 Heq1]]]].
-    apply restrE in H2 as [c [d [Hc [Hp2 Heq2]]]]. subst x.
+    apply restrE1 in H1 as [a [b [Ha [Hp1 Heq1]]]].
+    apply restrE1 in H2 as [c [d [Hc [Hp2 Heq2]]]]. subst x.
     apply op_correct in Heq2 as []; subst.
     apply restrI... apply BInterI...
 Qed.
@@ -461,13 +461,12 @@ Qed.
 Example ch3_59_b: ∀ Q A B, Q ↾ (A - B) = (Q ↾ A) - (Q ↾ B).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]]. subst.
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst.
     apply CompE in Ha as [Ha1 Ha2].
     apply CompI. apply restrI... intros H. apply Ha2.
-    apply restrE in H as [c [d [Hc [Hp' Heq]]]].
-    apply op_correct in Heq as []; subst...
+    apply restrE2 in H as []...
   - apply CompE in Hx as [H1 H2].
-    apply restrE in H1 as [a [b [Ha [Hp Heq]]]]. subst.
+    apply restrE1 in H1 as [a [b [Ha [Hp Heq]]]]. subst.
     apply restrI... apply CompI... intros H. apply H2.
     apply restrI...
 Qed.
@@ -475,12 +474,11 @@ Qed.
 Example ch3_60: ∀ R S A, (R ∘ S) ↾ A = R ∘ (S ↾ A).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]]. subst.
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst.
     apply compoE in Hp as [t [H1 H2]].
-    eapply compoI. split... apply restrI...
+    eapply compoI... apply restrI...
   - apply compo_rel in Hx as Hxeq. apply op_η in Hxeq.
     rewrite Hxeq in *. apply compoE in Hx as [t [H1 H2]].
-    apply restrE in H1 as [a [b [Ha [Hp Heq]]]].
-    apply op_correct in Heq as []; subst...
+    apply restrE2 in H1 as []...
     apply restrI... eapply compoI...
 Qed.

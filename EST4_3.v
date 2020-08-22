@@ -23,7 +23,7 @@ Proof with try apply ω_inductive; neauto.
     ω_induction N Hn; intros k Hk1 Hk2. exfalso0.
     apply leq_iff_lt_suc in Hk2 as []...
     + apply IH in H... apply BUnionI1...
-    + subst. apply BUnionI2... apply SingI.
+    + subst. apply BUnionI2...
   - apply leq_iff_lt_suc in H as []...
     + eapply nat_trans; revgoals...
     + subst...
@@ -44,6 +44,13 @@ Proof with auto.
   set {n ∊ ω | λ n, n ∉ n} as N.
   ω_induction N Hn; intros Hc. exfalso0.
   apply IH. apply lt_both_side_suc...
+Qed.
+
+(* 自然数与其单集不交 *)
+Corollary nat_and_its_single_disjoint : ∀n ∈ ω, disjoint n ⎨n⎬.
+Proof.
+  intros n Hn. apply disjointI. intros [m [Hm Heq]].
+  apply SingE in Heq; subst. eapply lt_not_refl; eauto.
 Qed.
 
 Lemma suc_has_0 : ∀n ∈ ω, 0 ∈ n⁺.
@@ -132,8 +139,6 @@ Theorem ωLt_totalOrd : totalOrd ωLt ω.
 Proof.
    split. apply ωLt_rel. split. apply ωLt_tranr. apply ωLt_trich.
 Qed.
-
-Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
 
 Corollary lt_iff_sub : ∀ m n ∈ ω, m ∈ n ↔ m ⊂ n.
 Proof with eauto.

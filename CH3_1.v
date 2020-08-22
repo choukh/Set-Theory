@@ -250,15 +250,14 @@ Proof with auto.
   set (λ f, ∀z ∈ dom f, <z, z> ∈ f) as P2.
   set {f ∊ F | λ f, P1 f ∧ P2 f } as C.
   apply ch2_8. exists (⋃⋃C). intros.
-  apply UnionAx. exists (⎨⎨a⎬⎬). split; [|apply SingI].
-  apply UnionAx. exists (⎨⎨⎨a⎬⎬⎬). split; [|apply SingI].
+  apply UnionAx. exists (⎨⎨a⎬⎬). split...
+  apply UnionAx. exists (⎨⎨⎨a⎬⎬⎬). split...
   assert (⎨⎨⎨a⎬⎬⎬ = ⎨<a, a>⎬) by reflexivity.
   assert (⎨<a, a>⎬ = Ident ⎨a⎬). {
     apply ExtAx. split; intros.
-    - apply SingE in H1. subst x. apply ReplAx.
-      exists a. split... apply SingI.
-    - apply ReplE in H1 as [b [Ha Hp]]. apply SingE in Ha.
-      subst b x. apply SingI.
+    - apply SingE in H1. subst x. apply ReplAx. exists a. split...
+    - apply ReplE in H1 as [b [Ha Hp]].
+      apply SingE in Ha. subst b x...
   }
   rewrite H0, H1. apply SepI. apply H. apply ident_is_func.
   split. intros x Hx y Hy.
@@ -290,7 +289,7 @@ Qed.
 Example ch3_20: ∀ F A, F ↾ A = F ∩ A × ran F.
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]].
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]].
     subst x. apply BInterI... apply CProdI... eapply ranI...
   - apply BInterE in Hx as [Hx Hcp].
     apply CProd_correct in Hcp as [a [Ha [b [Hb Heq]]]].
@@ -304,12 +303,12 @@ Proof with eauto.
     apply rel_pair in Hx as Heq... rewrite Heq in *.
     apply compoE in Hx as [t [Ht1 Ht2]].
     apply compoE in Ht2 as [u [Hu1 Hu2]].
-    eapply compoI. split... eapply compoI...
+    eapply compoI... eapply compoI...
   - pose proof (compo_rel R (S ∘ T)).
     apply rel_pair in Hx as Heq... rewrite Heq in *.
     apply compoE in Hx as [t [Ht1 Ht2]].
     apply compoE in Ht1 as [u [Hu1 Hu2]].
-    eapply compoI. split... eapply compoI...
+    eapply compoI... eapply compoI...
 Qed.
 
 Example ch3_22_a: ∀ F A B, A ⊆ B → F⟦A⟧ ⊆ F⟦B⟧.
@@ -326,18 +325,18 @@ Proof with eauto.
     eapply imgI... eapply imgI...
   - apply imgE in Hy as [x [Hx Hpf]].
     apply imgE in Hx as [w [Hw Hpg]].
-    eapply imgI... eapply compoI. split...
+    eapply imgI... eapply compoI...
 Qed.
 
 Example ch3_22_c: ∀ Q A B, Q ↾ (A ∪ B) = (Q ↾ A) ∪ (Q ↾ B).
 Proof with auto.
   intros. apply ExtAx. intros x. split; intros Hx.
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
     apply BUnionE in Ha as [].
     + apply BUnionI1. apply restrI...
     + apply BUnionI2. apply restrI...
   - apply BUnionE in Hx as [Hx|Hx];
-    apply restrE in Hx as [a [b [Ha [Hp Heq]]]]; subst x.
+    apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]; subst x.
     + apply restrI... apply BUnionI1...
     + apply restrI... apply BUnionI2...
 Qed.
@@ -350,8 +349,8 @@ Proof with eauto.
     apply compoE in Hx as [t [Hta Htb]].
     apply identE in Hta as [Hp1 Ht].
     subst t. rewrite Heq. apply restrI...
-  - apply restrE in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
-    eapply compoI. split... apply identI...
+  - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
+    eapply compoI... apply identI...
 Qed.
 
 Example ch3_23_b: ∀ A C, (Ident A)⟦C⟧ = A ∩ C.
@@ -515,4 +514,4 @@ Proof with eauto.
       intros x Hx. apply Heq...
 Qed.
 
-(* ch3_31: see EX7.v Theorem AC_1_iff_2 *) 
+(* ch3_31: see EST3_2.v Theorem AC_1_iff_2 *) 
