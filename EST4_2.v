@@ -10,8 +10,10 @@ Hint Immediate ω_has_0 : number_hint.
 Hint Immediate suc_has_n : number_hint.
 Hint Immediate suc_inc_n : number_hint.
 Hint Immediate suc_neq_0 : number_hint.
+Hint Rewrite π1_correct π2_correct : zfc_hint.
 Ltac nauto := auto with number_hint.
 Ltac neauto := eauto with number_hint.
+Ltac zfcrewrite := autorewrite with zfc_hint in *; try congruence.
 
 (** nat的嵌入与投射 **)
 
@@ -109,7 +111,7 @@ Proof with eauto; try congruence.
   pose proof (ω_recursion F ω a HF Ha) as [[h Hh] Hu].
   exists h. split. destruct Hh as []... split.
   apply ExtAx. intros f. split; intros Hf.
-  - cut (f = h). intros. rewrite H... apply Hu...
+  - cut (f = h). intros. rewrite H. apply SingI. apply Hu...
     apply SepE in Hf as [Hf [Hf0 Hf1]].
     apply SepE in Hf as [_ Hf]. split...
   - destruct Hh as [[Hh [Hdh Hrh]] [Hh0 Hh1]].

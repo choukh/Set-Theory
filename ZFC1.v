@@ -53,7 +53,7 @@ Proof.
   unfold PairRepl in Heq. destruct (ixm (∅ ∈ z)).
   - subst. right. reflexivity.
   - subst. left. reflexivity.
-Qed.
+Qed. 
 
 (* 配对是顺序无关的 *)
 Theorem pair_ordering_agnostic : ∀ a b, {a, b} = {b, a}.
@@ -76,22 +76,11 @@ Notation "⎨ x ⎬" := (Singleton x).
 
 Lemma SingI : ∀ x, x ∈ ⎨x⎬.
 Proof. unfold Singleton. intros. apply PairI1. Qed.
-Hint Immediate SingI : core.
 
 Lemma SingE : ∀ x y, x ∈ ⎨y⎬ → x = y.
 Proof.
   intros. apply PairE in H.
   destruct H; apply H.
-Qed.
-
-Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
-Proof.
-  intros * Hnq H. apply Hnq. apply SingE in H. apply H.
-Qed.
-
-Lemma SingNE : ∀ A B, A ∉ ⎨B⎬ → A ≠ B.
-Proof.
-  intros * H Heq. apply H. subst A. apply SingI.
 Qed.
 
 Declare Scope ZFC1_scope.

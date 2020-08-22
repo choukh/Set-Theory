@@ -1,16 +1,37 @@
 (** Based on "Elements of Set Theory" Chapter 1 Part 1 **)
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export ZFC.lib.Natural.
-Require Import ZFC.lib.FuncFacts.
+Require Export ZFC.EST5_7.
 
-(*** EST第六章1：等势，康托定理，鸽笼原理，基数 ***)
+Close Scope Real_scope.
+Open Scope ZFC_scope.
+
+(*** EST第六章1：等势 ***)
+
+(* 集合的经典逻辑引理 *)
+
+Lemma set_not_all_not_ex : ∀ X P, ¬(∀x ∈ X, ¬P x) ↔ (∃x ∈ X, P x).
+Proof.
+  split; intros.
+  - destruct (classic (∃x ∈ X, P x)); firstorder.
+  - firstorder.
+Qed.
+
+Lemma set_not_all_ex_not : ∀ X P, ¬(∀x ∈ X, P x) ↔ (∃x ∈ X, ¬P x).
+Proof.
+  intros. pose proof (set_not_all_not_ex X (λ x, ¬P x)).
+  simpl in H. rewrite <- H. clear H.
+  split; intros.
+  - intros H1. apply H. intros x Hx. apply H1 in Hx.
+    rewrite double_negation in Hx. apply Hx.
+  - firstorder.
+Qed.
 
 (** 等势 **)
 Definition equinumerous : set → set → Prop := λ A B,
   ∃ F, F: A ⟺ B.
-Notation "A ≈ B" := ( equinumerous A B) (at level 70).
-Notation "A ≉ B" := (¬equinumerous A B) (at level 70).
+Notation "A ≈ B" := ( equinumerous A B) (at level 99).
+Notation "A ≉ B" := (¬equinumerous A B) (at level 99).
 
 Example power_eqnum_func_to_2 : ∀ A, 𝒫 A ≈ A ⟶ 2.
 Proof with neauto.
@@ -121,7 +142,6 @@ Proof.
   intros. exists (Ident A).
   apply ident_bijective.
 Qed.
-Hint Immediate eqnum_refl : core.
 
 Lemma eqnum_symm : ∀ A B, A ≈ B → B ≈ A.
 Proof.
@@ -154,11 +174,12 @@ Lemma restr_on_single : ∀ F a, is_function F →
 Proof with auto.
   intros * Hf Ha. apply ExtAx. intros y. split; intros Hy.
   - apply ranE in Hy as [x Hp].
-    apply restrE2 in Hp as [Hp Hx]...
-    apply SingE in Hx; subst.
-    apply func_ap in Hp... subst...
+    apply restrE in Hp as [b [c [Hb [Hp Heq]]]].
+    apply op_correct in Heq as []; subst.
+    apply SingE in Hb; subst.
+    apply func_ap in Hp... subst. apply SingI.
   - apply SingE in Hy; subst. eapply ranI.
-    apply restrI... apply func_correct...
+    apply restrI. apply SingI. apply func_correct...
 Qed.
 
 Lemma restr_ran_bunion : ∀ F A B, dom F = A ∪ B →
@@ -171,9 +192,11 @@ Proof with eauto.
     + apply BUnionI2. eapply ranI. apply restrI...
   - apply BUnionE in Hy as [Hy|Hy].
     + apply ranE in Hy as [x Hp].
-      apply restrE2 in Hp as [Hp _]. eapply ranI...
+      apply restrE in Hp as [b [c [Hb [Hp Heq]]]].
+      apply op_correct in Heq as []; subst. eapply ranI...
     + apply ranE in Hy as [x Hp].
-      apply restrE2 in Hp as [Hp _]... eapply ranI...
+      apply restrE in Hp as [b [c [Hb [Hp Heq]]]].
+      apply op_correct in Heq as []; subst. eapply ranI...
 Qed.
 
 (* 鸽笼原理 *)
@@ -197,7 +220,8 @@ Proof with neauto; try congruence.
       destruct Hres as [Hri [Hrd Hrr]]. apply IH.
       split. apply restr_injective... split... split...
       intros y Hy. apply ranE in Hy as [x Hp].
-      apply restrE2 in Hp as [Hp Hx]...
+      apply restrE in Hp as [a [b [Ha [Hp Heq]]]].
+      apply op_correct in Heq as []; subst.
       apply func_ap in Hp... subst. apply H...
     }
     assert (Hkd: k ∈ dom f) by (rewrite Hd; nauto).
@@ -205,7 +229,8 @@ Proof with neauto; try congruence.
       apply domE in Hkd as [y Hp]. apply ranI in Hp as Hy.
       apply Hr in Hy. apply BUnionE in Hy as [Hy|Hy].
       - rewrite <- Hr' in Hy. apply ranE in Hy as [x Hp'].
-        apply restrE2 in Hp' as [Hp' Hx]...
+        apply restrE in Hp' as [a [b [Ha [Hp' Heq]]]].
+        apply op_correct in Heq as []; subst.
         exfalso. eapply singrE in Hp... subst.
         eapply lt_not_refl; revgoals...
       - apply SingE in Hy; subst. apply func_ap...
@@ -332,245 +357,31 @@ Proof with neauto; try congruence.
       exfalso. apply Hxp. eapply func_injective... split...
 Qed.
 
-Theorem pigeonhole : ∀ k, ∀n ∈ ω, k ⊂ n → n ≉ k.
+Theorem pigeonhole : ∀ k n ∈ ω, k ⊂ n → n ≉ k.
 Proof with eauto.
-  intros k n Hn [Hsub Hnq] [f [[Hf Hs] [Hd Hr]]].
+  intros k Hk n Hn [Hsub Hnq] [f [[Hf Hs] [Hd Hr]]].
   apply Hnq. rewrite <- Hr. eapply pigeonhole_0...
   split; split... rewrite Hr...
 Qed.
 
-Definition finite : set → Prop := λ A, ∃n ∈ ω, A ≈ n.
-Definition infinite : set → Prop := λ A, ¬finite A.
 
-Fact nat_finite : ∀n ∈ ω, finite n.
-Proof.
-  intros n Hn. exists n. split. apply Hn. apply eqnum_refl.
-Qed.
 
-Corollary no_fin_eqnum_sub : ∀ A B, finite A → B ⊂ A → A ≉ B.
-Proof with eauto.
-  intros * [n [Hn [g [Hig [Hdg Hrg]]]]] Hsub [f [Hif [Hdf Hrf]]].
-  assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
-  assert (Hif' := Hif). destruct Hif' as [Hf Hsf].
-  set (g ∘ f ∘ g⁻¹) as h.
-  assert (Hh: h: n ⇔ n). {
-    assert (Hig': injective g⁻¹) by (apply inv_injective; auto).
-    assert (Higf: injective (g ∘ f)) by (apply ch3_17_b; auto).
-    assert (Hfc: is_function (g ∘ f)) by (apply compo_func; auto).
-    assert (Hfg': is_function g⁻¹) by (apply inv_func_iff_sr; auto).
-    split; [|split].
-    - apply ch3_17_b...
-    - unfold h. rewrite compo_dom; revgoals...
-      apply ExtAx. split; intros Hx.
-      + apply SepE in Hx as []. rewrite <- Hrg, <- inv_dom...
-      + apply SepI. rewrite inv_dom, Hrg... rewrite compo_dom...
-        assert ((g⁻¹) [x] ∈ dom f). {
-          rewrite Hdf, <- Hdg, <- inv_ran.
-          eapply ranI. apply func_correct... rewrite inv_dom, Hrg...
-        }
-        apply SepI... rewrite Hdg. apply Hsub. rewrite <- Hrf.
-        eapply ranI. apply func_correct...
-    - unfold h. intros y Hy. rewrite compo_ran in Hy...
-      apply SepE in Hy as [Hy _]. rewrite compo_ran in Hy...
-      apply SepE in Hy as []. rewrite <- Hrg...
-  }
-  destruct Hh as [Hih [Hdh Hrh]].
-  assert (Hrh': ran h ⊂ n). {
-    apply comp_inhabited in Hsub as [a Ha].
-    apply CompE in Ha as [Ha Ha'].
-    apply properSubI... exists (g[a]). split.
-    - rewrite <- Hrg. eapply ranI.
-      apply func_correct... rewrite Hdg...
-    - intros Hga. apply ranE in Hga as [x Hp].
-      apply compoE in Hp as [y [_ Hp]].
-      apply compoE in Hp as [z [H1 H2]].
-      apply domI in H2 as Hzd. apply func_ap in H2...
-      apply func_injective in H2; auto; [|rewrite Hdg]...
-      clear Hzd. subst z. apply ranI in H1. rewrite Hrf in H1... 
-  }
-  apply (pigeonhole (ran h) n)... exists h. split...
-Qed.
 
-Corollary infiniteI : ∀ A B, B ⊂ A → A ≈ B → infinite A.
-Proof.
-  intros A B Hsub Heqn Hfin.
-  eapply no_fin_eqnum_sub; eauto.
-Qed.
 
-Corollary ω_infinite : infinite ω.
-Proof with nauto.
-  set (ω - ⎨0⎬) as B.
-  assert (H0: 0 ∉ B). {
-    intros H. apply SepE in H as [_ H]. apply H...
-  }
-  assert (Hsub: B ⊂ ω). {
-    apply properSubI...
-    intros n Hn. apply CompE in Hn as []...
-    exists 0. split...
-  }
-  eapply infiniteI. apply Hsub.
-  destruct σ_func as [Hf [Hd _]].
-  exists σ. split; split...
-  - split. apply ranE in H...
-    intros x1 x2 H1 H2.
-    apply ReplAx in H1 as [m [Hm H1]].
-    apply ReplAx in H2 as [n [Hn H2]].
-    apply op_correct in H1 as [];
-    apply op_correct in H2 as []; subst.
-    apply suc_injective in H4...
-  - apply ExtAx. intros y. split; intros Hy.
-    + apply ranE in Hy as [x Hp].
-      apply domI in Hp as Hx. rewrite Hd in Hx.
-      apply func_ap in Hp... subst y. rewrite σ_ap...
-      apply CompI. apply ω_inductive... apply SingNI...
-    + apply CompE in Hy as [Hy Hy']. apply SingNE in Hy'.
-      ω_destruct y. exfalso... subst y.
-      eapply ranI. apply ReplAx. exists n'. split...
-Qed.
 
-Corollary finite_eqnum_unique_nat : ∀ A, finite A →
-  ∃! n, n ∈ ω ∧ A ≈ n.
-Proof with eauto.
-  intros A Hfin. split...
-  intros m n [Hm H1] [Hn H2].
-  assert (H3: m ≈ n). {
-    eapply eqnum_tran. apply eqnum_symm. apply H1. apply H2.
-  }
-  destruct (classic (m = n))... exfalso.
-  apply lt_connected in H as []...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_sub n m)... apply nat_finite...
-    apply eqnum_symm...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_sub m n)... apply nat_finite...
-Qed.
 
-Corollary nat_eqnum_eq : ∀ m n ∈ ω, m ≈ n → m = n.
-Proof with auto.
-  intros m Hm n Hn Hqn.
-  destruct (classic (m = n))... exfalso.
-  apply lt_connected in H as []...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_sub n m)... apply nat_finite...
-    apply eqnum_symm...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_sub m n)... apply nat_finite...
-Qed.
 
-(* 有限基数 *)
-Definition fin_card : set → set := λ A, ⋃{n ∊ ω | λ n, A ≈ n}.
 
-Lemma fin_card_exists : ∀ A, finite A →
-  ∃n ∈ ω, fin_card A = n ∧ A ≈ n.
-Proof with auto.
-  intros A Hfin. assert (Hfin' := Hfin).
-  destruct Hfin' as [n [Hn H1]]. exists n. repeat split...
-  apply ExtAx. split; intros Hx.
-  - apply UnionAx in Hx as [m [Hm Hx]].
-    apply SepE in Hm as [Hm H2].
-    pose proof (finite_eqnum_unique_nat A) as [_ Hu]...
-    cut (m = n). congruence. apply Hu; split...
-  - apply UnionAx. exists n. split... apply SepI...
-Qed.
 
-Lemma fin_card_eqnum_self : ∀ A, finite A → A ≈ fin_card A.
-Proof.
-  intros A Hfin.
-  apply fin_card_exists in Hfin as [n [_ [Hc Hqn]]].
-  congruence.
-Qed.
 
-Lemma fin_card_injection_like : ∀ A B, finite A → finite B → 
-  fin_card A ≈ fin_card B → A ≈ B.
-Proof.
-  intros A B H1 H2 Hqn.
-  apply fin_card_eqnum_self in H1.
-  apply fin_card_eqnum_self in H2.
-  eapply eqnum_tran. apply H1.
-  eapply eqnum_tran. apply Hqn.
-  apply eqnum_symm. apply H2.
-Qed.
 
-Lemma fin_card_n : ∀n ∈ ω, fin_card n = n.
-Proof with auto.
-  intros n Hn.
-  apply ExtAx. split; intros Hx.
-  - apply UnionAx in Hx as [m [Hm Hx]].
-    apply SepE in Hm as [Hm Hqn].
-    apply nat_eqnum_eq in Hqn... congruence.
-  - apply UnionAx. exists n. split... apply SepI...
-Qed.
 
-Lemma sub_of_nat_is_finite : ∀n ∈ ω, ∀ C,
-  C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m.
-Proof with neauto.
-  intros n Hn.
-  set {n ∊ ω | λ n, ∀ C, C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m} as N.
-  ω_induction N Hn; intros C [Hsub Hnq].
-  - exfalso. apply Hnq. apply EmptyI.
-    intros x Hx. apply Hsub in Hx. exfalso0.
-  - rename m into k. rename Hm into Hk.
-    (* C = {0, 1 ... k-1} | k *)
-    destruct (classic (C = k)) as [|Hnq']. {
-      exists k. split... split. apply suc_has_n. subst...
-    }
-    destruct (classic (k ∈ C)) as [Hkc|Hkc]; revgoals.
-    + (* C = {0, 1 ... k-2} | k-1, k *)
-      assert (Hps: C ⊂ k). {
-        split... intros x Hx. apply Hsub in Hx as Hxk.
-        apply BUnionE in Hxk as []... exfalso.
-        apply SingE in H. subst...
-      }
-      apply IH in Hps as [m [Hmw [Hmk Hqn]]].
-      exists m. split... split... apply BUnionI1...
-    + (* C = {0, 1 ... k-2, k} | k-1 *)
-      assert (HC: C = (C ∩ k) ∪ ⎨k⎬). {
-        apply ExtAx. split; intros Hx.
-        - destruct (classic (x = k)).
-          + apply BUnionI2. subst...
-          + apply BUnionI1. apply BInterI...
-            apply Hsub in Hx. apply BUnionE in Hx as [|Hx]...
-            exfalso. apply SingE in Hx...
-        - apply BUnionE in Hx as [Hx|Hx].
-          + apply BInterE in Hx as []...
-          + apply SingE in Hx. subst...
-      }
-      assert (Hps: C ∩ k ⊂ k). {
-        split. intros x Hx. apply BInterE in Hx as []...
-        intros H. rewrite binter_comm, <- ch2_17_1_4 in H.
-        apply Hnq. apply ExtAx. split; intros Hx.
-        - apply Hsub in Hx...
-        - apply BUnionE in Hx as []. apply H in H0...
-          apply SingE in H0. subst...
-      }
-      apply IH in Hps as [m [Hmw [Hmk [f Hf]]]].
-      exists (m⁺). split. apply ω_inductive... split.
-      apply lt_both_side_suc in Hmk...
-      exists (f ∪ ⎨<k, m>⎬). rewrite HC.
-      apply bijection_add_point...
-      * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
-        subst x. apply BInterE in H1 as [_ H].
-        eapply lt_not_refl; revgoals...
-      * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
-        subst m. eapply lt_not_refl; revgoals...
-Qed.
 
-Lemma func_eqnum_img : ∀ F A, injective F → A ⊆ dom F → A ≈ F⟦A⟧.
-Proof with eauto.
-  intros F A Hi Hsub. exists (F ↾ A).
-  split... apply restr_injective...
-  split. apply restr_dom... destruct Hi... reflexivity.
-Qed.
 
-Corollary sub_of_finite_is_finite : ∀ A B,
-  A ⊆ B → finite B → finite A.
-Proof with neauto.
-  intros A B H1 [n [Hn [f [Hi [Hd Hr]]]]].
-  rewrite <- Hd in H1. apply func_eqnum_img in H1...
-  pose proof (img_included f A) as H2. rewrite Hr in H2.
-  destruct (classic (f⟦A⟧ = n)) as [Heq|Hnq].
-  - exists n. split... rewrite <- Heq...
-  - assert (Hps: f⟦A⟧ ⊂ n) by (split; auto).
-    apply sub_of_nat_is_finite in Hps as [m [Hm [Hmn Hqn]]]...
-    exists m. split... eapply eqnum_tran...
-Qed.
+
+
+
+
+
+
+(* Definition finite : set → Prop := λ A, ∃n ∈ ω, A ≈ n. *)

@@ -8,19 +8,19 @@ Require Export ZFC.ZFC1.
 
 (** 集合建构式 **)
 Definition Sep : set → (set → Prop) → set := λ X P,
-  epsilon (inhabits ∅) (λ Z, ∀ x, x ∈ Z ↔ x ∈ X ∧ P x).
+  ε (inhabits ∅) (λ Z, ∀ x, x ∈ Z ↔ x ∈ X ∧ P x).
 Notation "{ x ∊ X | P }" := (Sep X (λ x, P x)).
 
-(* 用epsilon算子，从替代公理和空集公理导出Zermelo分类公理 *)
+(* 用ε算子，从替代公理和空集公理导出Zermelo分类公理 *)
 Theorem sep_correct : ∀ X P x, x ∈ {x ∊ X | P} ↔ x ∈ X ∧ P x.
 Proof.
-  intros X P. unfold Sep. apply epsilon_spec.
+  intros X P. unfold Sep. apply ε_spec.
   destruct (classic (∃x ∈ X, P x)).
   - destruct H as [x0 [H1 H2]].
     set (F_spec := λ x y, (P x ∧ x = y) ∨ (~ P x ∧ x0 = y)).
-    set (F := λ x, epsilon (inhabits ∅) (F_spec x)).
+    set (F := λ x, ε (inhabits ∅) (F_spec x)).
     assert (F_tauto: ∀ x, F_spec x (F x)). {
-      intros. unfold F. apply epsilon_spec.
+      intros. unfold F. apply ε_spec.
       unfold F_spec. destruct (classic (P x)).
       - exists x. left. auto.
       - exists x0. right. auto.
@@ -74,9 +74,9 @@ Proof with auto.
   intros. pose proof (sep_sub ⎨x⎬ P).
   apply sub_sing in H. destruct H.
   - rewrite H. right. split...
-    eapply sep_0_inv. apply H... apply SingI.
+    eapply sep_0_inv. apply H. apply SingI.
   - rewrite H. left. split...
-    apply (SepE2 ⎨x⎬). rewrite H...
+    apply (SepE2 ⎨x⎬). rewrite H. apply SingI.
 Qed.
 
 (** 任意交 **)
@@ -135,21 +135,6 @@ Proof.
   unfold not. intros. subst.
   apply inter_self_0 in H0.
   destruct H as [x H]. subst. exfalso0.
-Qed.
-
-(* 不交 *)
-Definition disjoint : set → set → Prop := λ X Y, X ∩ Y = ∅.
-
-Lemma disjointI : ∀ A B, (¬ ∃ x, x ∈ A ∧ x ∈ B) → disjoint A B.
-Proof.
-  intros. apply EmptyI. intros x Hx. apply H.
-  exists x. apply BInterE in Hx. apply Hx.
-Qed.
-
-Lemma disjointE : ∀ A B x, disjoint A B → x ∈ A → x ∈ B → ⊥.
-Proof.
-  intros * H Ha Hb. eapply EmptyE in H.
-  apply H. apply BInterI; eauto.
 Qed.
 
 (** 有序对 **)
@@ -248,20 +233,12 @@ Qed.
 
 Definition is_pair : set -> Prop := λ p, ∃ x y, p = <x, y>.
 
-Lemma OPairI : ∀ x y, is_pair <x, y>.
-Proof.
-  intros. exists x, y. reflexivity.
-Qed.
-
-Hint Immediate OPairI : core.
-Hint Rewrite π1_correct π2_correct : zfc_hint.
-Ltac zfcrewrite := autorewrite with zfc_hint in *; try congruence.
-
 Lemma op_η : ∀ p, is_pair p ↔ p = <π1 p, π2 p>.
 Proof.
   split; intros.
-  - destruct H as [a [b H]]. rewrite H. zfcrewrite.
-  - rewrite H. auto.
+  - destruct H as [a [b H]]. rewrite H.
+    rewrite π1_correct. rewrite π2_correct. reflexivity.
+  - exists (π1 p), (π2 p). apply H.
 Qed.
 
 (** 笛卡儿积 **)

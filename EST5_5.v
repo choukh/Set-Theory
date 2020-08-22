@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 5 Part 5 **)
 (** Coq coding by choukh, July 2020 **)
 
-Require Export ZFC.CH5.
+Require Export ZFC.CH5_1.
 
 (*** EST第五章5：实数的定义(戴德金分割)，实数的序，实数的完备性，
   实数算术：加法，加法逆元 ***)
@@ -49,6 +49,13 @@ Lemma real_sub_rat : ∀x ∈ ℝ, x ⊆ ℚ.
 Proof.
   intros x Hx. apply reals_sub_power_rat in Hx.
   apply PowerAx in Hx. apply Hx.
+Qed.
+
+Lemma comp_inhabited : ∀ a A, a ⊂ A → ⦿ (A - a)%zfc.
+Proof with auto.
+  intros * [Hsub Hnq]. apply EmptyNE.
+  intros H0. apply ch2_17_1_2 in H0.
+  apply Hnq. apply sub_asym...
 Qed.
 
 (* 左集存在有理数 *)
@@ -164,7 +171,7 @@ Proof with eauto.
   destruct (classic (x ⊆ y)).
   left. apply realLtI...
   right. apply realLtI... split... intros q Hqy.
-  rewrite sub_iff_no_comp in H. apply EmptyNE in H as [r Hr].
+  rewrite ch2_17_1_2 in H. apply EmptyNE in H as [r Hr].
   apply CompE in Hr as [Hrx Hry].
   assert (Hrq: r ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
   assert (Hqq: q ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
@@ -475,6 +482,12 @@ Proof with auto.
   apply CProd_correct in Hp as [q [Hq [r [Hr Hp]]]].
   subst. zfcrewrite. apply ratAdd_ran.
   apply (real_sub_rat _ Hx)... apply (real_sub_rat _ Hy)...
+Qed.
+
+Lemma ExtNI : ∀ x, (∃r ∈ ℚ, r ∉ x) → x ≠ ℚ.
+Proof with auto.
+  intros x [r [Hrq Hrx]] Hext.
+  rewrite ExtAx in Hext. apply Hext in Hrq...
 Qed.
 
 Lemma realAdd_ran : ∀ x y ∈ ℝ, x + y ∈ ℝ.

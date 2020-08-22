@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 5 Part 1 **)
 (** Coq coding by choukh, June 2020 **)
 
-Require Export ZFC.lib.Natural.
+Require Export ZFC.CH4.
 
 (*** EST第五章1：整数的定义，整数算术：加法，加法逆元 ***)
 
@@ -620,7 +620,7 @@ Proof with auto.
   intros a Ha.
   apply preIntProj_single in Ha as [[p Hp] Hu].
   exists p. apply ExtAx. split; intros Hx.
-  pose proof (Hu x p Hx Hp). subst...
+  pose proof (Hu x p Hx Hp). subst. apply SingI. 
   apply SingE in Hx. subst...
 Qed.
 

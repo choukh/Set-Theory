@@ -11,6 +11,18 @@ Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 
 (*** EST第五章4：有理数的序，整数嵌入，关于逆元的运算律 ***)
 
+(* 更多经典逻辑引理 *)
+(* Library Coq.Logic.Classical_Prop *)
+
+Lemma not_and_or : ∀ P Q, ¬(P ∧ Q) ↔ ¬P ∨ ¬Q.
+Proof with firstorder.
+  split; intros...
+  destruct (classic P); destruct (classic Q)...
+Qed.
+
+Lemma not_or_and : ∀ P Q, ¬(P ∨ Q) ↔ ¬P ∧ ¬Q.
+Proof. intros. firstorder. Qed.
+
 Close Scope Rat_scope.
 Open Scope Int_scope.
 

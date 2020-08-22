@@ -221,7 +221,15 @@ Proof.
   - intros x H. apply BUnionI1. apply H.
 Qed.
 
-(* ch2_17_1_2: see EST2.v Lemma sub_iff_no_comp *) 
+Example ch2_17_1_2: ∀ A B, A ⊆ B ↔ A - B = ∅.
+Proof.
+  split; intros.
+  - apply EmptyI. intros x Hx. apply CompE in Hx as [H1 H2].
+    apply H2. apply H. apply H1.
+  - intros x Hx. apply EmptyE with (A - B) x in H.
+    destruct (classic (x ∈ B)). apply H0.
+    exfalso. apply H. apply CompI; assumption.
+Qed.
 
 Example ch2_17_1_3: ∀ A B, A ⊆ B ↔ A ∪ B = B.
 Proof.

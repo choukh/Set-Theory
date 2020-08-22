@@ -289,7 +289,7 @@ Proof with eauto.
   ω_induction N Hn; intros f [Hff [Hfd Hfr]].
   - exists (f[0]). split.
     + eapply ranI. apply func_correct...
-      rewrite Hfd. apply BUnionI2...
+      rewrite Hfd. apply BUnionI2. apply SingI.
     + intros k Hk. apply ranE in Hk as [x Hp].
       apply domI in Hp as Hx. rewrite Hfd in Hx.
       apply BUnionE in Hx as []. exfalso0.
@@ -298,11 +298,13 @@ Proof with eauto.
       split. apply restr_func...
       split. apply ExtAx. split; intros Hx.
       + apply domE in Hx as [y Hp].
-        apply restrE2 in Hp as []...
+        apply restrE in Hp as [a [b [Ha [_ Heq]]]].
+        apply op_correct in Heq as []. subst...
       + eapply domI. apply restrI... apply func_correct...
         rewrite Hfd. apply BUnionI1...
       + intros y Hy. apply ranE in Hy as [x Hp].
-        apply restrE2 in Hp as [Hp _]...
+        apply restrE in Hp as [a [b [_ [Hp Heq]]]].
+        apply op_correct in Heq as []. subst.
         apply ranI in Hp. apply Hfr in Hp...
     }
     assert (Hreq: ran f = f⟦m⁺⟧ ∪ ⎨f[m⁺]⎬). {
@@ -312,14 +314,15 @@ Proof with eauto.
         apply BUnionE in Hd as [].
         + apply BUnionI1. eapply imgI...
         + apply BUnionI2. apply SingE in H. subst x.
-          apply func_ap in Hp... subst y...
+          apply func_ap in Hp... subst y. apply SingI.
       - apply BUnionE in Hy as [].
         + apply imgE in H as [x [_ Hp]]. eapply ranI...
         + apply SingE in H. subst y. eapply ranI.
-          apply func_correct... rewrite Hfd. apply BUnionI2...
+          apply func_correct... rewrite Hfd.
+          apply BUnionI2. apply SingI.
     }
     assert (Hm1: m⁺ ∈ dom f). {
-      rewrite Hfd. apply BUnionI2...
+      rewrite Hfd. apply BUnionI2... apply SingI.
     }
     assert (Hfm1: f[m⁺] ∈ ω). {
       apply Hfr. eapply ranI. apply func_correct...
@@ -360,21 +363,21 @@ Proof with eauto; try congruence.
   set {n ∊ ω | λ n, f₁ ↾ n = f₂ ↾ n} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
-    + apply restrE1 in Hx as [a [_ [Ha _]]]. exfalso0.
-    + apply restrE1 in Hx as [a [_ [Ha _]]]. exfalso0.
+    + apply restrE in Hx as [a [_ [Ha _]]]. exfalso0.
+    + apply restrE in Hx as [a [_ [Ha _]]]. exfalso0.
   - assert (Heq1: f₁ ↾ m⁺ = (f₁ ↾ m) ∪ (f₁ ↾ ⎨m⎬)) by apply ch3_22_c.
     assert (Heq2: f₂ ↾ m⁺ = (f₂ ↾ m) ∪ (f₂ ↾ ⎨m⎬)) by apply ch3_22_c.
     cut (f₁ ↾ ⎨m⎬ = f₂ ↾ ⎨m⎬)... clear Heq1 Heq2.
     pose proof (H m) as [_ [_ [Heq1 Heq2]]]...
     assert (Heq3: f₁[m] = f₂[m]) by congruence.
     apply ExtAx. split; intros Hx.
-    + apply restrE1 in Hx as [a [b [Ha [Hq Heq]]]].
+    + apply restrE in Hx as [a [b [Ha [Hq Heq]]]].
       apply SingE in Ha. apply func_ap in Hq... subst a b x.
-      apply restrI... rewrite Heq3.
+      apply restrI... apply SingI. rewrite Heq3.
       apply func_correct...
-    + apply restrE1 in Hx as [a [b [Ha [Hq Heq]]]].
+    + apply restrE in Hx as [a [b [Ha [Hq Heq]]]].
       apply SingE in Ha. apply func_ap in Hq... subst a b x.
-      apply restrI... rewrite <- Heq3.
+      apply restrI... apply SingI. rewrite <- Heq3.
       apply func_correct...
 Qed.
 
@@ -395,7 +398,8 @@ Proof with auto.
   ω_strong_induction C.
   ω_destruct c; subst c.
   - exfalso. apply IH. intros x Hx. exfalso0.
-  - exists n'. split; revgoals. apply BUnionI2...
+  - exists n'. split; revgoals.
+    apply BUnionI2. apply SingI.
     apply SepI... intros Hsub. apply IH.
     intros x Hx. apply BUnionE in Hx as [].
     apply Hsub... apply SingE in H0. subst...
@@ -409,7 +413,7 @@ Proof with nauto.
     apply BUnionE in Hy as []; apply SingE in H; subst.
     apply BUnionI1... apply BUnionI2...
   - apply BUnionE in Hx as []; apply UnionAx.
-    + exists n. split... apply BUnionI1...
+    + exists n. split... apply BUnionI1. apply SingI.
     + exists ⎨n⎬. split...
 Qed.
 
@@ -435,7 +439,8 @@ Proof with eauto.
       apply SingE in H. eapply not_lt_self; revgoals...
     }
     apply IH in Hma as [c [Hc Heq]]; revgoals.
-    eapply nat_trans; revgoals. apply Hnab. apply BUnionI2...
+    eapply nat_trans; revgoals. apply Hnab.
+    apply BUnionI2. apply SingI.
     apply add_ran... apply ω_inductive...
     assert (Hcw: c ∈ ω). {
       eapply ω_trans. apply Hc. apply ω_inductive...

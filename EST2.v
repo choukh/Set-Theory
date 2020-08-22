@@ -1,9 +1,9 @@
 (** Based on "Elements of Set Theory" Chapter 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.lib.Essential.
+Require Export ZFC.ZFC_full.
 
-(*** EST第二章：补集，真子集，集合代数定律 ***)
+(*** EST第二章：补集，集合代数定律 ***)
 
 Declare Scope ZFC_scope.
 Open Scope ZFC_scope.
@@ -38,32 +38,6 @@ Proof.
       apply CompI. apply BUnionI1. apply HA. apply HC.
     + apply CompE in H as [HB HC].
       apply CompI. apply BUnionI2. apply HB. apply HC.
-Qed.
-
-Lemma sub_iff_no_comp : ∀ A B, A ⊆ B ↔ A - B = ∅.
-Proof.
-  split; intros.
-  - apply EmptyI. intros x Hx. apply CompE in Hx as [H1 H2].
-    apply H2. apply H. apply H1.
-  - intros x Hx. apply EmptyE with (A - B) x in H.
-    destruct (classic (x ∈ B)). apply H0.
-    exfalso. apply H. apply CompI; assumption.
-Qed.
-
-(** 真子集 **)
-Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
-
-Lemma properSubI : ∀ A B, B ⊆ A → (∃ a, a ∈ A ∧ a ∉ B) → B ⊂ A.
-Proof with auto.
-  intros A B Hsub [a [Ha Ha']]. split... intros Heq.
-  rewrite ExtAx in Heq. apply Heq in Ha...
-Qed.
-
-Lemma comp_inhabited : ∀ a A, a ⊂ A → ⦿ (A - a).
-Proof.
-  intros * [Hsub Hnq]. apply EmptyNE.
-  intros H0. apply sub_iff_no_comp in H0.
-  apply Hnq. apply sub_asym. apply Hsub. apply H0.
 Qed.
 
 (* 并，交，补运算与子集关系构成集合代数，
@@ -380,19 +354,20 @@ Proof.
 Qed.
 
 (* 经典引理：并非所有都否定，则存在肯定 *)
-Lemma quantified_imply_to_and : ∀ (A : Type) (P Q : A → Prop),
+Lemma classic_n_al_im_ex_n : ∀ (A : Type) (P Q : A → Prop),
   ¬ (∀ a, P a → Q a) → ∃ a, P a ∧ ¬ Q a.
 Proof.
-  intros.
-  apply not_all_ex_not in H as [a H].
-  apply imply_to_and in H. 
-  exists a. apply H.
+  intros. destruct (classic (∃ A, P A ∧ ¬ Q A)).
+  - apply H0.
+  - exfalso. apply H. intros a Hp.
+    rewrite <- (double_negation (Q a)). intros Hq.
+    apply H0. exists a. auto.
 Qed.
 
 (* x不在𝒜的交集里，则存在𝒜的成员A，x不是A的成员 *)
 Lemma not_in_inter_intro : ∀ 𝒜 x, ⦿ 𝒜 → x ∉ ⋂ 𝒜 → ∃A ∈ 𝒜, x ∉ A.
 Proof.
-  intros * Hi Hx. apply quantified_imply_to_and.
+  intros * Hi Hx. apply classic_n_al_im_ex_n.
   intros H. apply Hx. apply InterI.
   apply Hi. intros y Hy. apply H. apply Hy.
 Qed.
