@@ -2,6 +2,7 @@
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EST5_6.
+Require Import ZFC.lib.FuncFacts.
 
 (*** EST第五章7：实数乘法，乘法逆元，有理数嵌入，实数的稠密性 ***)
 
@@ -734,25 +735,12 @@ Proof with auto.
 Qed.
 
 (** 有理数嵌入 **)
-Definition RatEmbed := Relation ℚ ℝ (λ q y, y = Realq q).
+Definition RatEmbed := Func ℚ ℝ (λ q, Realq q).
 
 Theorem ratEmbed_maps_into : RatEmbed: ℚ ⇒ ℝ.
-Proof with nauto.
-  repeat split.
-  - intros p Hp. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-  - apply ExtAx. intros q. split; intros Hq.
-    + apply domE in Hq as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [Hq _]. zfcrewrite.
-    + eapply domI. apply SepI; revgoals.
-      zfcrewrite. reflexivity. apply CProdI... apply real_q...
-  - intros y Hy. apply ranE in Hy as [r Hp].
-    apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Proof.
+  apply meta_maps_into.
+  intros x Hx. apply real_q; nauto.
 Qed.
 
 Corollary ratEmbed_ran : ∀q ∈ ℚ, RatEmbed[q] ∈ ℝ.
@@ -764,8 +752,8 @@ Qed.
 
 Lemma ratEmbed_q : ∀q ∈ ℚ, RatEmbed[q] = Realq q.
 Proof with nauto.
-  intros q Hq. apply func_ap. destruct ratEmbed_maps_into...
-  apply SepI. apply CProdI... apply real_q... zfcrewrite.
+  intros q Hq. unfold RatEmbed. rewrite meta_func_ap...
+  apply ratEmbed_maps_into.
 Qed.
 
 Theorem ratEmbed : ∀ n : nat, RatEmbed[Rat n] = Real n.
@@ -820,13 +808,9 @@ Proof with eauto.
 Qed.
 
 Theorem ratEmbed_injective : injective RatEmbed.
-Proof with neauto.
-  split. destruct ratEmbed_maps_into...
-  intros y. split. apply ranE in H...
-  intros r s H1 H2. clear H.
-  apply SepE in H1 as [Hr H1]. apply CProdE1 in Hr as [Hr _].
-  apply SepE in H2 as [Hs H2]. apply CProdE1 in Hs as [Hs _].
-  zfcrewrite. subst y. apply realq_injective in H2...
+Proof with auto.
+  apply meta_injective. apply ratEmbed_maps_into.
+  intros x1 Hx1 x2 Hx2 Heq. apply realq_injective in Heq...
 Qed.
 
 Close Scope Real_scope.

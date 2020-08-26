@@ -1,6 +1,114 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Import ZFC.CH3_2.
+Require Import ZFC.lib.Relation.
+
+(* 通过类型论函数证明集合论函数的定义域与值域 *)
+Lemma meta_maps_into : ∀ A B F, (∀x ∈ A, F x ∈ B) → 
+  (Func A B F): A ⇒ B.
+Proof with auto.
+  intros. split. apply func_is_func. split.
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply SepE in Hp as [Hx _].
+      apply CProdE1 in Hx as [Hx _]. zfcrewrite.
+    + eapply domI. apply SepI. apply CProdI...
+      apply H. apply Hx. zfcrewrite.
+  - intros y Hy. eapply ranE in Hy as [x Hp].
+    apply SepE in Hp as [Hp _].
+    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Qed.
+
+(* 将集合论函数应用表达为类型论函数应用 *)
+Lemma meta_func_ap : ∀ A B F, (Func A B F): A ⇒ B →
+  ∀x ∈ A, (Func A B F)[x] = F x.
+Proof with auto.
+  intros * [Hf [Hd Hr]] x Hx.
+  rewrite <- Hd in Hx. apply func_correct in Hx...
+  apply SepE in Hx as [_ Hx]. zfcrewrite.
+Qed.
+
+(* 通过类型论函数证明集合论函数是单射 *)
+Lemma meta_injective : ∀ A B F, (Func A B F): A ⇒ B →
+  (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
+  injective (Func A B F).
+Proof with eauto.
+  intros * [Hf [Hd Hr]] Hinj. split...
+  intros y Hy. split. apply ranE in Hy...
+  intros x1 x2 H1 H2.
+  apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx1 _].
+  apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as [Hx2 _].
+  zfcrewrite. subst y. apply Hinj...
+Qed.
+
+(* 通过类型论函数证明集合论函数是满射 *)
+Lemma meta_surjective : ∀ A B F, (Func A B F): A ⇒ B →
+  (∀y ∈ B, ∃x ∈ A, F x = y) →
+  ran (Func A B F) = B.
+Proof with eauto.
+  intros * [Hf [Hd Hr]] Hsurj. apply sub_asym...
+  intros y Hy. pose proof (Hsurj _ Hy) as [x [Hx Hap]].
+  eapply ranI. apply SepI. apply CProdI... zfcrewrite.
+Qed.
+
+(* 通过类型论函数证明集合论函数是双射 *)
+Lemma meta_bijective : ∀ A B F,
+  (∀x ∈ A, F x ∈ B) →
+  (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
+  (∀y ∈ B, ∃x ∈ A, F x = y) →
+  (Func A B F): A ⟺ B.
+Proof with auto.
+  intros * H1 H2 H3.
+  apply meta_maps_into in H1.
+  split. apply meta_injective...
+  split. destruct H1 as [_ []]...
+  apply meta_surjective...
+Qed.
+
+(* 恒等函数是双射 *)
+Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.
+Proof with auto.
+  intros. split. split.
+  apply ident_is_func. apply ident_single_rooted.
+  split. apply ident_dom. apply ident_ran.
+Qed.
+
+(* 双射的逆也是双射 *)
+Lemma inv_bijection : ∀ F A B, F: A ⟺ B → F⁻¹: B ⟺ A.
+Proof with auto.
+  intros * [[Hf Hs] [Hd Hr]]. split. split.
+  apply inv_func_iff_sr... apply inv_sr_iff_func...
+  split. rewrite inv_dom... rewrite inv_ran...
+Qed.
+
+(* 两个双射的复合也是双射 *)
+Lemma compo_bijection : ∀ F G A B C,
+  F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
+Proof with eauto.
+  intros * [[Hf Hfs] [Hfd Hfr]] [[Hg Hgs] [Hgd Hgr]].
+  split; split. apply compo_func...
+  - split. eapply ranE in H...
+    intros y1 y2 H1 H2.
+    apply compoE in H1 as [s [H11 H12]].
+    apply compoE in H2 as [t [H21 H22]].
+    pose proof (singrE _ _ _ _ Hgs H12 H22). subst s.
+    apply (singrE _ _ _ _ Hfs H11 H21).
+  - apply ExtAx. intros x. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply compoE in Hp as [t [H1 H2]].
+      rewrite <- Hfd. eapply domI...
+    + rewrite <- Hfd in Hx.
+      apply domE in Hx as [y Hp]. apply ranI in Hp as Hr.
+      rewrite Hfr, <- Hgd in Hr. apply domE in Hr as [z Hp'].
+      eapply domI. eapply compoI...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply compoE in Hp as [t [H1 H2]].
+      rewrite <- Hgr. eapply ranI...
+    + rewrite <- Hgr in Hy.
+      apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
+      rewrite Hgd, <- Hfr in Hd. eapply ranE in Hd as [w Hp'].
+      eapply ranI. eapply compoI...
+Qed.
 
 (* 能与空集建立双射的集合是空集 *)
 Lemma bijection_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
@@ -242,38 +350,13 @@ Proof with eauto; try congruence.
   assert (Hxb: ∀x ∈ A, x ≠ a → x ∈ B). {
     intros x Hx H. subst B. apply ReplAx. exists x. split...
   }
-  set (Relation A B (λ x y, y = R x)) as F.
-  exists F. repeat split.
-  - apply rel_is_rel.
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-  - apply ranE in H...
-  - intros x1 x2 H1 H2.
-    apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx1 _].
-    apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as [Hx2 _].
-    zfcrewrite. subst x R. unfold ReplaceElement in H22.
+  set (Func A B (λ x, R x)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. apply ReplAx. exists x. split...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    subst R. unfold ReplaceElement in Heq.
     destruct (ixm (x1 = a)); destruct (ixm (x2 = a))...
-  - apply ExtAx. split; intros Hx.
-    + apply domE in Hx as [y Hp].
-      apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [Hx _]. zfcrewrite.
-    + destruct (classic (x = a)) as [Hxa|Hxa]; [subst x|].
-      * eapply domI. apply SepI. apply CProdI. apply Hx.
-        apply Hbb. zfcrewrite.
-      * eapply domI. apply SepI. apply CProdI. apply Hx.
-        apply Hxb; eauto. zfcrewrite. symmetry. apply Hrx...
-  - apply ExtAx. intros y. split; intros Hy.
-    + apply ranE in Hy as [x Hp].
-      apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
-    + apply ReplAx in Hy as [x [Hx Hr]]. subst y.
-      destruct (classic (x = a)) as [Hxa|Hxa]; [subst x|].
-      * rewrite Hra. eapply ranI. apply SepI. apply CProdI...
-        zfcrewrite.
-      * rewrite Hrx... eapply ranI. apply SepI. apply CProdI...
-        apply Hxb... zfcrewrite. symmetry. apply Hrx...
+  - intros y Hy. apply ReplAx in Hy...
 Qed.
 
 (* 若A，B之间有单射，那么A与B的替换任一元素的集合之间也有单射 *)
@@ -311,8 +394,8 @@ Proof with eauto.
 Qed.
 
 Definition FuncSwapValue : set → set → set → set := λ f a b,
-  Relation (dom f) (ran f) (λ x y,
-    y = match ixm (x = a) with
+  Func (dom f) (ran f) (λ x,
+    match ixm (x = a) with
       | inl _ => f[b]
       | inr _ =>
         match ixm (x = b) with
@@ -349,33 +432,17 @@ Proof with eauto; try congruence.
         destruct (ixm (x = a)) as []...
         destruct (ixm (x = b)) as []...
   }
-  split... split; [|split].
-  - repeat split. apply rel_is_rel. apply domE in H...
-    intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-  - apply ExtAx. intros x. split; intros Hx.
-    + apply domE in Hx as [Hy Hpr].
-      apply SepE in Hpr as [Hpr _].
-      apply CProdE1 in Hpr as [Hx _]. zfcrewrite.
-    + rewrite <- Hd in Hx, Ha, Hb.
-      destruct (classic (x = a)) as [Hxa|Hxa]; [|
-      destruct (classic (x = b)) as [Hxb|Hxb]].
-      * apply domE in Hb as [y Hp]. apply ranI in Hp as Hy.
-        apply func_ap in Hp... eapply domI. apply SepI.
-        apply CProdI... zfcrewrite.
-        destruct (ixm (x = a)) as []...
-      * apply domE in Ha as [y Hp]. apply ranI in Hp as Hy.
-        apply func_ap in Hp... eapply domI. apply SepI.
-        apply CProdI... zfcrewrite.
-        destruct (ixm (x = a)) as []...
-        destruct (ixm (x = b)) as []...
-      * assert (Hx' := Hx). apply domE in Hx as [y Hp].
-        apply ranI in Hp as Hy. apply func_ap in Hp...
-        eapply domI. apply SepI. apply CProdI... zfcrewrite.
-        destruct (ixm (x = a)) as []...
-        destruct (ixm (x = b)) as []...
-  - rewrite Hreq...
+  split... cut (F': A ⇒ ran F). {
+    intros [Hf' [Hd' Hr']].
+    split... split... rewrite Hreq...
+  }
+  subst F'. unfold FuncSwapValue. rewrite Hd.
+  apply meta_maps_into. intros x Hx.
+  destruct (ixm (x = a)).
+  eapply ranI. apply func_correct...
+  destruct (ixm (x = b)).
+  eapply ranI. apply func_correct...
+  eapply ranI. apply func_correct...
 Qed.
 
 (* 函数交换两个值两次后与原函数相等 *)
@@ -447,15 +514,15 @@ Proof with eauto; try congruence.
   apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as []. zfcrewrite.
   destruct (ixm (x1 = a)); destruct (ixm (x2 = a));
   destruct (ixm (x1 = b)); destruct (ixm (x2 = b)); try congruence;
-    [..|eapply func_injective; eauto; congruence]; exfalso.
-  - apply n0. eapply func_injective...
-  - apply n0. eapply func_injective...
-  - apply n1. eapply func_injective...
-  - apply n0. eapply func_injective...
-  - apply n0. eapply func_injective...
-  - apply n0. eapply func_injective...
-  - apply n0. eapply func_injective...
-  - apply n. eapply func_injective...
+    [..|eapply injectiveE; eauto; congruence]; exfalso.
+  - apply n0. eapply injectiveE...
+  - apply n0. eapply injectiveE...
+  - apply n1. eapply injectiveE...
+  - apply n0. eapply injectiveE...
+  - apply n0. eapply injectiveE...
+  - apply n0. eapply injectiveE...
+  - apply n0. eapply injectiveE...
+  - apply n. eapply injectiveE...
 Qed.
 
 (* 满射交换两个值后仍是满射 *)

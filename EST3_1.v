@@ -115,10 +115,21 @@ Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x ident).
 Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
 
 (** 函数（标准编码） **)
+Definition Func : set → set → (set → set) → set := λ A B F,
+  Relation A B (λ x y, y = F x).
 
 (* 函数是单值关系 *)
 Definition is_function : set → Prop :=
   λ R, is_relation R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.
+
+Lemma func_is_func : ∀ F A B, is_function (Func A B F).
+Proof with auto.
+  intros. repeat split.
+  - apply rel_is_rel. - apply domE in H...
+  - intros y1 y2 H1 H2.
+    apply SepE in H1 as [_ H1].
+    apply SepE in H2 as [_ H2]. zfcrewrite.
+Qed.
 
 Lemma ident_is_func : ∀ X, is_function (Ident X).
 Proof.
@@ -273,7 +284,7 @@ Qed.
 Definition injective : set → Prop :=
   λ R, is_function R ∧ single_rooted R.
 
-Lemma func_injective : ∀ f, injective f →
+Lemma injectiveE : ∀ f, injective f →
   ∀ a b ∈ dom f, f[a] = f[b] → a = b.
 Proof with eauto.
   intros f [Hf Hs] a Ha b Hb Heq.

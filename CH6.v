@@ -8,12 +8,12 @@ Require Export ZFC.EST6_2.
 (* ch6_5 see EST6_1 eqnum_refl symm tran *)
 
 (* 同一基数的所有集合不能构成一个集合 *)
-Example ch6_6 : ∀ κ, is_card κ → ⦿ κ → ¬∃ A, ∀ x, |x| = κ → x ∈ A.
+Example ch6_6 : ∀ 𝜅, is_card 𝜅 → ⦿ 𝜅 → ¬∃ A, ∀ x, |x| = 𝜅 → x ∈ A.
 Proof with auto.
-  intros κ Hκ Hi [A Hcd].
+  intros 𝜅 H𝜅 Hi [A Hcd].
   apply no_set_of_all_set. exists (⋃A).
   intros a. apply UnionAx.
-  pose proof (any_set_in_set_of_any_nonzero_card a κ Hκ Hi)
+  pose proof (any_set_in_set_with_any_nonzero_card a 𝜅 H𝜅 Hi)
     as [K [Heq Ha]]. exists K. split...
 Qed.
 
@@ -51,3 +51,10 @@ Proof with auto.
       <- compo_assoc, compo_inv_dom_ident, left_compo_ident',
       Hdg, <- H, <- inv_dom, restr_to_dom, inv_inv...
 Qed.
+
+(* 有限集的并仍是有限集（非算术证明） *)
+(* Example ch6_8 : ∀ A B, finite A → finite B → finite (A ∪ B).
+Proof with auto.
+  intros A B Hfa Hfb.
+  destruct (classic (finite (A ∪ B)))... exfalso. *)
+

@@ -2,6 +2,7 @@
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EST5_3.
+Require Import ZFC.lib.FuncFacts.
 
 Local Ltac nz := try (apply nzIntE1; assumption).
 Local Ltac mr := apply intMul_ran; nauto.
@@ -628,25 +629,12 @@ Proof with nauto.
 Qed.
 
 (** 整数嵌入 **)
-Definition IntEmbed := Relation ℤ ℚ (λ a r, r = [<a, Int 1>]~).
+Definition IntEmbed := Func ℤ ℚ (λ a, [<a, Int 1>]~).
 
 Theorem intEmbed_maps_into : IntEmbed: ℤ ⇒ ℚ.
-Proof with nauto.
-  repeat split.
-  - intros x Hx. apply SepE in Hx as [Hx _].
-    apply CProdE2 in Hx...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-  - apply ExtAx. intros x. split; intros Hx.
-    + apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
-      apply CProdE1 in Hx as [Hx _]. zfcrewrite.
-    + eapply domI. apply SepI; revgoals.
-      zfcrewrite. reflexivity. apply CProdI... apply pQuotI...
-  - intros y Hy. apply ranE in Hy as [x Hp].
-    apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Proof.
+  apply meta_maps_into.
+  intros x Hx. apply pQuotI; nauto.
 Qed.
 
 Corollary intEmbed_ran : ∀a ∈ ℤ, IntEmbed[a] ∈ ℚ.
@@ -658,19 +646,15 @@ Qed.
 
 Theorem intEmbed_injective : injective IntEmbed.
 Proof with nauto.
-  split. destruct intEmbed_maps_into...
-  split. apply ranE in H...
-  intros x1 x2 H1 H2. clear H.
-  apply SepE in H1 as [Hx1 H1]. apply CProdE1 in Hx1 as [Hx1 _].
-  apply SepE in H2 as [Hx2 H2]. apply CProdE1 in Hx2 as [Hx2 _].
-  zfcrewrite. subst x. apply rat_ident in H2...
-  rewrite intMul_ident, intMul_ident in H2...
+  apply meta_injective. apply intEmbed_maps_into.
+  intros x1 Hx1 x2 Hx2 Heq. apply rat_ident in Heq...
+  rewrite intMul_ident, intMul_ident in Heq...
 Qed.
 
 Lemma intEmbed_a : ∀a ∈ ℤ, IntEmbed[a] = [<a, Int 1>]~.
 Proof with nauto.
-  intros a Ha. apply func_ap. destruct intEmbed_maps_into...
-  apply SepI. apply CProdI... apply pQuotI... zfcrewrite.
+  intros a Ha. unfold IntEmbed. rewrite meta_func_ap...
+  apply intEmbed_maps_into.
 Qed.
 
 Theorem intEmbed : ∀ n : nat, IntEmbed[Int n] = Rat n.

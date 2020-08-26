@@ -2,6 +2,7 @@
 (** Coq coding by choukh, June 2020 **)
 
 Require Export ZFC.EST5_1.
+Require Import ZFC.lib.FuncFacts.
 
 Local Ltac mr := apply mul_ran; auto.
 Local Ltac ar := apply add_ran; auto.
@@ -691,25 +692,12 @@ Proof with neauto.
 Qed.
 
 (** 自然数嵌入 **)
-Definition ω_Embed := Relation ω ℤ (λ n a, a = [<n, 0>]~).
+Definition ω_Embed := Func ω ℤ (λ n, [<n, 0>]~).
 
 Theorem ω_embed_maps_into : ω_Embed: ω ⇒ ℤ.
-Proof with nauto.
-  repeat split.
-  - intros x Hx. apply SepE in Hx as [Hx _].
-    apply CProdE2 in Hx...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-  - apply ExtAx. intros x. split; intros Hx.
-    + apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
-      apply CProdE1 in Hx as [Hx _]. zfcrewrite.
-    + eapply domI. apply SepI; revgoals.
-      zfcrewrite. reflexivity. apply CProdI... apply pQuotI...
-  - intros y Hy. apply ranE in Hy as [x Hp].
-    apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Proof.
+  apply meta_maps_into.
+  intros x Hx. apply pQuotI; nauto.
 Qed.
 
 Corollary ω_embed_ran : ∀n ∈ ω, ω_Embed[n] ∈ ℤ.
@@ -721,19 +709,15 @@ Qed.
 
 Theorem ω_embed_injective : injective ω_Embed.
 Proof with nauto.
-  split. destruct ω_embed_maps_into...
-  split. apply ranE in H...
-  intros x1 x2 H1 H2. clear H.
-  apply SepE in H1 as [Hx1 H1]. apply CProdE1 in Hx1 as [Hx1 _].
-  apply SepE in H2 as [Hx2 H2]. apply CProdE1 in Hx2 as [Hx2 _].
-  zfcrewrite. subst x. apply int_ident in H2...
-  rewrite add_0_r, add_0_r in H2...
+  apply meta_injective. apply ω_embed_maps_into.
+  intros x1 Hx1 x2 Hx2 Heq. apply int_ident in Heq...
+  rewrite add_0_r, add_0_r in Heq...
 Qed.
 
 Lemma ω_embed_n : ∀n ∈ ω, ω_Embed[n] = [<n, 0>]~.
 Proof with nauto.
-  intros n Hn. apply func_ap. destruct ω_embed_maps_into...
-  apply SepI. apply CProdI... apply pQuotI... zfcrewrite.
+  intros n Hn. unfold ω_Embed. rewrite meta_func_ap...
+  apply ω_embed_maps_into.
 Qed.
 
 Theorem ω_embed : ∀ n : nat, ω_Embed[n] = Int n.
