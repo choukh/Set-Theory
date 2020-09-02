@@ -15,7 +15,7 @@ Axiom CardAx2 : ∀ A, finite A → |A| = fin_card A.
 Definition is_card : set → Prop := λ 𝜅, ∃ K, 𝜅 = |K|.
 
 (* 阿列夫零 *)
-Notation "'ℵ₀'" := (card ω).
+Notation "'ℵ₀'" := (|ω|).
 
 Lemma aleph_0_is_card : is_card ℵ₀.
 Proof. exists ω. reflexivity. Qed.
