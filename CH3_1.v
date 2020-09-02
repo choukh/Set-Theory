@@ -132,7 +132,7 @@ Proof.
   apply domE in H as [y Hxy].
   apply InterE in Hxy as [[A HA] Hxy]. apply InterI.
   exists (dom A). apply ReplI. apply HA.
-  intros B HB. apply ReplE in HB as [C [HC Heq]].
+  intros B HB. apply ReplAx in HB as [C [HC Heq]].
   subst B. eapply domI. apply Hxy in HC. apply HC.
 Qed.
 
@@ -142,7 +142,7 @@ Proof.
   apply ranE in H as [y Hxy].
   apply InterE in Hxy as [[A HA] Hxy]. apply InterI.
   exists (ran A). apply ReplI. apply HA.
-  intros B HB. apply ReplE in HB as [C [HC Heq]].
+  intros B HB. apply ReplAx in HB as [C [HC Heq]].
   subst B. eapply ranI. apply Hxy in HC. apply HC.
 Qed.
 
@@ -256,7 +256,7 @@ Proof with auto.
   assert (⎨<a, a>⎬ = Ident ⎨a⎬). {
     apply ExtAx. split; intros.
     - apply SingE in H1. subst x. apply ReplAx. exists a. split...
-    - apply ReplE in H1 as [b [Ha Hp]].
+    - apply ReplAx in H1 as [b [Ha Hp]].
       apply SingE in Ha. subst b x...
   }
   rewrite H0, H1. apply SepI. apply H. apply ident_is_func.

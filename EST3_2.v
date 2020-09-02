@@ -118,7 +118,7 @@ Proof with eauto.
         split... rewrite <- inv_op in H2. eapply singrE...
       * exfalso. apply ranI in H1. apply CProdE1 in H2 as [H2 _].
         rewrite π1_correct in H2. apply CompE in H2 as []...
-    + apply ReplE in Hx as [b [Hb Heq]]. subst x.
+    + apply ReplAx in Hx as [b [Hb Heq]]. subst x.
       rewrite <- Hdf in Hb. apply domE in Hb as [c Hb].
       eapply compoI... apply BUnionI1. rewrite <- inv_op...
 Qed.
@@ -143,45 +143,45 @@ Proof with eauto.
   (* S := {{<x, y>, <x, y'>, <x, y''>}, { ... }, ... } *)
   set {λ x, {p ∊ R | λ p, π1 p = x} | x ∊ dom R} as S.
   assert (Hi: ∀s ∈ S, ⦿ s). {
-    intros s Hs. apply ReplE in Hs as [x [Hx Hs]].
+    intros s Hs. apply ReplAx in Hs as [x [Hx Hs]].
     apply domE in Hx as [y Hp]. subst s.
     exists <x, y>. apply SepI... rewrite π1_correct...
   }
   assert (Hsp: ∀s ∈ S, ∀x ∈ s, is_pair x). {
-    intros s Hs x Hx. apply ReplE in Hs as [y [_ Hs]].
+    intros s Hs x Hx. apply ReplAx in Hs as [y [_ Hs]].
     subst s. apply SepE in Hx as [Hx _]. apply H in Hx...
   }
   assert (Hss: ∀ a b c, ∀ s t ∈ S,
     <a, b> ∈ s → <a, c> ∈ t → s = t). {
     intros * s Hs t Ht His Hit.
-    apply ReplE in Hs as [z [_ Hs] ]. subst s.
-    apply ReplE in Ht as [w [_ Ht]]. subst t.
+    apply ReplAx in Hs as [z [_ Hs] ]. subst s.
+    apply ReplAx in Ht as [w [_ Ht]]. subst t.
     apply SepE in His as [_ Hz].
     apply SepE in Hit as [_ Hw]. rewrite π1_correct in *. subst...
   }
   assert (Hdj: ∀ s t ∈ S, s ≠ t → s ∩ t = ∅). {
     intros s Hs t Ht Hnq. apply EmptyI. intros x Hx.
     apply BInterE in Hx as [Hxs Hxt]. apply Hnq. clear Hnq.
-    apply ReplE in Hs as [z [_ Hs]]. subst s.
-    apply ReplE in Ht as [w [_ Ht]]. subst t.
+    apply ReplAx in Hs as [z [_ Hs]]. subst s.
+    apply ReplAx in Ht as [w [_ Ht]]. subst t.
     apply SepE in Hxs as [_ Hxz].
     apply SepE in Hxt as [_ Hxw]. subst...
   }
   assert (Hsub: {Choice | s ∊ S} ⊆ R). {
-    intros x Hx. apply ReplE in Hx as [s [Hs Hx]]. subst x.
+    intros x Hx. apply ReplAx in Hx as [s [Hs Hx]]. subst x.
     pose proof (chosen_contained s (Hi s Hs)) as Hc.
-    apply ReplE in Hs as [a [_ Hs]]. rewrite <- Hs in Hc at 2.
+    apply ReplAx in Hs as [a [_ Hs]]. rewrite <- Hs in Hc at 2.
     apply SepE in Hc as []...
   }
   exists {Choice | s ∊ S}. repeat split...
-  - intros x Hx. apply ReplE in Hx as [s [Hs Heq]].
+  - intros x Hx. apply ReplAx in Hx as [s [Hs Heq]].
     pose proof (chosen_contained s (Hi s Hs)) as Hx.
     rewrite Heq in Hx. eapply Hsp...
   - apply domE in H0...
   - intros y y' Hcy Hcy'.
     assert (Hy := Hcy). assert (Hy' := Hcy').
-    apply ReplE in Hy  as [s  [Hs  Heq ]].
-    apply ReplE in Hy' as [s' [Hs' Heq']].
+    apply ReplAx in Hy  as [s  [Hs  Heq ]].
+    apply ReplAx in Hy' as [s' [Hs' Heq']].
     pose proof (chosen_contained s  (Hi s  Hs )) as Hsy.
     pose proof (chosen_contained s' (Hi s' Hs')) as Hsy'.
     rewrite Heq in Hsy. rewrite Heq' in Hsy'.
@@ -210,7 +210,7 @@ Proof with eauto.
   intros [G [[Hg [Hdg _]] Heq]]. split... split...
   (* ran F = B *)
   apply ExtAx. intros x. split; intros Hx. apply Hrf...
-  assert (H: x ∈ dom (Ident B)) by (rewrite ident_dom; auto).
+  assert (H: x ∈ dom (Ident B)) by (rewrite dom_ident; auto).
   apply domE in H as [y Hp].
   pose proof (identE _ _ _ Hp) as [_ H].
   subst y. rewrite <- Heq in Hp.
@@ -231,7 +231,7 @@ Proof with eauto.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
     apply op_η in Hp. rewrite Hp at 3. apply op_correct. split...
     clear H1. eapply func_sv...
-  - apply ReplE in Hy as [a [Hp Heq]].
+  - apply ReplAx in Hy as [a [Hp Heq]].
     subst y. subst B. rewrite <- inv_dom in Hp. rewrite <- H3 in Hp. 
     apply domE in Hp as [b Hpg]. assert (Hpf := Hpg).
     apply H2 in Hpf. rewrite <- inv_op in Hpf. eapply compoI...
@@ -349,7 +349,7 @@ Proof with eauto.
   intros F A Hf Hsub. apply ExtAx. intros y. split; intros Hy.
   - apply ReplAx. apply imgE in Hy as [x [Hx Hp]].
     exists x. split... apply Hsub in Hx. apply func_ap...
-  - apply ReplE in Hy as [x [Hx Heq]]. apply Hsub in Hx as Hx'.
+  - apply ReplAx in Hy as [x [Hx Heq]]. apply Hsub in Hx as Hx'.
     pose proof (ap_exists F Hf x Hx') as [t [_ [Hxy Ht]]].
     subst t. rewrite Heq in Hxy. eapply imgI...
 Qed.
@@ -399,7 +399,7 @@ Proof with eauto.
   intros F 𝒜 y Hy. apply imgE in Hy as [x [Hx Hp]].
   apply InterE in Hx as [[A HA] H].
   apply InterI. exists (F⟦A⟧). apply ReplI...
-  intros Y HY. apply ReplE in HY as [B [HB Heq]]. subst Y.
+  intros Y HY. apply ReplAx in HY as [B [HB Heq]]. subst Y.
   eapply imgI... apply H in HB...
 Qed.
 
@@ -409,7 +409,7 @@ Proof with eauto.
   intros F 𝒜 Hs. apply ExtAx. intros y. split; intros Hy.
   - apply img_inter_distr_sub...
   - apply InterE in Hy as [[Y HY] H]. apply H in HY as Hy.
-    apply ReplE in HY as [A [HA Heq]]. subst Y.
+    apply ReplAx in HY as [A [HA Heq]]. subst Y.
     apply imgE in Hy as [x [_ Hp]].
     eapply imgI... apply InterI. exists A... intros B HB.
     assert (HY: F⟦B⟧ ∈ {Image F | A ∊ 𝒜}). {

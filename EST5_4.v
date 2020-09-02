@@ -17,7 +17,7 @@ Open Scope Int_scope.
 
 Lemma intPos_sn : ∀ n, intPos (Int (S n)).
 Proof with nauto.
-  intros. apply intLt... rewrite add_0_r, add_0_r...
+  intros. apply intLt... rewrite add_ident, add_ident...
   apply suc_has_0. apply embed_ran.
 Qed.
 Hint Immediate intPos_sn : number_hint.
@@ -180,7 +180,7 @@ Proof with auto.
   apply Hnq. apply rat_ident...
 Qed.
 
-Lemma ratLt_rel : rel RatLt ℚ.
+Lemma ratLt_rel : binRel RatLt ℚ.
 Proof with auto.
   intros x Hx. apply SepE in Hx as []...
 Qed.

@@ -311,7 +311,7 @@ Proof.
   - apply InterI.
     + destruct Hi as [y Hy]. exists (𝒫 y).
       apply ReplI. apply Hy.
-    + intros y Hy. apply ReplE in Hy as [z [Hz Heq]].
+    + intros y Hy. apply ReplAx in Hy as [z [Hz Heq]].
       subst y. apply PowerAx. apply PowerAx in H.
       intros y Hy. apply H in Hy.
       apply InterE in Hy as [_ Hy]. apply Hy. apply Hz.

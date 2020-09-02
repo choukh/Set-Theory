@@ -147,21 +147,6 @@ Proof.
   apply SingE in Hy. subst. apply Hx.
 Qed.
 
-Lemma sub_0_iff_0 : ∀ A, A ⊆ ∅ ↔ A = ∅.
-Proof.
-  split; intros.
-  - apply EmptyI. unfold not. intros.
-    apply H in H0. eapply EmptyAx. apply H0.
-  - subst. intros x H. apply H.
-Qed.
-
-Lemma empty_or_inh : ∀ A, A = ∅ ∨ ⦿A.
-Proof.
-  intros. destruct (classic (A = ∅)).
-  - left. apply H.
-  - right. apply EmptyNE. apply H.  
-Qed.
-
 Lemma sing_char : ∀ X, ∀ x ∈ X, (∀ y ∈ X, x = y) → X = ⎨x⎬.
 Proof.
   intros X x Hx H.
@@ -204,19 +189,10 @@ Proof.
   - apply H.
 Qed.
 
-Example union_0_0 : ⋃∅ = ∅.
-Proof.
-  apply ExtAx. split.
-  - intros. apply UnionE1 in H.
-    destruct H as [a H]. exfalso0.
-  - intros. exfalso0.
-Qed.
-
 Example union_sing_x_x : ∀ X, ⋃ ⎨X⎬ = X.
 Proof.
   intros. apply ExtAx. split; intros.
-  - apply UnionAx in H.
-    destruct H as [a [H1 H2]].
+  - apply UnionAx in H as [a [H1 H2]].
     apply SingE in H1. subst. apply H2.
   - eapply UnionI. apply SingI. apply H.
 Qed.
@@ -234,10 +210,8 @@ Qed.
 Example union_2_1 : ⋃ 2 = 1.
 Proof.
   apply ExtAx. split; intro.
-  - apply UnionAx in H.
-    destruct H as [a [H1 H2]].
-    apply TwoE in H1.
-    destruct H1.
+  - apply UnionAx in H as [a [H1 H2]].
+    apply TwoE in H1 as [].
     + rewrite H in H2. exfalso0.
     + subst. apply H2.
   - eapply UnionI. apply TwoI2. apply H.
@@ -260,19 +234,6 @@ Proof.
   - apply PowerAx. apply TwoE in H. destruct H; subst.
     + intros x H. exfalso0.
     + apply sub_refl.
-Qed.
-
-Example repl0I : ∀ F, {F | x ∊ ∅} = ∅.
-Proof.
-  intros. apply EmptyI.
-  intros x H. apply ReplE in H.
-  destruct H as [y [H _]]. exfalso0.
-Qed.
-
-Example repl0E : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
-Proof.
-  intros. apply sub_0_iff_0. intros x Hx.
-  eapply ReplI in Hx. rewrite H in Hx. exfalso0.
 Qed.
 
 (** 二元并 **)
@@ -315,12 +276,12 @@ Lemma FUnionE : ∀ X F, ∀y ∈ ⋃{F|x ∊ X}, ∃x ∈ X, y ∈ F x.
 Proof.
   intros X F y Hy.
   apply UnionAx in Hy as [x [H1 H2]].
-  apply ReplE in H1 as [z [H3 H4]].
+  apply ReplAx in H1 as [z [H3 H4]].
   exists z. split. apply H3. subst. apply H2.
 Qed. 
 
 Example funion_0 : ∀ F, ⋃{F|x ∊ ∅} = ∅.
-Proof. intros. rewrite repl0I. apply union_0_0. Qed.
+Proof. intros. rewrite repl_empty. apply union_0_0. Qed.
 
 Example funion_1 : ∀ X F,
   (∀x ∈ X, F x ∈ 2) → (∃x ∈ X, F x = 1) → ⋃{F|x ∊ X} = 1.

@@ -3,28 +3,40 @@
 
 Require Export ZFC.EST6_1.
 
-(*** EST第六章2：基数算术：加法，乘法，乘方 ***)
+(*** EST第六章2：无限基数，阿列夫零，基数算术：加法，乘法，乘方 ***)
 
 (* TODO: We will remove this primitive notion after Chapter 7 *)
 Parameter card : set → set.
 Notation "| A |" := (card A) (at level 40) : ZFC_scope.
-Axiom CardAx0 : ∀ A, |A| ≈ A.
+Axiom CardAx0 : ∀ A, A ≈ |A|.
 Axiom CardAx1 : ∀ A B, |A| = |B| ↔ A ≈ B.
 Axiom CardAx2 : ∀ A, finite A → |A| = fin_card A.
 
 Definition is_card : set → Prop := λ 𝜅, ∃ K, 𝜅 = |K|.
 
-(* 有限基数的基数等于自身 *)
-Lemma card_of_fin_card : ∀n ∈ ω, |n| = n.
+(* 阿列夫零 *)
+Notation "'ℵ₀'" := (card ω).
+
+Lemma aleph_0_is_card : is_card ℵ₀.
+Proof. exists ω. reflexivity. Qed.
+
+(* 自然数的基数等于自身 *)
+Lemma card_of_nat : ∀n ∈ ω, n = |n|.
 Proof with auto.
   intros n Hn. rewrite CardAx2.
-  apply fin_card_n... apply nat_finite...
+  rewrite fin_card_n... apply nat_finite...
+Qed.
+
+(* 自然数是基数 *)
+Lemma nat_is_card : ∀n ∈ ω, is_card n.
+Proof.
+  intros n Hn. exists n. apply (card_of_nat _ Hn).
 Qed.
 
 (* 基数的基数等于自身 *)
-Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → |𝜅| = 𝜅.
+Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → 𝜅 = |𝜅|.
 Proof.
-  intros 𝜅 [K H𝜅]. rewrite H𝜅 at 2.
+  intros 𝜅 [K H𝜅]. rewrite H𝜅 at 1.
   apply CardAx1. rewrite H𝜅. apply CardAx0.
 Qed.
 
@@ -32,9 +44,15 @@ Qed.
 Lemma card_empty : ∀ A, |A| = ∅ ↔ A = ∅.
 Proof with nauto.
   split; intros.
-  - rewrite <- eqnum_empty, <- CardAx1,
-      (CardAx2 ∅), (fin_card_n ∅)...
+  - rewrite <- eqnum_empty, <- CardAx1, (CardAx2 ∅), (fin_card_n ∅)...
   - subst A. rewrite CardAx2, fin_card_n...
+Qed.
+
+(* 单集与壹等势 *)
+Lemma card_single : ∀ a, |⎨a⎬| = 1.
+Proof with nauto.
+  intros. rewrite (card_of_nat 1)...
+  apply CardAx1. apply eqnum_single.
 Qed.
 
 (* 集合的基数不为零当且仅当集合非空 *)
@@ -57,35 +75,29 @@ Proof with auto; try congruence.
   pose proof (bijection_exists_between_set_and_element_replaced
     K k a Hk Ha) as [f Hf].
   exists {ReplaceElement k a | x ∊ K}. split.
-  - apply CardAx1. apply eqnum_symm. exists f...
+  - apply CardAx1. symmetry. exists f...
   - apply ReplAx. exists k. split...
     unfold ReplaceElement. destruct (ixm (k = k))...
 Qed.
 
-(* 集合与单集的笛卡尔积与原集合等势 *)
-Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
-Proof with auto.
-  intros. set (Func A (A × ⎨ a ⎬) (λ x, <x, a>)) as F.
-  exists F. apply meta_bijective.
-  - intros x Hx. apply CProdI...
-  - intros x1 Hx1 x2 Hx2 Heq.
-    apply op_correct in Heq as []...
-  - intros y Hy. apply CProd_correct in Hy as [b [Hb [c [Hc Heq]]]].
-    apply SingE in Hc. subst. exists b. split...
-Qed.
-
 (* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)
-Lemma cprod_disjoint : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
+Lemma disjoint_cprod : ∀ A B m n,
+  m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
 Proof.
   intros. apply disjointI.
   intros [x [H1 H2]].
   apply CProd_correct in H1 as [a [Ha [b [Hb H1]]]].
   apply CProd_correct in H2 as [c [Hc [d [Hd H2]]]].
   apply SingE in Hb. apply SingE in Hd. subst.
-  apply op_correct in H2 as [_ Contra]. eapply suc_neq_0. eauto.
+  apply op_correct in H2 as [_ Contra]. apply H. apply Contra.
 Qed.
 
-(* 集合1与单集的笛卡尔积 *)
+Lemma disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
+Proof.
+  intros. apply disjoint_cprod. intro. eapply suc_neq_0. eauto.
+Qed.
+
+(* 壹与单集的笛卡尔积 *)
 Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
 Proof.
   intros. rewrite one. apply ExtAx. split; intros Hx.
@@ -107,6 +119,7 @@ Notation "𝜅 + 𝜆" := (CardAdd 𝜅 𝜆) : Card_scope.
 Notation "𝜅 ⋅ 𝜆" := (CardMul 𝜅 𝜆) : Card_scope.
 Notation "𝜅 ^ 𝜆" := (CardExp 𝜅 𝜆) : Card_scope.
 
+(* 基数加法良定义 *)
 Theorem cardAdd_well_defined : ∀ K₁ K₂ L₁ L₂, K₁ ≈ K₂ → L₁ ≈ L₂ →
   disjoint K₁ L₁ → disjoint K₂ L₂ → K₁ ∪ L₁ ≈ K₂ ∪ L₂.
 Proof with eauto; try congruence.
@@ -157,6 +170,7 @@ Proof with eauto; try congruence.
       exfalso. eapply disjointE; [apply Hdj1|..]...
 Qed.
 
+(* 基数乘法良定义 *)
 Theorem cardMul_well_defined : ∀ K₁ K₂ L₁ L₂,
   K₁ ≈ K₂ → L₁ ≈ L₂ → K₁ × L₁ ≈ K₂ × L₂.
 Proof with eauto; try congruence.
@@ -188,6 +202,7 @@ Proof with eauto; try congruence.
     exists <x1, x2>. split. apply CProdI... zfcrewrite.
 Qed.
 
+(* 基数乘方良定义 *)
 Theorem cardExp_well_defined : ∀ K₁ K₂ L₁ L₂,
   K₁ ≈ K₂ → L₁ ≈ L₂ → (L₁ ⟶ K₁) ≈ (L₂ ⟶ K₂).
 Proof with eauto; try congruence.
@@ -303,7 +318,7 @@ Qed.
 
 Example cardAdd_1_1_2 : 1 + 1 = 2.
 Proof with neauto; try congruence.
-  rewrite <- (card_of_fin_card 2)...
+  rewrite (card_of_nat 2)...
   unfold CardAdd. apply CardAx1.
   set (Func (1×⎨0⎬ ∪ 1×⎨1⎬) 2 (λ x,
     match (ixm (x = <0, 0>)) with
@@ -338,5 +353,682 @@ Proof with neauto; try congruence.
       } reflexivity.
 Qed.
 
+(* 零是基数加法单位元 *)
+Lemma cardAdd_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 + 0 = 𝜅.
+Proof with auto.
+  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  rewrite Hcd at 2. apply CardAx1.
+  rewrite cprod_0_x, bunion_empty. symmetry.
+  set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. apply CProdI...
+  - intros x1 Hx1 x2 Hx2 Heq. apply op_correct in Heq as []...
+  - intros y Hy. apply CProd_correct in Hy as [a [Ha [b [Hb Hy]]]].
+    apply SingE in Hb. subst. exists a. split...
+Qed.
 
+(* 基数乘于零等于零 *)
+Lemma cardMul_0_r : ∀ 𝜅, 𝜅 ⋅ 0 = 0.
+Proof.
+  intros 𝜅. apply card_empty. apply EmptyI.
+  intros x Hx. apply CProdE1 in Hx as []. exfalso0.
+Qed.
 
+(* 1是基数乘法单位元 *)
+Lemma cardMul_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 ⋅ 1 = 𝜅.
+Proof.
+  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  rewrite Hcd at 2. apply CardAx1. symmetry.
+  rewrite one. apply eqnum_cprod_single.
+Qed.
+
+(* 基数的1次幂等于自身 *)
+Lemma cardExp_1_r : ∀ 𝜅, is_card 𝜅 → 𝜅 ^ 1 = 𝜅.
+Proof with neauto; try congruence.
+  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  rewrite Hcd at 2. apply CardAx1. symmetry.
+  set (Func 𝜅 (1 ⟶ 𝜅) (λ x, ⎨<0, x>⎬)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx.
+    destruct (single_pair_bijective 0 x) as [[Hf Hi] [Hd Hr]].
+    rewrite one... apply Arrow_correct. split; [|split]...
+    intros w Hw. apply SingE in Hw. subst.
+    eapply in_impl_sing_sub... rewrite <- Hr.
+    eapply ranI. apply func_correct... rewrite Hd...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
+    rewrite Heq in H. apply SingE in H.
+    apply op_correct in H as []...
+  - intros f Hf. apply SepE in Hf as [Hsub [Hf [Hd Hr]]].
+    assert (H0d: 0 ∈ dom f). { rewrite Hd. apply suc_has_0... }
+    apply domE in H0d as [y H]. exists y. split.
+    + apply Hr... eapply ranI...
+    + apply ExtAx. intros p. split; intros Hp.
+      * apply SingE in Hp. subst p...
+      * apply PowerAx in Hsub. apply Hsub in Hp as Hcp.
+        apply CProd_correct in Hcp as [a [Ha [b [Hb Hp']]]].
+        subst p. rewrite one in Ha. apply SingE in Ha. subst a.
+        cut (b = y). intros Heq. subst... eapply func_sv...
+Qed.
+
+(* 1的任意基数次幂等于1 *)
+Lemma cardExp_1_l : ∀ 𝜅, 1 ^ 𝜅 = 1.
+Proof with nauto.
+  intros. rewrite (card_of_nat 1) at 2...
+  apply CardAx1.
+  set (Func (𝜅 ⟶ 1) 1 (λ _, 0)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. apply suc_has_n.
+  - intros f1 Hf1 f2 Hf2 Heq.
+    cut (∀ g1 g2 𝜆, g1 ∈ 𝜆 ⟶ 1 → g2 ∈ 𝜆 ⟶ 1 → g1 ⊆ g2). {
+      intros H. apply sub_asym; eapply H; eauto.
+    }
+    clear Heq Hf1 Hf2 f1 f2 𝜅 F.
+    intros f1 f2 𝜅 Hf1 Hf2 p Hp.
+    apply Arrow_correct in Hf1 as [Hf1 [Hd1 Hr1]].
+    apply Arrow_correct in Hf2 as [Hf2 [Hd2 Hr2]]. subst.
+    apply func_pair in Hp as Hpeq...
+    rewrite Hpeq. rewrite Hpeq in Hp.
+    apply domI in Hp as Hd. apply func_ap in Hp as Hap...
+    apply Hr1 in Hd as H1. rewrite one in H1. apply SingE in H1.
+    apply Hr2 in Hd as H2. rewrite one in H2. apply SingE in H2.
+    rewrite <- Hap, H1, <- H2. apply func_correct... rewrite Hd2...
+  - intros y Hy. rewrite one in Hy. apply SingE in Hy. subst.
+    set (Func 𝜅 1 (λ _, 0)) as G.
+    exists G. split... apply SepI.
+    + apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    + apply meta_maps_into. intros _ _. apply suc_has_n.
+Qed.
+
+(* 空集到任意集合的函数的集合等于壹 *)
+Lemma arrow_from_empty : ∀ A, 0 ⟶ A = 1.
+Proof with nauto.
+  intros. apply ExtAx. intros p. split; intros Hp.
+  - apply SepE in Hp as [Hp _].
+    rewrite PowerAx, cprod_0_x, sub_0_iff_0 in Hp.
+    subst. apply suc_has_0...
+  - apply BUnionE in Hp as []. exfalso0.
+    apply SingE in H. subst. rewrite <- ident_empty.
+    apply Arrow_correct. split; [|split].
+    + apply ident_is_func.
+    + rewrite dom_ident...
+    + intros x Hx. exfalso0.
+Qed.
+
+(* 任意非空集合到空集的函数的集合等于空集 *)
+Lemma arrow_to_empty : ∀ A, ⦿ A → A ⟶ 0 = 0.
+Proof with auto.
+  intros A [a Ha]. apply ExtAx. intros p. split; intros Hp.
+  apply Arrow_correct in Hp as [_ [_ Hr]].
+  apply Hr in Ha. exfalso0. exfalso0.
+Qed.
+
+(* 基数的零次幂等于1 *)
+Lemma cardExp_0_r : ∀ 𝜅, 𝜅 ^ 0 = 1.
+Proof.
+  intros. unfold CardExp. rewrite arrow_from_empty.
+  symmetry. apply card_of_nat; nauto.
+Qed.
+
+(* 零的非零基数次幂等于零 *)
+Lemma cardExp_0_l : ∀ 𝜅, ⦿ 𝜅 → 0 ^ 𝜅 = 0.
+Proof with auto.
+  intros. unfold CardExp. rewrite arrow_to_empty...
+  apply card_empty...
+Qed.
+
+Fact cardExp_0_0 : 0 ^ 0 = 1.
+Proof. apply cardExp_0_r. Qed.
+
+(* 任意集合的幂集的基数等于2的该集合基数次幂 *)
+Lemma card_of_power : ∀ A, |𝒫 A| = 2 ^ |A|.
+Proof with auto.
+  intros. pose proof (power_eqnum_func_to_2 A).
+  apply CardAx1 in H. rewrite H. clear H.
+  apply CardAx1. apply cardExp_well_defined... apply CardAx0.
+Qed.
+
+Fact card_of_power_ω : |𝒫 ω| = 2 ^ ℵ₀.
+Proof. apply card_of_power. Qed.
+
+(* 任意基数不等于2的该基数次幂 *)
+Lemma card_neq_exp : ∀ 𝜅, is_card 𝜅 → 𝜅 ≠ 2 ^ 𝜅.
+Proof.
+  intros 𝜅 Hcd Heq. apply card_of_card in Hcd.
+  rewrite Hcd, <- card_of_power in Heq.
+  apply CardAx1 in Heq. eapply Cantor's. apply Heq.
+Qed.
+
+Fact aleph_0_neq_exp : ℵ₀ ≠ 2 ^ ℵ₀.
+Proof. apply card_neq_exp. apply aleph_0_is_card. Qed.
+
+(* 基数加法交换律 *)
+Theorem cardAdd_comm : ∀ 𝜅 𝜆, 𝜅 + 𝜆 = 𝜆 + 𝜅.
+Proof.
+  intros. apply CardAx1. rewrite bunion_comm.
+  apply cardAdd_well_defined.
+  - rewrite <- eqnum_cprod_single.
+    rewrite <- eqnum_cprod_single. reflexivity.
+  - rewrite <- eqnum_cprod_single.
+    rewrite <- eqnum_cprod_single. reflexivity.
+  - unfold disjoint. rewrite binter_comm. apply disjoint_cprod_0_1.
+  - apply disjoint_cprod_0_1.
+Qed.
+
+(* 基数乘法交换律 *)
+Theorem cardMul_comm : ∀ 𝜅 𝜆, 𝜅 ⋅ 𝜆 = 𝜆 ⋅ 𝜅.
+Proof with auto.
+  intros. apply CardAx1.
+  set (Func (𝜅 × 𝜆) (𝜆 × 𝜅) (λ x, <π2 x, π1 x>)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. apply CProdE1 in Hx as []. apply CProdI...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    apply CProdE2 in Hx1 as [a [b Hx1]].
+    apply CProdE2 in Hx2 as [c [d Hx2]].
+    apply op_correct in Heq as []. subst. zfcrewrite.
+  - intros y Hy.
+    apply CProd_correct in Hy as [a [Ha [b [Hb Hy]]]]. subst.
+    exists <b, a>. split. apply CProdI... zfcrewrite.
+Qed.
+
+Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
+Proof with auto.
+  intros. rewrite cardMul_comm. apply CardAx1.
+  cut (𝜅 × ⎨0⎬ ∪ 𝜅 × ⎨1⎬ = 𝜅 × 2). { intros H. rewrite H... }
+  assert (H1_2: 1 ∈ 2) by apply suc_has_n.
+  assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
+  apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply CProd_correct in H as [a [Ha [b [Hb H]]]].
+      apply SingE in Hb. subst. apply CProdI...
+    + apply CProd_correct in H as [a [Ha [b [Hb H]]]].
+      apply SingE in Hb. subst. apply CProdI...
+  - apply CProd_correct in Hx as [a [Ha [b [Hb Hx]]]].
+    subst. apply BUnionE in Hb as [].
+    + apply BUnionE in H as []. exfalso0.
+      apply BUnionI1. apply CProdI...
+    + apply SingE in H. subst b.
+      apply BUnionI2. apply CProdI...
+Qed.
+
+(* 基数加法结合律 *)
+Theorem cardAdd_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 + 𝜆) + 𝜇 = 𝜅 + (𝜆 + 𝜇).
+Proof with neauto; try congruence.
+  intros. apply CardAx1.
+  assert (Hnq: Embed 1 = Embed 2 → ⊥). {
+    intros. apply (lt_not_refl 2)...
+    rewrite <- H at 1. apply suc_has_n.
+  }
+  eapply eqnum_tran. {
+    apply cardAdd_well_defined.
+    - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0...
+    - rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
+    - apply disjoint_cprod_0_1.
+    - unfold disjoint. rewrite binter_comm, binter_bunion_distr.
+      apply EmptyI. intros x Hx.
+      apply BUnionE in Hx as []; apply BInterE in H as [].
+      + eapply disjointE. apply (disjoint_cprod 𝜇 𝜅 2 0).
+        apply suc_neq_0. apply H. apply H0.
+      + eapply disjointE. apply (disjoint_cprod 𝜇 𝜆 2 1).
+        intro. apply Hnq... apply H. apply H0.
+  }
+  symmetry. eapply eqnum_tran. {
+    apply cardAdd_well_defined.
+    - reflexivity.
+    - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0.
+      apply cardAdd_well_defined.
+      + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 1)...
+      + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
+      + apply disjoint_cprod_0_1.
+      + apply disjoint_cprod. intro. apply Hnq...
+    - apply disjoint_cprod_0_1.
+    - unfold disjoint. rewrite binter_bunion_distr.
+      apply EmptyI. intros x Hx. apply BUnionE in Hx as [].
+      + pose proof (disjoint_cprod_0_1 𝜅 𝜆).
+        rewrite H0 in H. exfalso0.
+      + apply BInterE in H as [].
+        eapply disjointE. apply (disjoint_cprod 𝜅 𝜇 0 2).
+        intro. eapply suc_neq_0... apply H. apply H0.
+  }
+  rewrite bunion_assoc...
+Qed.
+
+(* 基数乘法结合律 *)
+Theorem cardMul_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 ⋅ 𝜆) ⋅ 𝜇 = 𝜅 ⋅ (𝜆 ⋅ 𝜇).
+Proof with auto.
+  intros. apply CardAx1. eapply eqnum_tran.
+  - apply cardMul_well_defined.
+    symmetry. apply CardAx0. reflexivity.
+  - rewrite eqnum_cprod_assoc.
+    apply cardMul_well_defined... apply CardAx0.
+Qed.
+
+(* 基数乘法分配律 *)
+Theorem cardMul_distr : ∀ 𝜅 𝜆 𝜇, 𝜅 ⋅ (𝜆 + 𝜇) = 𝜅 ⋅ 𝜆 + 𝜅 ⋅ 𝜇.
+Proof with auto.
+  intros. apply CardAx1.
+  eapply eqnum_tran. {
+    apply cardMul_well_defined.
+    reflexivity. symmetry. apply CardAx0...
+  }
+  rewrite ch3_2_a. apply cardAdd_well_defined.
+  - rewrite <- eqnum_cprod_assoc.
+    apply cardMul_well_defined... apply CardAx0.
+  - rewrite <- eqnum_cprod_assoc.
+    apply cardMul_well_defined... apply CardAx0.
+  - apply disjointI. intros [x [H1 H2]].
+    apply CProdE1 in H1 as [_ H1].
+    apply CProdE1 in H2 as [_ H2].
+    eapply disjointE; revgoals.
+    apply H2. apply H1. apply disjoint_cprod_0_1.
+  - apply disjoint_cprod_0_1.
+Qed.
+
+Corollary cardMul_distr' : ∀ 𝜅 𝜆 𝜇, (𝜆 + 𝜇) ⋅ 𝜅 = 𝜆 ⋅ 𝜅 + 𝜇 ⋅ 𝜅.
+Proof.
+  intros. rewrite cardMul_comm, cardMul_distr.
+  rewrite cardMul_comm, (cardMul_comm 𝜅). reflexivity.
+Qed.
+
+Theorem cardExp_id_1 : ∀ 𝜅 𝜆 𝜇, 𝜅 ^ (𝜆 + 𝜇) = 𝜅 ^ 𝜆 ⋅ 𝜅 ^ 𝜇.
+Proof with eauto; try congruence.
+  intros. apply CardAx1.
+  eapply eqnum_tran. {
+    apply cardExp_well_defined.
+    reflexivity. symmetry. apply CardAx0.
+  }
+  symmetry. eapply eqnum_tran. {
+    unfold CardExp. apply cardMul_well_defined.
+    - rewrite <- CardAx0. apply cardExp_well_defined.
+      reflexivity. apply (eqnum_cprod_single _ 0).
+    - rewrite <- CardAx0. apply cardExp_well_defined.
+      reflexivity. apply (eqnum_cprod_single _ 1).
+  }
+  remember (𝜆 × ⎨0⎬) as s. remember (𝜇 × ⎨1⎬) as t.
+  assert (Hdj: disjoint s t). { subst. apply disjoint_cprod_0_1. }
+  clear Heqs Heqt. symmetry.
+  set (Func (s ∪ t ⟶ 𝜅) ((s ⟶ 𝜅) × (t ⟶ 𝜅)) (λ f,
+    <Func s 𝜅 (λ x, f[x]), Func t 𝜅 (λ x, f[x])>
+  )) as F.
+  exists F. apply meta_bijective.
+  - intros f Hf. apply Arrow_correct in Hf as [Hf [Hd Hr]].
+    apply CProdI; apply SepI.
+    + apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    + apply meta_maps_into.
+      intros x Hx. apply Hr. apply BUnionI1...
+    + apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    + apply meta_maps_into.
+      intros x Hx. apply Hr. apply BUnionI2...
+  - intros f1 Hf1 f2 Hf2 Heq.
+    apply op_correct in Heq as [H1 H2].
+    apply Arrow_correct in Hf1 as [Hf1 [Hd1 Hr1]].
+    apply Arrow_correct in Hf2 as [Hf2 [Hd2 Hr2]].
+    apply func_ext... intros x Hx. rewrite Hd1 in Hx.
+    apply BUnionE in Hx as [Hx|Hx].
+    + assert (HF: <x, f1[x]> ∈ Func s 𝜅 (λ x, f1[x])). {
+        apply SepI. apply CProdI... apply Hr1.
+        apply BUnionI1... zfcrewrite.
+      }
+      rewrite H1 in HF. apply SepE in HF as [_ HF]. zfcrewrite.
+    + assert (HF: <x, f1[x]> ∈ Func t 𝜅 (λ x, f1[x])). {
+        apply SepI. apply CProdI... apply Hr1.
+        apply BUnionI2... zfcrewrite.
+      }
+      rewrite H2 in HF. apply SepE in HF as [_ HF]. zfcrewrite.
+  - intros y Hy. apply CProd_correct in Hy as [g [Hg [h [Hh Heq]]]].
+    apply Arrow_correct in Hg as [Hgf [Hgd Hgr]].
+    apply Arrow_correct in Hh as [Hhf [Hhd Hhr]].
+    set (Func (s ∪ t) 𝜅 (λ x, match (ixm (x ∈ s)) with
+      | inl _ => g[x] | inr _ => h[x]
+    end )) as f.
+    assert (Hf: f: s ∪ t ⇒ 𝜅). {
+      apply meta_maps_into. intros x Hx.
+      apply BUnionE in Hx as []; destruct (ixm (x ∈ s))...
+      apply Hgr... exfalso. eapply disjointE... apply Hhr...
+    }
+    exists f. split. apply SepI... apply PowerAx.
+    intros p Hp. apply SepE in Hp as []...
+    destruct Hf as [Hff [Hfd Hfr]].
+    subst y. apply op_correct. split. {
+      apply ExtAx. intros p. split; intros Hp.
+      - apply SepE in Hp as [H1 H2].
+        apply CProd_correct in H1 as [x [Hx [y [_ Hp]]]].
+        subst p. zfcrewrite. subst y.
+        assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
+        apply func_correct in H... apply SepE in H as [_ H2].
+        zfcrewrite. destruct (ixm (x ∈ s))...
+        rewrite H2. apply func_correct...
+      - apply func_pair in Hp as Hpeq...
+        remember (π1 p) as x. remember (π2 p) as y. clear Heqx Heqy.
+        subst p. apply domI in Hp as Hx. apply func_ap in Hp...
+        subst y. apply SepI.
+        + apply CProdI... apply Hgr...
+        + zfcrewrite. rewrite Hgd in Hx.
+          assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
+          apply func_correct in H... apply SepE in H as [_ H].
+          zfcrewrite. destruct (ixm (x ∈ s))...
+    } {
+      apply ExtAx. intros p. split; intros Hp.
+      - apply SepE in Hp as [H1 H2].
+        apply CProd_correct in H1 as [x [Hx [y [_ Hp]]]].
+        subst p. zfcrewrite. subst y.
+        assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
+        apply func_correct in H... apply SepE in H as [_ H2].
+        zfcrewrite. destruct (ixm (x ∈ s))...
+        + exfalso. eapply disjointE...
+        + rewrite H2. apply func_correct...
+      - apply func_pair in Hp as Hpeq...
+        remember (π1 p) as x. remember (π2 p) as y. clear Heqx Heqy.
+        subst p. apply domI in Hp as Hx. apply func_ap in Hp...
+        subst y. apply SepI.
+        + apply CProdI... apply Hhr...
+        + zfcrewrite. rewrite Hhd in Hx.
+          assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
+          apply func_correct in H... apply SepE in H as [_ H].
+          zfcrewrite. destruct (ixm (x ∈ s))...
+          exfalso. eapply disjointE...
+    }
+Qed.
+
+Theorem cardExp_id_2 : ∀ 𝜅 𝜆 𝜇, (𝜅 ⋅ 𝜆) ^ 𝜇 = 𝜅 ^ 𝜇 ⋅ 𝜆 ^ 𝜇.
+Proof with eauto; try congruence.
+  intros. apply CardAx1.
+  eapply eqnum_tran. {
+    apply cardExp_well_defined.
+    symmetry. apply CardAx0. reflexivity.
+  }
+  symmetry. eapply eqnum_tran. {
+    unfold CardExp. apply cardMul_well_defined.
+    - symmetry. apply CardAx0.
+    - symmetry. apply CardAx0.
+  }
+  set (Func ((𝜇 ⟶ 𝜅) × (𝜇 ⟶ 𝜆)) (𝜇 ⟶ 𝜅 × 𝜆) (λ p,
+    Func 𝜇 (𝜅 × 𝜆) (λ x, <(π1 p)[x], (π2 p)[x]>)
+  )) as F.
+  exists F. apply meta_bijective.
+  - intros p Hp. apply CProd_correct in Hp as [g [Hg [h [Hh Hp]]]].
+    apply Arrow_correct in Hg as [Hgf [Hgd Hgr]].
+    apply Arrow_correct in Hh as [Hhf [Hhd Hhr]].
+    subst p. zfcrewrite. apply SepI.
+    + apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    + apply meta_maps_into. intros x Hx. apply CProdI.
+      apply Hgr... apply Hhr...
+  - intros p1 Hp1 p2 Hp2 Heq.
+    apply CProd_correct in Hp1 as [g1 [Hg1 [h1 [Hh1 H1]]]].
+    apply CProd_correct in Hp2 as [g2 [Hg2 [h2 [Hh2 H2]]]].
+    subst p1 p2. zfcrewrite. apply op_correct.
+    cut (∀x ∈ 𝜇, <g1[x], h1[x]> = <g2[x], h2[x]>). {
+      apply Arrow_correct in Hg1 as [Hg1 [Hdg1 _]].
+      apply Arrow_correct in Hh1 as [Hh1 [Hdh1 _]].
+      apply Arrow_correct in Hg2 as [Hg2 [Hdg2 _]].
+      apply Arrow_correct in Hh2 as [Hh2 [Hdh2 _]].
+      intros H; split; eapply func_ext...
+      - intros x Hx. rewrite Hdg1 in Hx.
+        apply H in Hx. apply op_correct in Hx as []...
+      - intros x Hx. rewrite Hdh1 in Hx.
+        apply H in Hx. apply op_correct in Hx as []...
+    }
+    intros x Hx.
+    cut (∀ g h, g ∈ 𝜇 ⟶ 𝜅 → h ∈ 𝜇 ⟶ 𝜆 →
+      <x, <g[x], h[x]>> ∈ Func 𝜇 (𝜅 × 𝜆) (λ x, <g[x], h[x]>)). {
+      intros H. pose proof (H _ _ Hg1 Hh1).
+      rewrite Heq in H0. apply SepE in H0 as [_ H0]. zfcrewrite.
+    }
+    intros g h Hg Hh.
+    apply Arrow_correct in Hg as [Hg [Hdg Hrg]].
+    apply Arrow_correct in Hh as [Hh [Hdh Hrh]].
+    apply SepI; zfcrewrite. apply CProdI... apply CProdI.
+    apply Hrg... apply Hrh...
+  - intros f Hf. apply SepE in Hf as [_ Hf].
+    assert (Hf' := Hf). destruct Hf' as [Hff [Hdf Hrf]].
+    set (Func 𝜇 𝜅 (λ x, π1 f[x])) as g.
+    set (Func 𝜇 𝜆 (λ x, π2 f[x])) as h.
+    assert (Hg: g: 𝜇 ⇒ 𝜅). {
+      apply meta_maps_into. intros x Hx. rewrite <- Hdf in Hx.
+      apply func_correct in Hx... apply ranI in Hx.
+      apply Hrf in Hx. apply CProdE1 in Hx as []...
+    }
+    assert (Hh: h: 𝜇 ⇒ 𝜆). {
+      apply meta_maps_into. intros x Hx. rewrite <- Hdf in Hx.
+      apply func_correct in Hx... apply ranI in Hx.
+      apply Hrf in Hx. apply CProdE1 in Hx as []...
+    }
+    exists <g, h>. split. {
+      apply CProdI; apply SepI...
+      - apply PowerAx. intros p Hp. apply SepE in Hp as []...
+      - apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    }
+    destruct Hg as [Hgf [Hgd _]].
+    destruct Hh as [Hhf [Hhd _]].
+    assert (Hfx: ∀x ∈ 𝜇, f[x] = <g[x], h[x]>). {
+      intros x Hx. rewrite <- Hdf in Hx.
+      apply func_correct in Hx as Hfx...
+      apply ranI in Hfx. apply Hrf in Hfx. 
+      apply CProd_correct in Hfx as [a [Ha [b [Hb Hfx]]]].
+      rewrite Hfx. apply op_correct.
+      split; symmetry; apply func_ap; auto; (apply SepI;
+      [apply CProdI; congruence|zfcrewrite; rewrite Hfx; zfcrewrite]).
+    }
+    apply ExtAx. intros p. split; intros Hp.
+    + apply SepE in Hp as [Hp Heq].
+      apply CProd_correct in Hp as [x [Hx [y [_ Hp]]]].
+      subst p. zfcrewrite. subst y. apply Hfx in Hx as Hap.
+      rewrite <- Hap. apply func_correct...
+    + apply func_pair in Hp as Heq...
+      remember (π1 p) as x. remember (π2 p) as y. clear Heqx Heqy.
+      subst p. apply domI in Hp as Hx. apply ranI in Hp as Hy.
+      apply Hrf in Hy. apply SepI; zfcrewrite. apply CProdI...
+      rewrite Hdf in Hx. apply Hfx in Hx as Hap.
+      rewrite <- Hap. symmetry. apply func_ap...
+Qed.
+
+Theorem cardExp_id_3 : ∀ 𝜅 𝜆 𝜇, (𝜅 ^ 𝜆) ^ 𝜇 = 𝜅 ^ (𝜆 ⋅ 𝜇).
+Proof with auto; try congruence.
+  intros. apply CardAx1.
+  eapply eqnum_tran. {
+    apply cardExp_well_defined.
+    symmetry. apply CardAx0. reflexivity.
+  }
+  symmetry. eapply eqnum_tran. {
+    apply cardExp_well_defined.
+    reflexivity. symmetry. apply CardAx0.
+  }
+  set (Func (𝜆 × 𝜇 ⟶ 𝜅) (𝜇 ⟶ (𝜆 ⟶ 𝜅)) (λ f,
+    Func 𝜇 (𝜆 ⟶ 𝜅) (λ y,
+      Func 𝜆 𝜅 (λ x, f[<x, y>])
+  ))) as F.
+  exists F. apply meta_bijective.
+  - intros f Hf. apply SepI. {
+      apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    }
+    apply meta_maps_into. intros y Hy. apply SepI. {
+      apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    }
+    apply meta_maps_into. intros x Hx.
+    apply SepE in Hf as [_ [Hff [Hdf Hrf]]].
+    apply Hrf. eapply ranI. apply func_correct...
+    rewrite Hdf. apply CProdI...
+  - intros f1 Hf1 f2 Hf2 Heq.
+    apply Arrow_correct in Hf1 as [Hf1 [Hdf1 Hrf1]].
+    apply Arrow_correct in Hf2 as [Hf2 [Hdf2 _]].
+    apply func_ext... intros x Hx. rewrite Hdf1 in Hx.
+    apply CProd_correct in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+    remember (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, f1[<x, y>]))) as F1.
+    cut (<b, Func 𝜆 𝜅 (λ x, f1[<x, b>])> ∈ F1). {
+      intros H1. rewrite Heq in H1.
+      apply SepE in H1 as [_ H1]. zfcrewrite.
+      cut (<a, f1[<a, b>]> ∈ Func 𝜆 𝜅 (λ x, f1[<x, b>])). {
+        intros H2. rewrite H1 in H2.
+        apply SepE in H2 as [_ H2]. zfcrewrite.
+      }
+      apply SepI; zfcrewrite.
+      apply CProdI... apply Hrf1. apply CProdI...
+    }
+    subst F1. apply SepI; zfcrewrite.
+    apply CProdI... apply SepI. {
+      apply PowerAx. intros p Hp. apply SepE in Hp as []...
+    }
+    apply meta_maps_into. intros x Hx.
+    apply Hrf1. apply CProdI...
+  - intros f Hf. apply SepE in Hf as [_ [Hff [Hdf Hrf]]].
+    set (Func (𝜆 × 𝜇) 𝜅 (λ p, f[π2 p][π1 p])) as g.
+    assert (H1: ∀x ∈ dom f, f[x] = Func 𝜆 𝜅 (λ y, g[<y, x>])). {
+      intros x Hx. apply func_correct in Hx as Hfx...
+      apply ranI in Hfx. apply Hrf in Hfx.
+      apply Arrow_correct in Hfx as [Hhf [Hhd Hhr]].
+      apply func_ext... apply func_is_func.
+      - apply ExtAx. intros y. split; intros Hy.
+        + eapply domI. apply SepI.
+          * apply CProdI... apply Hhr. rewrite <- Hhd. apply Hy.
+          * zfcrewrite. symmetry.
+            apply func_ap. apply func_is_func.
+            apply SepI; zfcrewrite. apply CProdI.
+            apply CProdI... apply Hhr...
+        + apply domE in Hy as [z Hp]. apply SepE in Hp as [Hy _].
+          apply CProdE1 in Hy as [Hy _]. zfcrewrite.
+      - intros y Hy. symmetry. apply func_ap.
+        apply func_is_func. apply SepI; zfcrewrite.
+        + apply CProdI... apply Hhr...
+        + symmetry. apply func_ap. apply func_is_func.
+          apply SepI; zfcrewrite. apply CProdI.
+          apply CProdI... apply Hhr...
+    }
+    assert (H2: ∀x ∈ dom f, <x, f[x]> ∈ (Func 𝜇 (𝜆 ⟶ 𝜅) (λ b, Func 𝜆 𝜅 (λ a, g[<a, b>])))). {
+      intros x Hx. apply SepI; zfcrewrite.
+      - apply CProdI. rewrite <- Hdf... apply Hrf.
+        eapply ranI. apply func_correct...
+      - apply H1...
+    }
+    assert (H3: dom (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, g[<x, y>]))) = dom f). {
+      apply ExtAx. split; intros Hx.
+      - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
+        apply CProdE1 in Hx as [Hx _]. zfcrewrite.
+      - eapply domI. apply H2...
+    }
+    exists g. split.
+    + apply SepI. {
+        apply PowerAx. intros p Hp. apply SepE in Hp as []...
+      }
+      apply meta_maps_into. intros p Hp.
+      apply CProd_correct in Hp as [a [Ha [b [Hb Hp]]]].
+      subst p. zfcrewrite. rewrite <- Hdf in Hb.
+      apply func_correct in Hb... apply ranI in Hb. apply Hrf in Hb.
+      apply Arrow_correct in Hb as [_ [_ Hr]]. apply Hr...
+    + apply func_ext... apply func_is_func.
+      intros x Hx. rewrite H3 in Hx.
+      apply func_ap. apply func_is_func. apply H2...
+Qed.
+
+Lemma cardAdd_suc : ∀ 𝜅 𝜆, 𝜅 + (𝜆 + 1) = (𝜅 + 𝜆) + 1.
+Proof. intros. rewrite cardAdd_assoc. auto. Qed.
+
+Lemma cardMul_suc : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 ⋅ (𝜆 + 1) = 𝜅 ⋅ 𝜆 + 𝜅.
+Proof. intros. rewrite cardMul_distr, cardMul_ident; auto. Qed.
+
+Lemma cardExp_suc : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 ^ (𝜆 + 1) = 𝜅 ^ 𝜆 ⋅ 𝜅.
+Proof. intros. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
+
+Lemma card_suc : ∀n ∈ ω, n + 1 = n⁺.
+Proof with auto.
+  intros n Hn. rewrite (card_of_nat n⁺); [|apply ω_inductive]...
+  apply CardAx1. apply cardAdd_well_defined.
+  - rewrite <- eqnum_cprod_single...
+  - rewrite <- eqnum_cprod_single, eqnum_single...
+  - apply disjoint_cprod_0_1.
+  - apply disjointI. intros [x [H1 H2]].
+    apply SingE in H2. subst. eapply lt_not_refl; eauto.
+Qed.
+
+(* 有限基数加法等效于自然数加法 *)
+Theorem cardAdd_fin : ∀ m n ∈ ω, m + n = (m + n)%n.
+Proof with auto.
+  intros m Hm n Hn. generalize dependent m.
+  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m + n = (m + n)%n} as N.
+  ω_induction N Hn; intros k Hk.
+  - rewrite cardAdd_ident, add_ident... apply nat_is_card...
+  - rewrite <- card_suc at 1...
+    rewrite <- cardAdd_assoc, IH, card_suc, add_m_n...
+    apply add_ran...
+Qed.
+
+(* 有限基数乘法等效于自然数乘法 *)
+Theorem cardMul_fin : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%n.
+Proof with auto.
+  intros m Hm n Hn. generalize dependent m.
+  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%n} as N.
+  ω_induction N Hn; intros k Hk.
+  - rewrite cardMul_0_r, mul_0_r...
+  - rewrite <- card_suc at 1...
+    rewrite cardMul_suc, IH, cardAdd_fin, mul_m_n, add_comm...
+    apply mul_ran... apply mul_ran... apply nat_is_card...
+Qed.
+
+(* 有限基数乘方等效于自然数乘方 *)
+Theorem cardExp_fin : ∀ m n ∈ ω, m ^ n = (m ^ n)%n.
+Proof with auto.
+  intros m Hm n Hn. generalize dependent m.
+  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ^ n = (m ^ n)%n} as N.
+  ω_induction N Hn; intros k Hk.
+  - rewrite cardExp_0_r, exp_0_r...
+  - rewrite <- card_suc at 1...
+    assert ((k ^ m)%n ∈ ω) by (apply exp_ran; auto).
+    rewrite cardExp_suc, IH, cardMul_fin, exp_m_n, mul_comm...
+    apply nat_is_card...
+Qed.
+
+(* 有限基数的和是自然数 *)
+Corollary cardAdd_ω : ∀ m n ∈ ω, m + n ∈ ω.
+Proof with auto.
+  intros m Hm n Hn. rewrite cardAdd_fin... apply add_ran...
+Qed.
+
+(* 有限基数的积是自然数 *)
+Corollary cardMul_ω : ∀ m n ∈ ω, m ⋅ n ∈ ω.
+Proof with auto.
+  intros m Hm n Hn. rewrite cardMul_fin... apply mul_ran...
+Qed.
+
+(* 有限基数的幂是自然数 *)
+Corollary cardExp_ω : ∀ m n ∈ ω, m ^ n ∈ ω.
+Proof with auto.
+  intros m Hm n Hn. rewrite cardExp_fin... apply exp_ran...
+Qed.
+
+(* 有限集的二元并仍是有限集 *)
+Corollary bunion_of_finite_sets_is_finite :
+  ∀ A B, finite A → finite B → finite (A ∪ B).
+Proof with auto.
+  intros * Hfa Hfb. rewrite <- ch2_11_2.
+  assert (Hfb': finite (B - A)). {
+    apply (sub_of_finite_is_finite _ B)...
+    intros x Hx. apply SepE in Hx as []...
+  }
+  destruct Hfa as [m [Hm Ha]]. destruct Hfb' as [n [Hn Hb]].
+  exists (m + n). split. apply cardAdd_ω...
+  unfold CardAdd. rewrite <- CardAx0.
+  apply cardAdd_well_defined.
+  - rewrite Ha. apply eqnum_cprod_single.
+  - rewrite Hb. apply eqnum_cprod_single.
+  - apply binter_comp_empty.
+  - apply disjoint_cprod_0_1.
+Qed.
+
+(* 有限集的笛卡尔积仍是有限集 *)
+Corollary cprod_of_finite_sets_is_finite :
+  ∀ A B, finite A → finite B → finite (A × B).
+Proof with auto.
+  intros * [m [Hm Ha]] [n [Hn Hb]].
+  exists (m ⋅ n). split. apply cardMul_ω...
+  unfold CardMul. rewrite <- CardAx0.
+  apply cardMul_well_defined...
+Qed.
+
+(* 有限集的函数空间仍是有限集 *)
+Corollary arrow_of_finite_sets_is_finite :
+  ∀ A B, finite A → finite B → finite (B ⟶ A).
+Proof with auto.
+  intros * [m [Hm Ha]] [n [Hn Hb]].
+  exists (m ^ n). split. apply cardExp_ω...
+  unfold CardExp. rewrite <- CardAx0.
+  apply cardExp_well_defined...
+Qed.

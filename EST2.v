@@ -324,7 +324,7 @@ Proof.
   - apply InterI...
     + destruct Hi as [b Hb]. exists (A ∪ b).
       apply ReplAx... exists b. split; auto.
-    + intros y Hy. apply ReplE in Hy as [z [Hz Hu]]. subst y. 
+    + intros y Hy. apply ReplAx in Hy as [z [Hz Hu]]. subst y. 
       apply BUnionE in H as [].
       * apply BUnionI1. apply H.
       * apply BUnionI2. apply InterE in H as [_ H].
@@ -364,7 +364,7 @@ Proof.
   intros * [a Ha]. apply ExtAx. split; intros.
   - apply CompE in H as [HC HU]. apply InterI.
     + exists (C - a). apply ReplI. apply Ha.
-    + intros y Hy. apply ReplE in Hy as [b [Hb Hc]].
+    + intros y Hy. apply ReplAx in Hy as [b [Hb Hc]].
       rewrite <- Hc. apply CompI. apply HC. intros H.
       apply HU. eapply UnionI. apply Hb. apply H.
   - apply InterE in H as [_ H]. apply CompI.

@@ -434,7 +434,7 @@ Lemma realAddE_nonNeg : ∀ x y ∈ ℝ, ∀q ∈ ℚ,
     (ratNonNeg r ∧ ratNonNeg s) ∧ (r + s)%q = q.
 Proof with neauto.
   intros x Hx y Hy q Hqq Hpx Hpy Hnnq Hq.
-  apply ReplE in Hq as [t [Ht Heq]]. apply CProd_correct in Ht
+  apply ReplAx in Hq as [t [Ht Heq]]. apply CProd_correct in Ht
     as [r [Hr [s [Hs Ht]]]]. subst. zfcrewrite.
   assert (Hrq: r ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
   assert (Hsq: s ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).

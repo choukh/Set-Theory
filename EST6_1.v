@@ -3,6 +3,7 @@
 
 Require Export ZFC.lib.Natural.
 Require Export ZFC.lib.FuncFacts.
+Require Export Setoid.
 
 (*** EST第六章1：等势，康托定理，鸽笼原理，有限基数 ***)
 
@@ -12,8 +13,110 @@ Definition equinumerous : set → set → Prop := λ A B,
 Notation "A ≈ B" := ( equinumerous A B) (at level 70).
 Notation "A ≉ B" := (¬equinumerous A B) (at level 70).
 
-(* 任意集合的幂集与该集合到双元集的所有函数的集合等势 *)
-Example power_eqnum_func_to_2 : ∀ A, 𝒫 A ≈ A ⟶ 2.
+(* 等势有自反性 *)
+Lemma eqnum_refl : ∀ A, A ≈ A.
+Proof.
+  intros. exists (Ident A).
+  apply ident_bijective.
+Qed.
+Hint Immediate eqnum_refl : core.
+
+(* 等势有对称性 *)
+Lemma eqnum_symm : ∀ A B, A ≈ B → B ≈ A.
+Proof.
+  intros * [f H]. exists (f⁻¹).
+  apply inv_bijection. auto.
+Qed.
+
+(* 等势有传递性 *)
+Lemma eqnum_tran : ∀ A B C, A ≈ B → B ≈ C → A ≈ C.
+Proof.
+  intros * [f Hf] [g Hg]. exists (g ∘ f).
+  eapply compo_bijection; eauto.
+Qed.
+
+Add Relation set equinumerous
+  reflexivity proved by eqnum_refl
+  symmetry proved by eqnum_symm
+  transitivity proved by eqnum_tran
+  as eqnum_rel.
+
+(* 集合与空集等势当且仅当它是空集 *)
+Lemma eqnum_empty : ∀ A, A ≈ ∅ ↔ A = ∅.
+Proof with auto.
+  split. intros [f Hf]. apply bijection_empty in Hf...
+  intros. subst A...
+Qed.
+
+(* 单集与壹等势 *)
+Lemma eqnum_single : ∀ a, ⎨a⎬ ≈ 1.
+Proof with auto.
+  intros. set (Func ⎨a⎬ 1 (λ _, 0)) as F.
+  exists F. apply meta_bijective.
+  - intros _ _. apply suc_has_n.
+  - intros x1 Hx1 x2 Hx2 Heq.
+    apply SingE in Hx1. apply SingE in Hx2. subst...
+  - intros y Hy. rewrite one in Hy. apply SingE in Hy.
+    exists a. split...
+Qed.
+
+(* 集合与单集的笛卡尔积与原集合等势 *)
+Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
+Proof with auto.
+  intros. set (Func A (A × ⎨ a ⎬) (λ x, <x, a>)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. apply CProdI...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    apply op_correct in Heq as []...
+  - intros y Hy. apply CProd_correct in Hy as [b [Hb [c [Hc Heq]]]].
+    apply SingE in Hc. subst. exists b. split...
+Qed.
+
+(* 笛卡尔积在等势意义下满足交换律 *)
+Lemma eqnum_cprod_comm : ∀ A B, A × B ≈ B × A.
+Proof with auto.
+  intros. set (Func (A × B) (B × A) (λ x, <π2 x, π1 x>)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx.
+    apply CProd_correct in Hx as [a [Ha [b [Hb Hx]]]].
+    subst. zfcrewrite. apply CProdI...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    apply CProd_correct in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CProd_correct in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    subst. zfcrewrite.
+    apply op_correct in Heq as []. congruence.
+  - intros y Hy.
+    apply CProd_correct in Hy as [a [Ha [c [Hc Hy]]]].
+    exists <c, a>. split. apply CProdI... zfcrewrite.
+Qed.
+
+(* 笛卡尔积在等势意义下满足结合律 *)
+Lemma eqnum_cprod_assoc : ∀ A B C, (A × B) × C ≈ A × (B × C).
+Proof with auto.
+  intros.
+  set (Func ((A × B) × C) (A × (B × C)) (λ x,
+    <π1 (π1 x), <π2 (π1 x), π2 x>>
+  )) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx.
+    apply CProd_correct in Hx as [d [Hd [c [Hc H1]]]].
+    apply CProd_correct in Hd as [a [Ha [b [Hb H2]]]].
+    subst. zfcrewrite. apply CProdI... apply CProdI...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    apply CProd_correct in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
+    apply CProd_correct in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
+    apply CProd_correct in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
+    apply CProd_correct in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
+    apply op_correct in Heq as [H1 H2].
+    apply op_correct in H2 as [H2 H3]. subst. zfcrewrite.
+  - intros y Hy.
+    apply CProd_correct in Hy as [a [Ha [d [Hd H1]]]].
+    apply CProd_correct in Hd as [b [Hb [c [Hc H2]]]].
+    exists <a, b, c>. split. apply CProdI... apply CProdI... zfcrewrite.
+Qed.
+
+(* 任意集合的幂集与该集合到贰的所有函数的集合等势 *)
+Lemma power_eqnum_func_to_2 : ∀ A, 𝒫 A ≈ A ⟶ 2.
 Proof with neauto.
   intros.
   set (λ B, Func A 2 (λ x,
@@ -90,35 +193,6 @@ Proof with neauto.
       * rewrite two in Hb. apply TwoE in Hb as []...
         exfalso. subst b. rewrite <- one in Hxy.
         apply H. apply SepI... apply func_ap...
-Qed.
-
-(* 等势有自反性 *)
-Lemma eqnum_refl : ∀ A, A ≈ A.
-Proof.
-  intros. exists (Ident A).
-  apply ident_bijective.
-Qed.
-Hint Immediate eqnum_refl : core.
-
-(* 等势有对称性 *)
-Lemma eqnum_symm : ∀ A B, A ≈ B → B ≈ A.
-Proof.
-  intros * [f H]. exists (f⁻¹).
-  apply inv_bijection. auto.
-Qed.
-
-(* 等势有传递性 *)
-Lemma eqnum_tran : ∀ A B C, A ≈ B → B ≈ C → A ≈ C.
-Proof.
-  intros * [f Hf] [g Hg]. exists (g ∘ f).
-  eapply compo_bijection; eauto.
-Qed.
-
-(* 集合与空集等势当且仅当它是空集 *)
-Lemma eqnum_empty : ∀ A, A ≈ ∅ ↔ A = ∅.
-Proof with auto.
-  split. intros [f Hf]. apply bijection_empty in Hf...
-  intros. subst A...
 Qed.
 
 (* 康托定理：任意集合都不与自身的幂集等势 *)
@@ -253,7 +327,7 @@ Hint Resolve empty_finite : core.
 (* 自然数是有限集 *)
 Fact nat_finite : ∀n ∈ ω, finite n.
 Proof.
-  intros n Hn. exists n. split. apply Hn. apply eqnum_refl.
+  intros n Hn. exists n. split. apply Hn. reflexivity.
 Qed.
 
 (* 鸽笼原理推论：任意集合都不与自身的真子集等势 *)
@@ -330,14 +404,11 @@ Corollary finite_eqnum_unique_nat : ∀ A, finite A →
 Proof with eauto.
   intros A Hfin. split...
   intros m n [Hm H1] [Hn H2].
-  assert (H3: m ≈ n). {
-    eapply eqnum_tran. apply eqnum_symm. apply H1. apply H2.
-  }
   destruct (classic (m = n))... exfalso.
+  rewrite H1 in H2.
   apply lt_connected in H as []...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_proper_sub n m)... apply nat_finite...
-    apply eqnum_symm...
+  - apply lt_iff_sub in H... apply (no_fin_eqnum_proper_sub n m)...
+    apply nat_finite... symmetry...
   - apply lt_iff_sub in H...
     apply (no_fin_eqnum_proper_sub m n)... apply nat_finite...
 Qed.
@@ -348,9 +419,8 @@ Proof with auto.
   intros m Hm n Hn Hqn.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_proper_sub n m)... apply nat_finite...
-    apply eqnum_symm...
+  - apply lt_iff_sub in H... apply (no_fin_eqnum_proper_sub n m)...
+    apply nat_finite... symmetry...
   - apply lt_iff_sub in H...
     apply (no_fin_eqnum_proper_sub m n)... apply nat_finite...
 Qed.
@@ -388,12 +458,10 @@ Proof with auto.
   apply fin_card_correct in H1 as [m [Hm [H11 H12]]].
   apply fin_card_correct in H2 as [n [Hn [H21 H22]]].
   split; intros.
-  - eapply eqnum_tran. apply H12.
-    apply eqnum_symm. congruence.
+  - rewrite H12. symmetry. congruence.
   - cut (m ≈ n). intros Hqn.
     + apply nat_eqnum_eq in Hqn... congruence.
-    + eapply eqnum_tran. apply eqnum_symm. apply H12.
-      eapply eqnum_tran. apply H. apply H22.
+    + rewrite <- H12, <- H22...
 Qed.
 
 (* 自然数的基数与该自然数相等 *)
@@ -482,5 +550,5 @@ Proof with neauto.
   - exists n. split... rewrite <- Heq...
   - assert (Hps: f⟦A⟧ ⊂ n) by (split; auto).
     apply sub_of_nat_is_finite in Hps as [m [Hm [Hmn Hqn]]]...
-    exists m. split... eapply eqnum_tran...
+    exists m. split... rewrite H1...
 Qed.

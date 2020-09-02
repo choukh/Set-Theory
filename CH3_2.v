@@ -171,7 +171,7 @@ Qed.
 Example ch3_43: ∀ R A, totalOrd R A → totalOrd R⁻¹ A.
 Proof with eauto.
   intros * [Hrl [Htr Htri]].
-  assert (Hrl': rel R ⁻¹ A). {
+  assert (Hrl': binRel R ⁻¹ A). {
     intros x Hx. apply SepE in Hx as [_ [Hpp Hp]].
     apply op_η in Hpp. rewrite Hpp.
     apply Hrl in Hp. apply CProdE1 in Hp as [].
@@ -226,7 +226,7 @@ Example ch3_45: ∀ Rᵃ A Rᵇ B, totalOrd Rᵃ A → totalOrd Rᵇ B →
   totalOrd Rˡ (A × B).
 Proof with eauto; try congruence.
   intros * [Hrla [Htra Htria]] [Hrlb [Htrb Htrib]] Rˡ.
-  assert (Hrl: rel Rˡ (A × B)). {
+  assert (Hrl: binRel Rˡ (A × B)). {
     intros p Hp. apply SepE in Hp as [Hp _]...
   }
   assert (Htr: tranr Rˡ). {

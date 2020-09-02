@@ -3,45 +3,25 @@
 
 Require Export ZFC.CH2.
 
-(*** EST第三章1：关系，函数(标准编码)，逆，复合 ***)
+(*** EST第三章1：关系，函数，逆，复合 ***)
 
-(** 二元关系 **)
-Definition Relation : set → set → (set → set → Prop) → set :=
-  λ A B P, {p ∊ A × B | λ p, P (π1 p) (π2 p)}.
-
-(* 恒等关系 *)
-Definition Ident : set → set := λ X, {λ x, <x, x> | x ∊ X}.
-
-Example ident_is_rel : ∀ X,
-  Ident X = Relation X X (λ a b, a = b).
-Proof.
-  intros. apply ExtAx. split; intros.
-  - apply ReplE in H as [a [Ha Heq]]. subst x.
-    apply SepI. apply CProdI; assumption.
-    rewrite π1_correct, π2_correct. reflexivity.
-  - apply SepE in H as [Hx Heq].
-    apply CProd_correct in Hx as [a [Ha [b [_ Hp]]]].
-    apply ReplAx. exists a. split. apply Ha.
-    rewrite Hp. rewrite Hp in Heq.
-    rewrite π1_correct, π2_correct in Heq. subst b. reflexivity.
-Qed.
-
-Lemma identI : ∀ X, ∀a ∈ X, <a, a> ∈ Ident X.
-Proof.
-  intros * a Ha. apply ReplAx. exists a. split; auto.
-Qed.
-
-Lemma identE : ∀ X a b, <a, b> ∈ Ident X → a ∈ X ∧ a = b.
-Proof.
-  intros. apply ReplE in H as [c [Ha Heq]].
-  apply op_correct in Heq as []. subst. auto.
-Qed.
-
+(** 关系 **)
 Definition is_relation : set → Prop := λ X, ∀x ∈ X, is_pair x.
 
+(* 关系是有序对的集合 *)
 Lemma rel_pair : ∀ R, is_relation R → ∀p ∈ R, p = < π1 p, π2 p >.
 Proof.
   intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
+Qed.
+
+(* 由命题构造集合论关系 *)
+Definition Relation : set → set → (set → set → Prop) → set :=
+  λ A B P, {p ∊ A × B | λ p, P (π1 p) (π2 p)}.
+
+Lemma rel_is_rel : ∀ A B P, is_relation (Relation A B P).
+Proof.
+  intros * x Hx. apply SepE in Hx as [Hx _].
+  apply CProdE2 in Hx. apply Hx.
 Qed.
 
 Lemma cprod_is_rel : ∀ A B, is_relation (A × B).
@@ -53,10 +33,42 @@ Proof.
   apply CProdE2 in Hx. apply Hx.
 Qed.
 
-Lemma rel_is_rel : ∀ A B P, is_relation (Relation A B P).
+(* 恒等关系 *)
+Definition Ident : set → set := λ A, {λ x, <x, x> | x ∊ A}.
+
+Lemma ident_is_rel : ∀ A, is_relation (Ident A).
 Proof.
-  intros * x Hx. apply SepE in Hx as [Hx _].
-  apply CProdE2 in Hx. apply Hx.
+  intros. intros x Hx. apply ReplAx in Hx as [a [_ Heq]].
+    exists a, a. subst x. reflexivity.
+Qed.
+
+Lemma identI : ∀ X, ∀a ∈ X, <a, a> ∈ Ident X.
+Proof.
+  intros * a Ha. apply ReplAx. exists a. split; auto.
+Qed.
+
+Lemma identE : ∀ X a b, <a, b> ∈ Ident X → a ∈ X ∧ a = b.
+Proof.
+  intros. apply ReplAx in H as [c [Ha Heq]].
+  apply op_correct in Heq as []. subst. auto.
+Qed.
+
+Fact ident_eq_rel : ∀ A,
+  Ident A = Relation A A (λ a b, a = b).
+Proof with auto.
+  intros. apply ExtAx. split; intros.
+  - apply ReplAx in H as [a [Ha Heq]]. subst x.
+    apply SepI. apply CProdI... zfcrewrite.
+  - apply SepE in H as [Hx Heq].
+    apply CProd_correct in Hx as [a [Ha [b [_ Hp]]]].
+    apply ReplAx. exists a. split...
+    rewrite Hp. rewrite Hp in Heq. zfcrewrite.
+Qed.
+
+Fact ident_empty : Ident ∅ = ∅.
+Proof.
+  apply ExtAx. split; intros Hx.
+  apply ReplAx in Hx as [a [Ha _]]. exfalso0. exfalso0.
 Qed.
 
 (* 定义域 *)
@@ -67,6 +79,7 @@ Definition dom : set → set :=
 Definition ran : set → set :=
   λ R, {x ∊ ⋃⋃R | λ x, ∃ w, <w, x> ∈ R}.
 
+(* 关系的全域 *)
 Definition fld : set → set :=
   λ R, dom R ∪ ran R.
 
@@ -92,7 +105,7 @@ Proof. intros R x Hx. apply SepE in Hx as [_ H]. apply H. Qed.
 Lemma ranE : ∀ R, ∀y ∈ ran R, ∃ x, <x, y> ∈ R.
 Proof. intros R x Hx. apply SepE in Hx as [_ H]. apply H. Qed.
 
-Lemma ident_dom : ∀ X, dom (Ident X) = X.
+Lemma dom_ident : ∀ X, dom (Ident X) = X.
 Proof.
   intros. apply ExtAx. intros x. split; intros Hx.
   - apply domE in Hx as [y Hp]. apply identE in Hp as []. auto.
@@ -100,7 +113,7 @@ Proof.
     apply Hx. reflexivity.
 Qed.
 
-Lemma ident_ran : ∀ X, ran (Ident X) = X.
+Lemma ran_ident : ∀ X, ran (Ident X) = X.
 Proof.
   intros. apply ExtAx. intros y. split; intros Hy.
   - apply ranE in Hy as [x Hp]. apply identE in Hp as []. subst. auto.
@@ -114,33 +127,9 @@ Definition exu: (set → Prop) → Prop :=
 Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x ident).
 Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
 
-(** 函数（标准编码） **)
-Definition Func : set → set → (set → set) → set := λ A B F,
-  Relation A B (λ x y, y = F x).
-
-(* 函数是单值关系 *)
+(** 函数是单值关系 **)
 Definition is_function : set → Prop :=
   λ R, is_relation R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.
-
-Lemma func_is_func : ∀ F A B, is_function (Func A B F).
-Proof with auto.
-  intros. repeat split.
-  - apply rel_is_rel. - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
-Qed.
-
-Lemma ident_is_func : ∀ X, is_function (Ident X).
-Proof.
-  unfold is_function, is_relation. repeat split.
-  - intros x Hx. apply ReplE in Hx as [a [_ Heq]].
-    exists a, a. subst x. reflexivity.
-  - apply domE in H. apply H.
-  - intros y y' Hy Hy'.
-    apply identE in Hy as []. apply identE in Hy' as [].
-    subst. reflexivity.
-Qed.
 
 Lemma func_pair : ∀ F, is_function F → ∀p ∈ F, p = < π1 p, π2 p >.
 Proof.
@@ -160,11 +149,44 @@ Proof.
   exact (Hu x Hx).
 Qed.
 
+(* 由类型论函数构造集合论函数 *)
+Definition Func : set → set → (set → set) → set := λ A B F,
+  Relation A B (λ x y, y = F x).
+
+Lemma func_is_func : ∀ F A B, is_function (Func A B F).
+Proof with auto.
+  intros. repeat split.
+  - apply rel_is_rel. - apply domE in H...
+  - intros y1 y2 H1 H2.
+    apply SepE in H1 as [_ H1].
+    apply SepE in H2 as [_ H2]. zfcrewrite.
+Qed.
+
+Lemma ident_is_func : ∀ A, is_function (Ident A).
+Proof.
+  repeat split.
+  - apply ident_is_rel.
+  - apply domE in H. apply H.
+  - intros y y' Hy Hy'.
+    apply identE in Hy as [].
+    apply identE in Hy' as []. subst. reflexivity.
+Qed.
+
+Fact ident_eq_func : ∀ A, Ident A = Func A A (λ x, x).
+Proof with auto.
+intros. apply ExtAx. split; intros.
+- apply ReplAx in H as [a [Ha Heq]]. subst x.
+  apply SepI. apply CProdI... zfcrewrite.
+- apply SepE in H as [Hx Heq].
+  apply CProd_correct in Hx as [a [Ha [b [_ Hp]]]].
+  apply ReplAx. exists a. split...
+  rewrite Hp. rewrite Hp in Heq. zfcrewrite.
+Qed.
+
+(* 函数应用 *)
 (* pre_ap F x := {<a, b> ∈ F | a = x} = {<x, b>} *)
 Definition pre_ap : set → set → set := λ F x,
   {p ∊ F | λ p, is_pair p ∧ π1 p = x}.
-
-(* 函数应用 *)
 (* ap F x := {y | <x, y> ∈ F} *)
 Definition ap : set → set → set := λ F x, π2 ⋃ (pre_ap F x).
 Notation "F [ x ]" := (ap F x) (at level 9).
@@ -275,14 +297,17 @@ Lemma ident_single_rooted : ∀ A, single_rooted (Ident A).
 Proof.
   intros A. split. apply ranE in H. apply H.
   intros y1 y2 H1 H2.
-  apply ReplE in H1 as [x1 [Hx1 H1]]. apply op_correct in H1 as [].
-  apply ReplE in H2 as [x2 [Hx2 H2]]. apply op_correct in H2 as [].
+  apply ReplAx in H1 as [x1 [Hx1 H1]]. apply op_correct in H1 as [].
+  apply ReplAx in H2 as [x2 [Hx2 H2]]. apply op_correct in H2 as [].
   congruence.
 Qed.
 
 (* 单射是单源单值关系 *) (* one-to-one *)
 Definition injective : set → Prop :=
   λ R, is_function R ∧ single_rooted R.
+
+Lemma ident_injective : ∀ A, injective (Ident A).
+Proof. split. apply ident_is_func. apply ident_single_rooted. Qed.
 
 Lemma injectiveE : ∀ f, injective f →
   ∀ a b ∈ dom f, f[a] = f[b] → a = b.
@@ -545,7 +570,7 @@ Proof with auto.
   destruct Hi' as [Hf Hs]. apply func_ext.
   - apply compo_func... apply inv_func_iff_sr...
   - apply ident_is_func.
-  - rewrite compo_inv_dom, ident_dom...
+  - rewrite compo_inv_dom, dom_ident...
   - intros x Hx. assert (Hx' := Hx).
     rewrite compo_inv_dom in Hx'...
     rewrite compo_inv_dom_eq... rewrite ident_correct...
@@ -562,7 +587,7 @@ Proof.
     rewrite π1_correct, π2_correct in *. clear H1 H2.
     rewrite <- H in Hp. rewrite Hp. apply ReplAx.
     exists a. split. apply Hr. reflexivity.
-  - apply ReplE in Hp as [b [Hb Hp]]. subst p.
+  - apply ReplAx in Hp as [b [Hb Hp]]. subst p.
     pose proof (ranE _ _ Hb) as [a Hp].
     assert (Hp' := Hp). rewrite inv_op in Hp'.
     eapply compoI; eauto.
@@ -572,7 +597,7 @@ Example compo_inv_ran : ∀ G,
   is_function G → dom (G ∘ G⁻¹) = ran G.
 Proof.
   intros G Hg. rewrite compo_inv_ran_ident.
-  rewrite ident_dom. reflexivity. apply Hg.
+  rewrite dom_ident. reflexivity. apply Hg.
 Qed.
 
 Theorem compo_inv : ∀ F G, (F ∘ G)⁻¹ = G⁻¹ ∘ F⁻¹.

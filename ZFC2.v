@@ -28,7 +28,7 @@ Proof.
     assert (A: ∀ x,   P x → x  = F x) by firstorder.
     assert (B: ∀ x, ~ P x → x0 = F x) by firstorder.
     exists {F | x ∊ X}. split; intros.
-    + apply ReplE in H... destruct H as [x' [H3 H4]].
+    + apply ReplAx in H... destruct H as [x' [H3 H4]].
       destruct (classic (P x')).
       * apply A in H as H5. rewrite H4 in H5.
         rewrite <- H5. auto.
@@ -105,7 +105,8 @@ Qed.
 Lemma InterE : ∀ Y, ∀x ∈ ⋂Y, ⦿Y ∧ ∀y ∈ Y, x ∈ y.
 Proof.
   intros Y x Hx. apply SepE in Hx as [H1 H2].
-  apply UnionE1 in H1. split; auto.
+  apply UnionAx in H1 as [y [Hy _]].
+  split. exists y. apply Hy. apply H2.
 Qed.
 
 Fact inter_0 : ⋂ ∅ = ∅.
@@ -289,8 +290,8 @@ Qed.
 Lemma CProdE1 : ∀ p A B, p ∈ A × B → π1 p ∈ A ∧ π2 p ∈ B.
 Proof.
   intros. apply UnionAx in H. destruct H as [x [H1 H2]].
-  apply ReplE in H1. destruct H1 as [a [H3 H4]].
-  subst x. apply ReplE in H2. destruct H2 as [b [H1 H2]].
+  apply ReplAx in H1 as [a [H3 H4]]. subst x.
+  apply ReplAx in H2 as [b [H1 H2]].
   symmetry in H2. split.
   - rewrite H2. rewrite π1_correct. apply H3.
   - rewrite H2. rewrite π2_correct. apply H1.
@@ -299,8 +300,8 @@ Qed.
 Lemma CProdE2 : ∀ p A B, p ∈ A × B → is_pair p.
 Proof.
   intros. apply UnionAx in H. destruct H as [x [H1 H2]].
-  apply ReplE in H1. destruct H1 as [a [H3 H4]].
-  subst x. apply ReplE in H2. destruct H2 as [b [H1 H2]].
+  apply ReplAx in H1 as [a [H3 H4]]. subst x.
+  apply ReplAx in H2 as [b [H1 H2]].
   exists a, b. auto.
 Qed.
 
@@ -315,10 +316,10 @@ Proof.
     subst. apply CProdI. apply H1. apply H2.
 Qed.
 
-Example cprod_0_x : ∀ B, ∅ × B = ∅.
+Fact cprod_0_x : ∀ B, ∅ × B = ∅.
 Proof. unfold CProd. intros. rewrite funion_0. reflexivity. Qed.
 
-Example cprod_x_0 : ∀ A, A × ∅ = ∅.
+Fact cprod_x_0 : ∀ A, A × ∅ = ∅.
 Proof.
   intros. apply sub_0_iff_0. intros x H.
   apply CProdE1 in H. destruct H as [_ H]. exfalso0.

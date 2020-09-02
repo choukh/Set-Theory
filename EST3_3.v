@@ -6,21 +6,21 @@ Require Export ZFC.EST3_2.
 (*** EST第三章3：等价关系，等价类，商集，三歧性，全序 ***)
 
 (* 在A上的二元关系R *)
-Definition rel : set → set → Prop := λ R A, R ⊆ A × A.
+Definition binRel : set → set → Prop := λ R A, R ⊆ A × A.
 
-Lemma relI : ∀ R A, rel R A → is_relation R.
+Lemma relI : ∀ R A, binRel R A → is_relation R.
 Proof.
   intros * H p Hp. apply H in Hp. apply CProdE2 in Hp. apply Hp.
 Qed.
 
-Lemma rel_dom : ∀ R A, rel R A → dom R ⊆ A.
+Lemma rel_dom : ∀ R A, binRel R A → dom R ⊆ A.
 Proof.
   intros * Hr x Hx. apply domE in Hx as [y Hp].
   apply Hr in Hp. apply CProdE1 in Hp as [Hx _].
   rewrite π1_correct in Hx. apply Hx.
 Qed.
 
-Lemma rel_ran : ∀ R A, rel R A → ran R ⊆ A.
+Lemma rel_ran : ∀ R A, binRel R A → ran R ⊆ A.
 Proof.
   intros * Hr x Hx. apply ranE in Hx as [y Hp].
   apply Hr in Hp. apply CProdE1 in Hp as [_ Hx].
@@ -41,7 +41,7 @@ Definition tranr : set → Prop := λ R,
 
 (** 等价关系 **)
 Definition equiv : set → set → Prop := λ R A,
-  rel R A ∧ refl R A ∧ symm R ∧ tranr R.
+  binRel R A ∧ refl R A ∧ symm R ∧ tranr R.
 
 Theorem equiv_fld : ∀ R, is_relation R →
   symm R → tranr R → equiv R (fld R).
@@ -97,7 +97,7 @@ Proof. intros * a Ha. apply ReplAx. exists a. split; auto. Qed.
 
 Lemma quotE : ∀ R A, ∀x ∈ A / R, ∃a ∈ A, [a]R = x.
 Proof.
-  intros * x Hx. apply ReplE in Hx as [a [Ha Heq]].
+  intros * x Hx. apply ReplAx in Hx as [a [Ha Heq]].
   exists a. split; auto.
 Qed.
 
@@ -113,8 +113,8 @@ Proof with eauto.
       apply CProdE1 in Hx as [_ Hx]. rewrite π2_correct in Hx... 
   - intros X HX Y HY Hnq. apply EmptyI.
     intros t Ht. apply Hnq. apply BInterE in Ht as [H1 H2].
-    apply ReplE in HX as [x [Hx Hxeq]].
-    apply ReplE in HY as [y [Hy Hyeq]]. subst X Y.
+    apply ReplAx in HX as [x [Hx Hxeq]].
+    apply ReplAx in HY as [y [Hy Hyeq]]. subst X Y.
     apply eqvcE in H1. apply eqvcE in H2.
     eapply eqvc_ident... repeat split...
   - intros x Hx. exists ([x]R). split.
@@ -133,13 +133,13 @@ Proof with eauto.
   assert (Hf': is_function F'). {
     repeat split.
     (* is_relation *)
-    - intros p Hp. apply ReplE in Hp as [x []]. subst p. eexists...
+    - intros p Hp. apply ReplAx in Hp as [x []]. subst p. eexists...
     - apply domE in H...
     (* single value *)
     - intros y1 y2 Hy1 Hy2. apply domE in H as [y0 Hy0].
-      apply ReplE in Hy0 as [a0 [_ Heq0]].
-      apply ReplE in Hy1 as [a1 [Ha1 Heq1]].
-      apply ReplE in Hy2 as [a2 [Ha2 Heq2]].
+      apply ReplAx in Hy0 as [a0 [_ Heq0]].
+      apply ReplAx in Hy1 as [a1 [Ha1 Heq1]].
+      apply ReplAx in Hy2 as [a2 [Ha2 Heq2]].
       apply op_correct in Heq0 as [Heq0 _].
       apply op_correct in Heq1 as [Heq1 Hy1].
       apply op_correct in Heq2 as [Heq2 Hy2].
@@ -150,14 +150,14 @@ Proof with eauto.
   }
   assert (Hdf': dom F' = A/R). {
     apply ExtAx. split; intros Hx.
-    - apply domE in Hx as [y Hp]. apply ReplE in Hp as [a [Hp Heq]].
+    - apply domE in Hx as [y Hp]. apply ReplAx in Hp as [a [Hp Heq]].
       apply op_correct in Heq as [Heq _]. subst x. apply quotI...
     - apply quotE in Hx as [a [Ha Heq]]. eapply domI.
       apply ReplAx. exists a. split... apply op_correct...
   }
   assert (Hrf': ran F' ⊆ A/R). {
     intros y Hy. apply ranE in Hy as [].
-    apply ReplE in H as [a [Ha Heq]].
+    apply ReplAx in H as [a [Ha Heq]].
     apply op_correct in Heq as [_ Hy]. subst A y.
     apply func_correct in Ha as Hp... apply ranI in Hp as Hr.
     apply Hrf in Hr. apply quotI...
@@ -166,7 +166,7 @@ Proof with eauto.
   (* F'[[x]R] = [F[x]]R *)
   assert (Hd: [a]R ∈ A/R) by (apply quotI; auto).
   rewrite <- Hdf' in Hd. apply func_correct in Hd...
-  apply ReplE in Hd as [b [Hb Heq]].
+  apply ReplAx in Hd as [b [Hb Heq]].
   apply op_correct in Heq as [H1 H2].
   eapply eqvc_ident in H1... apply Hc in H1... subst A.
   apply func_correct in Ha as Har... apply ranI in Har.
@@ -213,7 +213,7 @@ Definition trich : set → set → Prop := λ R A, ∀ x y ∈ A,
 
 (* 全序 *)
 Definition totalOrd : set → set → Prop := λ R A,
-  rel R A ∧ tranr R ∧ trich R A.
+  binRel R A ∧ tranr R ∧ trich R A.
 
 Definition irreflexive : set → set → Prop := λ R A,
   ¬ ∃ x ∈ A, <x, x> ∈ R.
@@ -229,7 +229,7 @@ Theorem totalOrd_connected : ∀ R A,
   totalOrd R A → connected R A.
 Proof. intros * [_ [_ Htri]] x Hx y Hy Hnq. firstorder. Qed.
 
-Theorem trich_iff : ∀ R A, rel R A → tranr R →
+Theorem trich_iff : ∀ R A, binRel R A → tranr R →
   trich R A ↔ irreflexive R A ∧ connected R A.
 Proof with eauto; try congruence.
   intros * Hrl Htr. split; intros.

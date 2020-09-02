@@ -67,9 +67,8 @@ Qed.
 (* 恒等函数是双射 *)
 Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.
 Proof with auto.
-  intros. split. split.
-  apply ident_is_func. apply ident_single_rooted.
-  split. apply ident_dom. apply ident_ran.
+  intros. split. apply ident_injective.
+  split. apply dom_ident. apply ran_ident.
 Qed.
 
 (* 双射的逆也是双射 *)
@@ -664,7 +663,7 @@ Proof with eauto.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
     apply op_η in Hp. rewrite Hp at 3. apply op_correct. split...
     clear H1. eapply func_sv...
-  - apply ReplE in Hy as [a [Hp Heq]].
+  - apply ReplAx in Hy as [a [Hp Heq]].
     subst y. subst B. rewrite <- inv_dom in Hp. rewrite <- H3 in Hp. 
     apply domE in Hp as [b Hpg]. assert (Hpf := Hpg).
     apply H2 in Hpf. rewrite <- inv_op in Hpf. eapply compoI...

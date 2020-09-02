@@ -185,7 +185,8 @@ Ltac exfalso0 := exfalso; eapply EmptyAx; eassumption.
 Definition inhset : set → Prop := λ A, ∃ x, x ∈ A.
 Notation "⦿ x" := (inhset x) (at level 45).
 
-Example empty_is_not_inhabited : ¬ ⦿ ∅.
+(* 空集非居留 *)
+Fact empty_is_not_inhabited : ¬ ⦿ ∅.
 Proof.
   unfold inhset, not. intros.
   destruct H as [x H].
@@ -205,13 +206,15 @@ Qed.
 Lemma EmptyE : ∀ X, X = ∅ → (∀ x, x ∉ X).
 Proof. intros. subst X. apply EmptyAx. Qed.
 
-Lemma EmptyNI : ∀ X, ⦿ X -> X ≠ ∅.
+(* 居留集不等于空集 *)
+Lemma EmptyNI : ∀ X, ⦿ X → X ≠ ∅.
 Proof.
   intros X Hi H0.
   destruct Hi as [x Hx].
   eapply EmptyAx. rewrite H0 in Hx. apply Hx.
 Qed.
 
+(* 不等于空集的集合是居留的 *)
 Lemma EmptyNE : ∀ X, X ≠ ∅ → ⦿ X.
 Proof.
   intros. pose proof (classic (⦿ X)).
@@ -225,6 +228,7 @@ Proof.
       rewrite H1 in H. exfalso. apply H. reflexivity.
 Qed.
 
+(* 空集唯一 *)
 Fact emtpy_is_unique : ∀ X Y, (∀ x, x ∉ X) → (∀ y, y ∉ Y) → X = Y.
 Proof.
   intros.
@@ -233,8 +237,26 @@ Proof.
   subst. reflexivity.
 Qed.
 
+(* 空集是任意集合的子集 *)
 Lemma empty_sub_all : ∀ X, ∅ ⊆ X.
 Proof. intros X x Hx. exfalso0. Qed.
+
+(* 集合是空集的子集当且仅当该集合是空集 *)
+Lemma sub_0_iff_0 : ∀ A, A ⊆ ∅ ↔ A = ∅.
+Proof.
+  split; intros.
+  - apply EmptyI. unfold not. intros.
+    apply H in H0. eapply EmptyAx. apply H0.
+  - subst. intros x H. apply H.
+Qed.
+
+(* 任意集合要么是空集要么是居留的 *)
+Lemma empty_or_inh : ∀ A, A = ∅ ∨ ⦿A.
+Proof.
+  intros. destruct (classic (A = ∅)).
+  - left. apply H.
+  - right. apply EmptyNE. apply H.  
+Qed.
 
 (**=== 公理3: 并集公理 ===**)
 (* 给定集合X，存在X的并集⋃X，它的成员都是X的某个成员的成员 *)
@@ -248,18 +270,12 @@ Proof.
   exists x. split; assumption.
 Qed.
 
-Lemma UnionE1 : ∀ a X, a ∈ ⋃X → ∃ x, x ∈ X.
+(* 空集的并集是空集 *)
+Fact union_0_0 : ⋃∅ = ∅.
 Proof.
-  intros. apply UnionAx in H.
-  destruct H as [x [H _]].
-  exists x. apply H.
-Qed.
-
-Lemma UnionE2 : ∀ a X, a ∈ ⋃X → ∃ x, a ∈ x.
-Proof.
-  intros. apply UnionAx in H.
-  destruct H as [x [_ H]].
-  exists x. apply H.
+  apply ExtAx. split.
+  - intros. apply UnionAx in H as [a [H _]]. exfalso0.
+  - intros. exfalso0.
 Qed.
 
 (**=== 公理4: 幂集公理 ===**)
@@ -268,12 +284,15 @@ Parameter Power : set → set.
 Notation "'𝒫' X" := (Power X) (at level 9, right associativity).
 Axiom PowerAx : ∀ X Y, Y ∈ 𝒫(X) ↔ Y ⊆ X.
 
+(* 空集是任意集合的幂集的成员 *)
 Lemma empty_in_all_power: ∀ X, ∅ ∈ 𝒫 X.
 Proof. intros. apply PowerAx. apply empty_sub_all. Qed.
 
+(* 任意集合都是自身的幂集的成员 *)
 Lemma all_in_its_power: ∀ X, X ∈ 𝒫 X.
 Proof. intros. apply PowerAx. apply sub_refl. Qed.
 
+(* 若集合是空集的幂集的成员，那么这个集合是空集 *)
 Example only_empty_in_power_empty: ∀ x, x ∈ 𝒫 ∅ → x = ∅.
 Proof.
   intros.
@@ -296,5 +315,16 @@ Proof.
   exists x. split. apply Hx. reflexivity.
 Qed.
 
-Lemma ReplE : ∀ X F, ∀y ∈ {F | x ∊ X}, ∃x ∈ X, F x = y.
-Proof. intros X F y Hy. apply ReplAx. apply Hy. Qed.
+(* 空集的替代是空集 *)
+Fact repl_empty : ∀ F, {F | x ∊ ∅} = ∅.
+Proof.
+  intros. apply EmptyI. intros x H.
+  apply ReplAx in H as [y [H _]]. exfalso0.
+Qed.
+
+(* 若某集合的替代是空集，那么该集合是空集 *)
+Fact repl_eq_empty : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
+Proof.
+  intros. apply sub_0_iff_0. intros x Hx.
+  eapply ReplI in Hx. rewrite H in Hx. exfalso0.
+Qed.

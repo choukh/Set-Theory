@@ -42,7 +42,7 @@ Proof. intros s. exact (epsilon_spec (inhabits ∅) (λ x, x ∈ s)). Qed.
 Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {Choice | s ∊ S} ⊆ ⋃S.
 Proof.
   intros S H x Hx.
-  apply ReplE in Hx as [s [H1 H2]].
+  apply ReplAx in Hx as [s [H1 H2]].
   eapply UnionI. apply H1.
   apply H in H1. subst.
   apply chosen_contained. apply H1.
@@ -58,7 +58,7 @@ Proof with eauto.
   - intros x Hx. apply BInterE in Hx as [Hx1 Hx2].
     cut (x = Choice s).
     + intros. subst...
-    + apply ReplE in Hx2 as [t [Ht Hteq]].
+    + apply ReplAx in Hx2 as [t [Ht Hteq]].
       destruct (classic (s = t)) as [|Hnq].
       * congruence.
       * pose proof (chosen_contained t (Hi t Ht)) as Hx2.

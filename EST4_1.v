@@ -155,18 +155,18 @@ Definition σ : set := {λ n, <n, n⁺> | n ∊ ω}.
 Lemma σ_func : σ : ω ⇒ ω.
 Proof with eauto; try congruence.
   repeat split.
-  - intros p Hp. apply ReplE in Hp as [x [_ Hp]].
+  - intros p Hp. apply ReplAx in Hp as [x [_ Hp]].
     rewrite <- Hp. eexists...
   - apply domE in H...
   - intros y1 y2 H1 H2.
-    apply ReplE in H1 as [u [_ H1]]. apply op_correct in H1 as [].
-    apply ReplE in H2 as [v [_ H2]]. apply op_correct in H2 as []...
+    apply ReplAx in H1 as [u [_ H1]]. apply op_correct in H1 as [].
+    apply ReplAx in H2 as [v [_ H2]]. apply op_correct in H2 as []...
   - apply ExtAx. split; intros.
-    + apply domE in H as [y Hp]. apply ReplE in Hp as [v [Hv Heq]].
+    + apply domE in H as [y Hp]. apply ReplAx in Hp as [v [Hv Heq]].
       apply op_correct in Heq as []...
     + eapply domI. apply ReplAx. exists x. split...
   - intros y Hy. apply ranE in Hy as [x Hp].
-    apply ReplE in Hp as [v [Hv Heq]].
+    apply ReplAx in Hp as [v [Hv Heq]].
     apply op_correct in Heq as [_ Heq]. subst y.
     apply ω_inductive...
 Qed.
@@ -184,12 +184,12 @@ Proof with eauto.
   destruct Hσ as [Hf [Hd _]].
   split. apply ω_has_0. split; [|split].
   - intros H. apply ranE in H as [x Hp].
-    apply ReplE in Hp as [n [Hn H]].
+    apply ReplAx in Hp as [n [Hn H]].
     apply op_correct in H as [_ H]. eapply suc_neq_0...
   - split... intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
-    apply ReplE in H1 as [n [Hx1 Hn]].
-    apply ReplE in H2 as [m [Hx2 Hm]].
+    apply ReplAx in H1 as [n [Hx1 Hn]].
+    apply ReplAx in H2 as [m [Hx2 Hm]].
     apply op_correct in Hn as [Hn1 Hn2].
     apply op_correct in Hm as [Hm1 Hm2]. subst.
     apply suc_injective...
@@ -197,7 +197,7 @@ Proof with eauto.
     intros a Ha. apply Hc in Ha as Hsa.
     apply HA in Ha. rewrite <- Hd in Ha.
     apply domE in Ha as [a1 Hp]. apply func_ap in Hp as Hap...
-    apply ReplE in Hp as [n [_ Heq]].
+    apply ReplAx in Hp as [n [_ Heq]].
     apply op_correct in Heq as []; subst. congruence.
 Qed.
 
@@ -229,7 +229,7 @@ Proof with eauto; try congruence.
   Local Ltac des Hv :=
     apply SepE in Hv as [Hv Hac];
     apply UnionAx in Hv as [u [Hu Hv]];
-    apply ReplE in Hu as [w [Hw Heq]]; subst u;
+    apply ReplAx in Hu as [w [Hw Heq]]; subst u;
     apply Arrow_correct in Hv as [Hfv [Hdv Hrv]]; subst w.
   assert (Hdrv: ∀v ∈ ℋ, dom v ⊆ ω ∧ ran v ⊆ A). {
     intros v Hv. des Hv. split.
