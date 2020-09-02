@@ -105,5 +105,8 @@
 - 无限基数，阿列夫零
 - 基数算术：加法，乘法，乘方
 
+## EST6_3.v (TODO)
+- 基数的序
+
 ## CH*.v
 - Elements of Set Theory 第*章习题
