@@ -208,6 +208,7 @@ Proof. exact bunion_assoc. Qed.
 Example ch6_12_c : ∀ K L M, K × (L ∪ M) = (K × L) ∪ (K × M).
 Proof. exact ch3_2_a. Qed.
 
+(* 有限个有限集的并集仍是有限集 *)
 Example ch6_13 : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
 Proof with eauto.
   intros A [n [Hn HA]].
@@ -227,12 +228,15 @@ Proof with eauto.
 Qed.
 
 (* ch6_14 *)
+(* 全排列 *)
 Definition Permutation : set → set := λ A,
   {f ∊ A ⟶ A | λ f, f: A ⟺ A}.
+(* 基数阶乘 *)
 Definition CardFactorial : set → set := λ 𝜅,
   |Permutation 𝜅|.
 Notation "𝜅 !" := (CardFactorial 𝜅) (at level 60) : Card_scope.
 
+(* 基数阶乘良定义 *)
 Theorem cardFactorial_well_defined : ∀ A B, A ≈ B → A! = B!.
 Proof with eauto; try congruence.
   intros * [g Hg]. apply CardAx1.
