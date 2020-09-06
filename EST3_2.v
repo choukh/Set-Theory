@@ -217,7 +217,7 @@ Proof with eauto.
   apply compoE in Hp as [t [_ Ht]]. eapply ranI...
   (* <- *)
   intros [_ [_ Hr]].
-  assert (is_relation F ⁻¹) by apply inv_rel.
+  assert (H: is_relation F ⁻¹) by apply inv_rel.
   apply choose_func_from_rel in H as [G [H1 [H2 H3]]].
   exists G. split.
   (* G: B ⇒ A *) split... split.

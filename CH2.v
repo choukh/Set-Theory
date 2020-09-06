@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 Definition SymDiff : set → set → set := λ A B, (A - B) ∪ (B - A).
-Notation "A + B" := (SymDiff A B).
+Notation "A + B" := (SymDiff A B) : ZFC_scope.
 
 Example ch2_15_a_0: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
 Proof.

@@ -380,18 +380,7 @@ Proof with eauto.
 Qed.
 
 Example ch3_54_b: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
-Proof with eauto.
-  intros. apply ExtAx. split; intros Hx.
-  - apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]]. subst.
-    apply BUnionE in Hb as [].
-    + apply BUnionI1. apply CProdI...
-    + apply BUnionI2. apply CProdI...
-  - apply BUnionE in Hx as [].
-    + apply CProd_correct in H as [a [Ha [b [Hb Heq]]]]. subst.
-      apply CProdI... apply BUnionI1...
-    + apply CProd_correct in H as [a [Ha [b [Hb Heq]]]]. subst.
-      apply CProdI... apply BUnionI2...
-Qed.
+Proof. exact ch3_2_a. Qed.
 
 Example ch3_54_c: ∀ A B C, A × (B - C) = (A × B) - (A × C).
 Proof with eauto.

@@ -526,30 +526,22 @@ Qed.
 
 (* 满射交换两个值后仍是满射 *)
 Lemma surjection_swap_value : ∀ F A B, ∀ a b ∈ A,
-  F: A ⟹ B → let F' := FuncSwapValue F a b in
-  F': A ⟹ B ∧ ran F' = ran F.
+  F: A ⟹ B → (FuncSwapValue F a b): A ⟹ B.
 Proof with eauto; try congruence.
-  intros F A B a Ha b Hb [Hf [Hd Hr]] F'.
+  intros F A B a Ha b Hb [Hf [Hd Hr]].
   assert (Hmap: F: A ⇒ B). { split... destruct Hf... split... }
   apply (func_swap_value _ _ _ _ Ha _ Hb) in Hmap
-    as [[Hf' [Hd' Hr']] Hreq].
-  split... split... split... apply sub_asym...
-  intros y Hy. rewrite <- Hr in Hy.
-  apply ranE in Hy as [x Hp]. apply ranI in Hp as Hyr.
-  apply domI in Hp as Hxd. apply func_ap in Hp... 
-  destruct (classic (x = a)) as [Hxa|Hxa]; [|
-  destruct (classic (x = b)) as [Hxb|Hxb]].
-  - eapply ranI. apply SepI. apply CProdI.
-    rewrite Hd. apply Hb. apply Hyr. zfcrewrite.
-    destruct (ixm (b = a)) as []...
-    destruct (ixm (b = b)) as []...
-  - eapply ranI. apply SepI. apply CProdI.
-    rewrite Hd. apply Ha. apply Hyr. zfcrewrite.
-    destruct (ixm (a = a)) as []...
-  - eapply ranI. apply SepI. apply CProdI.
-    apply Hxd. apply Hyr. zfcrewrite.
-    destruct (ixm (x = a)) as []...
-    destruct (ixm (x = b)) as []...
+    as [[Hf' [Hd' Hr']] Hreq]. split... split...
+Qed.
+
+(* 双射交换两个值后仍是双射 *)
+Lemma bijection_swap_value : ∀ F A B, ∀ a b ∈ A,
+  F: A ⟺ B → (FuncSwapValue F a b): A ⟺ B.
+Proof with eauto; try congruence.
+  intros F A B a Ha b Hb [Hf [Hd Hr]].
+  assert (Hmap: F: A ⇔ B). { split... destruct Hf... split... }
+  apply (injection_swap_value _ _ _ _ Ha _ Hb) in Hmap
+    as [[Hf' [Hd' Hr']] Hreq]. split... split...
 Qed.
 
 (* 单射的复合仍是单射 *)
@@ -577,9 +569,9 @@ Proof with auto.
   intros. rewrite <- (inv_inv F) at 1... rewrite left_compo_ident...
 Qed.
 
-(* 若有任意集合A到自身的单射f和A到自然数n的双射g，那么用f和g可以构造n到n的单射 *)
-Lemma injection_transform : ∀ f g A n,
-  f: A ⇔ A → g: A ⟺ n → (g ∘ f ∘ g⁻¹): n ⇔ n.
+(* A到A的单射与A到B的双射可以构造B到B的单射 *)
+Lemma injection_transform : ∀ f g A B,
+  f: A ⇔ A → g: A ⟺ B → g ∘ f ∘ g⁻¹: B ⇔ B.
 Proof with auto.
   intros * [Hif [Hdf Hrf]] [Hig [Hdg Hrg]].
   assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
@@ -605,9 +597,9 @@ Proof with auto.
     apply SepE in Hy as []. rewrite <- Hrg...
 Qed.
 
-(* 若有任意集合A到自身的满射f和A到自然数n的双射g，那么用f和g可以构造n到n的满射 *)
-Lemma surjection_transform : ∀ f g A n,
-  f: A ⟹ A → g: A ⟺ n → (g ∘ f ∘ g⁻¹): n ⟹ n.
+(* A到A的满射与A到B的双射可以构造B到B的满射 *)
+Lemma surjection_transform : ∀ f g A B,
+  f: A ⟹ A → g: A ⟺ B → g ∘ f ∘ g⁻¹: B ⟹ B.
 Proof with auto.
   intros * [Hf [Hdf Hrf]] [Hig [Hdg Hrg]].
   assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
@@ -639,12 +631,27 @@ Proof with auto.
       eapply ranI. eapply compoI; eauto.
 Qed.
 
+(* A到A的双射与A到B的双射可以构造B到B的双射 *)
+Lemma bijection_transform : ∀ f g A B,
+  f: A ⟺ A → g: A ⟺ B → g ∘ f ∘ g⁻¹: B ⟺ B.
+Proof with eauto; try congruence.
+  intros * [Hif [Hdf Hrf]] Hg.
+  assert (Hinj: ((g ∘ f) ∘ g ⁻¹) : B ⇔ B). {
+    eapply injection_transform... split; [|split]...
+  }
+  assert (Hsurj: ((g ∘ f) ∘ g ⁻¹) : B ⟹ B). {
+    eapply surjection_transform... split... destruct Hif...
+  }
+  destruct Hinj as [Hi [Hd _]].
+  destruct Hsurj as [_ [_ Hr]]. split; [|split]...
+Qed.
+
 (* 满射的右逆是单射 *)
 Lemma right_inv_of_surjection_injective : ∀ F A B,
   F: A ⟹ B → ∃ G, G: B ⇔ A ∧ F ∘ G = Ident B.
 Proof with eauto.
   intros * [Hf [Hd Hr]].
-  assert (is_relation F⁻¹) by apply inv_rel.
+  assert (H: is_relation F⁻¹) by apply inv_rel.
   apply choose_func_from_rel in H as [G [H1 [H2 H3]]].
   (* G: B ⇔ A *)
   exists G. split. {

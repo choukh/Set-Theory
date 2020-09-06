@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 1 Part 1 **)
+(** Based on "Elements of Set Theory" Chapter 6 Part 1 **)
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Export ZFC.lib.Natural.
@@ -49,7 +49,7 @@ Proof with auto.
 Qed.
 
 (* 单集与壹等势 *)
-Lemma eqnum_single : ∀ a, ⎨a⎬ ≈ 1.
+Lemma eqnum_single_one : ∀ a, ⎨a⎬ ≈ 1.
 Proof with auto.
   intros. set (Func ⎨a⎬ 1 (λ _, 0)) as F.
   exists F. apply meta_bijective.
@@ -59,6 +59,11 @@ Proof with auto.
   - intros y Hy. rewrite one in Hy. apply SingE in Hy.
     exists a. split...
 Qed.
+
+(* 所有的单集等势 *)
+Lemma eqnum_single : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
+Proof. intros. repeat rewrite eqnum_single_one; auto. Qed.
+Hint Immediate eqnum_single : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
 Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
@@ -324,6 +329,11 @@ Fact empty_finite : finite ∅.
 Proof. exists ∅. split; nauto. Qed.
 Hint Resolve empty_finite : core.
 
+(* 单集是有限集 *)
+Fact single_finite : ∀ a, finite ⎨a⎬.
+Proof. exists 1. split. nauto. apply eqnum_single_one. Qed.
+Hint Resolve single_finite : core.
+
 (* 自然数是有限集 *)
 Fact nat_finite : ∀n ∈ ω, finite n.
 Proof.
@@ -551,4 +561,37 @@ Proof with neauto.
   - assert (Hps: f⟦A⟧ ⊂ n) by (split; auto).
     apply sub_of_nat_is_finite in Hps as [m [Hm [Hmn Hqn]]]...
     exists m. split... rewrite H1...
+Qed.
+
+(* 任意自然数与自身的单集不交 *)
+Lemma disjoint_nat_single : ∀n ∈ ω, disjoint n ⎨n⎬.
+Proof.
+  intros n Hn. apply disjointI. intros [x [H1 H2]].
+  apply SingE in H2. subst. eapply lt_not_refl; eauto.
+Qed.
+
+(* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)
+Lemma disjoint_cprod : ∀ A B m n,
+  m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
+Proof.
+  intros. apply disjointI.
+  intros [x [H1 H2]].
+  apply CProd_correct in H1 as [a [Ha [b [Hb H1]]]].
+  apply CProd_correct in H2 as [c [Hc [d [Hd H2]]]].
+  apply SingE in Hb. apply SingE in Hd. subst.
+  apply op_correct in H2 as [_ Contra]. apply H. apply Contra.
+Qed.
+
+Corollary disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
+Proof.
+  intros. apply disjoint_cprod. intro. eapply suc_neq_0. eauto.
+Qed.
+
+(* 壹与单集的笛卡尔积 *)
+Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
+Proof.
+  intros. rewrite one. apply ExtAx. split; intros Hx.
+  - apply CProd_correct in Hx as [a [Ha [b [Hb H0]]]].
+    apply SingE in Ha. apply SingE in Hb. subst. auto.
+  - apply SingE in Hx. subst. apply CProdI; apply SingI.
 Qed.

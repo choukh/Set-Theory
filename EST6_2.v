@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 1 Part 2 **)
+(** Based on "Elements of Set Theory" Chapter 6 Part 2 **)
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Export ZFC.EST6_1.
@@ -52,7 +52,7 @@ Qed.
 Lemma card_single : ∀ a, |⎨a⎬| = 1.
 Proof with nauto.
   intros. rewrite (card_of_nat 1)...
-  apply CardAx1. apply eqnum_single.
+  apply CardAx1. apply eqnum_single_one.
 Qed.
 
 (* 集合的基数不为零当且仅当集合非空 *)
@@ -80,32 +80,6 @@ Proof with auto; try congruence.
     unfold ReplaceElement. destruct (ixm (k = k))...
 Qed.
 
-(* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)
-Lemma disjoint_cprod : ∀ A B m n,
-  m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
-Proof.
-  intros. apply disjointI.
-  intros [x [H1 H2]].
-  apply CProd_correct in H1 as [a [Ha [b [Hb H1]]]].
-  apply CProd_correct in H2 as [c [Hc [d [Hd H2]]]].
-  apply SingE in Hb. apply SingE in Hd. subst.
-  apply op_correct in H2 as [_ Contra]. apply H. apply Contra.
-Qed.
-
-Lemma disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
-Proof.
-  intros. apply disjoint_cprod. intro. eapply suc_neq_0. eauto.
-Qed.
-
-(* 壹与单集的笛卡尔积 *)
-Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
-Proof.
-  intros. rewrite one. apply ExtAx. split; intros Hx.
-  - apply CProd_correct in Hx as [a [Ha [b [Hb H0]]]].
-    apply SingE in Ha. apply SingE in Hb. subst. auto.
-  - apply SingE in Hx. subst. apply CProdI; apply SingI.
-Qed.
-
 Declare Scope Card_scope.
 Delimit Scope Card_scope with cd.
 Open Scope Card_scope.
@@ -118,6 +92,44 @@ Definition CardExp : set → set → set := λ 𝜅 𝜆, |𝜆 ⟶ 𝜅|.
 Notation "𝜅 + 𝜆" := (CardAdd 𝜅 𝜆) : Card_scope.
 Notation "𝜅 ⋅ 𝜆" := (CardMul 𝜅 𝜆) : Card_scope.
 Notation "𝜅 ^ 𝜆" := (CardExp 𝜅 𝜆) : Card_scope.
+
+(* 基数算术的一加一等于二 *)
+Example cardAdd_1_1_2 : 1 + 1 = 2.
+Proof with neauto; try congruence.
+  rewrite (card_of_nat 2)...
+  unfold CardAdd. apply CardAx1.
+  set (Func (1×⎨0⎬ ∪ 1×⎨1⎬) 2 (λ x,
+    match (ixm (x = <0, 0>)) with
+    | inl _ => 0
+    | inr _ => 1
+    end
+  )) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. destruct (ixm (x = <0, 0>))...
+    apply BUnionI1. apply BUnionI2... apply BUnionI2...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    destruct (ixm (x1 = <0, 0>)) as [H1|H1'];
+    destruct (ixm (x2 = <0, 0>)) as [H2|H2']...
+    + exfalso. eapply suc_neq_0...
+    + exfalso. eapply suc_neq_0...
+    + apply BUnionE in Hx1 as []; apply BUnionE in Hx2 as [].
+      * rewrite one_cp_single in H. apply SingE in H. exfalso...
+      * rewrite one_cp_single in H. apply SingE in H. exfalso...
+      * rewrite one_cp_single in H0. apply SingE in H0. exfalso...
+      * rewrite one_cp_single in H. apply SingE in H.
+        rewrite one_cp_single in H0. apply SingE in H0...
+  - intros y Hy. apply BUnionE in Hy as [Hy|Hy].
+    + apply BUnionE in Hy as []. exfalso0.
+      apply SingE in H. subst y. exists <0, 0>. split.
+      apply BUnionI1. rewrite one_cp_single...
+      destruct (ixm (<0, 0> = <0, 0>))...
+    + apply SingE in Hy. subst y. exists <0, 1>. split.
+      apply BUnionI2. rewrite one_cp_single...
+      destruct (ixm (<0, 1> = <0, 0>)). {
+        apply op_correct in e as [_ Contra].
+        exfalso. eapply suc_neq_0...
+      } reflexivity.
+Qed.
 
 (* 基数加法良定义 *)
 Theorem cardAdd_well_defined : ∀ K₁ K₂ L₁ L₂, K₁ ≈ K₂ → L₁ ≈ L₂ →
@@ -314,43 +326,6 @@ Proof with eauto; try congruence.
         apply CProdE1 in Hcp as [H _]. apply ranE in H as [w H].
         apply domI in H as Hw. apply func_ap in H...
         split... rewrite <- H. apply Hry...
-Qed.
-
-Example cardAdd_1_1_2 : 1 + 1 = 2.
-Proof with neauto; try congruence.
-  rewrite (card_of_nat 2)...
-  unfold CardAdd. apply CardAx1.
-  set (Func (1×⎨0⎬ ∪ 1×⎨1⎬) 2 (λ x,
-    match (ixm (x = <0, 0>)) with
-    | inl _ => 0
-    | inr _ => 1
-    end
-  )) as F.
-  exists F. apply meta_bijective.
-  - intros x Hx. destruct (ixm (x = <0, 0>))...
-    apply BUnionI1. apply BUnionI2... apply BUnionI2...
-  - intros x1 Hx1 x2 Hx2 Heq.
-    destruct (ixm (x1 = <0, 0>)) as [H1|H1'];
-    destruct (ixm (x2 = <0, 0>)) as [H2|H2']...
-    + exfalso. eapply suc_neq_0...
-    + exfalso. eapply suc_neq_0...
-    + apply BUnionE in Hx1 as []; apply BUnionE in Hx2 as [].
-      * rewrite one_cp_single in H. apply SingE in H. exfalso...
-      * rewrite one_cp_single in H. apply SingE in H. exfalso...
-      * rewrite one_cp_single in H0. apply SingE in H0. exfalso...
-      * rewrite one_cp_single in H. apply SingE in H.
-        rewrite one_cp_single in H0. apply SingE in H0...
-  - intros y Hy. apply BUnionE in Hy as [Hy|Hy].
-    + apply BUnionE in Hy as []. exfalso0.
-      apply SingE in H. subst y. exists <0, 0>. split.
-      apply BUnionI1. rewrite one_cp_single...
-      destruct (ixm (<0, 0> = <0, 0>))...
-    + apply SingE in Hy. subst y. exists <0, 1>. split.
-      apply BUnionI2. rewrite one_cp_single...
-      destruct (ixm (<0, 1> = <0, 0>)). {
-        apply op_correct in e as [_ Contra].
-        exfalso. eapply suc_neq_0...
-      } reflexivity.
 Qed.
 
 (* 零是基数加法单位元 *)
@@ -933,10 +908,9 @@ Proof with auto.
   intros n Hn. rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...
-  - rewrite <- eqnum_cprod_single, eqnum_single...
+  - rewrite <- eqnum_cprod_single, eqnum_single_one...
   - apply disjoint_cprod_0_1.
-  - apply disjointI. intros [x [H1 H2]].
-    apply SingE in H2. subst. eapply lt_not_refl; eauto.
+  - apply disjoint_nat_single...
 Qed.
 
 (* 有限基数加法等效于自然数加法 *)

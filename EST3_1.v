@@ -326,6 +326,7 @@ Lemma inv_rel : ∀ F, is_relation F⁻¹.
 Proof.
   intros F x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
 Qed.
+Hint Immediate inv_rel : core.
 
 Lemma inv_dom_ran : ∀ F a b, <a, b> ∈ F → <b, a> ∈ ran F × dom F.
 Proof.
@@ -602,9 +603,7 @@ Qed.
 
 Theorem compo_inv : ∀ F G, (F ∘ G)⁻¹ = G⁻¹ ∘ F⁻¹.
 Proof with eauto.
-  intros.
-  pose proof (inv_rel (F ∘ G)) as Hr1.
-  pose proof (compo_rel G ⁻¹ F ⁻¹) as Hr2.
+  intros. pose proof (compo_rel G ⁻¹ F ⁻¹) as Hr2.
   apply ExtAx. intros x. split; intros Hx.
   - apply rel_pair in Hx as Heq...
     rewrite Heq in *. rewrite <-inv_op in Hx.
