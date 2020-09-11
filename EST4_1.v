@@ -130,6 +130,18 @@ Proof with eauto.
     + apply SingE in H. subst. apply BUnionI1...
 Qed.
 
+(* ω是传递集 *)
+Theorem ω_trans : trans ω.
+Proof with eauto.
+  rewrite trans_sub. intros n Hn.
+  set {n ∊ ω | λ n, n ⊆ ω} as N.
+  ω_induction N Hn.
+  - intros x Hx. exfalso0.
+  - intros x Hx. apply BUnionE in Hx as [].
+    apply IH... apply SingE in H. subst...
+Qed.
+
+(* 后继运算是单射 *)
 Lemma suc_injective : ∀ n k ∈ ω, n⁺ = k⁺ → n = k.
 Proof.
   intros n Hn k Hk Heq.
@@ -138,6 +150,11 @@ Proof.
   apply trans_union_suc in Hn.
   apply trans_union_suc in Hk. congruence.
 Qed.
+
+Ltac ω_destruct n :=
+  destruct (classic (n = ∅)) as [|Hωdes]; [|
+    apply pred_exists in Hωdes as [?n' [?Hn' ?Hn'eq]]; auto
+  ].
 
 (* 集合对函数封闭 *)
 Definition close : set → set → Prop := λ S A, ∀x ∈ A, S[x] ∈ A.
@@ -152,7 +169,7 @@ Definition is_Peano : set → set → set → Prop := λ N S e,
 (* 后继函数 *)
 Definition σ : set := {λ n, <n, n⁺> | n ∊ ω}.
 
-Lemma σ_func : σ : ω ⇒ ω.
+Lemma σ_maps_into : σ : ω ⇒ ω.
 Proof with eauto; try congruence.
   repeat split.
   - intros p Hp. apply ReplAx in Hp as [x [_ Hp]].
@@ -171,16 +188,38 @@ Proof with eauto; try congruence.
     apply ω_inductive...
 Qed.
 
+(* 后继函数是双射 *)
+Lemma σ_bijective : σ: ω ⟺ ω - ⎨∅⎬.
+Proof with eauto.
+  pose proof σ_maps_into as [Hf [Hd Hr]]. split; split...
+  - split. apply ranE in H...
+    intros y1 y2 H1 H2.
+    apply ReplAx in H1 as [m [Hm H1]].
+    apply ReplAx in H2 as [n [Hn H2]].
+    apply op_correct in H1 as [].
+    apply op_correct in H2 as []. subst m n x.
+    apply suc_injective...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply SepI. apply Hr... intros H. apply SingE in H.
+      subst y. apply ranE in Hy as [x Hp].
+      apply ReplAx in Hp as [n [Hn Hp]].
+      apply op_correct in Hp as [_ H].
+      eapply suc_neq_0...
+    + apply SepE in Hy as [Hy H0].
+      ω_destruct y; subst y. exfalso. apply H0...
+      eapply ranI. apply ReplAx. exists n'. split... 
+Qed.
+
 Lemma σ_ap : ∀n ∈ ω, σ[n] = n⁺.
 Proof with auto.
-  intros n Hn.  destruct σ_func as [Hf _].
+  intros n Hn.  destruct σ_maps_into as [Hf _].
   eapply func_ap... apply ReplAx. exists n. split...
 Qed.
 
 (* <ω, σ, ∅>是一个皮亚诺结构 *)
 Theorem ω_Peano : is_Peano ω σ ∅.
 Proof with eauto.
-  intros. assert (Hσ:= σ_func). split...
+  intros. assert (Hσ:= σ_maps_into). split...
   destruct Hσ as [Hf [Hd _]].
   split. apply ω_has_0. split; [|split].
   - intros H. apply ranE in H as [x Hp].
@@ -199,17 +238,6 @@ Proof with eauto.
     apply domE in Ha as [a1 Hp]. apply func_ap in Hp as Hap...
     apply ReplAx in Hp as [n [_ Heq]].
     apply op_correct in Heq as []; subst. congruence.
-Qed.
-
-(* ω是传递集 *)
-Theorem ω_trans : trans ω.
-Proof with eauto.
-  rewrite trans_sub. intros n Hn.
-  set {n ∊ ω | λ n, n ⊆ ω} as N.
-  ω_induction N Hn.
-  - intros x Hx. exfalso0.
-  - intros x Hx. apply BUnionE in Hx as [].
-    apply IH... apply SingE in H. subst...
 Qed.
 
 (** ω递归定理 **)
@@ -431,11 +459,6 @@ Proof with eauto; try congruence.
   ω_induction S Hn...
   apply H1 in Hm as Heq1. apply H2 in Hm as Heq2...
 Qed.
-
-Ltac ω_destruct n :=
-  destruct (classic (n = ∅)) as [|Hωdes]; [|
-    apply pred_exists in Hωdes as [?n' [?Hn' ?Hn'eq]]; auto
-  ].
 
 (* 皮亚诺结构同构 *)
 Theorem Peano_isomorphism : ∀ N S e, is_Peano N S e →

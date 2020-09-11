@@ -263,7 +263,6 @@ Proof.
 Qed.
 
 (** 集族的并 **)
-Definition FUnion : set → (set → set) → set := λ X F, ⋃{F|x ∊ X}.
 
 Lemma FUnionI : ∀ X F, ∀x ∈ X, ∀y ∈ F x, y ∈ ⋃{F|x ∊ X}.
 Proof.

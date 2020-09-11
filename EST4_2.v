@@ -33,6 +33,9 @@ Lemma embed_ran : ∀ n : nat, n ∈ ω.
 Proof with nauto. induction n... apply ω_inductive... Qed.
 Hint Immediate embed_ran : number_hint.
 
+Lemma zero : Embed 0 = ∅.
+Proof. reflexivity. Qed.
+
 Lemma one : Embed 1 = 1%zfc1.
 Proof.
   apply ExtAx. intros x. split; intros Hx.
@@ -140,7 +143,7 @@ Lemma add_correct : ∀m ∈ ω,
   h[0] = m ∧ ∀n ∈ ω, h[n⁺] = h[n]⁺.
 Proof with eauto; try congruence.
   intros m Hm.
-  destruct (arith_correct σ m σ_func) as [h [Hh [Heq [Hh0 Hh1]]]]...
+  destruct (arith_correct σ m σ_maps_into) as [h [Hh [Heq [Hh0 Hh1]]]]...
   exists h. split... split... split...
   intros n Hn. apply Hh1 in Hn as Hap. rewrite σ_ap in Hap...
   destruct Hh as [Hh [Hdh Hrh]].

@@ -25,6 +25,18 @@ Definition bijection : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F = B.
   Notation "F : A ⟺ B" := (bijection F A B) (at level 60).
 
+(* 双射是单射 *)
+Lemma bijection_is_injection : ∀ F A B, F: A ⟺ B → F: A ⇔ B.
+Proof with auto.
+  intros * [Hf [Hd Hr]]. split; [|split]... rewrite Hr...
+Qed.
+
+(* 双射是满射 *)
+Lemma bijection_is_surjection : ∀ F A B, F: A ⟺ B → F: A ⟹ B.
+Proof with auto.
+  intros * [[Hf _] [Hd Hr]]. split; [|split]...
+Qed.
+
 Lemma cprod_single_func : ∀ F a, is_function (F × ⎨a⎬).
 Proof with auto.
   repeat split.

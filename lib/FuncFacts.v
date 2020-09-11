@@ -28,12 +28,15 @@ Proof with auto.
 Qed.
 
 (* 通过类型论函数证明集合论函数是单射 *)
-Lemma meta_injective : ∀ A B F, (Func A B F): A ⇒ B →
+Lemma meta_injective : ∀ A B F,
+  (∀x ∈ A, F x ∈ B) → 
   (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
-  injective (Func A B F).
+  (Func A B F): A ⇔ B.
 Proof with eauto.
-  intros * [Hf [Hd Hr]] Hinj. split...
-  intros y Hy. split. apply ranE in Hy...
+  intros * Hf Hinj.
+  apply meta_maps_into in Hf as [Hf [Hd Hr]].
+  split... split... intros y Hy.
+  split. apply ranE in Hy...
   intros x1 x2 H1 H2.
   apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx1 _].
   apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as [Hx2 _].
@@ -41,11 +44,14 @@ Proof with eauto.
 Qed.
 
 (* 通过类型论函数证明集合论函数是满射 *)
-Lemma meta_surjective : ∀ A B F, (Func A B F): A ⇒ B →
+Lemma meta_surjective : ∀ A B F,
+  (∀x ∈ A, F x ∈ B) → 
   (∀y ∈ B, ∃x ∈ A, F x = y) →
-  ran (Func A B F) = B.
+  (Func A B F): A ⟹ B.
 Proof with eauto.
-  intros * [Hf [Hd Hr]] Hsurj. apply sub_asym...
+  intros * Hf Hsurj.
+  apply meta_maps_into in Hf as [Hf [Hd Hr]].
+  split; [|split]... apply sub_asym...
   intros y Hy. pose proof (Hsurj _ Hy) as [x [Hx Hap]].
   eapply ranI. apply SepI. apply CProdI... zfcrewrite.
 Qed.
@@ -58,10 +64,9 @@ Lemma meta_bijective : ∀ A B F,
   (Func A B F): A ⟺ B.
 Proof with auto.
   intros * H1 H2 H3.
-  apply meta_maps_into in H1.
-  split. apply meta_injective...
-  split. destruct H1 as [_ []]...
-  apply meta_surjective...
+  apply (meta_injective A B) in H2 as [Hi [Hd _]]...
+  apply (meta_surjective A B) in H3 as [_ [_ Hr]]...
+  split; [|split]...
 Qed.
 
 (* 恒等函数是双射 *)
@@ -71,7 +76,7 @@ Proof with auto.
   split. apply dom_ident. apply ran_ident.
 Qed.
 
-(* 双射的逆也是双射 *)
+(* 双射的逆仍是双射 *)
 Lemma inv_bijection : ∀ F A B, F: A ⟺ B → F⁻¹: B ⟺ A.
 Proof with auto.
   intros * [[Hf Hs] [Hd Hr]]. split. split.
@@ -79,38 +84,57 @@ Proof with auto.
   split. rewrite inv_dom... rewrite inv_ran...
 Qed.
 
-(* 两个双射的复合也是双射 *)
-Lemma compo_bijection : ∀ F G A B C,
-  F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
+(* 两个单射的复合仍是单射 *)
+Lemma compo_injective: ∀ F G, injective F → injective G → injective (F ∘ G).
+Proof. exact ch3_17_b. Qed.
+
+Lemma compo_injection : ∀ F G A B C,
+  F: A ⇔ B → G: B ⇔ C → (G ∘ F): A ⇔ C.
 Proof with eauto.
-  intros * [[Hf Hfs] [Hfd Hfr]] [[Hg Hgs] [Hgd Hgr]].
-  split; split. apply compo_func...
-  - split. eapply ranE in H...
-    intros y1 y2 H1 H2.
-    apply compoE in H1 as [s [H11 H12]].
-    apply compoE in H2 as [t [H21 H22]].
-    pose proof (singrE _ _ _ _ Hgs H12 H22). subst s.
-    apply (singrE _ _ _ _ Hfs H11 H21).
+  intros * [Hif [Hfd Hfr]] [Hig [Hgd Hgr]].
+  split; [|split].
+  - apply compo_injective...
   - apply ExtAx. intros x. split; intros Hx.
     + apply domE in Hx as [y Hp].
       apply compoE in Hp as [t [H1 H2]].
       rewrite <- Hfd. eapply domI...
     + rewrite <- Hfd in Hx.
       apply domE in Hx as [y Hp]. apply ranI in Hp as Hr.
-      rewrite Hfr, <- Hgd in Hr. apply domE in Hr as [z Hp'].
-      eapply domI. eapply compoI...
-  - apply ExtAx. intros y. split; intros Hy.
-    + apply ranE in Hy as [x Hp].
-      apply compoE in Hp as [t [H1 H2]].
-      rewrite <- Hgr. eapply ranI...
-    + rewrite <- Hgr in Hy.
-      apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
-      rewrite Hgd, <- Hfr in Hd. eapply ranE in Hd as [w Hp'].
-      eapply ranI. eapply compoI...
+      apply Hfr in Hr. rewrite <- Hgd in Hr.
+      apply domE in Hr as [z Hp']. eapply domI. eapply compoI...
+  - intros y Hy. apply ranE in Hy as [x Hp].
+    apply compoE in Hp as [t [H1 H2]]. apply Hgr. eapply ranI...
+Qed.
+
+(* 两个双射的复合仍是双射 *)
+Lemma compo_bijection : ∀ F G A B C,
+  F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
+Proof with eauto; try congruence.
+  intros * Hf Hg.
+  apply bijection_is_injection in Hf as Hif.
+  apply bijection_is_injection in Hg as Hig.
+  destruct Hf as [_ [_ Hfr]]. destruct Hg as [_ [Hgd Hgr]].
+  pose proof (compo_injection _ _ _ _ _ Hif Hig) as [Hi [Hd Hr]].
+  split... split... apply sub_asym...
+  intros y Hy. rewrite <- Hgr in Hy.
+  apply ranE in Hy as [x Hp]. apply domI in Hp as Hdx.
+  rewrite Hgd, <- Hfr in Hdx. eapply ranE in Hdx as [w Hp'].
+  eapply ranI. eapply compoI...
+Qed.
+
+(* 空函数是空集到任意集合的单射 *)
+Lemma empty_injective : ∀ A, ∅: ∅ ⇔ A.
+Proof with auto.
+  intros. repeat split. intros x Hx. exfalso0.
+  apply domE in H... intros x1 x2 Hx1. exfalso0.
+  apply ranE in H... intros y1 y2 Hy1. exfalso0.
+  apply ExtAx. split; intros Hx.
+  apply domE in Hx as [y Hp]. exfalso0. exfalso0.
+  intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
 Qed.
 
 (* 能与空集建立双射的集合是空集 *)
-Lemma bijection_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
+Lemma bijection_to_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
 Proof.
   intros * [Hi [Hd Hr]].
   apply ExtAx. split; intros Hx; [|exfalso0].
@@ -544,10 +568,6 @@ Proof with eauto; try congruence.
     as [[Hf' [Hd' Hr']] Hreq]. split... split...
 Qed.
 
-(* 单射的复合仍是单射 *)
-Lemma compo_inj: ∀ F G, injective F → injective G → injective (F ∘ G).
-Proof. exact ch3_17_b. Qed.
-
 (* 函数复合满足结合律 *)
 Lemma compo_assoc: ∀ R S T, (R ∘ S) ∘ T = R ∘ (S ∘ T).
 Proof. exact ch3_21. Qed.
@@ -577,11 +597,11 @@ Proof with auto.
   assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
   assert (Hif' := Hif). destruct Hif' as [Hf Hsf].
   assert (Hig': injective g⁻¹) by (apply inv_injective; auto).
-  assert (Higf: injective (g ∘ f)) by (apply compo_inj; auto).
+  assert (Higf: injective (g ∘ f)) by (apply compo_injective; auto).
   assert (Hfc: is_function (g ∘ f)) by (apply compo_func; auto).
   assert (Hfg': is_function g⁻¹) by (apply inv_func_iff_sr; auto).
   split; [|split].
-  - apply compo_inj...
+  - apply compo_injective...
   - rewrite compo_dom; revgoals...
     apply ExtAx. split; intros Hx.
     + apply SepE in Hx as []. rewrite <- Hrg, <- inv_dom...

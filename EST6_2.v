@@ -14,10 +14,14 @@ Axiom CardAx2 : ∀ A, finite A → |A| = fin_card A.
 
 Definition is_card : set → Prop := λ 𝜅, ∃ K, 𝜅 = |K|.
 
+Lemma card_is_card : ∀ A, is_card (|A|).
+Proof. intros. exists A. reflexivity. Qed.
+Hint Immediate card_is_card : core.
+
 (* 阿列夫零 *)
 Notation "'ℵ₀'" := (|ω|).
 
-Lemma aleph_0_is_card : is_card ℵ₀.
+Lemma aleph0_is_card : is_card ℵ₀.
 Proof. exists ω. reflexivity. Qed.
 
 (* 自然数的基数等于自身 *)
@@ -475,7 +479,7 @@ Proof.
 Qed.
 
 Fact aleph_0_neq_exp : ℵ₀ ≠ 2 ^ ℵ₀.
-Proof. apply card_neq_exp. apply aleph_0_is_card. Qed.
+Proof. apply card_neq_exp. apply aleph0_is_card. Qed.
 
 (* 基数加法交换律 *)
 Theorem cardAdd_comm : ∀ 𝜅 𝜆, 𝜅 + 𝜆 = 𝜆 + 𝜅.

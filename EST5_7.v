@@ -809,7 +809,7 @@ Qed.
 
 Theorem ratEmbed_injective : injective RatEmbed.
 Proof with auto.
-  apply meta_injective. apply ratEmbed_maps_into.
+  apply meta_injective. intros x Hx. apply real_q...
   intros x1 Hx1 x2 Hx2 Heq. apply realq_injective in Heq...
 Qed.
 
