@@ -26,7 +26,7 @@ Proof.
   exists (g ∘ f). eapply compo_injection; eauto.
 Qed.
 
-(* 可以证明支配关系也是反对称*)
+(* 可以证明支配关系也是反对称的 *)
 
 (* 施罗德-伯恩斯坦定理 *)
 Theorem Schröeder_Bernstein : ∀ A B, A ≼ B → B ≼ A → A ≈ B.
