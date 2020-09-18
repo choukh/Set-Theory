@@ -132,7 +132,7 @@ Proof with neauto.
   - intros a Ha b Hb.
     exists a. split... exists b. split...
     exists (Int 0). split... exists (Int 1). split...
-    apply CompE in Hb as [Hb _]. apply op_correct.
+    apply CompE in Hb as [Hb _]. apply op_iff.
     rewrite intMul_ident, intMul_ident... split...
     rewrite intMul_comm, intMul_0_r, intAdd_ident...
 Qed.
@@ -153,10 +153,10 @@ Proof with eauto.
   destruct preRatAdd_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl. 
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProd_correct in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply CProd_correct in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply CProd_correct in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply CProd_correct in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply cprod_iff in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply cprod_iff in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply cprod_iff in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply cprod_iff in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatAdd_a_b_c_d, preRatAdd_a_b_c_d...
   apply SepI. apply CProdI; (apply CProdI; [amr;nz|nzmr]).
@@ -335,7 +335,7 @@ Proof with auto.
   apply SepE in H as [H Hpos]. apply eqvcE in H.
   apply planeEquivE1 in H
     as [a' [_ [b' [_ [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
-  apply op_correct in H1 as []; subst a' b'.
+  apply op_iff in H1 as []; subst a' b'.
   exists c. split... exists d. split...
   split... split. apply planeEquivI... split.
   - intros Ha'. unfold RatEq in H3.
@@ -457,10 +457,10 @@ Proof with auto.
   destruct preRatMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProd_correct in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply CProd_correct in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply CProd_correct in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply CProd_correct in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply cprod_iff in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply cprod_iff in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply cprod_iff in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply cprod_iff in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatMul_a_b_c_d, preRatMul_a_b_c_d...
   apply SepI. apply CProdI; apply CProdI; try mr; try nzmr.

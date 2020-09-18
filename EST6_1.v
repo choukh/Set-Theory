@@ -72,8 +72,8 @@ Proof with auto.
   exists F. apply meta_bijective.
   - intros x Hx. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply op_correct in Heq as []...
-  - intros y Hy. apply CProd_correct in Hy as [b [Hb [c [Hc Heq]]]].
+    apply op_iff in Heq as []...
+  - intros y Hy. apply cprod_iff in Hy as [b [Hb [c [Hc Heq]]]].
     apply SingE in Hc. subst. exists b. split...
 Qed.
 
@@ -83,15 +83,15 @@ Proof with auto.
   intros. set (Func (A × B) (B × A) (λ x, <π2 x, π1 x>)) as F.
   exists F. apply meta_bijective.
   - intros x Hx.
-    apply CProd_correct in Hx as [a [Ha [b [Hb Hx]]]].
+    apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
     subst. zfcrewrite. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply CProd_correct in Hx1 as [a [Ha [b [Hb Hx1]]]].
-    apply CProd_correct in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply cprod_iff in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply cprod_iff in Hx2 as [c [Hc [d [Hd Hx2]]]].
     subst. zfcrewrite.
-    apply op_correct in Heq as []. congruence.
+    apply op_iff in Heq as []. congruence.
   - intros y Hy.
-    apply CProd_correct in Hy as [a [Ha [c [Hc Hy]]]].
+    apply cprod_iff in Hy as [a [Ha [c [Hc Hy]]]].
     exists <c, a>. split. apply CProdI... zfcrewrite.
 Qed.
 
@@ -104,19 +104,19 @@ Proof with auto.
   )) as F.
   exists F. apply meta_bijective.
   - intros x Hx.
-    apply CProd_correct in Hx as [d [Hd [c [Hc H1]]]].
-    apply CProd_correct in Hd as [a [Ha [b [Hb H2]]]].
+    apply cprod_iff in Hx as [d [Hd [c [Hc H1]]]].
+    apply cprod_iff in Hd as [a [Ha [b [Hb H2]]]].
     subst. zfcrewrite. apply CProdI... apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply CProd_correct in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
-    apply CProd_correct in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
-    apply CProd_correct in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
-    apply CProd_correct in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
-    apply op_correct in Heq as [H1 H2].
-    apply op_correct in H2 as [H2 H3]. subst. zfcrewrite.
+    apply cprod_iff in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
+    apply cprod_iff in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
+    apply cprod_iff in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
+    apply cprod_iff in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
+    apply op_iff in Heq as [H1 H2].
+    apply op_iff in H2 as [H2 H3]. subst. zfcrewrite.
   - intros y Hy.
-    apply CProd_correct in Hy as [a [Ha [d [Hd H1]]]].
-    apply CProd_correct in Hd as [b [Hb [c [Hc H2]]]].
+    apply cprod_iff in Hy as [a [Ha [d [Hd H1]]]].
+    apply cprod_iff in Hd as [b [Hb [c [Hc H2]]]].
     exists <a, b, c>. split. apply CProdI... apply CProdI... zfcrewrite.
 Qed.
 
@@ -134,7 +134,7 @@ Proof with neauto.
   assert (H1_2: 1 ∈ 2) by apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   exists G. apply meta_bijective.
-  - intros B HB. apply Arrow_correct. split...
+  - intros B HB. apply arrow_iff. split...
     apply func_is_func. split.
     + apply ExtAx. intros x. split; intros Hx.
       * apply domE in Hx as [y Hp]. apply SepE1 in Hp.
@@ -177,7 +177,7 @@ Proof with neauto.
     apply SepE in Hy as [Hy [Hfy [Hdy Hry]]]. apply PowerAx in Hy.
     apply ExtAx. intros x. split; intros Hxy.
     + apply SepE in Hxy as [Hx Heq].
-      apply CProd_correct in Hx as [a [Ha [b [Hb Hx]]]].
+      apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
       subst x. zfcrewrite. rewrite <- Hdy in Ha.
       destruct (ixm (a ∈ B)) as [H|H]; subst b.
       * apply SepE in H as [].
@@ -191,7 +191,7 @@ Proof with neauto.
           rewrite <- Hdy... rewrite one...
         }
     + apply Hy in Hxy as Hxp. apply SepI...
-      apply CProd_correct in Hxp as [a [Ha [b [Hb Hx]]]].
+      apply cprod_iff in Hxp as [a [Ha [b [Hb Hx]]]].
       subst x. zfcrewrite. destruct (ixm (a ∈ B)) as [H|H].
       * apply SepE2 in H as Hap. rewrite <- Hap.
         symmetry. apply func_ap...
@@ -395,8 +395,8 @@ Proof with nauto.
     intros x1 x2 H1 H2.
     apply ReplAx in H1 as [m [Hm H1]].
     apply ReplAx in H2 as [n [Hn H2]].
-    apply op_correct in H1 as [];
-    apply op_correct in H2 as []; subst.
+    apply op_iff in H1 as [];
+    apply op_iff in H2 as []; subst.
     apply suc_injective in H4...
   - apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp].
@@ -530,7 +530,7 @@ Proof with neauto.
       }
       apply IH in Hps as [m [Hmw [Hmk [f Hf]]]].
       exists (m⁺). split. apply ω_inductive... split.
-      apply lt_both_side_suc in Hmk...
+      apply suc_preserve_lt in Hmk...
       exists (f ∪ ⎨<k, m>⎬). rewrite HC.
       apply bijection_add_point...
       * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
@@ -576,10 +576,10 @@ Lemma disjoint_cprod : ∀ A B m n,
 Proof.
   intros. apply disjointI.
   intros [x [H1 H2]].
-  apply CProd_correct in H1 as [a [Ha [b [Hb H1]]]].
-  apply CProd_correct in H2 as [c [Hc [d [Hd H2]]]].
+  apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
+  apply cprod_iff in H2 as [c [Hc [d [Hd H2]]]].
   apply SingE in Hb. apply SingE in Hd. subst.
-  apply op_correct in H2 as [_ Contra]. apply H. apply Contra.
+  apply op_iff in H2 as [_ Contra]. apply H. apply Contra.
 Qed.
 
 Corollary disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
@@ -591,7 +591,7 @@ Qed.
 Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
 Proof.
   intros. rewrite one. apply ExtAx. split; intros Hx.
-  - apply CProd_correct in Hx as [a [Ha [b [Hb H0]]]].
+  - apply cprod_iff in Hx as [a [Ha [b [Hb H0]]]].
     apply SingE in Ha. apply SingE in Hb. subst. auto.
   - apply SingE in Hx. subst. apply CProdI; apply SingI.
 Qed.

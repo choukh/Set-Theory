@@ -15,7 +15,7 @@ Proof with nauto.
     right. apply SingE in H...
 Qed.
 
-Lemma lt_both_side_suc : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ∈ n⁺.
+Lemma suc_preserve_lt : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ∈ n⁺.
 Proof with try apply ω_inductive; neauto.
   intros m Hm n Hn. split; intros H.
   - generalize dependent m.
@@ -32,10 +32,10 @@ Qed.
 Lemma lt_iff_leq_suc : ∀ p k ∈ ω, p ∈ k ↔ p⁺ ≤ k.
 Proof with auto.
   intros p Hp k Hk. split.
-  - intros H. apply lt_both_side_suc in H...
+  - intros H. apply suc_preserve_lt in H...
     apply leq_iff_lt_suc in H... apply ω_inductive...
   - intros H. apply leq_iff_lt_suc in H...
-    apply lt_both_side_suc... apply ω_inductive...
+    apply suc_preserve_lt... apply ω_inductive...
 Qed.
 
 Lemma lt_not_refl : ∀n ∈ ω, n ∉ n.
@@ -43,7 +43,7 @@ Proof with auto.
   intros n Hn.
   set {n ∊ ω | λ n, n ∉ n} as N.
   ω_induction N Hn; intros Hc. exfalso0.
-  apply IH. apply lt_both_side_suc...
+  apply IH. apply suc_preserve_lt...
 Qed.
 
 (* 自然数与其单集不交 *)
@@ -115,10 +115,10 @@ Proof with nauto.
       apply IH in H as []...
       left. apply ωLtE in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
-      rewrite <- (lt_both_side_suc m Hm n' Hn')...
+      rewrite <- (suc_preserve_lt m Hm n' Hn')...
       right. apply ωLtE in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
-      rewrite <- (lt_both_side_suc n' Hn' m Hm)...
+      rewrite <- (suc_preserve_lt n' Hn' m Hm)...
 Qed.
 
 Lemma lt_connected : ∀ m n ∈ ω, m ≠ n → m ∈ n ∨ n ∈ m.
@@ -161,7 +161,7 @@ Proof with eauto.
     apply H in H0. exfalso. eapply lt_not_refl...
 Qed.
 
-Theorem lt_both_side_add : ∀ m n p ∈ ω, m ∈ n ↔ m + p ∈ n + p.
+Theorem add_preserve_lt : ∀ m n p ∈ ω, m ∈ n ↔ m + p ∈ n + p.
 Proof with eauto.
   assert (Hright: ∀ m n p ∈ ω, m ∈ n → m + p ∈ n + p). {
     intros m Hm n Hn p Hp.
@@ -173,7 +173,7 @@ Proof with eauto.
     + repeat rewrite add_m_n...
       assert (Hnm: n + m ∈ ω) by (apply add_ran; auto).
       assert (Hkm: k + m ∈ ω) by (apply add_ran; auto).
-      rewrite <- (lt_both_side_suc (n + m) Hnm (k + m) Hkm).
+      rewrite <- (suc_preserve_lt (n + m) Hnm (k + m) Hkm).
       apply IH...
   }
   intros m Hm n Hn p Hp. split. apply Hright...
@@ -188,7 +188,7 @@ Proof with eauto.
     exfalso. eapply lt_not_refl; revgoals. apply H2. apply add_ran...
 Qed.
 
-Theorem lt_both_side_mul : ∀ m n p ∈ ω, p ≠ 0 →
+Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ 0 →
   m ∈ n ↔ m ⋅ p ∈ n ⋅ p.
 Proof with eauto.
   assert (Hright: ∀ m n p ∈ ω, p ≠ 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
@@ -202,11 +202,11 @@ Proof with eauto.
     + Local Ltac finish := try apply mul_ran; try apply ω_inductive; auto.
       eapply nat_trans. finish. finish.
       rewrite mul_m_n; [|auto|finish].
-      apply lt_both_side_add... finish. 
+      apply add_preserve_lt... finish. 
       rewrite (mul_m_n p); [|auto|finish].
       rewrite add_comm; [|auto|finish].
       rewrite (add_comm p); [|auto|finish].
-      apply (lt_both_side_add (n⋅m⁺)); finish.
+      apply (add_preserve_lt (n⋅m⁺)); finish.
   }
   intros m Hm n Hn p Hp Hnq0. split. apply Hright...
   intros H. destruct (classic (m = n)).
@@ -220,12 +220,12 @@ Proof with eauto.
     exfalso. eapply lt_not_refl; revgoals. apply H2. apply mul_ran...
 Qed.
 
-Corollary lt_both_side_add_tran : ∀ m n p q ∈ ω,
+Corollary add_preserve_lt_tran : ∀ m n p q ∈ ω,
   m ∈ n → p ∈ q → m + p ∈ n + q.
 Proof with eauto.
   intros m Hm n Hn p Hp q Hq H1 H2.
-  apply (lt_both_side_add m Hm n Hn p Hp) in H1.
-  apply (lt_both_side_add p Hp q Hq n Hn) in H2.
+  apply (add_preserve_lt m Hm n Hn p Hp) in H1.
+  apply (add_preserve_lt p Hp q Hq n Hn) in H2.
   rewrite (add_comm p), (add_comm q) in H2...
   eapply nat_trans... apply add_ran...
 Qed.
@@ -235,9 +235,9 @@ Proof with eauto.
   intros m Hm n Hn p Hp Heq.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
-  - eapply lt_both_side_add in H... rewrite Heq in H.
+  - eapply add_preserve_lt in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply add_ran...
-  - eapply lt_both_side_add in H... rewrite Heq in H.
+  - eapply add_preserve_lt in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply add_ran...
 Qed.
 
@@ -252,19 +252,25 @@ Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
-  - eapply lt_both_side_mul in H... rewrite Heq in H.
+  - eapply mul_preserve_lt in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply mul_ran...
-  - eapply lt_both_side_mul in H... rewrite Heq in H.
+  - eapply mul_preserve_lt in H... rewrite Heq in H.
     eapply lt_not_refl; revgoals... apply mul_ran...
 Qed.
 
-Corollary leq_both_side_mul : ∀ m n p ∈ ω,
+Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ 0 → p ⋅ m = p ⋅ n → m = n.
+Proof with eauto.
+  intros m Hm n Hn p Hp Hnq0 Heq.
+  eapply mul_cancel... rewrite mul_comm, (mul_comm n)...
+Qed.
+
+Corollary mul_preserve_leq : ∀ m n p ∈ ω,
   p ≠ 0 → m ≤ n ↔ m ⋅ p ≤ n ⋅ p.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0. split; intros [].
-  - left. apply lt_both_side_mul...
+  - left. apply mul_preserve_lt...
   - right. congruence.
-  - left. apply lt_both_side_mul in H...
+  - left. apply mul_preserve_lt in H...
   - right. apply mul_cancel in H...
 Qed.
 

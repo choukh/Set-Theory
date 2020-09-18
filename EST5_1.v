@@ -28,11 +28,11 @@ Proof with eauto.
     apply ReplAx in Hy0 as [a0 [_ Heq0]].
     apply ReplAx in Hy1 as [a1 [Ha1 Heq1]].
     apply ReplAx in Hy2 as [a2 [Ha2 Heq2]].
-    apply op_correct in Heq0 as [Heq0 _].
-    apply op_correct in Heq1 as [Heq1 Hy1].
-    apply op_correct in Heq2 as [Heq2 Hy2].
+    apply op_iff in Heq0 as [Heq0 _].
+    apply op_iff in Heq1 as [Heq1 Hy1].
+    apply op_iff in Heq2 as [Heq2 Hy2].
     subst x y1 y2. rewrite <- Heq2 in Heq1. clear Heq2.
-    apply op_correct in Heq1 as [H1 H2].
+    apply op_iff in Heq1 as [H1 H2].
     apply CProdE1 in Ha1 as [Ha11 Ha12].
     apply CProdE1 in Ha2 as [Ha21 Ha22].
     eapply eqvc_ident in H1...
@@ -48,7 +48,7 @@ Proof with eauto.
   - (* dom F' = (A/R) × (A/R) *)
     apply ExtAx. split; intros Hx.
     + apply domE in Hx as [y Hp]. apply ReplAx in Hp as [a [Hp Heq]].
-      apply op_correct in Heq as [Heq _]. subst x.
+      apply op_iff in Heq as [Heq _]. subst x.
       apply CProdE1 in Hp as [H1 H2]. apply CProdI; apply quotI...
     + apply CProdE2 in Hx as Hxp. apply op_η in Hxp.
       apply CProdE1 in Hx as [H1 H2].
@@ -56,13 +56,13 @@ Proof with eauto.
       apply quotE in H2 as [b [Hb Heqb]].
       eapply domI. apply ReplAx. exists <a, b>. split.
       apply CProdI... rewrite π1_correct, π2_correct.
-      apply op_correct... split. rewrite Hxp.
-      apply op_correct... reflexivity.
+      apply op_iff... split. rewrite Hxp.
+      apply op_iff... reflexivity.
   - (* ran F' ⊆ A/R *)
     intros y Hy. apply ranE in Hy as [].
     apply ReplAx in H as [a [Ha Heq]].
     apply CProdE2 in Ha as Hap. apply op_η in Hap.
-    apply op_correct in Heq as [_ Hy]. subst y. rewrite <- Hap.
+    apply op_iff in Heq as [_ Hy]. subst y. rewrite <- Hap.
     rewrite <- Hdf in Ha. apply func_correct in Ha as Hp...
     apply ranI in Hp as Hr. apply Hrf in Hr. apply quotI...
 Qed.
@@ -78,7 +78,7 @@ Proof with eauto.
   rewrite <- Hrf in Hp. apply ranE in Hp as [x Hp].
   apply domI in Hp as Hd. rewrite Hdf in Hd.
   eapply ranI. apply ReplAx. exists x. split...
-  apply op_correct. split... apply CProdE2 in Hd.
+  apply op_iff. split... apply CProdE2 in Hd.
   apply op_η in Hd. rewrite <- Hd.
   cut (F[x] = p). congruence. apply func_ap...
 Qed.
@@ -96,13 +96,13 @@ Proof with eauto.
   assert (Hd: <[x]R, [y]R> ∈ (A/R) × (A/R)) by (apply CProdI; auto).
   rewrite <- Hdf' in Hd. apply func_correct in Hd...
   apply ReplAx in Hd as [b [Hb Heq]].
-  apply op_correct in Heq as [H1 H2]. unfold F'.
+  apply op_iff in Heq as [H1 H2]. unfold F'.
   rewrite <- H2. eapply eqvc_ident; swap 1 3...
   - apply Hrf. eapply ranI... apply func_correct...
     rewrite Hdf. apply CProdE1 in Hb as []. apply CProdI...
   - apply Hrf. eapply ranI... apply func_correct...
     rewrite Hdf. apply CProdE1 in Hb as []. apply CProdI...
-  - apply op_correct in H1 as [H11 H12].
+  - apply op_iff in H1 as [H11 H12].
     apply CProdE1 in Hb as [Hb1 Hb2].
     eapply eqvc_ident in H11...
     eapply eqvc_ident in H12... apply Hc...
@@ -135,9 +135,9 @@ Lemma plane2E : ∀ A B, ∀x ∈ (A × B)²,
   ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B, x = <<m, n>, <p, q>>.
 Proof with auto.
   intros * x Hx.
-  apply CProd_correct in Hx as [u [Hu [v [Hv Hx]]]].
-  apply CProd_correct in Hu as [m [Hm [n [Hn Hu]]]].
-  apply CProd_correct in Hv as [p [Hp [q [Hq Hv]]]].
+  apply cprod_iff in Hx as [u [Hu [v [Hv Hx]]]].
+  apply cprod_iff in Hu as [m [Hm [n [Hn Hu]]]].
+  apply cprod_iff in Hv as [p [Hp [q [Hq Hv]]]].
   exists m. split... exists n. split...
   exists p. split... exists q. split... congruence.
 Qed.
@@ -171,7 +171,7 @@ Lemma planeEquivE1 : ∀ A B Eq, ∀ x y, (x ~ y) A B Eq →
 Proof with auto.
   intros * Hqv. apply SepE in Hqv as [Hxy Heq].
   apply plane2E in Hxy as [m [Hm [n [Hn [p [Hp [q [Hq Hxy]]]]]]]].
-  apply op_correct in Hxy as []; subst.
+  apply op_iff in Hxy as []; subst.
   zfcrewrite. simpl in Heq.
   exists m. split... exists n. split...
   exists p. split... exists q. split...
@@ -183,8 +183,8 @@ Lemma planeEquivE2 : ∀ A B Eq, ∀ m n p q,
 Proof.
   intros * Hqv. apply planeEquivE1 in Hqv
     as [a [Ha [b [Hb [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
-  apply op_correct in H1 as [];
-  apply op_correct in H2 as []; subst a b c d. auto.
+  apply op_iff in H1 as [];
+  apply op_iff in H2 as []; subst a b c d. auto.
 Qed.
 
 Lemma planeEquiv : ∀ A B Eq, ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
@@ -210,7 +210,7 @@ Proof with eauto.
   intros * Hrefl Hsymm Htran. repeat split.
   - intros x Hx. apply SepE in Hx as []...
   - intros x Hx. apply SepI. apply CProdI...
-    apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]].
+    apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]].
     subst x. zfcrewrite...
   - intros x y Hqv. apply planeEquivE1 in Hqv
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy Heq]]]]]]]]]].
@@ -221,7 +221,7 @@ Proof with eauto.
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy H1]]]]]]]]]]. subst.
     apply planeEquivE1 in H2
       as [p' [_ [q' [_ [r [Hr [s [Hs [Hx [Hy H2]]]]]]]]]]. subst.
-    apply op_correct in Hx as []; subst p' q'.
+    apply op_iff in Hx as []; subst p' q'.
     apply SepI. apply CProdI; apply CProdI...
     zfcrewrite. simpl in *. eapply Htran; revgoals...
 Qed.
@@ -238,7 +238,7 @@ Lemma pQuotE : ∀ A B Eq, ∀x ∈ PlaneQuotient A B Eq,
   ∃m ∈ A, ∃n ∈ B, x = [<m, n>]~ A B Eq.
 Proof with auto.
   intros * x Hx. apply quotE in Hx as [p [Hx Heq1]].
-  apply CProd_correct in Hx as [a [Ha [b [Hb Heq2]]]].
+  apply cprod_iff in Hx as [a [Ha [b [Hb Heq2]]]].
   exists a. split... exists b. split... congruence.
 Qed.
 
@@ -291,9 +291,9 @@ Proof with eauto.
       as [m1 [Hm1 [n1 [Hn1 [p1 [Hp1 [q1 [Hq1 [Hx1 Hy1]]]]]]]]].
     apply planeArithE in H2
       as [m2 [Hm2 [n2 [Hn2 [p2 [Hp2 [q2 [Hq2 [Hx2 Hy2]]]]]]]]].
-    subst x. apply op_correct in Hx2 as [H1 H2].
-    apply op_correct in H1 as [H11 H12].
-    apply op_correct in H2 as [H21 H22]. congruence.
+    subst x. apply op_iff in Hx2 as [H1 H2].
+    apply op_iff in H1 as [H11 H12].
+    apply op_iff in H2 as [H21 H22]. congruence.
   - (* dom planeArith = A² × A² *)
     apply ExtAx. intros x. split; intros Hx.
     + apply domE in Hx as [y Hx]. apply SepE in Hx as [Hx _].
@@ -308,7 +308,7 @@ Proof with eauto.
     + apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as []; zfcrewrite.
     + assert (Hy' := Hy).
-      apply CProd_correct in Hy' as [a [Ha [b [Hb Heq]]]].
+      apply cprod_iff in Hy' as [a [Ha [b [Hb Heq]]]].
       edestruct HF2 as [m [Hm [n [Hn [p [Hp [q [Hq]]]]]]]].
       apply Ha. apply Hb. eapply ranI. apply SepI.
       apply CProdI... apply CProdI; apply CProdI.
@@ -407,10 +407,10 @@ Proof with eauto.
   destruct preIntAdd_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl. 
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProd_correct in Hx as [m [Hm [n [Hn Hxeq]]]].
-  apply CProd_correct in Hy as [p [Hp [q [Hq Hyeq]]]].
-  apply CProd_correct in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
-  apply CProd_correct in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
+  apply cprod_iff in Hx as [m [Hm [n [Hn Hxeq]]]].
+  apply cprod_iff in Hy as [p [Hp [q [Hq Hyeq]]]].
+  apply cprod_iff in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
+  apply cprod_iff in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntAdd_m_n_p_q, preIntAdd_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI; apply add_ran...
@@ -573,7 +573,7 @@ Proof with auto.
   apply SepE in Hx as [Hx H0]. apply eqvcE in Hx.
   assert (Hx' := Hx). apply planeEquivE1 in Hx'
     as [m' [Hm' [n' [Hn' [p [Hp [q [Hq [H1 [H2 _]]]]]]]]]].
-  apply op_correct in H1 as []; subst m' n'.
+  apply op_iff in H1 as []; subst m' n'.
   subst x. zfcrewrite. destruct H0; subst.
   exists 0. split... exists q... split...
   exists p. split... exists 0... split...
@@ -594,7 +594,7 @@ Proof with neauto.
   - intros x1 x2 H1 H2.
     apply preIntProjE in H1 as [p1 [Hp1 [q1 [Hq1 [Hx1 [H1 []]]]]]];
     apply preIntProjE in H2 as [p2 [Hp2 [q2 [Hq2 [Hx2 [H2 []]]]]]];
-      subst; auto; apply op_correct;
+      subst; auto; apply op_iff;
       apply planeEquiv in H1; apply planeEquiv in H2;
       unfold IntEq in *...
     + split... rewrite add_ident' in *... subst n.

@@ -176,15 +176,15 @@ Proof with eauto; try congruence.
     rewrite <- Hp. eexists...
   - apply domE in H...
   - intros y1 y2 H1 H2.
-    apply ReplAx in H1 as [u [_ H1]]. apply op_correct in H1 as [].
-    apply ReplAx in H2 as [v [_ H2]]. apply op_correct in H2 as []...
+    apply ReplAx in H1 as [u [_ H1]]. apply op_iff in H1 as [].
+    apply ReplAx in H2 as [v [_ H2]]. apply op_iff in H2 as []...
   - apply ExtAx. split; intros.
     + apply domE in H as [y Hp]. apply ReplAx in Hp as [v [Hv Heq]].
-      apply op_correct in Heq as []...
+      apply op_iff in Heq as []...
     + eapply domI. apply ReplAx. exists x. split...
   - intros y Hy. apply ranE in Hy as [x Hp].
     apply ReplAx in Hp as [v [Hv Heq]].
-    apply op_correct in Heq as [_ Heq]. subst y.
+    apply op_iff in Heq as [_ Heq]. subst y.
     apply ω_inductive...
 Qed.
 
@@ -196,14 +196,14 @@ Proof with eauto.
     intros y1 y2 H1 H2.
     apply ReplAx in H1 as [m [Hm H1]].
     apply ReplAx in H2 as [n [Hn H2]].
-    apply op_correct in H1 as [].
-    apply op_correct in H2 as []. subst m n x.
+    apply op_iff in H1 as [].
+    apply op_iff in H2 as []. subst m n x.
     apply suc_injective...
   - apply ExtAx. intros y. split; intros Hy.
     + apply SepI. apply Hr... intros H. apply SingE in H.
       subst y. apply ranE in Hy as [x Hp].
       apply ReplAx in Hp as [n [Hn Hp]].
-      apply op_correct in Hp as [_ H].
+      apply op_iff in Hp as [_ H].
       eapply suc_neq_0...
     + apply SepE in Hy as [Hy H0].
       ω_destruct y; subst y. exfalso. apply H0...
@@ -224,20 +224,20 @@ Proof with eauto.
   split. apply ω_has_0. split; [|split].
   - intros H. apply ranE in H as [x Hp].
     apply ReplAx in Hp as [n [Hn H]].
-    apply op_correct in H as [_ H]. eapply suc_neq_0...
+    apply op_iff in H as [_ H]. eapply suc_neq_0...
   - split... intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply ReplAx in H1 as [n [Hx1 Hn]].
     apply ReplAx in H2 as [m [Hx2 Hm]].
-    apply op_correct in Hn as [Hn1 Hn2].
-    apply op_correct in Hm as [Hm1 Hm2]. subst.
+    apply op_iff in Hn as [Hn1 Hn2].
+    apply op_iff in Hm as [Hm1 Hm2]. subst.
     apply suc_injective...
   - intros A HA H0 Hc. apply ω_ind... split...
     intros a Ha. apply Hc in Ha as Hsa.
     apply HA in Ha. rewrite <- Hd in Ha.
     apply domE in Ha as [a1 Hp]. apply func_ap in Hp as Hap...
     apply ReplAx in Hp as [n [_ Heq]].
-    apply op_correct in Heq as []; subst. congruence.
+    apply op_iff in Heq as []; subst. congruence.
 Qed.
 
 (** ω递归定理 **)
@@ -258,7 +258,7 @@ Proof with eauto; try congruence.
     apply SepE in Hv as [Hv Hac];
     apply UnionAx in Hv as [u [Hu Hv]];
     apply ReplAx in Hu as [w [Hw Heq]]; subst u;
-    apply Arrow_correct in Hv as [Hfv [Hdv Hrv]]; subst w.
+    apply arrow_iff in Hv as [Hfv [Hdv Hrv]]; subst w.
   assert (Hdrv: ∀v ∈ ℋ, dom v ⊆ ω ∧ ran v ⊆ A). {
     intros v Hv. des Hv. split.
     - apply PowerAx...
@@ -336,8 +336,8 @@ Proof with eauto; try congruence.
       - intros x Hx. apply SingE in Hx. subst x. eexists...
       - eapply domE in H...
       - intros y1 y2 H1 H2.
-        apply SingE in H1. apply op_correct in H1 as [_ H1].
-        apply SingE in H2. apply op_correct in H2 as [_ H2]...
+        apply SingE in H1. apply op_iff in H1 as [_ H1].
+        apply SingE in H2. apply op_iff in H2 as [_ H2]...
     }
     assert (H0: f0[∅] = a). {
       eapply func_ap... apply SingI.
@@ -345,17 +345,17 @@ Proof with eauto; try congruence.
     assert (Hac: acceptable f0). {
       split... split. intros... intros n Hn Hn1.
       exfalso. apply func_correct in Hn1... apply SingE in Hn1.
-      apply op_correct in Hn1 as [Hn1 _]. eapply suc_neq_0...
+      apply op_iff in Hn1 as [Hn1 _]. eapply suc_neq_0...
     }
     eapply domI. apply Hstar. exists f0.
     split; [|split; [apply Hac|apply SingI]].
     apply SepI... eapply UnionI. eapply ReplI.
     apply PowerAx. cut (⎨∅⎬ ⊆ ω)...
     intros x Hx. apply SingE in Hx. subst x. apply ω_has_0.
-    apply Arrow_correct. split... split.
+    apply arrow_iff. split... split.
     + apply ExtAx. split; intros.
       apply domE in H as [y Hp]. apply SingE in Hp.
-      apply op_correct in Hp as [Hx _]. subst x. apply SingI.
+      apply op_iff in Hp as [Hx _]. subst x. apply SingI.
       apply SingE in H. subst x. eapply domI. apply SingI.
     + intros x Hx. apply SingE in Hx. subst x. rewrite H0...
   }
@@ -375,26 +375,26 @@ Proof with eauto; try congruence.
         apply BUnionE in H1 as []; apply BUnionE in H2 as [].
         + eapply func_sv...
         + apply domI in H0. apply SingE in H1.
-          apply op_correct in H1 as [H1 _]. subst x.
+          apply op_iff in H1 as [H1 _]. subst x.
           exfalso. apply Hc...
         + apply domI in H1. apply SingE in H0.
-          apply op_correct in H0 as [H0 _]. subst x.
+          apply op_iff in H0 as [H0 _]. subst x.
           exfalso. apply Hc...
-        + apply SingE in H0. apply op_correct in H0 as [_ H0].
-          apply SingE in H1. apply op_correct in H1 as [_ H1]...
+        + apply SingE in H0. apply op_iff in H0 as [_ H0].
+          apply SingE in H1. apply op_iff in H1 as [_ H1]...
     }
     assert (Hd: dom v ⊆ ω). {
       intros x Hx. apply domE in Hx as [y Hp].
       apply BUnionE in Hp as [].
       - apply domI in H. apply Hdhω...
-      - apply SingE in H. apply op_correct in H as [H _]. subst x.
+      - apply SingE in H. apply op_iff in H as [H _]. subst x.
         apply ω_inductive. apply Hdhω...
     }
     assert (Hr: ran v ⊆ A). {
       intros y Hy. apply ranE in Hy as [x Hp].
       apply BUnionE in Hp as [].
       - apply ranI in H. apply Hrha...
-      - apply SingE in H. apply op_correct in H as [_ H]. subst y.
+      - apply SingE in H. apply op_iff in H as [_ H]. subst y.
         apply HFr. eapply ranI. eapply func_correct...
         rewrite HFd. apply Hrha. eapply ranI. eapply func_correct... 
     }
@@ -404,7 +404,7 @@ Proof with eauto; try congruence.
         apply BUnionE in H0 as [H0|H0].
         + apply domI in H0 as Hd0. apply func_ap in H0...
           destruct Hach as [_ [Hi _]]. apply Hi in Hd0...
-        + apply SingE in H0. apply op_correct in H0 as [H0 _].
+        + apply SingE in H0. apply op_iff in H0 as [H0 _].
           exfalso. eapply suc_neq_0...
       - intros n Hn Hn1.
         apply domE in Hn1 as [y Hp]. apply func_ap in Hp as Hy...
@@ -417,7 +417,7 @@ Proof with eauto; try congruence.
           cut (v[n] = h[n])... apply func_ap in Hp as Hap...
           rewrite Hap. eapply func_ap... apply BUnionI1...
           eapply domI. apply BUnionI1...
-        + apply SingE in Hp. apply op_correct in Hp as [Heq1 Heq2].
+        + apply SingE in Hp. apply op_iff in Hp as [Heq1 Heq2].
           assert (Heq3: n = k). {
             eapply suc_injective... apply Hdhω...
           }
@@ -434,7 +434,7 @@ Proof with eauto; try congruence.
     exists v. split; [|split; [apply Hac|apply Hp1]].
     apply SepI... eapply UnionI. eapply ReplI.
     apply PowerAx. apply Hd.
-    apply Arrow_correct. split... split...
+    apply arrow_iff. split... split...
     intros x Hx. apply Hr. eapply ranI. eapply func_correct...
   }
   split; [

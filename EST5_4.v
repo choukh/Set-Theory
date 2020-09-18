@@ -31,7 +31,7 @@ Lemma intMul_pos_prod : ∀a b ∈ ℤ,
 Proof with nauto.
   intros a Ha b Hb Hpa Hpb. unfold intPos.
   rewrite <- (intMul_0_l b)...
-  apply intLt_both_side_mul...
+  apply intMul_preserve_lt...
 Qed.
 
 Lemma intMul_pos_factor : ∀a b ∈ ℤ,
@@ -42,7 +42,7 @@ Proof with neauto.
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
     eapply intLt_not_refl; revgoals...
   - apply intLt_connected in H as []... exfalso.
-    eapply intLt_both_side_mul in H...
+    eapply intMul_preserve_lt in H...
     rewrite intMul_0_l in H...
     eapply intLt_not_refl; revgoals.
     eapply intLt_tranr... mr.
@@ -56,7 +56,7 @@ Proof with neauto.
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
     eapply intLt_not_refl; revgoals...
   - apply intLt_connected in H as []... exfalso.
-    eapply intLt_both_side_mul in H.
+    eapply intMul_preserve_lt in H.
     apply H in Hpb as Hc.
     rewrite (intMul_comm b), intMul_0_l in Hc...
     eapply intLt_not_refl; revgoals.
@@ -92,7 +92,7 @@ Proof.
   assert (Hcb: c⋅b ∈ ℤ) by (mr;nz).
   assert (Hb'd': b'⋅d' ∈ ℤ) by (mr;nz).
   assert (Hpb'd': intPos (b'⋅d')) by (apply intMul_pos_prod; auto; nz).
-  rewrite (intLt_both_side_mul _ Had _ Hcb _ Hb'd' Hpb'd').
+  rewrite (intMul_preserve_lt _ Had _ Hcb _ Hb'd' Hpb'd').
   rewrite (intMul_assoc a), (intMul_comm d), (intMul_assoc b'),
     <- (intMul_assoc a), (intMul_assoc c), (intMul_comm b),
     (intMul_comm b'), (intMul_assoc d'), <- (intMul_assoc c),
@@ -104,7 +104,7 @@ Proof.
   assert (Hc'b': c'⋅b' ∈ ℤ) by (mr;nz).
   assert (Hbd: b⋅d ∈ ℤ) by (mr;nz).
   assert (Hpbd: intPos (b⋅d)) by (apply intMul_pos_prod; auto; nz).
-  erewrite <- (intLt_both_side_mul _ Ha'd' _ Hc'b' _ Hbd Hpbd).
+  erewrite <- (intMul_preserve_lt _ Ha'd' _ Hc'b' _ Hbd Hpbd).
   reflexivity.
 Qed.
 
@@ -195,9 +195,9 @@ Proof with auto.
     [_ [Hpf [_ [Hz _]]]]]]]]]]]]. subst x y z.
   apply ratLt in H1... apply ratLt in H2... apply ratLt...
   assert (H1': a ⋅ d ⋅ f <𝐳 c ⋅ b ⋅ f)
-    by (apply intLt_both_side_mul; auto; nz; mr; nz).
+    by (apply intMul_preserve_lt; auto; nz; mr; nz).
   assert (H2': c ⋅ f ⋅ b <𝐳 e ⋅ d ⋅ b)
-    by (apply intLt_both_side_mul; auto; nz; mr; nz).
+    by (apply intMul_preserve_lt; auto; nz; mr; nz).
   rewrite
     (intMul_assoc a), (intMul_comm d), <- (intMul_assoc a),
     (intMul_assoc c), (intMul_comm b), <- (intMul_assoc c)
@@ -205,7 +205,7 @@ Proof with auto.
   rewrite
     (intMul_assoc e), (intMul_comm d), <- (intMul_assoc e)
     in H2'; nz...
-  eapply intLt_both_side_mul; revgoals; [
+  eapply intMul_preserve_lt; revgoals; [
     eapply intLt_tranr; revgoals|..
   ]; try eassumption; nz; mr; nz.
 Qed.
@@ -425,7 +425,7 @@ Qed.
 Close Scope Rat_scope.
 Open Scope Int_scope.
 
-Theorem ratLt_both_side_add : ∀ r s t ∈ ℚ,
+Theorem ratAdd_preserve_lt : ∀ r s t ∈ ℚ,
   r <𝐪 s ↔ (r + t <𝐪 s + t)%q.
 Proof with auto.
   intros r Hr s Hs t Ht.
@@ -454,12 +454,12 @@ Proof with auto.
   assert (Hz5: (a⋅d)⋅(f⋅f) ∈ ℤ) by (mr;mr;nz).
   assert (Hz6: (c⋅b)⋅(f⋅f) ∈ ℤ) by (mr;mr;nz).
   assert (Hz7: (e⋅d)⋅(f⋅b) ∈ ℤ) by (mr;mr;nz).
-  rewrite <- (intLt_both_side_add _ Hz5 _ Hz6 _ Hz7).
-  apply intLt_both_side_mul; revgoals; [|mr;nz..].
+  rewrite <- (intAdd_preserve_lt _ Hz5 _ Hz6 _ Hz7).
+  apply intMul_preserve_lt; revgoals; [|mr;nz..].
   apply intMul_pos_prod...
 Qed.
 
-Theorem ratLt_both_side_mul : ∀ r s t ∈ ℚ,
+Theorem ratMul_preserve_lt : ∀ r s t ∈ ℚ,
   ratPos t → r <𝐪 s ↔ (r ⋅ t <𝐪 s ⋅ t)%q.
 Proof with nauto.
   cut (∀ r s t ∈ ℚ, ratPos t → r <𝐪 s → (r ⋅ t <𝐪 s ⋅ t)%q).
@@ -485,45 +485,45 @@ Proof with nauto.
     (intMul_assoc c), (intMul_comm e),
     (intMul_assoc b), <- (intMul_assoc c);
       nz; auto; [|mr;nz..].
-  apply intLt_both_side_mul... mr;nz. mr;nz. mr;nz.
+  apply intMul_preserve_lt... mr;nz. mr;nz. mr;nz.
   apply intMul_pos_prod; nz...
 Qed.
 
 Close Scope Int_scope.
 Open Scope Rat_scope.
 
-Corollary ratLt_both_side_add' : ∀ r s t ∈ ℚ,
+Corollary ratAdd_preserve_lt' : ∀ r s t ∈ ℚ,
   r <𝐪 s ↔ (t + r <𝐪 t + s)%q.
 Proof with auto.
   intros r Hr s Hs t Ht.
   rewrite ratAdd_comm, (ratAdd_comm t)...
-  apply ratLt_both_side_add...
+  apply ratAdd_preserve_lt...
 Qed.
 
-Corollary ratLt_both_side_add_tran : ∀ q r s t ∈ ℚ,
+Corollary ratAdd_preserve_lt_tran : ∀ q r s t ∈ ℚ,
   q <𝐪 r → s <𝐪 t → q + s <𝐪 r + t.
 Proof with auto.
   intros q Hq r Hr s Hs t Ht H1 H2.
-  apply (ratLt_both_side_add q Hq r Hr s Hs) in H1.
-  apply (ratLt_both_side_add s Hs t Ht r Hr) in H2.
+  apply (ratAdd_preserve_lt q Hq r Hr s Hs) in H1.
+  apply (ratAdd_preserve_lt s Hs t Ht r Hr) in H2.
   rewrite (ratAdd_comm s), (ratAdd_comm t) in H2...
   eapply ratLt_tranr; eauto.
 Qed.
 
-Corollary ratLt_both_side_mul' : ∀ r s t ∈ ℚ,
+Corollary ratMul_preserve_lt' : ∀ r s t ∈ ℚ,
   ratPos t → r <𝐪 s ↔ t ⋅ r <𝐪 t ⋅ s.
 Proof with auto.
   intros r Hr s Hs t Ht.
   rewrite ratMul_comm, (ratMul_comm t)...
-  apply ratLt_both_side_mul...
+  apply ratMul_preserve_lt...
 Qed.
 
-Corollary ratLt_both_side_mul_tran : ∀ q r s t ∈ ℚ,
+Corollary ratMul_preserve_lt_tran : ∀ q r s t ∈ ℚ,
   ratPos r → ratPos s → q <𝐪 r → s <𝐪 t → q ⋅ s <𝐪 r ⋅ t.
 Proof with auto.
   intros q Hq r Hr s Hs t Ht Hpr Hps H1 H2.
-  apply (ratLt_both_side_mul q Hq r Hr s Hs) in H1...
-  apply (ratLt_both_side_mul s Hs t Ht r Hr) in H2...
+  apply (ratMul_preserve_lt q Hq r Hr s Hs) in H1...
+  apply (ratMul_preserve_lt s Hs t Ht r Hr) in H2...
   rewrite (ratMul_comm s), (ratMul_comm t) in H2...
   eapply ratLt_tranr; eauto.
 Qed.
@@ -561,13 +561,13 @@ Proof with eauto.
   rewrite ratMul_comm, (ratMul_comm s); auto; apply nzRatE1...
 Qed.
 
-Corollary ratLeq_both_side_mul : ∀ r s t ∈ ℚ,
+Corollary ratMul_preserve_leq : ∀ r s t ∈ ℚ,
   ratPos t → r ≤ s ↔ r ⋅ t ≤ s ⋅ t.
 Proof with auto.
   intros r Hr s Hs t Ht Hpt. split; intros [Hlt|Heq].
-  - left. apply ratLt_both_side_mul...
+  - left. apply ratMul_preserve_lt...
   - right. subst...
-  - left. apply ratLt_both_side_mul in Hlt...
+  - left. apply ratMul_preserve_lt in Hlt...
   - right. apply ratMul_cancel in Heq...
     apply nzRatI0... apply rat_neq_0...
 Qed.
@@ -577,7 +577,7 @@ Lemma ratAdd_pos_sum : ∀ r s ∈ ℚ,
 Proof with nauto.
   intros r Hr s Hs Hnr Hns.
   unfold ratPos. rewrite <- (ratAdd_ident (Rat 0))...
-  apply ratLt_both_side_add_tran...
+  apply ratAdd_preserve_lt_tran...
 Qed.
 
 Lemma ratAdd_neg_sum : ∀ r s ∈ ℚ,
@@ -585,7 +585,7 @@ Lemma ratAdd_neg_sum : ∀ r s ∈ ℚ,
 Proof with nauto.
   intros r Hr s Hs Hnr Hns.
   unfold ratNeg. rewrite <- (ratAdd_ident (Rat 0))...
-  apply ratLt_both_side_add_tran...
+  apply ratAdd_preserve_lt_tran...
 Qed.
 
 Lemma ratAdd_nonNeg_sum : ∀ p q ∈ ℚ,
@@ -605,7 +605,7 @@ Lemma ratMul_pos_prod : ∀ p q ∈ ℚ,
 Proof with nauto.
   intros p Hp q Hq Hpp Hpq. unfold ratPos.
   rewrite <- (ratMul_0_l q)...
-  apply ratLt_both_side_mul...
+  apply ratMul_preserve_lt...
 Qed.
 
 Lemma ratMul_neg_prod : ∀ p q ∈ ℚ,
@@ -613,7 +613,7 @@ Lemma ratMul_neg_prod : ∀ p q ∈ ℚ,
 Proof with nauto.
   intros p Hp q Hq Hpp Hnq.
   unfold ratNeg. rewrite ratMul_comm, <- (ratMul_0_l p)...
-  apply ratLt_both_side_mul...
+  apply ratMul_preserve_lt...
 Qed.
 
 Lemma ratMul_nonNeg_prod : ∀ p q ∈ ℚ,

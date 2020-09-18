@@ -281,35 +281,42 @@ Qed.
 
 (* 子集关系的单调性 *)
 
-Lemma sub_bunion_mono : ∀ A B C, A ⊆ B → A ∪ C ⊆ B ∪ C.
+Lemma sub_mono_bunion : ∀ A B C, A ⊆ B → A ∪ C ⊆ B ∪ C.
 Proof.
   intros. intros x Hx. apply BUnionE in Hx. destruct Hx.
   - apply H in H0. apply BUnionI1. apply H0.
   - apply BUnionI2. apply H0.
 Qed.
 
-Lemma sub_binter_mono : ∀ A B C, A ⊆ B → A ∩ C ⊆ B ∩ C.
+Lemma sub_mono_binter : ∀ A B C, A ⊆ B → A ∩ C ⊆ B ∩ C.
 Proof.
   intros. intros x Hx. apply BInterE in Hx as [H1 H2].
   apply H in H1. apply BInterI. apply H1. apply H2.
 Qed.
 
-Lemma sub_union_mono : ∀ A B, A ⊆ B → ⋃A ⊆ ⋃B.
+Lemma sub_mono_union : ∀ A B, A ⊆ B → ⋃A ⊆ ⋃B.
 Proof.
   intros. intros x Hx. apply UnionAx in Hx as [y [H1 H2]].
   eapply UnionI. apply H in H1. apply H1. apply H2.
 Qed.
 
+Lemma sub_mono_cprod : ∀ A B C, A ⊆ B → A × C ⊆ B × C.
+Proof with auto.
+  intros * H x Hx.
+  apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
+  subst x. apply CProdI... apply H...
+Qed.
+
 (* 子集关系的反单调性 *)
 
-Lemma sub_comp_amono : ∀ A B C, A ⊆ B → C - B ⊆ C - A.
+Lemma sub_amono_comp : ∀ A B C, A ⊆ B → C - B ⊆ C - A.
 Proof.
   intros. intros x Hx. apply CompE in Hx as [HC HB].
   apply CompI. apply HC. intros HA.
   apply HB. apply H. apply HA.
 Qed.
 
-Lemma sub_inter_amono : ∀ A B, ⦿ A → A ⊆ B → ⋂B ⊆ ⋃A.
+Lemma sub_amono_inter : ∀ A B, ⦿ A → A ⊆ B → ⋂B ⊆ ⋃A.
 Proof.
   intros. intros x Hx. apply InterE in Hx as [_ Hy].
   destruct H as [a Ha]. eapply UnionI. apply Ha.

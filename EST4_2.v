@@ -117,7 +117,7 @@ Proof with eauto; try congruence.
     apply SepE in Hf as [_ Hf]. split...
   - destruct Hh as [[Hh [Hdh Hrh]] [Hh0 Hh1]].
     apply SingE in Hf. subst f. apply SepI.
-    apply Arrow_correct. split... split... intros x Hx.
+    apply arrow_iff. split... split... intros x Hx.
     apply Hrh. eapply ranI. apply func_correct... split...
   - destruct Hh as [[Hh [Hdh Hrh]] [Hh0 Hh1]]. split...
 Qed.
@@ -190,7 +190,7 @@ Proof with eauto; try congruence.
   - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
     apply CProdE1 in Hx as [Hx _]. zfcrewrite.
   - assert (Hx' := Hx).
-    apply CProd_correct in Hx' as [a [Ha [b [Hb Heq]]]].
+    apply cprod_iff in Hx' as [a [Ha [b [Hb Heq]]]].
     destruct (H a) as [Hh [Hhd Hhr]]...
     rewrite <- Hhd in Hb. apply func_correct in Hb as Hbp...
     eapply domI. apply SepI. apply CProdI. apply Hx.
@@ -617,11 +617,9 @@ Proof with eauto.
   exfalso. eapply suc_neq_0... apply add_ran... apply mul_ran...
 Qed.
 
-Definition even : set → Prop := λ n,
-  n ∈ ω ∧ ∃m ∈ ω, n = 2 ⋅ m.
+Definition even : set → Prop := λ n, ∃m ∈ ω, n = 2 ⋅ m.
 
-Definition odd : set → Prop := λ n,
-  n ∈ ω ∧ ∃p ∈ ω, n = 2 ⋅ p + 1.
+Definition odd : set → Prop := λ n, ∃p ∈ ω, n = 2 ⋅ p + 1.
 
 Lemma add_suc : ∀n ∈ ω, n⁺ = n + 1.
 Proof with neauto.

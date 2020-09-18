@@ -140,9 +140,9 @@ Proof with eauto.
       apply ReplAx in Hy0 as [a0 [_ Heq0]].
       apply ReplAx in Hy1 as [a1 [Ha1 Heq1]].
       apply ReplAx in Hy2 as [a2 [Ha2 Heq2]].
-      apply op_correct in Heq0 as [Heq0 _].
-      apply op_correct in Heq1 as [Heq1 Hy1].
-      apply op_correct in Heq2 as [Heq2 Hy2].
+      apply op_iff in Heq0 as [Heq0 _].
+      apply op_iff in Heq1 as [Heq1 Hy1].
+      apply op_iff in Heq2 as [Heq2 Hy2].
       subst x y1 y2. rewrite <- Heq2 in Heq1. clear Heq2.
       eapply eqvc_ident in Heq1... apply Hc in Heq1...
       subst A. apply func_correct in Ha1... apply func_correct in Ha2...
@@ -151,14 +151,14 @@ Proof with eauto.
   assert (Hdf': dom F' = A/R). {
     apply ExtAx. split; intros Hx.
     - apply domE in Hx as [y Hp]. apply ReplAx in Hp as [a [Hp Heq]].
-      apply op_correct in Heq as [Heq _]. subst x. apply quotI...
+      apply op_iff in Heq as [Heq _]. subst x. apply quotI...
     - apply quotE in Hx as [a [Ha Heq]]. eapply domI.
-      apply ReplAx. exists a. split... apply op_correct...
+      apply ReplAx. exists a. split... apply op_iff...
   }
   assert (Hrf': ran F' ⊆ A/R). {
     intros y Hy. apply ranE in Hy as [].
     apply ReplAx in H as [a [Ha Heq]].
-    apply op_correct in Heq as [_ Hy]. subst A y.
+    apply op_iff in Heq as [_ Hy]. subst A y.
     apply func_correct in Ha as Hp... apply ranI in Hp as Hr.
     apply Hrf in Hr. apply quotI...
   }
@@ -167,7 +167,7 @@ Proof with eauto.
   assert (Hd: [a]R ∈ A/R) by (apply quotI; auto).
   rewrite <- Hdf' in Hd. apply func_correct in Hd...
   apply ReplAx in Hd as [b [Hb Heq]].
-  apply op_correct in Heq as [H1 H2].
+  apply op_iff in Heq as [H1 H2].
   eapply eqvc_ident in H1... apply Hc in H1... subst A.
   apply func_correct in Ha as Har... apply ranI in Har.
   apply func_correct in Hb as Hbr... apply ranI in Hbr.

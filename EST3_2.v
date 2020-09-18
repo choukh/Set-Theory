@@ -126,7 +126,7 @@ Proof with eauto.
       apply BUnionE in H2 as [H2|H2].
       * apply ReplAx. exists (π1 x). split.
         apply domI in H1 as Hd. subst A...
-        apply op_η in Hp. rewrite Hp at 3. apply op_correct.
+        apply op_η in Hp. rewrite Hp at 3. apply op_iff.
         split... rewrite <- inv_op in H2. eapply singrE...
       * exfalso. apply ranI in H1. apply CProdE1 in H2 as [H2 _].
         rewrite π1_correct in H2. apply CompE in H2 as []...
@@ -198,7 +198,7 @@ Proof with eauto.
     pose proof (chosen_contained s' (Hi s' Hs')) as Hsy'.
     rewrite Heq in Hsy. rewrite Heq' in Hsy'.
     assert (s = s') by (eapply Hss; eauto). subst s'.
-    cut (<x, y> = <x, y'>). apply op_correct.
+    cut (<x, y> = <x, y'>). apply op_iff.
     eapply binter_unique. apply Hsy. apply Hsy'.
     apply Hcy. apply Hcy'. apply one_chosen...
   - apply ExtAx. intros x. split; intros Hxd.
@@ -241,7 +241,7 @@ Proof with eauto.
   - apply SepE in Hy as [_ [Hp [x [Hp1 Hp2]]]].
     apply H2 in Hp1. rewrite <- inv_op in Hp1.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
-    apply op_η in Hp. rewrite Hp at 3. apply op_correct. split...
+    apply op_η in Hp. rewrite Hp at 3. apply op_iff. split...
     clear H1. eapply func_sv...
   - apply ReplAx in Hy as [a [Hp Heq]].
     subst y. subst B. rewrite <- inv_dom in Hp. rewrite <- H3 in Hp. 
@@ -271,7 +271,7 @@ Lemma restrE2 : ∀ F A x y, <x, y> ∈ F ↾ A →
   <x, y> ∈ F ∧ x ∈ A.
 Proof.
   intros * Hp. apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]].
-  apply op_correct in Heq as []; subst. split; auto.
+  apply op_iff in Heq as []; subst. split; auto.
 Qed.
 
 Lemma restr_dom_included : ∀ F A, dom (F ↾ A) ⊆ dom F.
@@ -473,7 +473,7 @@ Definition Arrow : set → set → set := λ A B,
   {F ∊ 𝒫(A × B) | λ F, F: A ⇒ B}.
 Notation "A ⟶ B" := (Arrow A B) (at level 60).
 
-Theorem Arrow_correct : ∀ F A B,
+Theorem arrow_iff : ∀ F A B,
   F ∈ A ⟶ B ↔ is_function F ∧ dom F = A ∧ ∀x ∈ A, F[x] ∈ B.
 Proof with eauto.
   intros. split.
@@ -589,7 +589,7 @@ Proof with eauto.
     }
     apply AC2 in HXi as [F HF].
     apply SepE in HF as [HF HP].
-    apply Arrow_correct in HF as [Hf [Hdeq _]].
+    apply arrow_iff in HF as [Hf [Hdeq _]].
     exists F. split... split...
     intros x Hx. apply func_pair in Hx as Hxeq...
     rewrite Hxeq in *. apply domI in Hx as Hd.

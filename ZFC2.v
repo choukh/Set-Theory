@@ -247,7 +247,7 @@ Proof.
     intros. apply SingE in H0. subst. reflexivity.
 Qed.
 
-Lemma op_correct : ∀ a b c d, <a, b> = <c, d> ↔ a = c ∧ b = d.
+Lemma op_iff : ∀ a b c d, <a, b> = <c, d> ↔ a = c ∧ b = d.
 Proof.
   split; intros.
   - pose proof (π1_correct a b).
@@ -305,7 +305,7 @@ Proof.
   exists a, b. auto.
 Qed.
 
-Lemma CProd_correct : ∀ p A B, p ∈ A × B ↔ ∃a ∈ A, ∃b ∈ B, p = <a, b>.
+Lemma cprod_iff : ∀ p A B, p ∈ A × B ↔ ∃a ∈ A, ∃b ∈ B, p = <a, b>.
 Proof.
   split; intros.
   - apply CProdE1 in H as H0. destruct H0 as [H1 H2].

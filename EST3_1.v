@@ -50,7 +50,7 @@ Qed.
 Lemma identE : ∀ X a b, <a, b> ∈ Ident X → a ∈ X ∧ a = b.
 Proof.
   intros. apply ReplAx in H as [c [Ha Heq]].
-  apply op_correct in Heq as []. subst. auto.
+  apply op_iff in Heq as []. subst. auto.
 Qed.
 
 Fact ident_eq_rel : ∀ A,
@@ -60,7 +60,7 @@ Proof with auto.
   - apply ReplAx in H as [a [Ha Heq]]. subst x.
     apply SepI. apply CProdI... zfcrewrite.
   - apply SepE in H as [Hx Heq].
-    apply CProd_correct in Hx as [a [Ha [b [_ Hp]]]].
+    apply cprod_iff in Hx as [a [Ha [b [_ Hp]]]].
     apply ReplAx. exists a. split...
     rewrite Hp. rewrite Hp in Heq. zfcrewrite.
 Qed.
@@ -178,7 +178,7 @@ intros. apply ExtAx. split; intros.
 - apply ReplAx in H as [a [Ha Heq]]. subst x.
   apply SepI. apply CProdI... zfcrewrite.
 - apply SepE in H as [Hx Heq].
-  apply CProd_correct in Hx as [a [Ha [b [_ Hp]]]].
+  apply cprod_iff in Hx as [a [Ha [b [_ Hp]]]].
   apply ReplAx. exists a. split...
   rewrite Hp. rewrite Hp in Heq. zfcrewrite.
 Qed.
@@ -297,8 +297,8 @@ Lemma ident_single_rooted : ∀ A, single_rooted (Ident A).
 Proof.
   intros A. split. apply ranE in H. apply H.
   intros y1 y2 H1 H2.
-  apply ReplAx in H1 as [x1 [Hx1 H1]]. apply op_correct in H1 as [].
-  apply ReplAx in H2 as [x2 [Hx2 H2]]. apply op_correct in H2 as [].
+  apply ReplAx in H1 as [x1 [Hx1 H1]]. apply op_iff in H1 as [].
+  apply ReplAx in H2 as [x2 [Hx2 H2]]. apply op_iff in H2 as [].
   congruence.
 Qed.
 

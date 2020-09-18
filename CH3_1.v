@@ -6,12 +6,12 @@ Require Export ZFC.EST3_3.
 Example ch3_2_a: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
 Proof.
   intros. apply ExtAx. split; intros.
-  - apply CProd_correct in H as [a [Ha [b [Hb H]]]].
+  - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
     apply BUnionE in Hb as [].
     + apply BUnionI1. subst x. apply CProdI; assumption.
     + apply BUnionI2. subst x. apply CProdI; assumption.
   - apply BUnionE in H as [];
-      apply CProd_correct in H as [a [Ha [b [Hb H]]]];
+      apply cprod_iff in H as [a [Ha [b [Hb H]]]];
       subst x; apply CProdI; try apply Ha.
     + apply BUnionI1. apply Hb.
     + apply BUnionI2. apply Hb.
@@ -21,23 +21,23 @@ Example ch3_2_b: ∀ A B C, ⦿ A → A × B = A × C → B = C.
 Proof.
   intros A B C [a Ha] H. apply ExtAx. split; intros.
   - assert (<a, x> ∈ A × B) by (apply CProdI; assumption).
-    rewrite H in H1. rewrite CProd_correct in H1.
+    rewrite H in H1. rewrite cprod_iff in H1.
     destruct H1 as [a' [Ha' [c [Hc Heq]]]].
-    apply op_correct in Heq as []. subst. apply Hc.
+    apply op_iff in Heq as []. subst. apply Hc.
   - assert (<a, x> ∈ A × C) by (apply CProdI; assumption).
-    rewrite <- H in H1. rewrite CProd_correct in H1.
+    rewrite <- H in H1. rewrite cprod_iff in H1.
     destruct H1 as [a' [Ha' [b [Hb Heq]]]].
-    apply op_correct in Heq as []. subst. apply Hb.
+    apply op_iff in Heq as []. subst. apply Hb.
 Qed.
 
 Example ch3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{λ X, A × X | X ∊ ℬ}.
 Proof.
   intros. apply ExtAx. split; intros.
-  - apply CProd_correct in H as [a [Ha [b [Hb Heq]]]].
+  - apply cprod_iff in H as [a [Ha [b [Hb Heq]]]].
     apply UnionAx in Hb as [B [HB Hb]]. subst x.
     eapply FUnionI. apply HB. apply CProdI; assumption.
   - apply FUnionE in H as [B [HB Hx]].
-    apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst x.
     apply CProdI. apply Ha. apply UnionAx.
     exists B. split. apply HB. apply Hb.
 Qed.
@@ -65,11 +65,11 @@ Qed.
 Example ch3_5_b: ∀ A B, A × B = ⋃{λ x, ⎨x⎬ × B | x ∊ A}.
 Proof.
   intros. apply ExtAx. split; intros.
-  - apply CProd_correct in H as [a [Ha [b [Hb Heq]]]].
+  - apply cprod_iff in H as [a [Ha [b [Hb Heq]]]].
     eapply FUnionI. apply Ha. subst x.
     apply CProdI. apply SingI. apply Hb.
   - apply FUnionE in H as [a [Ha Hx]].
-    apply CProd_correct in Hx as [a' [Ha' [b [Hb Heq]]]].
+    apply cprod_iff in Hx as [a' [Ha' [b [Hb Heq]]]].
     apply SingE in Ha'. subst a. subst x.
     apply CProdI; assumption.
 Qed.
@@ -83,7 +83,7 @@ Proof.
     + eapply ranI. apply Hx.
     + apply Hr.
   - unfold is_relation. intros Hsub x Hx. apply Hsub in Hx.
-    apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]].
+    apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]].
     exists a, b. apply Heq.
 Qed.
 
@@ -292,7 +292,7 @@ Proof with eauto.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]].
     subst x. apply BInterI... apply CProdI... eapply ranI...
   - apply BInterE in Hx as [Hx Hcp].
-    apply CProd_correct in Hcp as [a [Ha [b [Hb Heq]]]].
+    apply cprod_iff in Hcp as [a [Ha [b [Hb Heq]]]].
     subst x. apply restrI...
 Qed.
 

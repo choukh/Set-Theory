@@ -38,7 +38,7 @@ Proof with eauto.
     apply Ha. apply Hb.
     exists m. split... exists n. split...
     exists p. split... exists q. split...
-    apply op_correct...
+    apply op_iff...
 Qed.
 
 Lemma preIntMul_m_n_p_q : ∀ m n p q ∈ ω,
@@ -58,10 +58,10 @@ Proof with auto.
   destruct preIntMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProd_correct in Hx as [m [Hm [n [Hn Hxeq]]]].
-  apply CProd_correct in Hy as [p [Hp [q [Hq Hyeq]]]].
-  apply CProd_correct in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
-  apply CProd_correct in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
+  apply cprod_iff in Hx as [m [Hm [n [Hn Hxeq]]]].
+  apply cprod_iff in Hy as [p [Hp [q [Hq Hyeq]]]].
+  apply cprod_iff in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
+  apply cprod_iff in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntMul_m_n_p_q, preIntMul_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI;
@@ -345,7 +345,7 @@ Proof.
   assert (Hmq: m + q ∈ ω) by (ar; auto).
   assert (Hpn: p + n ∈ ω) by (ar; auto).
   assert (Hn'q': n' + q' ∈ ω) by (ar; auto).
-  rewrite (lt_both_side_add _ Hmq _ Hpn _ Hn'q').
+  rewrite (add_preserve_lt _ Hmq _ Hpn _ Hn'q').
   rewrite (add_assoc m), (add_comm q), <- (add_assoc m),
   <- (add_assoc m), (add_comm n'), (add_assoc p),
     (add_comm n), <- (add_assoc p), <- (add_assoc p),
@@ -356,7 +356,7 @@ Proof.
   assert (Hm'q': m' + q' ∈ ω) by (ar; auto).
   assert (Hp'n': p' + n' ∈ ω) by (ar; auto).
   assert (Hnq: n + q ∈ ω) by (ar; auto).
-  rewrite <- (lt_both_side_add _ Hm'q' _ Hp'n' _ Hnq).
+  rewrite <- (add_preserve_lt _ Hm'q' _ Hp'n' _ Hnq).
   reflexivity.
 Qed.
 
@@ -441,13 +441,13 @@ Proof with auto.
     as [_ [_ [_ [_ [r [Hr [s [Hs [_ [Hz _]]]]]]]]]]. subst x y z.
   apply intLt in H1... apply intLt in H2... apply intLt...
   assert (H1': m + q + s ∈ p + n + s)
-    by (apply lt_both_side_add; auto; ar; auto).
+    by (apply add_preserve_lt; auto; ar; auto).
   assert (H2': p + s + n ∈ r + q + n)
-    by (apply lt_both_side_add; auto; ar; auto).
+    by (apply add_preserve_lt; auto; ar; auto).
   rewrite (add_assoc m), (add_comm q), <- (add_assoc m),
     (add_assoc p), (add_comm n), <- (add_assoc p) in H1'...
   rewrite (add_assoc r), (add_comm q), <- (add_assoc r) in H2'...
-  eapply lt_both_side_add; revgoals; swap 1 2; [apply Hq| |ar..].
+  eapply add_preserve_lt; revgoals; swap 1 2; [apply Hq| |ar..].
   eapply nat_trans; revgoals; eauto; ar; ar.
 Qed.
 
@@ -526,7 +526,7 @@ Qed.
 Close Scope Int_scope.
 Open Scope Nat_scope.
 
-Theorem intLt_both_side_add : ∀ a b c ∈ ℤ,
+Theorem intAdd_preserve_lt : ∀ a b c ∈ ℤ,
   a <𝐳 b ↔ (a + c <𝐳 b + c)%z.
 Proof with auto.
   intros a Ha b Hb c Hc.
@@ -544,10 +544,10 @@ Proof with auto.
     (add_assoc q), <- (add_assoc m),
     (add_assoc p), <- (add_assoc r), (add_comm r Hr n Hn),
     (add_assoc n), <- (add_assoc p); [|auto;ar;auto..].
-  apply lt_both_side_add; ar...
+  apply add_preserve_lt; ar...
 Qed.
 
-Theorem intLt_both_side_mul : ∀ a b c ∈ ℤ,
+Theorem intMul_preserve_lt : ∀ a b c ∈ ℤ,
   intPos c → a <𝐳 b ↔ (a ⋅ c <𝐳 b ⋅ c)%z.
 Proof with nauto.
   cut (∀ a b c ∈ ℤ, intPos c → a <𝐳 b → (a ⋅ c <𝐳 b ⋅ c)%z).
@@ -591,12 +591,12 @@ Qed.
 Close Scope Nat_scope.
 Open Scope Int_scope.
 
-Corollary intLt_both_side_add_tran : ∀ a b c d ∈ ℤ,
+Corollary intAdd_preserve_lt_tran : ∀ a b c d ∈ ℤ,
   a <𝐳 b → c <𝐳 d → a + c <𝐳 b + d.
 Proof with auto.
   intros a Ha b Hb c Hc d Hd H1 H2.
-  apply (intLt_both_side_add a Ha b Hb c Hc) in H1.
-  apply (intLt_both_side_add c Hc d Hd b Hb) in H2.
+  apply (intAdd_preserve_lt a Ha b Hb c Hc) in H1.
+  apply (intAdd_preserve_lt c Hc d Hd b Hb) in H2.
   rewrite (intAdd_comm c), (intAdd_comm d) in H2...
   eapply intLt_tranr; eauto.
 Qed.
@@ -606,9 +606,9 @@ Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   destruct (classic (a = b))... exfalso.
   apply intLt_connected in H as []...
-  - eapply intLt_both_side_add in H... rewrite Heq in H.
+  - eapply intAdd_preserve_lt in H... rewrite Heq in H.
     eapply intLt_not_refl; revgoals... apply intAdd_ran...
-  - eapply intLt_both_side_add in H... rewrite Heq in H.
+  - eapply intAdd_preserve_lt in H... rewrite Heq in H.
     eapply intLt_not_refl; revgoals... apply intAdd_ran...
 Qed.
 
@@ -631,13 +631,13 @@ Proof with neauto.
     }
     assert (Hnc: -c ∈ ℤ) by (apply intAddInv_ran; auto).
     apply intLt_connected in H as [H|H]; [|auto..];
-      eapply intLt_both_side_mul in H; swap 1 5; swap 2 10;
+      eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq' in H;
       eapply intLt_not_refl; revgoals;
         [apply H|apply intMul_ran|apply H|apply intMul_ran]...
   - apply intLt_connected in H as [H|H]; [|auto..];
-      eapply intLt_both_side_mul in H; swap 1 5; swap 2 10;
+      eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq in H;
       eapply intLt_not_refl; revgoals;
@@ -646,23 +646,23 @@ Qed.
 
 Notation "a ≤ b" := (a <𝐳 b ∨ a = b) (at level 70) : Int_scope.
 
-Corollary intLeq_both_side_add : ∀ a b c ∈ ℤ,
+Corollary intAdd_preserve_leq : ∀ a b c ∈ ℤ,
   a ≤ b ↔ a + c ≤ b + c.
 Proof with eauto.
   intros a Ha b Hb c Hc. split; intros [].
-  - left. apply intLt_both_side_add...
+  - left. apply intAdd_preserve_lt...
   - right. congruence.
-  - left. apply intLt_both_side_add in H...
+  - left. apply intAdd_preserve_lt in H...
   - right. apply intAdd_cancel in H...
 Qed.
 
-Corollary intLeq_both_side_mul : ∀ a b c ∈ ℤ,
+Corollary intMul_preserve_leq : ∀ a b c ∈ ℤ,
   intPos c → a ≤ b ↔ a ⋅ c ≤ b ⋅ c.
 Proof with neauto.
   intros a Ha b Hb c Hc Hpc. split; intros [].
-  - left. apply intLt_both_side_mul...
+  - left. apply intMul_preserve_lt...
   - right. congruence.
-  - left. apply intLt_both_side_mul in H...
+  - left. apply intMul_preserve_lt in H...
   - right. apply intMul_cancel in H...
     destruct (classic (c = Int 0))... apply int_neq_0...
 Qed.

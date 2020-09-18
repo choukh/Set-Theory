@@ -249,8 +249,8 @@ Proof with eauto; try congruence.
     + apply Hira. exists (π1 p). split...
     + apply Hirb. exists (π2 p). split... destruct H as []...
   - intros p1 Hp1 p2 Hp2 Hnq.
-    apply CProd_correct in Hp1 as [a1 [Ha1 [b1 [Hb1 Heq1]]]].
-    apply CProd_correct in Hp2 as [a2 [Ha2 [b2 [Hb2 Heq2]]]].
+    apply cprod_iff in Hp1 as [a1 [Ha1 [b1 [Hb1 Heq1]]]].
+    apply cprod_iff in Hp2 as [a2 [Ha2 [b2 [Hb2 Heq2]]]].
     subst p1 p2.
     assert (a1 ≠ a2 ∨ a1 = a2 ∧ b1 ≠ b2). {
       destruct (classic (a1 = a2)). right. split... left...
@@ -303,7 +303,7 @@ Proof with eauto.
   - apply InterI.
     + exists (<y, x>). rewrite <- inv_op. apply SingI.
     + intros b Hb. apply SepE in Hb as [_ [Hp Hb]].
-      apply SingE in Hb. apply op_correct in Hb as []. subst.
+      apply SingE in Hb. apply op_iff in Hb as []. subst.
       apply op_η in Hp. rewrite Hp...
 Qed.
 
@@ -370,11 +370,11 @@ Qed.
 Example ch3_54_a: ∀ A B C, A × (B ∩ C) = (A × B) ∩ (A × C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
-  - apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]]. subst.
+  - apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst.
     apply BInterE in Hb as [Hb1 Hb2].
     apply BInterI; apply CProdI; auto.
   - apply BInterE in Hx as [H1 H2].
-    apply CProd_correct in H1 as [a [Ha [b [Hb Heq]]]]. subst.
+    apply cprod_iff in H1 as [a [Ha [b [Hb Heq]]]]. subst.
     apply CProdE1 in H2 as [_ Hc]. rewrite π2_correct in Hc.
     apply CProdI... apply BInterI...
 Qed.
@@ -385,12 +385,12 @@ Proof. exact ch3_2_a. Qed.
 Example ch3_54_c: ∀ A B C, A × (B - C) = (A × B) - (A × C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
-  - apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]]. subst.
+  - apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst.
     apply CompE in Hb as [Hb Hc].
     apply CompI. apply CProdI... intros H. apply Hc.
     apply CProdE1 in H as [_ H]. rewrite π2_correct in H...
   - apply CompE in Hx as [H1 H2].
-    apply CProd_correct in H1 as [a [Ha [b [Hb Heq]]]]. subst.
+    apply cprod_iff in H1 as [a [Ha [b [Hb Heq]]]]. subst.
     apply CProdI... apply CompI... intros H. apply H2. apply CProdI...
 Qed.
 
@@ -398,11 +398,11 @@ Example ch3_55: ∀ A B C, (A × A) ∩ (B × C) = (A ∩ B) × (A ∩ C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply BInterE in Hx as [H1 H2].
-    apply CProd_correct in H1 as [a [Ha [b [Hb Heq]]]]. subst.
+    apply cprod_iff in H1 as [a [Ha [b [Hb Heq]]]]. subst.
     apply CProdE1 in H2 as [Hab Hbc].
     rewrite π1_correct, π2_correct in *...
     apply CProdI; apply BInterI...
-  - apply CProd_correct in Hx as [a [Ha [b [Hb Heq]]]]. subst.
+  - apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst.
     apply BInterE in Ha as [Haa Hab].
     apply BInterE in Hb as [Hba Hbc].
     apply BInterI; apply CProdI...
@@ -443,7 +443,7 @@ Proof with eauto.
   - apply BInterE in Hx as [H1 H2].
     apply restrE1 in H1 as [a [b [Ha [Hp1 Heq1]]]].
     apply restrE1 in H2 as [c [d [Hc [Hp2 Heq2]]]]. subst x.
-    apply op_correct in Heq2 as []; subst.
+    apply op_iff in Heq2 as []; subst.
     apply restrI... apply BInterI...
 Qed.
 
