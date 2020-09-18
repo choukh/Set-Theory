@@ -13,18 +13,18 @@ coqc -R . ZFC lib/Essential.v
 
 echo "building EST2"
 coqc -R . ZFC EST2.v
-echo "building CH2"
-coqc -R . ZFC CH2.v
+echo "building EX2"
+coqc -R . ZFC EX2.v
 echo "building EST3_1"
 coqc -R . ZFC EST3_1.v
 echo "building EST3_2"
 coqc -R . ZFC EST3_2.v
 echo "building EST3_3"
 coqc -R . ZFC EST3_3.v
-echo "building CH3_1"
-coqc -R . ZFC CH3_1.v
-echo "building CH3_2"
-coqc -R . ZFC CH3_2.v
+echo "building EX3_1"
+coqc -R . ZFC EX3_1.v
+echo "building EX3_2"
+coqc -R . ZFC EX3_2.v
 echo "building Relation"
 coqc -R . ZFC lib/Relation.v
 echo "building FuncFacts"
@@ -36,7 +36,7 @@ echo "building EST4_2"
 coqc -R . ZFC EST4_2.v
 echo "building EST4_3"
 coqc -R . ZFC EST4_3.v
-echo "building CH4"
-coqc -R . ZFC CH4.v
+echo "building EX4"
+coqc -R . ZFC EX4.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v

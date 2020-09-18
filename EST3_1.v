@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 3 Part 1 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.CH2.
+Require Export ZFC.EX2.
 
 (*** EST第三章1：关系，函数，逆，复合 ***)
 

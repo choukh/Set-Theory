@@ -831,7 +831,7 @@ Proof with neauto.
         apply ratLt_mulInv' in Hpr1... eapply ratLt_tranr...
 Qed.
 
-Lemma ch5_19' : ∀x ∈ ℝ, ∀p ∈ ℚ, realPos x → Rat 1 <𝐪 p →
+Lemma ex5_19' : ∀x ∈ ℝ, ∀p ∈ ℚ, realPos x → Rat 1 <𝐪 p →
   ∃q ∈ ℚ, ratPos q ∧ q ∈ x ∧ p ⋅ q ∉ x.
 Proof with neauto.
   intros x Hx p Hp Hpx H1p. apply realPos_rat0 in Hpx...
@@ -848,7 +848,7 @@ Proof with neauto.
     apply ratMul_pos_prod... apply ratMul_ran...
     apply ratMul_pos_prod...
   }
-  pose proof (ch5_19 _ Hx _ Hs Hps) as [t [Ht [Htx Hleft]]].
+  pose proof (ex5_19 _ Hx _ Hs Hps) as [t [Ht [Htx Hleft]]].
   destruct (classic (r / Rat 3 <𝐪 t)).
   - assert (Hnt: -t ∈ ℚ) by (apply ratAddInv_ran; auto).
     assert (Hst: s + t ∈ ℚ) by (apply ratAdd_ran; auto).
@@ -938,7 +938,7 @@ Proof with neauto.
     assert (Hrpq: p⁻¹ ∈ ℚ). { apply nzRatE1. apply ratMulInv_ran... }
     assert (Hprp: ratPos p⁻¹) by (apply ratPos_mulInv; auto).
     apply ratLt_mulInv in Hp1... rewrite ratMulInv_1 in Hp1.
-    pose proof (ch5_19' _ Hx _ Hrpq Hposx Hp1) as [q [Hqq [Hposq [Hqx Hs]]]].
+    pose proof (ex5_19' _ Hx _ Hrpq Hposx Hp1) as [q [Hqq [Hposq [Hqx Hs]]]].
     pose proof (realE3 _ Hx _ Hqx) as [r [Hrq [Hrx Hqr]]].
     assert (Hposr: ratPos r) by (eapply ratLt_tranr; eauto).
     assert (Hrq': r ∈ ℚ'). { apply nzRatI0... apply rat_neq_0... }

@@ -593,7 +593,7 @@ Proof with auto.
     apply cardMul_well_defined.
     reflexivity. symmetry. apply CardAx0...
   }
-  rewrite ch3_2_a. apply cardAdd_well_defined.
+  rewrite ex3_2_a. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_assoc.
     apply cardMul_well_defined... apply CardAx0.
   - rewrite <- eqnum_cprod_assoc.
@@ -979,7 +979,7 @@ Qed.
 Corollary bunion_of_finite_sets_is_finite :
   ∀ A B, finite A → finite B → finite (A ∪ B).
 Proof with auto.
-  intros * Hfa Hfb. rewrite <- ch2_11_2.
+  intros * Hfa Hfb. rewrite <- ex2_11_2.
   assert (Hfb': finite (B - A)). {
     apply (sub_of_finite_is_finite _ B)...
     intros x Hx. apply SepE in Hx as []...

@@ -3,47 +3,47 @@
 
 Require Export ZFC.EST4_3.
 
-Example ch4_2: ∀ a, trans a → trans a⁺.
+Example ex4_2: ∀ a, trans a → trans a⁺.
 Proof with eauto.
   intros a Ht c b Hc Hb. apply BUnionE in Hb as [].
   - apply BUnionI1. eapply Ht...
   - apply BUnionI1. apply SingE in H. subst...
 Qed.  
 
-Example ch4_3: ∀ a, trans a ↔ trans 𝒫 a.
+Example ex4_3: ∀ a, trans a ↔ trans 𝒫 a.
 Proof with eauto.
   split; intros Ht c b Hc Hb.
   - rewrite PowerAx. intros x Hx. eapply Ht...
     rewrite PowerAx in Hb. apply Hb...
-  - apply trans_union_sub in Ht. rewrite ch2_6_a in Ht.
+  - apply trans_union_sub in Ht. rewrite ex2_6_a in Ht.
     apply Ht in Hb. rewrite PowerAx in Hb. apply Hb...
 Qed.
 
-Example ch4_4: ∀ a, trans a → trans ⋃a.
+Example ex4_4: ∀ a, trans a → trans ⋃a.
 Proof with eauto.
   intros a Ht c b Hc Hb. apply trans_union_sub in Ht.
   apply Ht in Hb. eapply UnionI...
 Qed.
 
-Example ch4_5_a: ∀ 𝒜, (∀A ∈ 𝒜, trans A) → trans ⋃𝒜.
+Example ex4_5_a: ∀ 𝒜, (∀A ∈ 𝒜, trans A) → trans ⋃𝒜.
 Proof with eauto.
   intros * H a A Ha HA. apply UnionAx in HA as [B [H1 H2]].
   apply H in H1 as Htb.  eapply UnionI...
 Qed.
 
-Example ch4_5_b: ∀ 𝒜, (∀A ∈ 𝒜, trans A) → trans ⋂𝒜.
+Example ex4_5_b: ∀ 𝒜, (∀A ∈ 𝒜, trans A) → trans ⋂𝒜.
 Proof with eauto.
   intros * H a A Ha HA. apply InterE in HA as [Hi HA].
   apply InterI... intros B HB. apply H in HB as Htb.
   apply HA in HB. eapply Htb...
 Qed.
 
-Example ch4_6: ∀ a, ⋃a⁺ = a → trans a.
+Example ex4_6: ∀ a, ⋃a⁺ = a → trans a.
 Proof. apply trans_union_suc. Qed.
 
-(* ch4_7 see EST4_1.v Theorem ω_recursion *)
+(* ex4_7 see EST4_1.v Theorem ω_recursion *)
 
-Example ch4_8: ∀ f A h c, injective f → f: A ⇒ A →
+Example ex4_8: ∀ f A h c, injective f → f: A ⇒ A →
   c ∈ A - ran f → h: ω ⇒ A →
   h[∅] = c → (∀n ∈ ω, h[n⁺] = f[h[n]]) →
   injective h.
@@ -75,7 +75,7 @@ Proof with eauto; try congruence.
       eapply ranI; apply func_correct...
 Qed.
 
-Example ch4_9: ∀ f A B h, f: B ⇒ B → A ⊆ B →
+Example ex4_9: ∀ f A B h, f: B ⇒ B → A ⊆ B →
   is_function h → dom h = ω →
   h[∅] = A → (∀n ∈ ω, h[n⁺] = h[n] ∪ f⟦h[n]⟧) →
   let C1 := ⋂{X ∊ 𝒫 B | λ X, A ⊆ X ∧ X ⊆ B ∧ f⟦X⟧ ⊆ X} in
@@ -138,10 +138,10 @@ Proof with neauto; try congruence.
         apply SepI. apply PowerAx... split...
 Qed.
 
-Example ch4_13: ∀ m n ∈ ω, m ⋅ n = 0 → m = 0 ∨ n = 0.
+Example ex4_13: ∀ m n ∈ ω, m ⋅ n = 0 → m = 0 ∨ n = 0.
 Proof. exact mul_m_n_0. Qed.
 
-Example ch4_14: ∀n ∈ ω,
+Example ex4_14: ∀n ∈ ω,
   (even n ∨ odd n) ∧ ¬ (even n ∧ odd n).
 Proof with eauto; try apply mul_ran; repeat apply ω_inductive; auto.
   intros n Hn. split.
@@ -173,9 +173,9 @@ Proof with eauto; try apply mul_ran; repeat apply ω_inductive; auto.
         apply suc_injective in Hkeq... apply add_ran...
 Qed.
 
-(* ch4_15 ch4_16 ch4_17 see EST4_2.v *)
+(* ex4_15 ex4_16 ex4_17 see EST4_2.v *)
 
-Example ch4_19: ∀ m d ∈ ω, d ≠ 0 →
+Example ex4_19: ∀ m d ∈ ω, d ≠ 0 →
   ∃ q r ∈ ω, m = (d ⋅ q) + r ∧ r ∈ d.
 Proof with neauto.
   intros n Hn.
@@ -196,7 +196,7 @@ Proof with neauto.
       congruence. apply ω_inductive...
 Qed.
 
-Example ch4_20: ∀ A, A ≠ ∅ → A ⊆ ω → ⋃A = A → A = ω.
+Example ex4_20: ∀ A, A ≠ ∅ → A ⊆ ω → ⋃A = A → A = ω.
 Proof with eauto.
   intros A Hnq0 HA HU. apply ω_ind... split.
   - apply EmptyNE in Hnq0 as [a Ha].
@@ -213,7 +213,7 @@ Proof with eauto.
     + rewrite <- HU. apply UnionAx. exists b. split...
 Qed.
 
-Example ch4_21: ¬ ∃ n ∈ ω, ∃ m ∈ n, n ⊆ m.
+Example ex4_21: ¬ ∃ n ∈ ω, ∃ m ∈ n, n ⊆ m.
 Proof with eauto.
   intros [n [Hn [m [Hm H]]]].
   assert (Hmw: m ∈ ω) by (eapply ω_trans; eauto).
@@ -221,7 +221,7 @@ Proof with eauto.
   apply H in Hm as Hmm. eapply lt_not_refl...
 Qed.
 
-Example ch4_22: ∀ m p ∈ ω, m ∈ m + p⁺.
+Example ex4_22: ∀ m p ∈ ω, m ∈ m + p⁺.
 Proof with eauto.
   intros n Hn.
   set {n ∊ ω | λ n, ∀ p ∈ ω, n ∈ n + p⁺} as N.
@@ -232,7 +232,7 @@ Proof with eauto.
     apply IH... apply ω_inductive...
 Qed.
 
-Example ch4_23: ∀ m n ∈ ω, m ∈ n → ∃p ∈ ω, m + p⁺ = n.
+Example ex4_23: ∀ m n ∈ ω, m ∈ n → ∃p ∈ ω, m + p⁺ = n.
 Proof with eauto.
   intros k Hk.
   set {k ∊ ω | λ k, ∀ n ∈ ω, k ∈ n → ∃ p ∈ ω, k + p ⁺ = n} as N.
@@ -246,26 +246,26 @@ Proof with eauto.
     apply ω_inductive...
 Qed.
 
-Example ch4_24: ∀ m n p q ∈ ω, m + n = p + q →
+Example ex4_24: ∀ m n p q ∈ ω, m + n = p + q →
   m ∈ p ↔ q ∈ n.
 Proof with try apply add_ran; try apply ω_inductive; auto.
   intros m Hm n Hn p Hp q Hq Heq. split; intros.
-  - apply ch4_23 in H as [k [Hk Hkeq]]... subst p.
+  - apply ex4_23 in H as [k [Hk Hkeq]]... subst p.
     rewrite add_comm in Heq... rewrite (add_assoc m) in Heq...
     rewrite (add_comm m) in Heq...
     apply add_cancel in Heq... subst n.
-    rewrite add_comm... apply ch4_22...
-  - apply ch4_23 in H as [k [Hk Hkeq]]... subst n.
+    rewrite add_comm... apply ex4_22...
+  - apply ex4_23 in H as [k [Hk Hkeq]]... subst n.
     rewrite (add_comm q) in Heq...
     rewrite <- add_assoc in Heq...
-    apply add_cancel in Heq... subst p. apply ch4_22...
+    apply add_cancel in Heq... subst p. apply ex4_22...
 Qed.
 
-Example ch4_25: ∀ m n p q ∈ ω, n ∈ m → q ∈ p →
+Example ex4_25: ∀ m n p q ∈ ω, n ∈ m → q ∈ p →
   m ⋅ q + n ⋅ p ∈ m ⋅ p + n ⋅ q.
 Proof with try apply ω_inductive; auto.
   intros m Hm n Hn p Hp q Hq Hnm Hqp.
-  apply ch4_23 in Hqp as [s [Hs Hseq]]... subst p.
+  apply ex4_23 in Hqp as [s [Hs Hseq]]... subst p.
   rewrite mul_distr... rewrite mul_distr...
   assert (Hmq: m ⋅ q ∈ ω). { apply mul_ran... }
   assert (Hnq: n ⋅ q ∈ ω). { apply mul_ran... }
@@ -279,7 +279,7 @@ Proof with try apply ω_inductive; auto.
   apply mul_preserve_lt... apply suc_neq_0.
 Qed.
 
-Example ch4_26: ∀n ∈ ω, ∀ f, f: n⁺ ⇒ ω →
+Example ex4_26: ∀n ∈ ω, ∀ f, f: n⁺ ⇒ ω →
   ∃m ∈ ran f, ∀k ∈ ran f, k ≤ m.
 Proof with eauto.
   intros n Hn.
@@ -344,7 +344,7 @@ Proof with eauto.
         right. apply SingE in H0...
 Qed.
 
-Example ch4_27: ∀ A G f₁ f₂, is_function G →
+Example ex4_27: ∀ A G f₁ f₂, is_function G →
   f₁: ω ⇒ A → f₂: ω ⇒ A →
   (∀n ∈ ω,
     f₁ ↾ n ∈ dom G ∧ f₂ ↾ n ∈ dom G ∧
@@ -361,8 +361,8 @@ Proof with eauto; try congruence.
   - apply ExtAx. split; intros Hx.
     + apply restrE1 in Hx as [a [_ [Ha _]]]. exfalso0.
     + apply restrE1 in Hx as [a [_ [Ha _]]]. exfalso0.
-  - assert (Heq1: f₁ ↾ m⁺ = (f₁ ↾ m) ∪ (f₁ ↾ ⎨m⎬)) by apply ch3_22_c.
-    assert (Heq2: f₂ ↾ m⁺ = (f₂ ↾ m) ∪ (f₂ ↾ ⎨m⎬)) by apply ch3_22_c.
+  - assert (Heq1: f₁ ↾ m⁺ = (f₁ ↾ m) ∪ (f₁ ↾ ⎨m⎬)) by apply ex3_22_c.
+    assert (Heq2: f₂ ↾ m⁺ = (f₂ ↾ m) ∪ (f₂ ↾ ⎨m⎬)) by apply ex3_22_c.
     cut (f₁ ↾ ⎨m⎬ = f₂ ↾ ⎨m⎬)... clear Heq1 Heq2.
     pose proof (H m) as [_ [_ [Heq1 Heq2]]]...
     assert (Heq3: f₁[m] = f₂[m]) by congruence.
@@ -386,7 +386,7 @@ Ltac ω_strong_induction C := cut (C = 0); [
   ]
 ].
 
-Example ch4_28: trans ω.
+Example ex4_28: trans ω.
 Proof with auto.
   apply trans_sub. intros n Hn.
   destruct (classic (n ⊆ ω))... exfalso.
@@ -400,7 +400,7 @@ Proof with auto.
     apply Hsub... apply SingE in H0. subst...
 Qed.
 
-Example ch4_32: ∀n ∈ ω, ⋃⎨n⎬⁺ = n⁺.
+Example ex4_32: ∀n ∈ ω, ⋃⎨n⎬⁺ = n⁺.
 Proof with nauto.
   intros n Hn.
   apply ExtAx. split; intros Hx.
@@ -415,7 +415,7 @@ Qed.
 Definition count : set → set → Prop := λ S n,
   n ∈ ω ∧ ∃ f, f: n ⟺ S.
 
-Lemma ch4_37_0: ∀ x m n ∈ ω, x ∈ m + n⁺ → x ∉ m →
+Lemma ex4_37_0: ∀ x m n ∈ ω, x ∈ m + n⁺ → x ∉ m →
   ∃b ∈ n⁺, x = m + b.
 Proof with eauto.
   intros n Hn a Ha b Hb.
@@ -449,7 +449,7 @@ Proof with eauto.
     apply suc_preserve_lt in H0...
 Qed.
 
-Example ch4_37_a: ∀ A B m n,
+Example ex4_37_a: ∀ A B m n,
   count A m → count B n → disjoint A B →
   count (A ∪ B) (m + n).
 Proof with eauto; try congruence.
@@ -517,7 +517,7 @@ Proof with eauto; try congruence.
     + assert (Hxmn := Hx). ω_destruct n.
       rewrite H, add_ident in Hx...
       rewrite Hn'eq in Hx.
-      eapply ch4_37_0 in Hx as [b [Hb Hx]]; revgoals...
+      eapply ex4_37_0 in Hx as [b [Hb Hx]]; revgoals...
       eapply ω_trans... apply add_ran...
       assert (Hbw: b ∈ ω). {
         eapply ω_trans. apply Hb. apply ω_inductive...
@@ -550,7 +550,7 @@ Proof with eauto; try congruence.
         rewrite add_comm... apply func_ap in Hp...
 Qed.
 
-Lemma ch4_37_1: ∀ m i1 i2 j1 j2 ∈ ω,
+Lemma ex4_37_1: ∀ m i1 i2 j1 j2 ∈ ω,
   m ⋅ j1 + i1 = m ⋅ j2 + i2 →
   i1 ∈ m → i2 ∈ m → j1 = j2.
 Proof with eauto; try congruence.
@@ -584,7 +584,7 @@ Proof with eauto; try congruence.
         try apply add_ran; try apply mul_ran...
 Qed.
 
-Lemma ch4_37_2_0 : ∀ a b ∈ ω, ∀x ∈ a + b,
+Lemma ex4_37_2_0 : ∀ a b ∈ ω, ∀x ∈ a + b,
   a ≤ x → ∃c ∈ b, x = a + c.
 Proof with neauto.
   intros a Ha b Hb.
@@ -605,7 +605,7 @@ Proof with neauto.
     + exists m. split...
 Qed.
 
-Lemma ch4_37_2: ∀ m n ∈ ω, ∀x ∈ m ⋅ n,
+Lemma ex4_37_2: ∀ m n ∈ ω, ∀x ∈ m ⋅ n,
   ∃i ∈ m, ∃j ∈ n, x = m ⋅ j + i.
 Proof with eauto.
   intros k Hk n Hn.
@@ -623,7 +623,7 @@ Proof with eauto.
     exists x. split... exists 0. split.
     apply suc_has_0... rewrite mul_0_r, add_ident'...
     apply leq_iff_neg_lt in H...
-    apply ch4_37_2_0 in Hx as [c [Hc Hx]]; try apply mul_ran...
+    apply ex4_37_2_0 in Hx as [c [Hc Hx]]; try apply mul_ran...
     apply IH in Hc as [i [Hi [j [Hj Hc]]]]. subst c.
     assert (Hiw: i ∈ ω) by (eapply ω_trans; eauto).
     assert (Hjw: j ∈ ω) by (eapply ω_trans; eauto).
@@ -632,7 +632,7 @@ Proof with eauto.
     apply suc_preserve_lt in Hj; try apply ω_inductive...
 Qed.
 
-Lemma ch4_37_3: ∀ m n ∈ ω, ∀i ∈ m, ∀j ∈ n, 
+Lemma ex4_37_3: ∀ m n ∈ ω, ∀i ∈ m, ∀j ∈ n, 
   m ⋅ j + i ∈ m ⋅ n.
 Proof with auto.
   intros k Hk n Hn i Hi.
@@ -653,7 +653,7 @@ Proof with auto.
     apply mul_ran... apply mul_ran...
 Qed.
 
-Example ch4_37_b: ∀ A B m n,
+Example ex4_37_b: ∀ A B m n,
   count A m → count B n → disjoint A B →
   count (A × B) (m ⋅ n).
 Proof with eauto; try congruence.
@@ -683,7 +683,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     assert (Hi2w: i2 ∈ ω) by (eapply ω_trans; eauto).
     assert (Hj1w: j1 ∈ ω) by (eapply ω_trans; eauto).
     assert (Hj2w: j2 ∈ ω) by (eapply ω_trans; eauto).
-    assert (j1 = j2) by (eapply ch4_37_1; swap 1 6; eauto).
+    assert (j1 = j2) by (eapply ex4_37_1; swap 1 6; eauto).
     rewrite H, add_comm, (add_comm (m⋅j2)) in Heq2;
       try apply mul_ran... cut (i1 = i2)...
     eapply add_cancel; revgoals... apply mul_ran...
@@ -713,7 +713,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     apply CProdE1 in Hp as []; zfcrewrite.
     (* dom h ⊇ m ⋅ n *)
     assert (Hxmn := Hx).
-    apply ch4_37_2 in Hx as [i [Hi [j [Hj Heq]]]]...
+    apply ex4_37_2 in Hx as [i [Hi [j [Hj Heq]]]]...
     assert (Hid := Hi). assert (Hjd := Hj).
     rewrite <- Hfd in Hid. apply domE in Hid as [yf Hpf].
     rewrite <- Hgd in Hjd. apply domE in Hjd as [yg Hpg].
@@ -735,7 +735,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     apply domI in Hpf as Hi. rewrite Hfd in Hi.
     apply domI in Hpg as Hj. rewrite Hgd in Hj.
     eapply ranI. apply SepI; zfcrewrite.
-    apply CProdI... apply ch4_37_3...
+    apply CProdI... apply ex4_37_3...
     exists i. split... exists j. split...
     apply func_ap in Hpf... apply func_ap in Hpg...
 Qed.

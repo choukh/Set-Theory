@@ -108,12 +108,12 @@ Qed.
 Theorem trans_union_suc : ∀ a, trans a ↔ ⋃a⁺ = a.
 Proof with auto.
   split; intros.
-  - unfold Suc. rewrite ch2_21, union_sing_x_x.
+  - unfold Suc. rewrite ex2_21, union_sing_x_x.
     apply ExtAx. split; intros Hx.
     + apply BUnionE in Hx as []...
       assert (⋃a ⊆ a) by (apply trans_union_sub; auto). apply H1...
     + apply BUnionI2...
-  - unfold Suc in H. rewrite ch2_21, union_sing_x_x in H.
+  - unfold Suc in H. rewrite ex2_21, union_sing_x_x in H.
     apply trans_union_sub. intros x Hx. rewrite <- H.
     apply BUnionI1...
 Qed.

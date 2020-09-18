@@ -3,12 +3,12 @@
 
 Require Export ZFC.EST6_2.
 
-(* ch6_3 f(x) = 1/x *)
-(* ch6_4 0 ↦ 1/2 ↦ 1/4 ... *)
-(* ch6_5 see EST6_1 eqnum_refl symm tran *)
+(* ex6_3 f(x) = 1/x *)
+(* ex6_4 0 ↦ 1/2 ↦ 1/4 ... *)
+(* ex6_5 see EST6_1 eqnum_refl symm tran *)
 
 (* 同一基数的所有集合不能构成一个集合 *)
-Example ch6_6 : ∀ 𝜅, is_card 𝜅 → ⦿ 𝜅 → ¬∃ A, ∀ x, |x| = 𝜅 → x ∈ A.
+Example ex6_6 : ∀ 𝜅, is_card 𝜅 → ⦿ 𝜅 → ¬∃ A, ∀ x, |x| = 𝜅 → x ∈ A.
 Proof with auto.
   intros 𝜅 H𝜅 Hi [A Hcd].
   apply no_set_of_all_set. exists (⋃A).
@@ -18,7 +18,7 @@ Proof with auto.
 Qed.
 
 (* 有限集到自身的映射是单射当且仅当该映射是满射 *)
-Example ch6_7 : ∀ A f, finite A → f: A ⇒ A →
+Example ex6_7 : ∀ A f, finite A → f: A ⇒ A →
   injective f ↔ ran f = A.
 Proof with auto.
   intros A f [n [Hn [g Hg]]] Hf.
@@ -27,7 +27,7 @@ Proof with auto.
   destruct Hig' as [Hfg Hsg].
   assert (Hig': injective g⁻¹) by (apply inv_injective; auto).
   split; intros H.
-  - assert (Higf: injective (g ∘ f)) by (apply ch3_17_b; auto).
+  - assert (Higf: injective (g ∘ f)) by (apply ex3_17_b; auto).
     assert (Hfc: is_function (g ∘ f)) by (apply compo_func; auto).
     assert (Hfg': is_function g⁻¹) by (apply inv_func_iff_sr; auto).
     assert (Hf': f: A ⇔ A) by (split; auto).
@@ -151,9 +151,9 @@ Proof with eauto.
 Qed.
 
 (* 有限集的并仍是有限集（非算术证明） *)
-Example ch6_8 : ∀ A B, finite A → finite B → finite (A ∪ B).
+Example ex6_8 : ∀ A B, finite A → finite B → finite (A ∪ B).
 Proof with eauto.
-  intros * Hfa Hfb. rewrite <- ch2_11_2.
+  intros * Hfa Hfb. rewrite <- ex2_11_2.
   assert (Hfc: finite (B - A)). {
     apply (sub_of_finite_is_finite _ B)...
     intros x Hx. apply SepE in Hx as []...
@@ -179,7 +179,7 @@ Proof with eauto.
 Qed.
 
 (* 有限集的笛卡尔积仍是有限集（非算术证明） *)
-Example ch6_9 : ∀ A B, finite A → finite B → finite (A × B).
+Example ex6_9 : ∀ A B, finite A → finite B → finite (A × B).
 Proof with eauto.
   intros * Hfa [n [Hn HB]].
   generalize dependent B. generalize dependent A.
@@ -191,25 +191,25 @@ Proof with eauto.
     destruct Hi as [b Hb].
     apply split_one_element in Hb.
     rewrite Hb in HB. rewrite bunion_comm in Hb.
-    rewrite Hb, ch3_54_b. apply ch6_8.
+    rewrite Hb, ex3_54_b. apply ex6_8.
     + destruct Hfa as [k [Hk HA]].
       exists k. split... rewrite <- eqnum_cprod_single...
     + apply IH... apply fin_set_remove_one_element...
 Qed.
 
-(* ch6_10 ch6_11 see EST6_2.v *)
+(* ex6_10 ex6_11 see EST6_2.v *)
 
-Example ch6_12_a : ∀ K L, K ∪ L = L ∪ K.
+Example ex6_12_a : ∀ K L, K ∪ L = L ∪ K.
 Proof. exact bunion_comm. Qed.
 
-Example ch6_12_b : ∀ K L M, K ∪ (L ∪ M) = (K ∪ L) ∪ M.
+Example ex6_12_b : ∀ K L M, K ∪ (L ∪ M) = (K ∪ L) ∪ M.
 Proof. exact bunion_assoc. Qed.
 
-Example ch6_12_c : ∀ K L M, K × (L ∪ M) = (K × L) ∪ (K × M).
-Proof. exact ch3_2_a. Qed.
+Example ex6_12_c : ∀ K L M, K × (L ∪ M) = (K × L) ∪ (K × M).
+Proof. exact ex3_2_a. Qed.
 
 (* 有限个有限集的并集仍是有限集 *)
-Example ch6_13 : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
+Example ex6_13 : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
 Proof with eauto.
   intros A [n [Hn HA]].
   generalize dependent A.
@@ -221,13 +221,13 @@ Proof with eauto.
     destruct Hi as [a Ha].
     apply split_one_element in Ha as HeqA.
     rewrite HeqA in HA. rewrite bunion_comm in HeqA.
-    rewrite HeqA, ch2_21. apply ch6_8.
+    rewrite HeqA, ex2_21. apply ex6_8.
     + rewrite union_sing_x_x. apply Hfa...
     + apply IH. apply fin_set_remove_one_element...
       intros b Hb. apply Hfa. apply SepE in Hb as []...
 Qed.
 
-(* ch6_14 *)
+(* ex6_14 *)
 (* 全排列 *)
 Definition Permutation : set → set := λ A,
   {f ∊ A ⟶ A | λ f, f: A ⟺ A}.

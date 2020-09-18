@@ -8,15 +8,15 @@ Local Ltac mr := apply intMul_ran; nauto.
 Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
 Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 
-(* ch5_4 see EST5_1 Theorem intAdd_assoc *)
-(* ch5_5 see EST5_1 Definition IntInv *)
-(* ch5_6 see EST5_2 Lemma intMul_a_0 *)
-(* ch5_7 see EST5_2 Lemma int_eq_mul_inv_0, 1 *)
-(* ch5_8 see EST5_2 Theorem ω_embed_add, mul, lt *)
-(* ch5_9 see EST5_2 Theorem ω_embed_subtr *)
-(* ch5_10 see EST5_3 Lemma ratMul_0_l *)
+(* ex5_4 see EST5_1 Theorem intAdd_assoc *)
+(* ex5_5 see EST5_1 Definition IntInv *)
+(* ex5_6 see EST5_2 Lemma intMul_a_0 *)
+(* ex5_7 see EST5_2 Lemma int_eq_mul_inv_0, 1 *)
+(* ex5_8 see EST5_2 Theorem ω_embed_add, mul, lt *)
+(* ex5_9 see EST5_2 Theorem ω_embed_subtr *)
+(* ex5_10 see EST5_3 Lemma ratMul_0_l *)
 
-Example ch5_11: ∀ r s ∈ ℚ,
+Example ex5_11: ∀ r s ∈ ℚ,
   r ⋅ s = Rat 0 → r = Rat 0 ∨ s = Rat 0.
 Proof with nauto.
   intros r Hr s Hs H.
@@ -29,7 +29,7 @@ Proof with nauto.
     apply rat_ident; nauto; rewrite intMul_0_l, intMul_0_l; nz...
 Qed.
 
-Example ch5_12: ∀r ∈ ℚ, ratNeg r ↔ ratPos (-r).
+Example ex5_12: ∀r ∈ ℚ, ratNeg r ↔ ratPos (-r).
 Proof with auto.
   intros r Hr. split. apply ratNeg_pos. intros Hp.
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
@@ -41,7 +41,7 @@ Qed.
 Close Scope Rat_scope.
 Open Scope Int_scope.
 
-Example ch5_13: ∀ a b c ∈ ℤ, a + c = b + c → a = b.
+Example ex5_13: ∀ a b c ∈ ℤ, a + c = b + c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   assert (a + c - c = b + c - c) by congruence.
@@ -85,7 +85,7 @@ Proof with nauto.
   apply mul_ran... apply mul_ran...
 Qed.
 
-Example ch5_14: ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
+Example ex5_14: ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
 Proof with neauto.
   intros p Hp s Hs Hlt.
   apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
@@ -115,10 +115,10 @@ Proof with neauto.
   apply intMul_preserve_lt; nz; auto; mr; nz.
 Qed.
 
-(* ch5_15 see EST5_5 Theorem reals_bounded_has_sup *)
-(* ch5_16 see EST5_5 Lemma realAdd_ran *)
+(* ex5_15 see EST5_5 Theorem reals_bounded_has_sup *)
+(* ex5_16 see EST5_5 Lemma realAdd_ran *)
 
-Example ch5_17: ∀ a b ∈ ℤ, intPos a →
+Example ex5_17: ∀ a b ∈ ℤ, intPos a →
   ∃k ∈ ω, b <𝐳 a ⋅ ω_Embed[k].
 Proof with neauto.
   intros a Ha b Hb Hpa.
@@ -164,7 +164,7 @@ Qed.
 Close Scope Int_scope.
 Open Scope Nat_scope.
 
-Example ch5_18: ∀ p r ∈ ℚ, ratPos p →
+Example ex5_18: ∀ p r ∈ ℚ, ratPos p →
   ∃k ∈ ω, r <𝐪 (p ⋅ IntEmbed[ω_Embed[k]])%q.
 Proof with neauto.
   intros p Hp r Hr Hpp.
@@ -223,18 +223,18 @@ Proof with neauto.
     + apply mul_preserve_lt... apply nq_0_gt_0...
 Qed.
 
-Corollary ch5_18_1: ∀ p r ∈ ℚ, ratPos p →
+Corollary ex5_18_1: ∀ p r ∈ ℚ, ratPos p →
   ∃a ∈ ℤ, r <𝐪 (p ⋅ IntEmbed[a])%q.
 Proof with auto.
   intros p Hp r Hr Hpp.
-  pose proof (ch5_18 p Hp r Hr Hpp) as [k [Hk Hlt]].
+  pose proof (ex5_18 p Hp r Hr Hpp) as [k [Hk Hlt]].
   exists (ω_Embed [k]). split... apply ω_embed_ran...
 Qed.
 
 Close Scope Nat_scope.
 Open Scope Rat_scope.
 
-Example ch5_18_2: ∀ p r ∈ ℚ, ratPos p →
+Example ex5_18_2: ∀ p r ∈ ℚ, ratPos p →
   ∃a ∈ ℤ, p ⋅ IntEmbed[a] <𝐪 r.
 Proof with neauto.
   intros p Hp r Hr Hpp.
@@ -248,7 +248,7 @@ Proof with neauto.
     eapply ratLt_tranr... apply ratPos_neg...
   - apply ratNeg_pos in Hnr.
     assert (Hr': -r ∈ ℚ) by (apply ratAddInv_ran; auto).
-    pose proof (ch5_18 p Hp (-r) Hr' Hpp) as [k [Hk Hlt]].
+    pose proof (ex5_18 p Hp (-r) Hr' Hpp) as [k [Hk Hlt]].
     remember (ω_Embed [k]) as a.
     assert (H2: a ∈ ℤ) by (subst a; apply ω_embed_ran; auto).
     assert (H3: (-a)%z ∈ ℤ) by (apply intAddInv_ran; auto).
@@ -259,13 +259,13 @@ Proof with neauto.
     rewrite intEmbed_a... apply ratMul_ran...
 Qed.
 
-(* ch5_19 see EST5_5 Lemma ch5_19 *)
-(* ch5_20 see EST5_6 Theorem realAbs_nonNeg *)
-(* ch5_21 see EST5_7 Theorem realDense *)
-(* ch5_22 see EST5_6 Lemma realAbs_ran *)
+(* ex5_19 see EST5_5 Lemma ex5_19 *)
+(* ex5_20 see EST5_6 Theorem realAbs_nonNeg *)
+(* ex5_21 see EST5_7 Theorem realDense *)
+(* ex5_22 see EST5_6 Lemma realAbs_ran *)
 
 Lemma ratDense : ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
-Proof. exact ch5_14. Qed.
+Proof. exact ex5_14. Qed.
 
 Lemma ratArchimedean : ∀q ∈ ℚ, ∃r ∈ ℚ, q <𝐪 r.
 Proof with nauto.

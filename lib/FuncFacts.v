@@ -86,7 +86,7 @@ Qed.
 
 (* 两个单射的复合仍是单射 *)
 Lemma compo_injective: ∀ F G, injective F → injective G → injective (F ∘ G).
-Proof. exact ch3_17_b. Qed.
+Proof. exact ex3_17_b. Qed.
 
 Lemma compo_injection : ∀ F G A B C,
   F: A ⇔ B → G: B ⇔ C → (G ∘ F): A ⇔ C.
@@ -237,7 +237,7 @@ Qed.
 Lemma bunion_func : ∀ f g,
   is_function f → is_function g →
   (∀x ∈ dom f ∩ dom g, f[x] = g[x]) ↔ is_function (f ∪ g).
-Proof. exact ch3_14_b. Qed.
+Proof. exact ex3_14_b. Qed.
 
 (* 若两个单射在定义域的交集上的值相等，且在值域的交集上有相同的原值，
   则这两个单射的并也是单射 *)
@@ -570,11 +570,11 @@ Qed.
 
 (* 函数复合满足结合律 *)
 Lemma compo_assoc: ∀ R S T, (R ∘ S) ∘ T = R ∘ (S ∘ T).
-Proof. exact ch3_21. Qed.
+Proof. exact ex3_21. Qed.
 
 (* 右复合恒等函数 *)
 Lemma right_compo_ident : ∀ F A, F ∘ Ident A = F ↾ A.
-Proof. intros. apply ch3_23_a. Qed.
+Proof. intros. apply ex3_23_a. Qed.
 
 (* 左复合恒等函数 *)
 Lemma left_compo_ident : ∀ F A, Ident A ∘ F⁻¹ = (F ↾ A)⁻¹.

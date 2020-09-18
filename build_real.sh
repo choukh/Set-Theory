@@ -8,8 +8,8 @@ echo "building EST5_3"
 coqc -R . ZFC EST5_3.v
 echo "building EST5_4"
 coqc -R . ZFC EST5_4.v
-echo "building CH5"
-coqc -R . ZFC CH5.v
+echo "building EX5"
+coqc -R . ZFC EX5.v
 echo "building EST5_5"
 coqc -R . ZFC EST5_5.v
 echo "building EST5_6"

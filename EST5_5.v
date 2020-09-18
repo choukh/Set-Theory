@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 5 Part 5 **)
 (** Coq coding by choukh, July 2020 **)
 
-Require Export ZFC.CH5.
+Require Export ZFC.EX5.
 
 (*** EST第五章5：实数的定义(戴德金分割)，实数的序，实数的完备性，
   实数算术：加法，加法逆元 ***)
@@ -246,12 +246,12 @@ Lemma union_reals_sub_rat : ∀ A, A ⊆ ℝ → ⋃A ∈ 𝒫 ℚ.
 Proof with auto.
   intros A H1. pose proof reals_sub_power_rat as H2.
   assert (H3: A ⊆ 𝒫 ℚ) by (eapply sub_tran; eauto).
-  apply ch2_4 in H3. rewrite ch2_6_a in H3. apply PowerAx...
+  apply ex2_4 in H3. rewrite ex2_6_a in H3. apply PowerAx...
 Qed.
 
 Lemma union_reals_sub_upper : ∀ A z, upper RealLt A z → ⋃A ⊆ z.
 Proof.
-  intros A z Hupz. apply ch2_5.
+  intros A z Hupz. apply ex2_5.
   intros x Hx. apply realLeqE. apply Hupz. apply Hx.
 Qed.
 
@@ -296,7 +296,7 @@ Proof with eauto.
   apply union_reals_boundedAbove_ran in Hbnd as Huar...
   exists (⋃A). repeat split...
   - intros x Hxa. apply realLeq...
-    apply Hsub... apply ch2_3...
+    apply Hsub... apply ex2_3...
   - intros y Hupy. apply realLeqI...
     eapply reals_upper_ran... apply union_reals_sub_upper...
 Qed.
@@ -394,14 +394,14 @@ Qed.
 Close Scope Int_scope.
 Open Scope Rat_scope.
 
-Lemma ch5_19 : ∀x ∈ ℝ, ∀p ∈ ℚ, ratPos p →
+Lemma ex5_19 : ∀x ∈ ℝ, ∀p ∈ ℚ, ratPos p →
   ∃q ∈ ℚ, q ∈ x ∧ p + q ∉ x.
 Proof with neauto.
   intros x Hx p Hp Hpp.
   pose proof (realE0 x Hx) as [r [Hrq Hrx]].
   pose proof (realE1 x Hx) as [s [Hsq Hsx]].
-  pose proof (ch5_18_2 p Hp r Hrq Hpp) as [b [Hb Hlo]].
-  pose proof (ch5_18_1 p Hp s Hsq Hpp) as [d [Hd Hup]].
+  pose proof (ex5_18_2 p Hp r Hrq Hpp) as [b [Hb Hlo]].
+  pose proof (ex5_18_1 p Hp s Hsq Hpp) as [d [Hd Hup]].
   assert (Hbq: IntEmbed[b] ∈ ℚ) by (apply intEmbed_ran; auto).
   assert (Hdq: IntEmbed[d] ∈ ℚ) by (apply intEmbed_ran; auto).
   set {a ∊ ℤ | λ a, p ⋅ IntEmbed[a] ∉ x} as A.
@@ -657,7 +657,7 @@ Proof with neauto.
     assert (H2q: p / Rat 2 ∈ ℚ) by (apply ratMul_ran; nauto).
     assert (Hp2: ratPos (-p / Rat 2))
       by (eapply ratMul_pos_prod; neauto).
-    apply (ch5_19 x) in Hp2 as [q [Hqq [Hq Hleft]]];
+    apply (ex5_19 x) in Hp2 as [q [Hqq [Hq Hleft]]];
       [|auto|apply ratMul_ran; nauto].
     assert (Hnqq: -q ∈ ℚ) by (apply ratAddInv_ran; auto).
     assert (Heq: q + (p - q) = p). {

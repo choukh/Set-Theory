@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST3_3.
 
-Example ch3_2_a: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
+Example ex3_2_a: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
@@ -17,7 +17,7 @@ Proof.
     + apply BUnionI2. apply Hb.
 Qed.
 
-Example ch3_2_b: ∀ A B C, ⦿ A → A × B = A × C → B = C.
+Example ex3_2_b: ∀ A B C, ⦿ A → A × B = A × C → B = C.
 Proof.
   intros A B C [a Ha] H. apply ExtAx. split; intros.
   - assert (<a, x> ∈ A × B) by (apply CProdI; assumption).
@@ -30,7 +30,7 @@ Proof.
     apply op_iff in Heq as []. subst. apply Hb.
 Qed.
 
-Example ch3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{λ X, A × X | X ∊ ℬ}.
+Example ex3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{λ X, A × X | X ∊ ℬ}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply cprod_iff in H as [a [Ha [b [Hb Heq]]]].
@@ -51,7 +51,7 @@ Proof.
   pose proof (H Z H3 X Y H3 H1). auto.
 Qed.
 
-Example ch3_4: ¬ ∃ S, ∀ a b, <a, b> ∈ S.
+Example ex3_4: ¬ ∃ S, ∀ a b, <a, b> ∈ S.
 Proof.
   intros [S H]. specialize H with S S.
   assert (<S, S> = ⎨⎨S⎬⎬). {
@@ -62,7 +62,7 @@ Proof.
   apply (well_founded_3 S ⎨S⎬ ⎨⎨S⎬⎬); try apply SingI. apply H.
 Qed.
 
-Example ch3_5_b: ∀ A B, A × B = ⋃{λ x, ⎨x⎬ × B | x ∊ A}.
+Example ex3_5_b: ∀ A B, A × B = ⋃{λ x, ⎨x⎬ × B | x ∊ A}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply cprod_iff in H as [a [Ha [b [Hb Heq]]]].
@@ -74,7 +74,7 @@ Proof.
     apply CProdI; assumption.
 Qed.
 
-Example ch3_6: ∀ X, is_relation X ↔ X ⊆ dom X × ran X.
+Example ex3_6: ∀ X, is_relation X ↔ X ⊆ dom X × ran X.
 Proof.
   intros X. split.
   - intros Hr. unfold Sub. intros x Hx. assert (Heq := Hx).
@@ -87,7 +87,7 @@ Proof.
     exists a, b. apply Heq.
 Qed.
 
-Example ch3_7: ∀ R, is_relation R → fld R = ⋃⋃R.
+Example ex3_7: ∀ R, is_relation R → fld R = ⋃⋃R.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BUnionE in H0 as [].
@@ -104,7 +104,7 @@ Proof.
       * apply BUnionI2. eapply ranI. apply Hq.
 Qed.
 
-Example ch3_8_a: ∀ 𝒜, dom ⋃𝒜 = ⋃{λ R, dom R | R ∊ 𝒜}.
+Example ex3_8_a: ∀ 𝒜, dom ⋃𝒜 = ⋃{λ R, dom R | R ∊ 𝒜}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply domE in H as [y Hxy].
@@ -115,7 +115,7 @@ Proof.
     apply UnionAx. exists A. split; eassumption.
 Qed.
 
-Example ch3_8_b: ∀ 𝒜, ran ⋃𝒜 = ⋃{λ R, ran R | R ∊ 𝒜}.
+Example ex3_8_b: ∀ 𝒜, ran ⋃𝒜 = ⋃{λ R, ran R | R ∊ 𝒜}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply ranE in H as [y Hxy].
@@ -126,7 +126,7 @@ Proof.
     apply UnionAx. exists A. split; eassumption.
 Qed.
 
-Example ch3_9_a: ∀ 𝒜, dom ⋂𝒜 ⊆ ⋂{λ R, dom R | R ∊ 𝒜}.
+Example ex3_9_a: ∀ 𝒜, dom ⋂𝒜 ⊆ ⋂{λ R, dom R | R ∊ 𝒜}.
 Proof.
   intros 𝒜 x H.
   apply domE in H as [y Hxy].
@@ -136,7 +136,7 @@ Proof.
   subst B. eapply domI. apply Hxy in HC. apply HC.
 Qed.
 
-Example ch3_9_b: ∀ 𝒜, ran ⋂𝒜 ⊆ ⋂{λ R, ran R | R ∊ 𝒜}.
+Example ex3_9_b: ∀ 𝒜, ran ⋂𝒜 ⊆ ⋂{λ R, ran R | R ∊ 𝒜}.
 Proof.
   intros 𝒜 x H.
   apply ranE in H as [y Hxy].
@@ -158,12 +158,12 @@ Example ex_3_10_1: ∀ a b c d,
   <<<a, b>, c>, d> = <a, b, c, d>.
 Proof. reflexivity. Qed.
 
-Example ch3_11: ∀ F G,
+Example ex3_11: ∀ F G,
   is_function F → is_function G → dom F = dom G
   → (∀x ∈ dom F, F[x] = G[x]) → F = G.
 Proof. exact func_ext. Qed.
 
-Example ch3_12: ∀ f g,
+Example ex3_12: ∀ f g,
   is_function f → is_function g →
   f ⊆ g ↔ dom f ⊆ dom g ∧ ∀x ∈ dom f, f[x] = g[x].
 Proof with eauto.
@@ -179,7 +179,7 @@ Proof with eauto.
     apply H in Hdf as Hapeq. congruence.
 Qed.
 
-Example ch3_13: ∀ f g,
+Example ex3_13: ∀ f g,
   is_function f → is_function g → f ⊆ g → dom g ⊆ dom f → f = g.
 Proof with eauto.
   intros f g Hf Hg Hs Hds. apply func_ext...
@@ -190,7 +190,7 @@ Proof with eauto.
     apply func_ap in Hp as Heqg... subst...
 Qed.
 
-Example ch3_14_a:  ∀ f g,
+Example ex3_14_a:  ∀ f g,
   is_function f → is_function g → is_function (f ∩ g).
 Proof with eauto.
   intros * Hf Hg. repeat split.
@@ -201,7 +201,7 @@ Proof with eauto.
     apply BInterE in Hy' as [Hy' _]. clear Hg. eapply func_sv...
 Qed.
 
-Example ch3_14_b:  ∀ f g,
+Example ex3_14_b:  ∀ f g,
   is_function f → is_function g →
   (∀x ∈ dom f ∩ dom g, f[x] = g[x]) ↔ is_function (f ∪ g).
 Proof with eauto.
@@ -227,7 +227,7 @@ Proof with eauto.
     eapply func_sv... apply BUnionI1... apply BUnionI2...
 Qed.
 
-Example ch3_15: ∀ 𝒜, (∀f ∈ 𝒜, is_function f) →
+Example ex3_15: ∀ 𝒜, (∀f ∈ 𝒜, is_function f) →
   (∀ f g ∈ 𝒜, f ⊆ g ∨ g ⊆ f) → is_function ⋃𝒜.
 Proof with eauto.
   intros. repeat split.
@@ -243,13 +243,13 @@ Proof with eauto.
     + apply H2 in Hpg. eapply func_sv... apply H...
 Qed.
 
-Example ch3_16: ¬ ∃ F, ∀ f, is_function f → f ∈ F.
+Example ex3_16: ¬ ∃ F, ∀ f, is_function f → f ∈ F.
 Proof with auto.
   intros [F H].
   set (λ f, ∀x ∈ dom f, ∀y ∈ dom f, x = y) as P1.
   set (λ f, ∀z ∈ dom f, <z, z> ∈ f) as P2.
   set {f ∊ F | λ f, P1 f ∧ P2 f } as C.
-  apply ch2_8. exists (⋃⋃C). intros.
+  apply ex2_8. exists (⋃⋃C). intros.
   apply UnionAx. exists (⎨⎨a⎬⎬). split...
   apply UnionAx. exists (⎨⎨⎨a⎬⎬⎬). split...
   assert (⎨⎨⎨a⎬⎬⎬ = ⎨<a, a>⎬) by reflexivity.
@@ -268,7 +268,7 @@ Proof with auto.
   apply identE in Hz as Heq. destruct Heq as [_ Heq]. subst...
 Qed.
 
-Example ch3_17_a: ∀ F G,
+Example ex3_17_a: ∀ F G,
   single_rooted F → single_rooted G → single_rooted (F ∘ G).
 Proof with eauto.
   intros * Hsf Hsg y Hy. split. apply ranE in Hy...
@@ -279,14 +279,14 @@ Proof with eauto.
   subst. clear Hsf. eapply singrE...
 Qed.
 
-Example ch3_17_b: ∀ F G,
+Example ex3_17_b: ∀ F G,
   injective F → injective G → injective (F ∘ G).
 Proof with auto.
   intros * [Hff Hsf] [Hfg Hsg]. split.
-  apply compo_func... apply ch3_17_a...
+  apply compo_func... apply ex3_17_a...
 Qed.
 
-Example ch3_20: ∀ F A, F ↾ A = F ∩ A × ran F.
+Example ex3_20: ∀ F A, F ↾ A = F ∩ A × ran F.
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]].
@@ -296,7 +296,7 @@ Proof with eauto.
     subst x. apply restrI...
 Qed.
 
-Example ch3_21: ∀ R S T, (R ∘ S) ∘ T = R ∘ (S ∘ T).
+Example ex3_21: ∀ R S T, (R ∘ S) ∘ T = R ∘ (S ∘ T).
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - pose proof (compo_rel (R ∘ S) T).
@@ -311,13 +311,13 @@ Proof with eauto.
     eapply compoI... eapply compoI...
 Qed.
 
-Example ch3_22_a: ∀ F A B, A ⊆ B → F⟦A⟧ ⊆ F⟦B⟧.
+Example ex3_22_a: ∀ F A B, A ⊆ B → F⟦A⟧ ⊆ F⟦B⟧.
 Proof.
   intros * H y Hy. apply imgE in Hy as [x [Hx Hp]].
   apply H in Hx. eapply imgI; eauto.
 Qed.
 
-Example ch3_22_b: ∀ F G A, (F ∘ G)⟦A⟧ = F⟦G⟦A⟧⟧.
+Example ex3_22_b: ∀ F G A, (F ∘ G)⟦A⟧ = F⟦G⟦A⟧⟧.
 Proof with eauto.
   intros. apply ExtAx. intros y. split; intros Hy.
   - apply imgE in Hy as [x [Hx Hp]].
@@ -328,7 +328,7 @@ Proof with eauto.
     eapply imgI... eapply compoI...
 Qed.
 
-Example ch3_22_c: ∀ Q A B, Q ↾ (A ∪ B) = (Q ↾ A) ∪ (Q ↾ B).
+Example ex3_22_c: ∀ Q A B, Q ↾ (A ∪ B) = (Q ↾ A) ∪ (Q ↾ B).
 Proof with auto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
@@ -341,7 +341,7 @@ Proof with auto.
     + apply restrI... apply BUnionI2...
 Qed.
 
-Example ch3_23_a: ∀ A B, B ∘ Ident A = B ↾ A.
+Example ex3_23_a: ∀ A B, B ∘ Ident A = B ↾ A.
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - pose proof (compo_rel B (Ident A)).
@@ -353,7 +353,7 @@ Proof with eauto.
     eapply compoI... apply identI...
 Qed.
 
-Example ch3_23_b: ∀ A C, (Ident A)⟦C⟧ = A ∩ C.
+Example ex3_23_b: ∀ A C, (Ident A)⟦C⟧ = A ∩ C.
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - apply imgE in Hx as [w [Hc Hp]].
@@ -362,7 +362,7 @@ Proof with eauto.
     eapply imgI... apply identI...
 Qed.
 
-Example ch3_24: ∀ F A,
+Example ex3_24: ∀ F A,
   is_function F → F⁻¹⟦A⟧ = {x ∊ dom F | λ x, F[x] ∈ A}.
 Proof with eauto.
   intros F A Hf. apply ExtAx. split; intros.
@@ -378,13 +378,13 @@ Proof with eauto.
     + rewrite π1_correct. rewrite Heq in Hy...
 Qed.
 
-Example ch3_25: ∀ G,
+Example ex3_25: ∀ G,
   is_function G → (G ∘ G⁻¹) = Ident (ran G).
 Proof. exact compo_inv_ran_ident. Qed.
 
-(* ch3_26: see EX7.v *) 
+(* ex3_26: see EX7.v *) 
 
-Example ch3_27: ∀ F G, dom (F ∘ G) = G⁻¹⟦dom F⟧.
+Example ex3_27: ∀ F G, dom (F ∘ G) = G⁻¹⟦dom F⟧.
 Proof with eauto.
   intros. apply ExtAx. intros x. split; intros Hx.
   - apply domE in Hx as [y Hp].
@@ -395,7 +395,7 @@ Proof with eauto.
     eapply domI. eapply compoI...
 Qed.
 
-Example ch3_28: ∀ f A B G,
+Example ex3_28: ∀ f A B G,
   f: A ⇔ B → is_function G →
   dom G = 𝒫 A → (∀x ∈ dom G, G[x] = f⟦x⟧) →
   G: 𝒫 A ⇒ 𝒫 B ∧ injective G.
@@ -426,7 +426,7 @@ Proof with eauto.
       assert (x = x') by (eapply singrE; eauto). subst...
 Qed.
 
-Example ch3_29: ∀ f A B G,
+Example ex3_29: ∀ f A B G,
   f: A ⟹ B → G: B ⇒ 𝒫 A → 
   (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) → injective G.
 Proof with eauto.
@@ -447,7 +447,7 @@ Qed.
 
 (** 克纳斯特－塔斯基定理的引理 **)
 (* 设L是完全格，F: L ⇒ L 是次序保持函数，则F在L中有最小不动点和最大不动点 *)
-Example ch3_30: ∀ F A, F: 𝒫 A ⇒ 𝒫 A →
+Example ex3_30: ∀ F A, F: 𝒫 A ⇒ 𝒫 A →
   (∀ X Y, X ⊆ Y ∧ Y ⊆ A → F[X] ⊆ F[Y]) →
   let ℬ := {X ∊ 𝒫 A | λ X, F[X] ⊆ X} in
   let 𝒞 := {X ∊ 𝒫 A | λ X, X ⊆ F[X]} in
@@ -514,4 +514,4 @@ Proof with eauto.
       intros x Hx. apply Heq...
 Qed.
 
-(* ch3_31: see EST3_2.v Theorem AC_1_iff_2 *) 
+(* ex3_31: see EST3_2.v Theorem AC_1_iff_2 *) 

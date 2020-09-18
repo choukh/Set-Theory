@@ -269,7 +269,7 @@ Proof with nauto.
   apply lt_connected in Hmn as [H1|H1];
   apply lt_connected in Hpq as [H2|H2]; auto;
   intros Heq; eapply lt_not_refl; revgoals;
-  (eapply ch4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
+  (eapply ex4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
   try apply Hw; [|
     |rewrite add_comm, (add_comm (n⋅p)) in H2; [|mr;auto..]
     |rewrite add_comm, (add_comm (n⋅q)) in H2; [|mr;auto..]
@@ -585,7 +585,7 @@ Proof with nauto.
     (mul_comm p), (mul_comm n), (mul_comm q), (mul_comm m)...
   repeat rewrite <- mul_distr...
   rewrite (add_comm n), (add_comm q)...
-  apply ch4_25; auto; ar...
+  apply ex4_25; auto; ar...
 Qed.
 
 Close Scope Nat_scope.

@@ -1,9 +1,9 @@
 (** Solutions to "Elements of Set Theory" Chapter 3 Part 2 **)
 (** Coq coding by choukh, May 2020 **)
 
-Require Export ZFC.CH3_1.
+Require Export ZFC.EX3_1.
 
-Example ch3_32_a: ∀ R, symm R ↔ R⁻¹ ⊆ R.
+Example ex3_32_a: ∀ R, symm R ↔ R⁻¹ ⊆ R.
 Proof with congruence.
   split; intros.
   - intros x Hx. apply SepE in Hx as [_ [Hpp Hp]].
@@ -11,7 +11,7 @@ Proof with congruence.
   - intros x y Hp. apply inv_op in Hp. apply H...
 Qed.
 
-Example ch3_32_b: ∀ R, tranr R ↔ R ∘ R ⊆ R.
+Example ex3_32_b: ∀ R, tranr R ↔ R ∘ R ⊆ R.
 Proof with eauto.
   split; intros.
   - intros p Hp. apply SepE in Hp as [_ [Hpp [y [H1 H2]]]].
@@ -19,7 +19,7 @@ Proof with eauto.
   - intros x y z H1 H2. apply H. eapply compoI...
 Qed.
 
-Example ch3_33: ∀ R, is_relation R ∧ symm R ∧ tranr R ↔ R = R⁻¹ ∘ R.
+Example ex3_33: ∀ R, is_relation R ∧ symm R ∧ tranr R ↔ R = R⁻¹ ∘ R.
 Proof with eauto.
   split.
   - intros [Hr [Hsy Htr]]. apply ExtAx. intros p. split; intros Hp.
@@ -50,7 +50,7 @@ Proof with eauto.
     rewrite <- H in Hxt. eapply compoI...
 Qed.
 
-Example ch3_34: ∀ 𝒜, (∀A ∈ 𝒜, tranr A) → tranr (⋂𝒜).
+Example ex3_34: ∀ 𝒜, (∀A ∈ 𝒜, tranr A) → tranr (⋂𝒜).
 Proof with eauto.
   intros 𝒜 H. intros x y z H1 H2.
   apply InterE in H1 as [Hi H1]. apply InterE in H2 as [_ H2]. 
@@ -59,7 +59,7 @@ Proof with eauto.
   apply H in HA. eapply HA...
 Qed.
 
-Example ch3_35: ∀ R x, [x]R = R⟦⎨x⎬⟧.
+Example ex3_35: ∀ R x, [x]R = R⟦⎨x⎬⟧.
 Proof with eauto.
   intros. apply ExtAx. intros y. split; intros Hy.
   - apply eqvcE in Hy. eapply imgI...
@@ -67,7 +67,7 @@ Proof with eauto.
     apply SingE in Hw. subst w. apply eqvcI...
 Qed.
 
-Example ch3_36: ∀ f A B R, f: A ⇒ B → equiv R B →
+Example ex3_36: ∀ f A B R, f: A ⇒ B → equiv R B →
   let Q := {p ∊ A × A | λ p, <f[π1 p], f[π2 p]> ∈ R} in
   equiv Q A.
 Proof with eauto.
@@ -89,7 +89,7 @@ Proof with eauto.
     rewrite π1_correct, π2_correct...
 Qed.
 
-Example ch3_37: ∀ Π A, partition Π A →
+Example ex3_37: ∀ Π A, partition Π A →
   let R := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   equiv R A.
 Proof with eauto.
@@ -116,7 +116,7 @@ Proof with eauto.
     + exfalso. eapply (disjointE B C)... apply Hdj...
 Qed.
 
-Example ch3_38: ∀ Π A, partition Π A →
+Example ex3_38: ∀ Π A, partition Π A →
   let R := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   A/R = Π.
 Proof with eauto; try congruence.
@@ -145,7 +145,7 @@ Proof with eauto; try congruence.
       rewrite π1_correct, π2_correct...
 Qed.
 
-Example ch3_39: ∀ R A, equiv R A →
+Example ex3_39: ∀ R A, equiv R A →
   let Π := A/R in
   let Rπ := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   Rπ = R.
@@ -166,9 +166,9 @@ Proof with eauto.
     apply eqvcI... apply eqvcI...
 Qed.
 
-(* ch3_42 see EST5_1.v quotionFunc_unique *)
+(* ex3_42 see EST5_1.v quotionFunc_unique *)
 
-Example ch3_43: ∀ R A, totalOrd R A → totalOrd R⁻¹ A.
+Example ex3_43: ∀ R A, totalOrd R A → totalOrd R⁻¹ A.
 Proof with eauto.
   intros * [Hrl [Htr Htri]].
   assert (Hrl': binRel R ⁻¹ A). {
@@ -189,7 +189,7 @@ Proof with eauto.
     + left. apply inv_op in H...
 Qed.
 
-Example ch3_44: ∀ R A f, totalOrd R A → f: A ⇒ A →
+Example ex3_44: ∀ R A f, totalOrd R A → f: A ⇒ A →
   (∀ x y ∈ A, <x, y> ∈ R → <f[x], f[y]> ∈ R) →
   injective f ∧ ∀ x y ∈ A, <f[x], f[y]> ∈ R → <x, y> ∈ R.
 Proof with eauto.
@@ -217,7 +217,7 @@ Proof with eauto.
 Qed.
 
 (* 字典序 *)
-Example ch3_45: ∀ Rᵃ A Rᵇ B, totalOrd Rᵃ A → totalOrd Rᵇ B →
+Example ex3_45: ∀ Rᵃ A Rᵇ B, totalOrd Rᵃ A → totalOrd Rᵇ B →
   let Rˡ := {p ∊ (A × B) × (A × B) | λ p,
     let a1 := π1 (π1 p) in let b1 := π2 (π1 p) in
     let a2 := π1 (π2 p) in let b2 := π2 (π2 p) in
@@ -268,7 +268,7 @@ Proof with eauto; try congruence.
         do 3 rewrite π1_correct, π2_correct. right...
 Qed.
 
-Example ch3_46_a: ∀ x y, ⋂⋂<x, y> = x.
+Example ex3_46_a: ∀ x y, ⋂⋂<x, y> = x.
 Proof with eauto.
   intros. apply ExtAx. intros a. split; intros Ha.
   - apply InterE in Ha as [[b Hb] Ha]. apply Ha in Hb as Hab.
@@ -292,10 +292,10 @@ Proof with eauto.
         apply Hb in H. apply SingE in H. subst...
 Qed.
 
-Example ch3_46_b: ∀ x y, ⋂⋂⋂⎨<x, y>⎬⁻¹ = y.
+Example ex3_46_b: ∀ x y, ⋂⋂⋂⎨<x, y>⎬⁻¹ = y.
 Proof with eauto.
   intros. set (⎨<x, y>⎬) as R.
-  cut (⋂R⁻¹ = <y, x>). intros. rewrite H. apply ch3_46_a.
+  cut (⋂R⁻¹ = <y, x>). intros. rewrite H. apply ex3_46_a.
   apply ExtAx. intros a. split; intros Ha.
   - apply InterE in Ha as [_ Ha].
     assert (<x, y> ∈ R) by apply SingI.
@@ -307,7 +307,7 @@ Proof with eauto.
       apply op_η in Hp. rewrite Hp...
 Qed.
 
-Example ch3_52: ∀ A B C D, ⦿ A → ⦿ B → ⦿ C → ⦿ D →
+Example ex3_52: ∀ A B C D, ⦿ A → ⦿ B → ⦿ C → ⦿ D →
   A × B = C × D → A = C ∧ B = D.
 Proof with eauto.
   intros * [a Ha] [b Hb] [c Hc] [d Hd] H.
@@ -328,7 +328,7 @@ Proof with eauto.
       rewrite π2_correct in H2...
 Qed.
 
-Example ch3_53_a: ∀ R S, (R ∪ S)⁻¹ = R⁻¹ ∪ S ⁻¹.
+Example ex3_53_a: ∀ R S, (R ∪ S)⁻¹ = R⁻¹ ∪ S ⁻¹.
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ [Hp Hx]]. apply op_η in Hp.
@@ -342,7 +342,7 @@ Proof with eauto.
       rewrite Hp. rewrite <- inv_op. apply BUnionI2...
 Qed.
 
-Example ch3_53_b: ∀ R S, (R ∩ S)⁻¹ = R⁻¹ ∩ S ⁻¹.
+Example ex3_53_b: ∀ R S, (R ∩ S)⁻¹ = R⁻¹ ∩ S ⁻¹.
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ [Hp Hx]]. apply op_η in Hp.
@@ -354,7 +354,7 @@ Proof with eauto.
     rewrite <- inv_op. apply BInterI...
 Qed.
 
-Example ch3_53_c: ∀ R S, (R - S)⁻¹ = R⁻¹ - S ⁻¹.
+Example ex3_53_c: ∀ R S, (R - S)⁻¹ = R⁻¹ - S ⁻¹.
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ [Hp Hx]]. apply op_η in Hp.
@@ -367,7 +367,7 @@ Proof with eauto.
     rewrite <- inv_op. apply CompI...
 Qed.
 
-Example ch3_54_a: ∀ A B C, A × (B ∩ C) = (A × B) ∩ (A × C).
+Example ex3_54_a: ∀ A B C, A × (B ∩ C) = (A × B) ∩ (A × C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst.
@@ -379,10 +379,10 @@ Proof with eauto.
     apply CProdI... apply BInterI...
 Qed.
 
-Example ch3_54_b: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
-Proof. exact ch3_2_a. Qed.
+Example ex3_54_b: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
+Proof. exact ex3_2_a. Qed.
 
-Example ch3_54_c: ∀ A B C, A × (B - C) = (A × B) - (A × C).
+Example ex3_54_c: ∀ A B C, A × (B - C) = (A × B) - (A × C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]]. subst.
@@ -394,7 +394,7 @@ Proof with eauto.
     apply CProdI... apply CompI... intros H. apply H2. apply CProdI...
 Qed.
 
-Example ch3_55: ∀ A B C, (A × A) ∩ (B × C) = (A ∩ B) × (A ∩ C).
+Example ex3_55: ∀ A B C, (A × A) ∩ (B × C) = (A ∩ B) × (A ∩ C).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply BInterE in Hx as [H1 H2].
@@ -408,7 +408,7 @@ Proof with eauto.
     apply BInterI; apply CProdI...
 Qed.
 
-Example ch3_56: ∀ R S, dom (R ∪ S) = dom R ∪ dom S.
+Example ex3_56: ∀ R S, dom (R ∪ S) = dom R ∪ dom S.
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
@@ -419,7 +419,7 @@ Proof with eauto.
     + eapply domI. apply BUnionI2...
 Qed.
 
-Example ch3_57: ∀ R S T, R ∘ (S ∪ T) = (R ∘ S) ∪ (R ∘ T).
+Example ex3_57: ∀ R S T, R ∘ (S ∪ T) = (R ∘ S) ∪ (R ∘ T).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply compo_rel in Hx as Hp. apply op_η in Hp.
@@ -434,7 +434,7 @@ Proof with eauto.
     + eapply compoI... apply BUnionI2...
 Qed.
 
-Example ch3_59_a: ∀ Q A B, Q ↾ (A ∩ B) = (Q ↾ A) ∩ (Q ↾ B).
+Example ex3_59_a: ∀ Q A B, Q ↾ (A ∩ B) = (Q ↾ A) ∩ (Q ↾ B).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst x.
@@ -447,7 +447,7 @@ Proof with eauto.
     apply restrI... apply BInterI...
 Qed.
 
-Example ch3_59_b: ∀ Q A B, Q ↾ (A - B) = (Q ↾ A) - (Q ↾ B).
+Example ex3_59_b: ∀ Q A B, Q ↾ (A - B) = (Q ↾ A) - (Q ↾ B).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst.
@@ -460,7 +460,7 @@ Proof with eauto.
     apply restrI...
 Qed.
 
-Example ch3_60: ∀ R S A, (R ∘ S) ↾ A = R ∘ (S ↾ A).
+Example ex3_60: ∀ R S A, (R ∘ S) ↾ A = R ∘ (S ↾ A).
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]]. subst.
