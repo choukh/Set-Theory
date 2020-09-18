@@ -111,5 +111,5 @@
 - 基数的序
 - 阿列夫零
 
-## CH*.v
+## EX*.v
 - Elements of Set Theory 第*章习题
