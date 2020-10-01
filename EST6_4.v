@@ -4,7 +4,7 @@
 Require Export ZFC.EST6_3.
 
 (*** EST第六章4：选择公理的系统考察：基数的三歧性，佐恩引理，
-  ℵ₀是最小的无限基数，戴得金无穷 ***)
+  阿列夫零是最小的无限基数，戴德金无穷 ***)
 
 (* 选择公理的等效表述1：可以从关系中选出函数 *)
 Definition AC_I : Prop := ∀ R,
@@ -492,7 +492,7 @@ Proof with auto.
   rewrite <- set_finite_iff_card_finite...
 Qed.
 
-(* 戴得金无穷：与自身的真子集等势的集合 *)
+(* 戴德金无穷：与自身的真子集等势的集合 *)
 Definition dedekind_infinite : set → Prop := λ A, ∃ B, B ⊂ A ∧ A ≈ B.
 
 (* 集合是无限集当且仅当它与自身的真子集等势 *)
