@@ -50,6 +50,12 @@ Proof.
     exfalso. apply H. apply CompI; assumption.
 Qed.
 
+Lemma comp_sub : ∀ A B, A - B ⊆ A.
+Proof.
+  intros A B x Hx. apply CompE in Hx as []; auto.
+Qed.
+Hint Immediate comp_sub : core.
+
 (** 真子集 **)
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
 

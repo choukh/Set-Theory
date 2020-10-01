@@ -53,6 +53,21 @@ Proof with nauto.
   apply CardAx1. apply eqnum_single_one.
 Qed.
 
+(* 集合有限当且仅当其基数有限 *)
+Lemma set_finite_iff_card_finite : ∀ A, finite A ↔ finite (|A|).
+Proof.
+  split; intros [n [Hn Hqn]]; exists n; split; auto; 
+  rewrite <- Hqn, <- CardAx0; auto.
+Qed.
+
+(* 集合无限当且仅当其基数无限 *)
+Lemma set_infinite_iff_card_infinite : ∀ A, infinite A ↔ infinite (|A|).
+Proof.
+  split; intros Hinf Hfin; apply Hinf.
+  rewrite set_finite_iff_card_finite; auto.
+  rewrite <- set_finite_iff_card_finite; auto.
+Qed.
+
 (* 集合的基数不为零当且仅当集合非空 *)
 Lemma set_nonzero_card_nonzero : ∀ A, ⦿ A ↔ ⦿ |A|.
 Proof with nauto.
@@ -159,11 +174,9 @@ Proof with eauto; try congruence.
   )) as F.
   exists F. apply meta_bijective.
   - intros x Hx. destruct (ixm (x ∈ K₁)).
-    + apply BUnionI1. rewrite <- Hrf.
-      eapply ranI. apply func_correct...
-    + apply BUnionE in Hx as []...
-      apply BUnionI2. rewrite <- Hrg.
-      eapply ranI. apply func_correct...
+    + apply BUnionI1. eapply ap_ran... split... split...
+    + apply BUnionE in Hx as []... apply BUnionI2.
+      eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     destruct (ixm (x1 ∈ K₁)) as [H1|H1'];
     destruct (ixm (x2 ∈ K₁)) as [H2|H2'].
@@ -209,8 +222,8 @@ Proof with eauto; try congruence.
   - intros x Hx.
     apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
     subst x. zfcrewrite. apply CProdI.
-    rewrite <- Hrf. eapply ranI. apply func_correct...
-    rewrite <- Hrg. eapply ranI. apply func_correct...
+    eapply ap_ran... split... split...
+    eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply cprod_iff in Hx1 as [a [Ha [b [Hb Hx1]]]].
     apply cprod_iff in Hx2 as [c [Hc [d [Hd Hx2]]]].
@@ -248,10 +261,10 @@ Proof with eauto; try congruence.
       * rewrite compo_dom... apply SepI. rewrite inv_dom...
         rewrite compo_dom... apply SepI. {
           rewrite Hdj, <- Hdg, <- inv_ran.
-          eapply ranI. apply func_correct... rewrite inv_dom...
+          eapply ap_ran... split... split... rewrite inv_dom...
         } {
           rewrite Hdf. apply Hrj. rewrite <- Hdg, <- inv_ran.
-          eapply ranI. apply func_correct... rewrite inv_dom...
+          eapply ap_ran... split... split... rewrite inv_dom...
         }
     + intros y Hy.
       assert (H1: (g ⁻¹) [y] ∈ L₁). {
@@ -265,7 +278,7 @@ Proof with eauto; try congruence.
         rewrite compo_dom... apply SepI...
       }
       rewrite compo_correct, compo_correct...
-      * rewrite <- Hrf. eapply ranI. apply func_correct...
+      * eapply ap_ran... split... split...
       * rewrite compo_dom... apply SepI... rewrite inv_dom...
   - intros j1 Hj1 j2 Hj2 Heq.
     cut (∀h1 ∈ L₁ ⟶ K₁, ∀h2 ∈ L₁ ⟶ K₁,
@@ -303,8 +316,7 @@ Proof with eauto; try congruence.
     exists ((f⁻¹ ∘ y) ∘ g). split. apply arrow_iff.
     + assert (Hffy: is_function (f⁻¹ ∘ y)) by (apply compo_func; auto).
       assert (H1: ∀x ∈ L₁, g[x] ∈ dom y). {
-        intros x Hx. rewrite Hdy, <- Hrg.
-        eapply ranI. apply func_correct...
+        intros x Hx. rewrite Hdy. eapply ap_ran... split... split...
       }
       assert (H2: ∀x ∈ L₁, y[g[x]] ∈ dom f⁻¹). {
         intros x Hx. rewrite inv_dom, Hrf.
@@ -381,8 +393,7 @@ Proof with neauto; try congruence.
     destruct (single_pair_bijective 0 x) as [[Hf Hi] [Hd Hr]].
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
-    eapply in_impl_sing_sub... rewrite <- Hr.
-    eapply ranI. apply func_correct... rewrite Hd...
+    eapply in_impl_sing_sub... eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
     rewrite Heq in H. apply SingE in H.
@@ -805,7 +816,7 @@ Proof with eauto; try congruence.
 Qed.
 
 Theorem cardExp_id_3 : ∀ 𝜅 𝜆 𝜇, (𝜅 ^ 𝜆) ^ 𝜇 = 𝜅 ^ (𝜆 ⋅ 𝜇).
-Proof with auto; try congruence.
+Proof with eauto; try congruence.
   intros. apply CardAx1.
   eapply eqnum_tran. {
     apply cardExp_well_defined.
@@ -827,9 +838,8 @@ Proof with auto; try congruence.
       apply PowerAx. intros p Hp. apply SepE in Hp as []...
     }
     apply meta_maps_into. intros x Hx.
-    apply SepE in Hf as [_ [Hff [Hdf Hrf]]].
-    apply Hrf. eapply ranI. apply func_correct...
-    rewrite Hdf. apply CProdI...
+    apply SepE in Hf as [_ Hf].
+    eapply ap_ran... apply CProdI...
   - intros f1 Hf1 f2 Hf2 Heq.
     apply arrow_iff in Hf1 as [Hf1 [Hdf1 Hrf1]].
     apply arrow_iff in Hf2 as [Hf2 [Hdf2 _]].
@@ -878,7 +888,7 @@ Proof with auto; try congruence.
     assert (H2: ∀x ∈ dom f, <x, f[x]> ∈ (Func 𝜇 (𝜆 ⟶ 𝜅) (λ b, Func 𝜆 𝜅 (λ a, g[<a, b>])))). {
       intros x Hx. apply SepI; zfcrewrite.
       - apply CProdI. rewrite <- Hdf... apply Hrf.
-        eapply ranI. apply func_correct...
+        eapply ap_ran... split...
       - apply H1...
     }
     assert (H3: dom (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, g[<x, y>]))) = dom f). {
@@ -982,7 +992,6 @@ Proof with auto.
   intros * Hfa Hfb. rewrite <- ex2_11_2.
   assert (Hfb': finite (B - A)). {
     apply (sub_of_finite_is_finite _ B)...
-    intros x Hx. apply SepE in Hx as []...
   }
   destruct Hfa as [m [Hm Ha]]. destruct Hfb' as [n [Hn Hb]].
   exists (m + n). split. apply cardAdd_ω...

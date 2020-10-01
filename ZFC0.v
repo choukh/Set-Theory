@@ -182,13 +182,13 @@ Axiom EmptyAx : ∀ x, x ∉ ∅.
 Ltac exfalso0 := exfalso; eapply EmptyAx; eassumption.
 
 (* 集合的非空性 (类似于类型的居留性) *)
-Definition inhset : set → Prop := λ A, ∃ x, x ∈ A.
-Notation "⦿ x" := (inhset x) (at level 45).
+Definition nonempty : set → Prop := λ A, ∃ x, x ∈ A.
+Notation "⦿ x" := (nonempty x) (at level 45).
 
 (* 空集非居留 *)
 Fact empty_is_not_inhabited : ¬ ⦿ ∅.
 Proof.
-  unfold inhset, not. intros.
+  unfold nonempty, not. intros.
   destruct H as [x H].
   eapply EmptyAx. apply H.
 Qed.

@@ -111,9 +111,10 @@ Lemma compo_bijection : ∀ F G A B C,
   F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
 Proof with eauto; try congruence.
   intros * Hf Hg.
-  apply bijection_is_injection in Hf as Hif.
-  apply bijection_is_injection in Hg as Hig.
-  destruct Hf as [_ [_ Hfr]]. destruct Hg as [_ [Hgd Hgr]].
+  apply bijection_is_surjective_injection in Hf as Hif.
+  apply bijection_is_surjective_injection in Hg as Hig.
+  destruct Hf as [_ [_ Hfr]]. destruct Hif as [Hif _].
+  destruct Hg as [_ [Hgd Hgr]]. destruct Hig as [Hig _].
   pose proof (compo_injection _ _ _ _ _ Hif Hig) as [Hi [Hd Hr]].
   split... split... apply sub_asym...
   intros y Hy. rewrite <- Hgr in Hy.
@@ -461,11 +462,9 @@ Proof with eauto; try congruence.
   }
   subst F'. unfold FuncSwapValue. rewrite Hd.
   apply meta_maps_into. intros x Hx.
-  destruct (ixm (x = a)).
-  eapply ranI. apply func_correct...
+  destruct (ixm (x = a)). eapply ap_ran... split...
   destruct (ixm (x = b)).
-  eapply ranI. apply func_correct...
-  eapply ranI. apply func_correct...
+  eapply ap_ran... split... eapply ap_ran... split...
 Qed.
 
 (* 函数交换两个值两次后与原函数相等 *)
@@ -592,7 +591,7 @@ Qed.
 (* A到A的单射与A到B的双射可以构造B到B的单射 *)
 Lemma injection_transform : ∀ f g A B,
   f: A ⇔ A → g: A ⟺ B → g ∘ f ∘ g⁻¹: B ⇔ B.
-Proof with auto.
+Proof with eauto.
   intros * [Hif [Hdf Hrf]] [Hig [Hdg Hrg]].
   assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
   assert (Hif' := Hif). destruct Hif' as [Hf Hsf].
@@ -608,10 +607,9 @@ Proof with auto.
     + apply SepI. rewrite inv_dom, Hrg... rewrite compo_dom...
       assert ((g⁻¹) [x] ∈ dom f). {
         rewrite Hdf, <- Hdg, <- inv_ran.
-        eapply ranI. apply func_correct... rewrite inv_dom, Hrg...
+        eapply ap_ran. split... rewrite inv_dom, Hrg...
       }
-      apply SepI... rewrite Hdg. apply Hrf.
-      eapply ranI. apply func_correct...
+      apply SepI... rewrite Hdg. eapply ap_ran... split...
   - intros y Hy. rewrite compo_ran in Hy...
     apply SepE in Hy as [Hy _]. rewrite compo_ran in Hy...
     apply SepE in Hy as []. rewrite <- Hrg...
@@ -620,7 +618,7 @@ Qed.
 (* A到A的满射与A到B的双射可以构造B到B的满射 *)
 Lemma surjection_transform : ∀ f g A B,
   f: A ⟹ A → g: A ⟺ B → g ∘ f ∘ g⁻¹: B ⟹ B.
-Proof with auto.
+Proof with eauto.
   intros * [Hf [Hdf Hrf]] [Hig [Hdg Hrg]].
   assert (Hig' := Hig). destruct Hig' as [Hg Hsg].
   assert (Hfc: is_function (g ∘ f)) by (apply compo_func; auto).
@@ -634,10 +632,10 @@ Proof with auto.
     + apply SepI. rewrite inv_dom, Hrg... rewrite compo_dom...
       assert ((g⁻¹) [x] ∈ dom f). {
         rewrite Hdf, <- Hdg, <- inv_ran.
-        eapply ranI. apply func_correct... rewrite inv_dom, Hrg...
+        eapply ap_ran. split... rewrite inv_dom, Hrg...
       }
-      apply SepI... rewrite Hdg. rewrite <- Hrf.
-      eapply ranI. apply func_correct...
+      apply SepI... rewrite Hdg, <- Hrf.
+      eapply ap_ran... split...
   - apply ExtAx. intros y. split; intros Hy.
     + rewrite compo_assoc, compo_ran in Hy...
       apply SepE in Hy as [Hy _]. rewrite Hrg in Hy...

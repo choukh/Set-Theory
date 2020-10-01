@@ -260,12 +260,12 @@ Proof with neauto; try congruence.
   pose proof (injection_swap_value f k⁺ k⁺ p Hpd k Hkd Hf) as [Hf' Hreq].
   remember (FuncSwapValue f p k) as f'.
   rewrite <- Hreq. apply Hstar... clear Hstar Hreq.
-  destruct Hf as [[Hf Hs] [Hd Hr]].
   assert (Hfp: f[p] = k). {
     cut (f[p] ∈ k⁺). intros.
     - apply BUnionE in H as [|Hfp]. exfalso... apply SingE in Hfp...
-    - apply Hr. eapply ranI. apply func_correct...
+    - eapply ap_ran... apply injection_is_func...
   }
+  destruct Hf as [[Hf Hs] [Hd Hr]].
   assert (Hfk: f[k] ∈ k). {
     rewrite <- Hd in Hkd. apply func_correct in Hkd as Hpr...
     apply ranI in Hpr as Hyr. apply Hr in Hyr.
@@ -294,6 +294,7 @@ Proof with neauto; try congruence.
     exfalso. apply Hxp. eapply injectiveE... split...
 Qed.
 
+(* (可以不用选择公理) *)
 (* 任意自然数到自身的满射是单射 *)
 Lemma surjection_between_same_nat_injective :
   ∀n ∈ ω, ∀ f, f: n ⟹ n → injective f.
@@ -340,6 +341,13 @@ Proof.
   intros n Hn. exists n. split. apply Hn. reflexivity.
 Qed.
 
+(* 无限集非空 *)
+Fact infinite_set_nonempty : ∀ A, infinite A → ⦿ A.
+Proof.
+  intros A Hinf. apply EmptyNE.
+  intros H. apply Hinf. subst. auto.
+Qed.
+
 (* 鸽笼原理推论：任意集合都不与自身的真子集等势 *)
 Corollary no_fin_eqnum_proper_sub : ∀ A B, finite A → B ⊂ A → A ≉ B.
 Proof with eauto.
@@ -370,7 +378,8 @@ Proof with eauto.
 Qed.
 
 (* 与自身的真子集等势的集合是无限集 *)
-Corollary infiniteI : ∀ A B, B ⊂ A → A ≈ B → infinite A.
+Corollary infinite_if_eqnum_proper_sub : ∀ A B,
+  B ⊂ A → A ≈ B → infinite A.
 Proof.
   intros A B Hsub Heqn Hfin.
   eapply no_fin_eqnum_proper_sub; eauto.
@@ -388,7 +397,7 @@ Proof with nauto.
     intros n Hn. apply CompE in Hn as []...
     exists 0. split...
   }
-  eapply infiniteI. apply Hsub.
+  eapply infinite_if_eqnum_proper_sub. apply Hsub.
   destruct σ_maps_into as [Hf [Hd _]].
   exists σ. split; split...
   - split. apply ranE in H...

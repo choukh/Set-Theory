@@ -10,7 +10,7 @@ Definition maps_into : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F ⊆ B.
 Notation "F : A ⇒ B" := (maps_into F A B) (at level 60).
 
-(* 单射 *) (* one-to-on function *)
+(* 单射 *) (* injection / one-to-one function *)
 Definition maps_one_to_one : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F ⊆ B.
 Notation "F : A ⇔ B" := (maps_one_to_one F A B) (at level 60).
@@ -23,21 +23,49 @@ Notation "F : A ⟹ B" := (maps_onto F A B) (at level 60).
 (* 双射 *) (* one-to-one correspondence *)
 Definition bijection : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F = B.
-  Notation "F : A ⟺ B" := (bijection F A B) (at level 60).
+Notation "F : A ⟺ B" := (bijection F A B) (at level 60).
 
-(* 双射是单射 *)
-Lemma bijection_is_injection : ∀ F A B, F: A ⟺ B → F: A ⇔ B.
+(* 单射是一对一的映射 *)
+Lemma injection_is_func : ∀ F A B,
+  F: A ⇔ B ↔ F: A ⇒ B ∧ injective F.
 Proof with auto.
-  intros * [Hf [Hd Hr]]. split; [|split]... rewrite Hr...
+  split. intros [Hi [Hd Hr]]. split... split... destruct Hi...
+  intros [[_ [Hd Hr]] Hi]. split...
 Qed.
 
-(* 双射是满射 *)
-Lemma bijection_is_surjection : ∀ F A B, F: A ⟺ B → F: A ⟹ B.
+(* 满射是满的映射 *)
+Lemma surjection_is_func : ∀ F A B,
+  F: A ⟹ B ↔ F: A ⇒ B ∧ ran F = B.
 Proof with auto.
-  intros * [[Hf _] [Hd Hr]]. split; [|split]...
+  split. intros [Hf [Hd Hr]]. split...
+  split... split... rewrite Hr...
+  intros [[Hf [Hd _]] Hr]. split...
 Qed.
 
-Lemma cprod_single_func : ∀ F a, is_function (F × ⎨a⎬).
+(* 双射是满的单射 *)
+Lemma bijection_is_surjective_injection : ∀ F A B,
+  F: A ⟺ B ↔ F: A ⇔ B ∧ ran F = B.
+Proof with auto.
+  split. intros [Hi [Hd Hr]]. split;[split;[|split]|]... rewrite Hr...
+  intros [[Hi [Hd Hr]] Heq]. split...
+Qed.
+
+(* 双射是一对一的满射 *)
+Lemma bijection_is_injective_surjection : ∀ F A B,
+  F: A ⟺ B ↔ F: A ⟹ B ∧ injective F.
+Proof with auto.
+  split. intros [Hi [Hd Hr]]. split... split... destruct Hi...
+  intros [[_ [Hd Hr]] Hi]. split...
+Qed.
+
+(* 函数应用属于值域 *)
+Lemma ap_ran : ∀ A B F, F: A ⇒ B → ∀x ∈ A, F[x] ∈ B.
+Proof with auto.
+  intros * [Hf [Hd Hr]] x Hx.
+  apply Hr. eapply ranI. apply func_correct... rewrite Hd...
+Qed.
+
+Lemma cprod_single_is_func : ∀ F a, is_function (F × ⎨a⎬).
 Proof with auto.
   repeat split.
   - apply cprod_is_rel.
@@ -86,7 +114,7 @@ Proof with eauto.
   rewrite <- Hx in H at 1. rewrite <- Hx' in H.
   do 2 rewrite <- compo_correct in H...
   rewrite Heq in H. rewrite Hdf in Hdx, Hdx'.
-  do 2 rewrite ident_correct in H...
+  do 2 rewrite ident_ap in H...
   (* <- *)
   intros [_ Hs]. assert (F⁻¹: ran F ⟹ A). {
     split. apply inv_func_iff_sr... split.
@@ -97,7 +125,7 @@ Proof with eauto.
   (* is_function G *)
   - apply bunion_func.
     + apply inv_func_iff_sr...
-    + apply cprod_single_func.
+    + apply cprod_single_is_func.
     + apply EmptyI. intros x Hx.
       apply BInterE in Hx as [H1 H2]. apply domE in H2 as [y H2].
       apply CProdE1 in H2 as [H2 _]. rewrite π1_correct in H2.
@@ -479,7 +507,7 @@ Proof with eauto.
   intros. split.
   - intros HF. apply SepE2 in HF as [Hf [Heq Hsub]].
     split... split... intros x Hx.
-    apply Hsub. eapply ranI. apply func_correct... subst...
+    apply Hsub. eapply ap_ran... split...
   - intros [Hf [Hd Hap]]. subst A. apply SepI.
     + apply PowerAx. intros p Hp.
       assert (Hp' := Hp). apply func_pair in Hp'...
@@ -514,8 +542,7 @@ Proof with eauto.
   - apply SepE in Hf as [Hf _]. subst A...
   - apply SepI. subst A... clear Heq.
     intros j Hj. apply H in Hj as Heq. rewrite Heq. clear Heq.
-    apply SepE in Hf as [_ [Hf [Hd Hr]]]. apply Hr.
-    eapply ranI. apply func_correct... subst I...
+    apply SepE in Hf as [_ Hf]. eapply ap_ran...
 Qed.
 
 (* 选择公理等效表述2：非空集合的笛卡尔积非空 *)
@@ -533,25 +560,23 @@ Proof with eauto.
     assert (Hdeq2: dom F = I). {
       rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
       - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hi _]. rewrite π1_correct in Hi...
+        apply CProdE1 in Hp as [Hi _]. zfcrewrite.
       - apply Hxi in Hi as Hx. destruct Hx.
         eapply domI. apply SepI. apply CProdI...
-        eapply FUnionI... rewrite π1_correct, π2_correct...
+        eapply FUnionI... zfcrewrite.
     }
     exists F. apply SepI.
     + apply SepI. rewrite PowerAx. intros x Hp.
       apply func_pair in Hp as Hxeq... rewrite Hxeq in *.
       apply domI in Hp as Hd. rewrite Hdeq2 in Hd.
-      apply Hsub in Hp. apply SepE in Hp as [_ Hp].
-      rewrite π1_correct, π2_correct in Hp.
-      apply CProdI... eapply UnionI... eapply ReplI...
-      split... split... intros y Hy. apply ranE in Hy as [i Hp].
+      apply Hsub in Hp. apply SepE in Hp as [_ Hp]. zfcrewrite.
+      apply CProdI... eapply FUnionI... split... split...
+      intros y Hy. apply ranE in Hy as [i Hp].
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [_ Hy]. rewrite π2_correct in Hy...
+      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
     + intros i Hi. rewrite <- Hdeq2 in Hi.
       apply func_correct in Hi... apply Hsub in Hi.
-      apply SepE in Hi as [_ Hy].
-      rewrite π1_correct, π2_correct in Hy...
+      apply SepE in Hi as [_ Hy]. zfcrewrite.
   - intros AC2 R Hr.
     set (dom R) as I.
     set (λ i, {y ∊ ran R | λ y, <i, y> ∈ R}) as ℱ.
@@ -561,22 +586,19 @@ Proof with eauto.
       intros i. split. apply domE in H...
       intros Y Y' HY HY'.
       apply SepE in HY as [_ Hp].
-      apply SepE in HY' as [_ Hp'].
-      rewrite π1_correct, π2_correct in *. subst...
+      apply SepE in HY' as [_ Hp']. zfcrewrite.
     }
     assert (HXd: dom X = I). {
       apply ExtAx. intros i. split; intros Hi.
       - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hi _]. rewrite π1_correct in Hi...
+        apply CProdE1 in Hp as [Hi _]. zfcrewrite.
       - eapply domI. apply SepI. apply CProdI...
         rewrite PowerAx. cut (ℱ i ⊆ ran R)...
-        intros x Hx. apply SepE in Hx as []...
-        rewrite π1_correct, π2_correct...
+        intros x Hx. apply SepE in Hx as []... zfcrewrite.
     }
     assert (Hℱeq: ∀i ∈ I, X[i] = ℱ i). {
-      intros i Hi. rewrite <- HXd in Hi.
-      apply func_correct in Hi... apply SepE in Hi as [_ Heq].
-      rewrite π1_correct, π2_correct in Heq...
+      intros i Hi. rewrite <- HXd in Hi. apply func_correct in Hi...
+      apply SepE in Hi as [_ Heq]. zfcrewrite.
     }
     assert (HXP: ∀i ∈ I, ∀y ∈ X[i], <i, y> ∈ R). {
       intros i Hi y Hy. apply Hℱeq in Hi. rewrite Hi in Hy.

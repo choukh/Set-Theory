@@ -247,7 +247,7 @@ Proof.
   subst y'. eapply func_sv; eauto.
 Qed.
 
-Lemma ident_correct : ∀ X, ∀x ∈ X, (Ident X)[x] = x.
+Lemma ident_ap : ∀ X, ∀x ∈ X, (Ident X)[x] = x.
 Proof.
   intros X x Hx. apply func_ap.
   - apply ident_is_func.
@@ -574,7 +574,7 @@ Proof with auto.
   - rewrite compo_inv_dom, dom_ident...
   - intros x Hx. assert (Hx' := Hx).
     rewrite compo_inv_dom in Hx'...
-    rewrite compo_inv_dom_eq... rewrite ident_correct...
+    rewrite compo_inv_dom_eq... rewrite ident_ap...
 Qed.
 
 Example compo_inv_ran_ident : ∀ G,

@@ -307,9 +307,9 @@ Proof with auto.
 Qed.
 
 (* 有理数投射 *)
-Definition RatPosDenom : set → set := λ a,
-  {p ∊ a | λ p, intPos (π2 p)}.
-Definition RatProj : set → set := λ a, Choice (RatPosDenom a).
+Definition RatPosDenom : set → set := λ r,
+  {p ∊ r | λ p, intPos (π2 p)}.
+Definition RatProj : set → set := λ r, Choice (RatPosDenom r).
 
 Lemma ratPosDenom_inhabited : ∀a ∈ ℤ, ∀b ∈ ℤ',
   ⦿ RatPosDenom ([<a, b>]~).

@@ -54,8 +54,8 @@ Proof with eauto; try congruence.
     intros n Hn Heq1. apply Hh1 in Hn as Heq2.
     assert (Heq: f[h[n]] = c) by congruence.
     apply CompE in Hc as [_ Hc]. apply Hc. rewrite <- Heq.
-    eapply ranI. apply func_correct... rewrite Hdf. apply Hrh.
-    eapply ranI. apply func_correct...
+    eapply ap_ran. split... apply Hrh.
+    eapply ap_ran... split...
   }
   intros k l Hpk. apply domI in Hpk as Hk. rewrite Hdh in Hk.
   generalize Hpk. generalize dependent l.
@@ -287,8 +287,7 @@ Proof with eauto.
     ∃m ∈ ran f, ∀k ∈ ran f, k ≤ m} as N.
   ω_induction N Hn; intros f [Hff [Hfd Hfr]].
   - exists (f[0]). split.
-    + eapply ranI. apply func_correct...
-      rewrite Hfd. apply BUnionI2...
+    + eapply ap_ran. split... nauto.
     + intros k Hk. apply ranE in Hk as [x Hp].
       apply domI in Hp as Hx. rewrite Hfd in Hx.
       apply BUnionE in Hx as []. exfalso0.
@@ -321,7 +320,7 @@ Proof with eauto.
       rewrite Hfd. apply BUnionI2...
     }
     assert (Hfm1: f[m⁺] ∈ ω). {
-      apply Hfr. eapply ranI. apply func_correct...
+      eapply ap_ran. split... nauto.
     }
     pose proof (IH _ Hres) as [M [HM IHk]].
     destruct Hres as [_ [_ Hresr]].
@@ -337,7 +336,7 @@ Proof with eauto.
         intros k Hk. rewrite Hreq in Hk.
         apply BUnionE in Hk as []. apply IHk...
         apply SingE in H0. subst k. left...
-      * exists (f[m⁺]). split. eapply ranI. apply func_correct...
+      * exists (f[m⁺]). split. eapply ap_ran. split... nauto.
         intros k Hk. rewrite Hreq in Hk.
         apply BUnionE in Hk as []. apply IHk in H0 as []; left.
         eapply nat_trans; revgoals... congruence.

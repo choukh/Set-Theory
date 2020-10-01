@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 1 Part 3 **)
+(** Based on "Elements of Set Theory" Chapter 6 Part 3 **)
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.EX6_1.
@@ -15,15 +15,15 @@ Notation "A ≺ B" := (A ≼ B ∧ A ≉ B) (at level 70).
 Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B ∧ B ≼ A.
 Proof with auto.
   intros * [f Hf]. split.
-  exists f. apply bijection_is_injection...
-  exists (f⁻¹). apply bijection_is_injection... apply inv_bijection...
+  exists f. apply bijection_is_surjective_injection...
+  exists (f⁻¹). apply bijection_is_surjective_injection. apply inv_bijection...
 Qed.
 
 (* 支配关系是自反的 *)
 Lemma dominate_refl : ∀ A, A ≼ A.
 Proof.
   intros. exists (Ident A).
-  apply bijection_is_injection. apply ident_bijective.
+  apply bijection_is_surjective_injection. apply ident_bijective.
 Qed.
 Hint Immediate dominate_refl : core.
 
@@ -71,8 +71,8 @@ Proof with eauto; try congruence.
   }
   exists h. apply meta_bijective.
   - intros x Hx. destruct (ixm (x ∈ C)).
-    + apply Hrf. eapply ranI. apply func_correct...
-    + rewrite <- Hdg, <- inv_ran. eapply ranI. apply func_correct...
+    + eapply ap_ran. split... apply Hx.
+    + rewrite <- Hdg, <- inv_ran. eapply ap_ran. split...
       apply inv_func_iff_sr... rewrite inv_dom. apply Hxrg...
   - intros x1 Hx1 x2 Hx2 Heq.
     destruct (ixm (x1 ∈ C)) as [H1|H1];
@@ -94,13 +94,12 @@ Proof with eauto; try congruence.
       exists x. split. apply HsubA...
       destruct (ixm (x ∈ C))... exfalso... 
     }
-    exists (g[y]). split. apply Hrg.
-    eapply ranI. apply func_correct...
+    exists (g[y]). split. eapply ap_ran... split...
     destruct (ixm (g[y] ∈ C)) as [Hgy|Hgy];
       [exfalso|rewrite inv_dom_reduction]...
     apply IFUnionE in Hgy as [m Hgy]. destruct m.
     + rewrite HeqC0 in Hgy. apply SepE in Hgy as [_ Hgy].
-      apply Hgy. eapply ranI. apply func_correct...
+      apply Hgy. eapply ap_ran... split...
     + rewrite HeqCn in Hgy. apply imgE in Hgy as [x [Hx Hp]].
       apply domI in Hp as Hxdg. apply func_ap in Hp...
       apply injectiveE in Hp... subst x. apply H. eapply IFUnionI...
@@ -113,6 +112,10 @@ Proof with auto.
   pose proof (ident_bijective A) as [Hi [Hd Hr]].
   split; [|split]... rewrite Hr...
 Qed.
+
+(* 集合的并支配其元素 *)
+Lemma union_dominate : ∀ a A, a ∈ A → a ≼ ⋃A.
+Proof. intros. apply dominate_sub. apply ex2_3. apply H. Qed.
 
 (* 若一个集合分别是两个等势的集合的子集和母集，则这三个集合等势 *)
 Corollary sub_squeeze_to_eqnum : ∀ A B C,
@@ -138,7 +141,7 @@ Proof with auto.
 Qed.
 
 (* 任意自然数被ω支配 *)
-Lemma ω_dominate_nat : ∀n ∈ ω, n ≼ ω.
+Lemma ω_dominate : ∀n ∈ ω, n ≼ ω.
 Proof with auto.
   intros n Hn. apply dominate_sub.
   apply trans_sub... apply ω_trans.
@@ -151,7 +154,7 @@ Notation "𝜅 ≤ 𝜆" := (CardLeq 𝜅 𝜆) : Card_scope.
 
 (* 两个集合的基数有序关系当且仅当这两个集合有支配关系 *)
 Lemma cardLeq_iff : ∀ A B, |A| ≤ |B| ↔ A ≼ B.
-Proof with auto; try congruence.
+Proof with eauto; try congruence.
   intros. split.
   - intros [_ [_ Hdm]].
     apply dominate_iff in Hdm as [C [Hsub H1]].
@@ -166,7 +169,7 @@ Proof with auto; try congruence.
       apply ExtAx. split; intros Hx.
       * apply SepE in Hx as []...
       * apply SepI... rewrite Hdg. apply Hsub.
-        rewrite <- Hrf. eapply ranI. apply func_correct...
+        eapply ap_ran... split... split...
     + destruct Hif as [Hff _]. rewrite compo_ran...
       intros x Hx. apply SepE in Hx as []...
   - intros [f Hf]. split; [|split]...
@@ -174,9 +177,9 @@ Proof with auto; try congruence.
     symmetry in Hg. destruct Hg as [g Hg].
     pose proof (CardAx0 B) as [h Hh].
     exists (h ∘ f ∘ g). eapply compo_injection.
-    apply bijection_is_injection. apply Hg.
+    apply bijection_is_surjective_injection. apply Hg.
     eapply compo_injection. apply Hf.
-    apply bijection_is_injection. apply Hh.
+    apply bijection_is_surjective_injection. apply Hh.
 Qed.
 
 Lemma cardLeq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → |𝜅| ≤ |𝜆|.
@@ -194,9 +197,9 @@ Proof with eauto.
   intros * Hf [g Hg] [h Hh].
   symmetry in Hf. destruct Hf as [f Hf].
   exists (g ∘ h ∘ f). eapply compo_injection.
-  apply bijection_is_injection. apply Hf.
+  apply bijection_is_surjective_injection. apply Hf.
   eapply compo_injection. apply Hh.
-  apply bijection_is_injection. apply Hg.
+  apply bijection_is_surjective_injection. apply Hg.
 Qed.
 
 (* 基数的小于关系 *)
@@ -284,8 +287,17 @@ Proof with auto.
     apply fin_cardLeq_iff_dominate...
 Qed.
 
+Lemma fin_cardLt_iff_lt : ∀ m n ∈ ω, m <𝐜 n ↔ m ∈ n.
+Proof with eauto.
+  intros m Hm n Hn. split; intros.
+  - destruct H as [Hleq Hnq]. apply fin_cardLeq_iff_leq in Hleq...
+    apply leq_iff_subeq in Hleq... apply lt_iff_sub...
+  - split. apply fin_cardLeq_iff_leq...
+    intros Heq. subst. eapply lt_not_refl...
+Qed.
+
 (* 任意基数都小于自身的幂集的基数 *)
-Fact cardLt_power : ∀ 𝜅, is_card 𝜅 → 𝜅 <𝐜 2 ^ 𝜅.
+Lemma cardLt_power : ∀ 𝜅, is_card 𝜅 → 𝜅 <𝐜 2 ^ 𝜅.
 Proof with auto.
   intros. rewrite (card_of_card 𝜅), <- card_of_power...
   apply cardLt_iff. split; [|apply Cantor's].
@@ -486,7 +498,7 @@ Qed.
 Lemma cardLt_nat_aleph0 : ∀n ∈ ω, n <𝐜 ℵ₀.
 Proof with eauto.
   intros n Hn. rewrite card_of_nat... apply cardLt_iff.
-  split. apply ω_dominate_nat... intros Hqn.
+  split. apply ω_dominate... intros Hqn.
   apply CardAx1 in Hqn. eapply fin_card_neq_aleph0...
 Qed.
 
