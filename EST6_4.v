@@ -3,20 +3,24 @@
 
 Require Export ZFC.EST6_3.
 
-(*** EST第六章4：选择公理的系统考察：基数的三歧性，佐恩引理，
+(*** EST第六章4：选择公理的系统考察：选择函数，势的可比较性，佐恩引理，
   阿列夫零是最小的无限基数，戴德金无穷 ***)
 
 (* 选择公理的等效表述1：可以从关系中选出函数 *)
 Definition AC_I : Prop := ∀ R,
   is_relation R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
-(* 选择公理等效表述2：非空集合的笛卡尔积非空 *)
+(* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
 Definition AC_II : Prop := ∀ I X,
   (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
 
-(* 选择公理等效表述3：存在选择函数 *)
+(* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
 Definition AC_III : Prop := ∀ A, ∃ F, is_function F ∧
   dom F = {x ∊ 𝒫 A | nonempty} ∧ (∀ B, ⦿ B → B ⊆ A → F[B] ∈ B).
+
+(* 选择公理等效表述3'：非空集合所组成的集合上存在选择函数 *)
+Definition AC_III' : Prop := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
+  ∃ F, is_function F ∧ dom F = 𝒜 ∧ ∀A ∈ 𝒜, F[A] ∈ A.
 
 (* 选择公理等效表述4：存在单选集 *)
 Definition AC_IV : Prop := ∀ 𝒜,
@@ -24,17 +28,26 @@ Definition AC_IV : Prop := ∀ 𝒜,
   (* b 子集不交 *) (∀ A B ∈ 𝒜, A ≠ B → disjoint A B) →
   ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = ⎨x⎬.
 
-(* 选择公理等效表述5：基数有可比较性 *)
+(* 选择公理等效表述5：势具有可比较性 *)
 Definition AC_V : Prop := ∀ A B, A ≼ B ∨ B ≼ A.
 
-(* 链：子集关系的全序集 *)
+(* 链：子集关系下的全序集 *)
 Definition is_chain : set → Prop := λ ℬ,
   ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
 
-(* 选择公理等效表述6：佐恩引理：若偏序集中任意链均有上界，则该偏序集存在极大元 *)
+(* 存在子集关系下的极大元 *)
+Definition has_max : set → Prop := λ 𝒜,
+  ∃M ∈ 𝒜, ∀A ∈ 𝒜, A ⊆ M.
+
+(* 选择公理等效表述6：佐恩引理（第一极大原理） *)
+(* 若偏序集中任意链均有上界，则该偏序集存在极大元 *)
 Definition AC_VI : Prop := ∀ 𝒜,
-  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) →
-  ∃M ∈ 𝒜, ∀A ∈ 𝒜, M ⊈ A.
+  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → has_max 𝒜.
+
+(* AC cycle
+    1 → 2 → (3 ↔ 3') → 4 → 1
+    6 → [1, 5] (to be continued at ch7)
+*)
 
 Theorem AC_I_to_II : AC_I → AC_II.
 Proof with eauto.
@@ -162,6 +175,29 @@ Proof with eauto.
     exists (⎨B⎬ × B). split... apply CProdI...
 Qed.
 
+Theorem AC_III_iff_AC_III' : AC_III ↔ AC_III'.
+Proof with eauto.
+  unfold AC_III, AC_III'. split.
+  - intros AC3 𝒜 Hne.
+    specialize AC3 with (⋃ 𝒜) as [f [Hf [Hd Hr]]].
+    assert (Hsub: 𝒜 ⊆ dom f). {
+      intros x Hx. rewrite Hd. apply SepI. apply ex2_6_b... apply Hne...
+    }
+    exists (f ↾ 𝒜). split; [|split].
+    + apply restr_func...
+    + apply ExtAx. split; intros Hx.
+      * apply domE in Hx as [y Hp]. apply restrE2 in Hp as []...
+      * eapply domI. apply restrI... apply func_correct... apply Hsub...
+    + intros A HA. rewrite (restr_ap f (dom f))...
+      apply Hr. apply Hne... apply ex2_3...
+  - intros AC3' A.
+    specialize AC3' with {x ∊ 𝒫 A | nonempty} as [f [Hf [Hd Hr]]]. {
+      intros x Hx. apply SepE in Hx as []...
+    }
+    exists f. split; [|split]...
+    intros x Hne Hsub. apply Hr. apply SepI... apply PowerAx...
+Qed.
+
 Theorem AC_III_to_I : AC_III → AC_I.
 Proof with auto.
   unfold AC_III, AC_I. intros AC3 R Hrel.
@@ -220,8 +256,8 @@ Proof with eauto.
   apply comp_inhabited in Hps as [a Ha].
   apply SepE in Ha as [Ha Hb]. apply domE in Ha as [b Hab].
   set (M ∪ ⎨<a, b>⎬) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM'.
-    apply HM'. intros p Hp. apply BUnionI1...
+    intros HM'. apply Hmax in HM'. apply Hb.
+    eapply domI. apply HM'. apply BUnionI2...
   }
   apply SepI.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
@@ -229,9 +265,8 @@ Proof with eauto.
   - apply bunion_func... apply single_pair_is_func.
     intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
-    apply domE in H2 as [y2 H2].
-    apply SingE in H2. apply op_iff in H2 as []; subst.
-    apply Hb. eapply domI...
+    rewrite dom_of_single_pair in H2. apply SingE in H2.
+    subst. apply Hb. eapply domI...
 Qed.
 
 Theorem AC_VI_to_V : AC_VI → AC_V.
@@ -295,8 +330,8 @@ Proof with eauto; try congruence.
   apply SepE in Ha as [Ha Ha'].
   apply SepE in Hb as [Hb Hb'].
   set ((M ∪ ⎨<a, b>⎬)) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM'.
-    apply HM'. intros p Hp. apply BUnionI1...
+    intros HM'. apply Hmax in HM'. apply Ha'.
+    eapply domI. apply HM'. apply BUnionI2...
   }
   assert (Hinj' := Hinj). destruct Hinj' as [Hf Hs].
   apply SepI; [|split].
@@ -305,9 +340,8 @@ Proof with eauto; try congruence.
   - apply bunion_func... apply single_pair_is_func.
     intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
-    apply domE in H2 as [y2 H2].
-    apply SingE in H2. apply op_iff in H2 as []; subst.
-    apply Ha'. eapply domI...
+    rewrite dom_of_single_pair in H2. apply SingE in H2.
+    subst. apply Ha'. eapply domI...
   - intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply BUnionE in H1 as [H1|H1]; apply BUnionE in H2 as [H2|H2].
@@ -322,7 +356,7 @@ Proof with eauto; try congruence.
 Qed.
 
 Theorem ac1 : AC_I.
-Proof. exact choose_func_from_rel. Qed.
+Proof. exact EST3_2.ac1. Qed.
 
 Theorem ac2 : AC_II.
 Proof. apply AC_I_to_II. apply ac1. Qed.
@@ -333,26 +367,50 @@ Proof. apply AC_II_to_IV. apply ac2. Qed.
 Theorem ac3 : AC_III.
 Proof. apply AC_IV_to_III. apply ac4. Qed.
 
+Theorem ac3' : AC_III'.
+Proof. apply AC_III_iff_AC_III'. apply ac3. Qed.
+
+(* ==需要选择公理== *)
+(* 基数具有可比较性 *)
+Theorem card_comparability : AC_V → ∀ 𝜅 𝜆,
+  is_card 𝜅 → is_card 𝜆 → 𝜅 ≤ 𝜆 ∨ 𝜆 ≤ 𝜅.
+Proof.
+  intros AC5 * Hk Hl.
+  pose proof (AC5 𝜅 𝜆) as []; [left|right]; split; auto.
+Qed.
+
+(* ==需要选择公理== *)
 (* 满射的定义域支配值域 *)
-Lemma domain_of_surjection_dominate_range :
+Lemma domain_of_surjection_dominate_range : AC_I →
   ∀ A B F, F: A ⟹ B → B ≼ A.
 Proof with auto.
-  intros. apply right_inv_of_surjection_injective in H as [G [H _]].
+  intros AC1 * H.
+  apply right_inv_of_surjection_injective in H as [G [H _]]...
   exists G. apply H.
 Qed.
 
+(* ==需要选择公理== *)
+(* 函数的定义域支配值域 *)
+Lemma domain_dominate_range : AC_I → ∀ F, is_function F → ran F ≼ dom F.
+Proof with eauto.
+  intros AC1 F HF.
+  eapply domain_of_surjection_dominate_range... split; [|split]...
+Qed.
+
+(* ==需要选择公理== *)
 (* 对任意非空集合，存在到此集合的满射如果此集合被定义域支配 *)
-Lemma surjective_if_domain_dominate_range :
+Lemma surjective_if_domain_dominate_range : AC_I →
   ∀ A B, ⦿ B → B ≼ A → ∃ F, F: A ⟹ B.
 Proof with auto.
-  intros * Hne [G HG].
+  intros AC1 * Hne [G HG].
   apply injection_is_func in HG as [HG Hi].
   apply (left_inv G B A HG Hne) in Hi as [F [HF Hid]].
   exists F. apply right_inv... exists G. split...
 Qed.
 
+(* ==需要选择公理== *)
 (* 对任意非空集合，存在到此集合的满射当且仅当此集合被定义域支配 *)
-Fact surjective_iff_domain_dominate_range :
+Fact surjective_iff_domain_dominate_range : AC_I →
   ∀ A B, ⦿ B → (∃ F, F: A ⟹ B) ↔ B ≼ A.
 Proof with eauto.
   split; intros [F HF].
@@ -360,12 +418,13 @@ Proof with eauto.
   - apply surjective_if_domain_dominate_range... exists F...
 Qed.
 
-(* (可以不用选择公理) *)
+(* ==可以不用选择公理== *)
 (* 对任意非空集合，存在定义域为ω且值域为此集合的满射当且仅当此集合被ω支配 *)
 Corollary surjective_iff_ω_dominate_range :
   ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
 Proof.
-  intros. apply surjective_iff_domain_dominate_range. apply H.
+  intros. apply surjective_iff_domain_dominate_range.
+  apply ac1. apply H.
 Qed.
 
 (* 有限集在无限集里的补集是无限集 *)
@@ -385,10 +444,12 @@ Proof with auto.
   - apply disjoint_cprod_0_1.
 Qed.
 
+(* ==需要选择公理== *)
 (* ω是最小的无限集 *)
-Theorem ω_is_the_least_infinite_set : ∀ A, infinite A → ω ≼ A.
+Theorem ω_is_the_least_infinite_set : AC_III → ∀ A, infinite A → ω ≼ A.
 Proof with neauto; try congruence.
-  intros A Hinf. pose proof (ac3 A) as [F [HFf [HFd HFr]]].
+  intros AC3 A Hinf.
+  pose proof (AC3 A) as [F [HFf [HFd HFr]]].
   set {B ∊ 𝒫 A | λ B, finite B} as 𝒜.
   set (Func 𝒜 𝒜 (λ B, B ∪ ⎨F[A - B]⎬)) as ℋ.
   assert (Hℋ: ℋ: 𝒜 ⇒ 𝒜). {
@@ -446,61 +507,82 @@ Proof with neauto; try congruence.
     + apply SingE in H. subst...
 Qed.
 
+(* ==需要选择公理== *)
 (* ℵ₀是最小的无限基数 *)
-Corollary aleph0_is_the_least_infinite_card : ∀ 𝜅,
+Corollary aleph0_is_the_least_infinite_card : AC_III → ∀ 𝜅,
   is_card 𝜅 → infinite 𝜅 → ℵ₀ ≤ 𝜅.
 Proof with auto.
-  intros 𝜅 Hcd Hinf. rewrite card_of_card...
+  intros AC3 𝜅 Hcd Hinf. rewrite card_of_card...
   apply cardLeq_iff. apply ω_is_the_least_infinite_set...
 Qed.
 
-(* (可以不用选择公理) *)
+(* ==可以不用选择公理== *)
 (* ω的任意无限子集与ω等势 *)
 Corollary any_infinite_subset_of_ω_eqnum_ω : ∀ N,
   N ⊆ ω → infinite N → N ≈ ω.
 Proof.
   intros N Hsub Hinf.
   apply dominate_sub in Hsub.
-  apply ω_is_the_least_infinite_set in Hinf.
+  apply (ω_is_the_least_infinite_set ac3) in Hinf.
   apply Schröeder_Bernstein; auto.
 Qed.
 
+(* ==可以不用选择公理== *)
 (* 基数是有限基数当且仅当它小于ℵ₀ *)
 Corollary card_is_finite_iff_lt_aleph0 : ∀ 𝜅,
   is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
   - intros [Hleq Hnq]. destruct (classic (finite 𝜅))... exfalso.
-    apply aleph0_is_the_least_infinite_card in H...
+    apply (aleph0_is_the_least_infinite_card ac3) in H...
     apply Hnq. apply cardLeq_asym...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
     rewrite <- card_of_card, <- card_of_nat in Hqn... rewrite Hqn.
     apply cardLt_nat_aleph0...
 Qed.
 
-(* Check EST6_1.sub_of_finite_is_finite. *)
-(* 有限集的子集是有限集(另一种证法) *)
-Corollary sub_of_finite_is_finite : ∀ A B,
-  A ⊆ B → finite B → finite A.
+(* ==使用选择公理的代替证法== *)
+Module AlternativeProofWithAC.
+
+(* Check EST6_3.dominated_by_finite_is_finite *)
+(* 被有限集支配的集合是有限集 *)
+Corollary dominated_by_finite_is_finite : ∀ A B,
+  A ≼ B → finite B → finite A.
 Proof with auto.
-  intros * Hsub Hfin.
+  intros * Hdm Hfin.
   rewrite set_finite_iff_card_finite.
   apply card_is_finite_iff_lt_aleph0...
-  eapply cardLeq_lt_tran. apply cardLeq_iff.
-  apply dominate_sub. apply Hsub.
+  eapply cardLeq_lt_tran. apply cardLeq_iff. apply Hdm.
   apply card_is_finite_iff_lt_aleph0...
   rewrite <- set_finite_iff_card_finite...
 Qed.
 
+(* Check EST6_1.sub_of_finite_is_finite *)
+(* 有限集的子集是有限集 *)
+Corollary sub_of_finite_is_finite : ∀ A B,
+  A ⊆ B → finite B → finite A.
+Proof.
+  intros * Hsub Hfin.
+  eapply dominated_by_finite_is_finite.
+  apply dominate_sub. apply Hsub. apply Hfin.
+Qed.
+
+End AlternativeProofWithAC.
+
 (* 戴德金无穷：与自身的真子集等势的集合 *)
 Definition dedekind_infinite : set → Prop := λ A, ∃ B, B ⊂ A ∧ A ≈ B.
 
+(* ==需要选择公理== *)
 (* 集合是无限集当且仅当它与自身的真子集等势 *)
-Theorem infinite_iff_eqnum_proper_subset : ∀ A,
+Theorem infinite_iff_eqnum_proper_subset : AC_III → ∀ A,
   dedekind_infinite A ↔ infinite A.
 Proof with neauto; try congruence.
-  split. intros [B [H1 H2]]. eapply infinite_if_eqnum_proper_sub...
-  intros Hinf. apply ω_is_the_least_infinite_set in Hinf as [f Hf].
+  intros AC3. split. {
+    intros [B [H1 H2]].
+    eapply infinite_if_eqnum_proper_sub...
+  }
+  intros Hinf.
+  apply (ω_is_the_least_infinite_set AC3) in Hinf as [f Hf].
   apply injection_is_func in Hf as [Hf Hif]...
   assert (Hf' := Hf). destruct Hf' as [Hff [Hdf Hrf]].
   assert (Hf': f⁻¹: ran f ⇒ ω). {

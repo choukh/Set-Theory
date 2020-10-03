@@ -514,4 +514,4 @@ Proof with eauto.
       intros x Hx. apply Heq...
 Qed.
 
-(* ex3_31: see EST3_2.v Theorem AC_1_iff_2 *) 
+(* ex3_31: see EST3_2.v Theorem AC_I_iff_II *) 

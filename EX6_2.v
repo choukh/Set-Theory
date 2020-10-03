@@ -90,4 +90,83 @@ Proof with nauto.
   apply suc_neq_0. apply suc_neq_0.
 Qed.
 
+(* ex6_18: see EST6_4 Theorem AC_III_iff_AC_III' *)
 
+(* ==未使用选择公理== *)
+(* 有限个非空集合的笛卡尔积非空 *)
+Example ex6_19 : ∀ I X, finite I → (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
+Proof with eauto; try congruence.
+  intros * [n [Hn Hqn]]. generalize dependent I.
+  set {n ∊ ω | λ n, ∀ I, I ≈ n → (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X} as N.
+  ω_induction N Hn; intros I Hqn HneX.
+  - apply eqnum_empty in Hqn. rewrite Hqn.
+    exists ∅. apply SepI.
+    + apply SepI. apply empty_in_all_power.
+      apply injection_is_func. apply empty_injective.
+    + intros i Hi. exfalso0.
+  - apply set_eqnum_suc_inhabited in Hqn as HneI...
+    destruct HneI as [j Hj]. apply split_one_element in Hj as HeqI.
+    rewrite HeqI in Hqn. apply fin_set_remove_one_element in Hqn...
+    specialize IH with (I - ⎨j⎬) as [f Hf]... {
+      intros i Hi. apply HneX. apply SepE in Hi as []...
+    }
+    apply SepE in Hf as [Hf Hfi].
+    apply arrow_iff in Hf as [Hf [Hd Hr]].
+    pose proof (HneX _ Hj) as [xⱼ Hxj].
+    assert (Hf': is_function (f ∪ ⎨<j, xⱼ>⎬)). {
+      apply bunion_func... apply single_pair_is_func.
+      intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+      rewrite dom_of_single_pair in H2.
+      rewrite Hd in H1. apply SepE in H1 as []...
+    }
+    assert (Hstar: ∀i ∈ I, (f ∪ ⎨<j, xⱼ>⎬)[i] ∈ X[i]). {
+      intros i Hi. destruct (classic (i = j)).
+      * subst. replace ((f ∪ ⎨<j, xⱼ>⎬)[j]) with xⱼ...
+        symmetry. apply func_ap... apply BUnionI2...
+      * assert (Hi': i ∈ I - ⎨j⎬). { apply SepI... apply SingNI... }
+        replace ((f ∪ ⎨<j, xⱼ>⎬)[i]) with (f[i])... apply Hfi...
+        symmetry. apply func_ap... apply BUnionI1. apply func_correct...
+    }
+    exists (f ∪ ⎨<j, xⱼ>⎬). apply SepI.
+    apply arrow_iff. split; [|split]...
+    + apply ExtAx. split; intros Hx.
+      * apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
+        apply domI in H. rewrite Hd in H. apply SepE in H as []...
+        apply SingE in H. apply op_iff in H as []; subst...
+      * destruct (classic (x = j)).
+        subst. eapply domI. apply BUnionI2...
+        eapply domI. apply BUnionI1. apply func_correct...
+        rewrite Hd. apply SepI... apply SingNI...
+    + intros i Hi. apply UnionAx. exists (X[i]). split.
+      apply ReplAx. exists i. split... apply Hstar...
+    + exact Hstar.
+Qed.
+
+Example ex6_20 : ∀ A R, ⦿ A →
+  (∀y ∈ A, ∃x ∈ A, <x, y> ∈ R) →
+  ∃ f, f: ω ⇒ A ∧ ∀n ∈ ω, <f[n⁺], f[n]> ∈ R.
+Proof with eauto.
+  intros * [a Ha] Hpr.
+  set {p ∊ R | λ p, π1 p ∈ A ∧ π2 p ∈ A} as R'.
+  pose proof (inv_rel R') as Hrel'.
+  apply ac1 in Hrel' as [F [HfF [HsF HdF]]].
+  assert (HF: F: A ⇒ A). {
+    split; [|split]...
+    - rewrite HdF. rewrite inv_dom.
+      apply ExtAx. intros y. split; intros Hy.
+      + apply ranE in Hy as [x Hp].
+        apply SepE in Hp as [_ [_ Hy]]. zfcrewrite.
+      + pose proof (Hpr _ Hy) as [x [Hx Hp]].
+        eapply ranI. apply SepI. apply Hp. zfcrewrite...
+    - intros y Hy. apply ranE in Hy as [x Hp].
+      apply HsF in Hp. apply inv_op in Hp.
+      apply SepE in Hp as [_ [Hx _]]. zfcrewrite.
+  }
+  pose proof (ω_recursion_0 _ _ _ HF Ha) as [f [Hf [Hf0 Heq]]].
+  exists f. split... intros n Hn. rewrite Heq...
+  assert (HsR: R' ⊆ R). { intros p Hp. apply SepE in Hp as []... }
+  apply HsR. rewrite inv_op. apply HsF. apply func_correct...
+  destruct HF as [_ [Hd _]]. rewrite Hd. eapply ap_ran...
+Qed.
+
+(* ex6_21: see EST6_4_EX Theorem AC_VI_to_AC_VII *)

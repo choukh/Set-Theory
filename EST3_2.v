@@ -94,8 +94,7 @@ Proof with eauto.
 Qed.
 
 (** 函数的左逆 **)
-Theorem left_inv : ∀ F A B,
-  F: A ⇒ B → ⦿ A →
+Theorem left_inv : ∀ F A B, F: A ⇒ B → ⦿ A →
   (∃ G, G: B ⇒ A ∧ G ∘ F = Ident A) ↔ injective F.
 Proof with eauto.
   intros F A B [Hf [Hdf Hrf]] [a Ha]. split.
@@ -174,12 +173,12 @@ Proof.
 Qed.
 
 (* 选择公理的等效表述1：可以从关系中选出函数 *)
-Definition AC_1st_form : Prop := ∀ R,
+Definition AC_I : Prop := ∀ R,
   is_relation R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
-Theorem choose_func_from_rel : AC_1st_form.
+Theorem ac1 : AC_I.
 Proof with eauto.
-  unfold AC_1st_form. intros.
+  unfold AC_I. intros.
   (* S := {{<x, y>, <x, y'>, <x, y''>}, { ... }, ... } *)
   set {λ x, {p ∊ R | λ p, π1 p = x} | x ∊ dom R} as S.
   assert (Hi: ∀s ∈ S, ⦿ s). {
@@ -240,12 +239,12 @@ Proof with eauto.
       eapply domI. apply ReplAx. exists s. split...
 Qed.
 
+(* ==需要选择公理== *)
 (** 函数的右逆 **)
-Theorem right_inv : ∀ F A B,
-  F: A ⇒ B →
+Theorem right_inv : AC_I → ∀ F A B, F: A ⇒ B →
   (∃ G, G: B ⇒ A ∧ F ∘ G = Ident B) ↔ F: A ⟹ B.
 Proof with eauto.
-  intros F A B [Hf [Hdf Hrf]]. split.
+  intros AC1 F A B [Hf [Hdf Hrf]]. split.
   (* -> *)
   intros [G [[Hg [Hdg _]] Heq]]. split... split...
   (* ran F = B *)
@@ -258,7 +257,7 @@ Proof with eauto.
   (* <- *)
   intros [_ [_ Hr]].
   assert (H: is_relation F ⁻¹) by apply inv_rel.
-  apply choose_func_from_rel in H as [G [H1 [H2 H3]]].
+  apply AC1 in H as [G [H1 [H2 H3]]].
   exists G. split.
   (* G: B ⇒ A *) split... split.
   rewrite inv_dom in H3. subst B...
@@ -357,6 +356,15 @@ Proof with eauto.
   apply restrE2 in H1 as [H1 _].
   apply restrE2 in H2 as [H2 _].
   eapply Hs; revgoals... eapply ranI...
+Qed.
+
+Lemma restr_ap : ∀ F A B, B ⊆ A → is_function F → dom F = A →
+  ∀x ∈ B, (F ↾ B)[x] = F[x].
+Proof with auto.
+  intros * Hsub Hf Hd x Hxb.
+  apply Hsub in Hxb as Hxa. rewrite <- Hd in Hxa.
+  apply domE in Hxa as [y Hp]. apply func_ap in Hp as Hap...
+  rewrite Hap. apply func_ap. apply restr_func... apply restrI...
 Qed.
 
 (** 像 **)
@@ -546,12 +554,12 @@ Proof with eauto.
 Qed.
 
 (* 选择公理等效表述2：非空集合的笛卡尔积非空 *)
-Definition AC_2nd_form : Prop := ∀ I X,
+Definition AC_II : Prop := ∀ I X,
   (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
 
-Theorem AC_1_iff_2 : AC_1st_form ↔ AC_2nd_form.
+Theorem AC_I_iff_II : AC_I ↔ AC_II.
 Proof with eauto.
-  unfold AC_1st_form, AC_2nd_form. split.
+  unfold AC_I, AC_II. split.
   - intros * AC1 I X Hxi.
     set (I × ⋃{λ i, X[i] | i ∊ I}) as P.
     set {p ∊ P | λ p, π2 p ∈ X[π1 p]} as R.

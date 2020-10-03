@@ -56,8 +56,8 @@ Qed.
 (* 集合有限当且仅当其基数有限 *)
 Lemma set_finite_iff_card_finite : ∀ A, finite A ↔ finite (|A|).
 Proof.
-  split; intros [n [Hn Hqn]]; exists n; split; auto; 
-  rewrite <- Hqn, <- CardAx0; auto.
+  split; intros Hfin; apply set_finite_iff_eqnum_finite_set;
+  [exists A|exists (|A|)]; split; auto; rewrite <- CardAx0; auto.
 Qed.
 
 (* 集合无限当且仅当其基数无限 *)

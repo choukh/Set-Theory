@@ -2,6 +2,8 @@
 
 Require Import ZFC.lib.Relation.
 
+(** meta **)
+
 (* 通过类型论函数证明集合论函数的定义域与值域 *)
 Lemma meta_maps_into : ∀ A B F, (∀x ∈ A, F x ∈ B) → 
   (Func A B F): A ⇒ B.
@@ -69,12 +71,83 @@ Proof with auto.
   split; [|split]...
 Qed.
 
+(** special cases **)
+
 (* 恒等函数是双射 *)
 Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.
 Proof with auto.
   intros. split. apply ident_injective.
   split. apply dom_ident. apply ran_ident.
 Qed.
+
+(* 空函数是空集到任意集合的单射 *)
+Lemma empty_injective : ∀ A, ∅: ∅ ⇔ A.
+Proof with auto.
+  intros. repeat split. intros x Hx. exfalso0.
+  apply domE in H... intros x1 x2 Hx1. exfalso0.
+  apply ranE in H... intros y1 y2 Hy1. exfalso0.
+  apply ExtAx. split; intros Hx.
+  apply domE in Hx as [y Hp]. exfalso0. exfalso0.
+  intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
+Qed.
+
+(* 能与空集建立双射的集合是空集 *)
+Lemma bijection_to_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
+Proof.
+  intros * [Hi [Hd Hr]].
+  apply ExtAx. split; intros Hx; [|exfalso0].
+  rewrite <- Hd in Hx. apply domE in Hx as [y Hp].
+  apply ranI in Hp. rewrite Hr in Hp. exfalso0.
+Qed.
+
+(* 单点集是函数 *)
+Lemma single_pair_is_func : ∀ a b, is_function ⎨<a, b>⎬.
+Proof with auto.
+  intros. repeat split.
+  - intros x Hx. apply SingE in Hx. subst x...
+  - apply domE in H...
+  - intros y1 y2 H1 H2.
+    apply SingE in H1. apply op_iff in H1 as []; subst.
+    apply SingE in H2. apply op_iff in H2 as []; subst...
+Qed.
+
+(* 单点集是单射 *)
+Lemma single_pair_injective : ∀ a b, injective ⎨<a, b>⎬.
+Proof with auto.
+  intros. split. apply single_pair_is_func.
+  split. apply ranE in H...
+  intros y1 y2 H1 H2.
+  apply SingE in H1. apply op_iff in H1 as []; subst.
+  apply SingE in H2. apply op_iff in H2 as []; subst...
+Qed.
+
+(* 单点集的定义域 *)
+Lemma dom_of_single_pair : ∀ a b, dom ⎨<a, b>⎬ = ⎨a⎬.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply domE in Hx as [y Hp]. apply SingE in Hp.
+    apply op_iff in Hp as []; subst...
+  - apply SingE in Hx; subst x. eapply domI...
+Qed.
+
+(* 单点集的值域 *)
+Lemma ran_of_single_pair : ∀ a b, ran ⎨<a, b>⎬ = ⎨b⎬.
+Proof with auto.
+  intros. apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp]. apply SingE in Hp.
+    apply op_iff in Hp as []; subst...
+  - apply SingE in Hy; subst y. eapply ranI...
+Qed.
+
+(* 单点集是双射 *)
+Lemma single_pair_bijective : ∀ a b, ⎨<a, b>⎬: ⎨a⎬ ⟺ ⎨b⎬.
+Proof with auto.
+  intros. split. apply single_pair_injective. split.
+  - apply dom_of_single_pair.
+  - apply ran_of_single_pair.
+Qed.
+
+(** inv, compo, restr **)
 
 (* 双射的逆仍是双射 *)
 Lemma inv_bijection : ∀ F A B, F: A ⟺ B → F⁻¹: B ⟺ A.
@@ -121,26 +194,6 @@ Proof with eauto; try congruence.
   apply ranE in Hy as [x Hp]. apply domI in Hp as Hdx.
   rewrite Hgd, <- Hfr in Hdx. eapply ranE in Hdx as [w Hp'].
   eapply ranI. eapply compoI...
-Qed.
-
-(* 空函数是空集到任意集合的单射 *)
-Lemma empty_injective : ∀ A, ∅: ∅ ⇔ A.
-Proof with auto.
-  intros. repeat split. intros x Hx. exfalso0.
-  apply domE in H... intros x1 x2 Hx1. exfalso0.
-  apply ranE in H... intros y1 y2 Hy1. exfalso0.
-  apply ExtAx. split; intros Hx.
-  apply domE in Hx as [y Hp]. exfalso0. exfalso0.
-  intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
-Qed.
-
-(* 能与空集建立双射的集合是空集 *)
-Lemma bijection_to_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
-Proof.
-  intros * [Hi [Hd Hr]].
-  apply ExtAx. split; intros Hx; [|exfalso0].
-  rewrite <- Hd in Hx. apply domE in Hx as [y Hp].
-  apply ranI in Hp. rewrite Hr in Hp. exfalso0.
 Qed.
 
 (* 限制在单集上的函数的值域是单集 *)
@@ -199,40 +252,7 @@ Proof with auto.
     + apply restrE1 in H as [a [b [Ha [Hp Heq]]]]. subst p...
 Qed.
 
-(* 有序对的单集是函数 *)
-Lemma single_pair_is_func : ∀ a b, is_function ⎨<a, b>⎬.
-Proof with auto.
-  intros. repeat split.
-  - intros x Hx. apply SingE in Hx. subst x...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SingE in H1. apply op_iff in H1 as []; subst.
-    apply SingE in H2. apply op_iff in H2 as []; subst...
-Qed.
-
-(* 有序对的单集是单射 *)
-Lemma single_pair_injective : ∀ a b, injective ⎨<a, b>⎬.
-Proof with auto.
-  intros. split. apply single_pair_is_func.
-  split. apply ranE in H...
-  intros y1 y2 H1 H2.
-  apply SingE in H1. apply op_iff in H1 as []; subst.
-  apply SingE in H2. apply op_iff in H2 as []; subst...
-Qed.
-
-(* 有序对的单集是双射 *)
-Lemma single_pair_bijective : ∀ a b, ⎨<a, b>⎬: ⎨a⎬ ⟺ ⎨b⎬.
-Proof with auto.
-  intros. split. apply single_pair_injective. split.
-  - apply ExtAx. split; intros Hx.
-    + apply domE in Hx as [y Hp]. apply SingE in Hp.
-      apply op_iff in Hp as []; subst...
-    + apply SingE in Hx; subst x. eapply domI...
-  - apply ExtAx. intros y. split; intros Hy.
-    + apply ranE in Hy as [x Hp]. apply SingE in Hp.
-      apply op_iff in Hp as []; subst...
-    + apply SingE in Hy; subst y. eapply ranI...
-Qed.
+(** bunion **)
 
 (* 若两个函数在定义域的交集上的值相等，则这两个函数的并也是函数 *)
 Lemma bunion_func : ∀ f g,
@@ -280,6 +300,8 @@ Proof with eauto.
     apply BUnionI2. rewrite inv_op...
     apply inv_func_iff_sr... apply inv_func_iff_sr...
 Qed.
+
+(** add point **)
 
 (* 函数加点 *)
 Lemma func_add_point : ∀ F A B a b, F: A ⇒ B →
@@ -335,6 +357,8 @@ Proof with eauto.
     + rewrite <- Hrs in H. eapply ranE in H as [x Hp]. 
       eapply ranI. apply BUnionI2...
 Qed.
+
+(** replace value **)
 
 Definition ReplaceElement : set → set → (set → set) :=
   λ a b, λ x, match (ixm (x = a)) with
@@ -416,6 +440,8 @@ Proof with eauto.
   intros y Hy. apply ReplAx in Hy as [x [Hx Heq]].
   apply Hr in Hx. subst y. apply ReplAx. exists x. split...
 Qed.
+
+(** swap value **)
 
 Definition FuncSwapValue : set → set → set → set := λ f a b,
   Func (dom f) (ran f) (λ x,
@@ -567,6 +593,8 @@ Proof with eauto; try congruence.
     as [[Hf' [Hd' Hr']] Hreq]. split... split...
 Qed.
 
+(** transform **)
+
 (* 函数复合满足结合律 *)
 Lemma compo_assoc: ∀ R S T, (R ∘ S) ∘ T = R ∘ (S ∘ T).
 Proof. exact ex3_21. Qed.
@@ -664,13 +692,14 @@ Proof with eauto; try congruence.
   destruct Hsurj as [_ [_ Hr]]. split; [|split]...
 Qed.
 
+(* ==需要选择公理== *)
 (* 满射的右逆是单射 *)
-Lemma right_inv_of_surjection_injective : ∀ F A B,
+Lemma right_inv_of_surjection_injective : AC_I → ∀ F A B,
   F: A ⟹ B → ∃ G, G: B ⇔ A ∧ F ∘ G = Ident B.
 Proof with eauto.
-  intros * [Hf [Hd Hr]].
+  intros AC1 * [Hf [Hd Hr]].
   assert (H: is_relation F⁻¹) by apply inv_rel.
-  apply choose_func_from_rel in H as [G [H1 [H2 H3]]].
+  apply AC1 in H as [G [H1 [H2 H3]]].
   (* G: B ⇔ A *)
   exists G. split. {
     split; split...

@@ -10,8 +10,8 @@ Open Scope ZFC_scope.
 Delimit Scope ZFC_scope with zfc.
 
 (** 补集 **)
-Definition Comp : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
-Notation "A - B" := (Comp A B) : ZFC_scope.
+Definition Complement : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
+Notation "A - B" := (Complement A B) : ZFC_scope.
 
 Lemma CompI : ∀ A B, ∀x ∈ A, x ∉ B → x ∈ A - B.
 Proof. intros A B x Hx H. apply SepI. apply Hx. apply H. Qed.
@@ -381,12 +381,12 @@ Proof.
       rewrite <- Hc. apply CompI. apply HC. intros H.
       apply HU. eapply UnionI. apply Hb. apply H.
   - apply InterE in H as [_ H]. apply CompI.
-    + assert (C - a ∈ {Comp C | X ∊ 𝒜}). {
+    + assert (C - a ∈ {Complement C | X ∊ 𝒜}). {
         apply ReplI. apply Ha.
       }
       apply H in H0. apply CompE in H0 as [HC _]. apply HC.
     + intros HU. apply UnionAx in HU as [b [Hb1 Hb2]].
-      assert (C - b ∈ {Comp C | X ∊ 𝒜}). {
+      assert (C - b ∈ {Complement C | X ∊ 𝒜}). {
         apply ReplI. apply Hb1.
       }
       apply H in H0. apply CompE in H0 as [_ Hb3]. auto.

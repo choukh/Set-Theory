@@ -271,7 +271,7 @@ Proof.
 Qed.
 
 (* 空集的并集是空集 *)
-Fact union_0_0 : ⋃∅ = ∅.
+Fact union_empty : ⋃∅ = ∅.
 Proof.
   apply ExtAx. split.
   - intros. apply UnionAx in H as [a [H _]]. exfalso0.

@@ -294,14 +294,14 @@ Proof with neauto; try congruence.
     exfalso. apply Hxp. eapply injectiveE... split...
 Qed.
 
-(* (可以不用选择公理) *)
+(* ==可以不用选择公理== *)
 (* 任意自然数到自身的满射是单射 *)
 Lemma surjection_between_same_nat_injective :
   ∀n ∈ ω, ∀ f, f: n ⟹ n → injective f.
 Proof with auto.
   intros n Hn f Hf.
   assert (Hf' := Hf). destruct Hf' as [Hff [Hdf Hrf]].
-  apply right_inv_of_surjection_injective in Hf as [g [Hg Hid]].
+  apply (right_inv_of_surjection_injective ac1) in Hf as [g [Hg Hid]].
   apply injection_between_same_nat_surjective in Hg as Hrg...
   destruct Hg as [[Hfg Hsg] [Hdg _]].
   assert (Heq: (f ∘ g) ∘ g⁻¹ = Ident n ∘ g⁻¹) by congruence.
@@ -346,6 +346,14 @@ Fact infinite_set_nonempty : ∀ A, infinite A → ⦿ A.
 Proof.
   intros A Hinf. apply EmptyNE.
   intros H. apply Hinf. subst. auto.
+Qed.
+
+(* 集合有限当且仅当其存在有限集与其等势 *)
+Lemma set_finite_iff_eqnum_finite_set : ∀ A,
+  finite A ↔ ∃ B, A ≈ B ∧ finite B.
+Proof with auto.
+  split. intros [n [Hn Hqn]]. exists n. split... apply nat_finite...
+  intros [B [H1 [n [Hn H2]]]]. exists n. split... rewrite <- H2...
 Qed.
 
 (* 鸽笼原理推论：任意集合都不与自身的真子集等势 *)

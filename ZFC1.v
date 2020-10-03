@@ -203,7 +203,7 @@ Proof. exact (union_sing_x_x ∅). Qed.
 Example in_2_impl_union_0 : ∀ X, X ∈ 2 → ⋃ X = ∅.
 Proof.
   intros. apply TwoE in H. destruct H.
-  - subst. apply union_0_0.
+  - subst. apply union_empty.
   - subst. apply union_1_0.
 Qed.
 
@@ -280,7 +280,7 @@ Proof.
 Qed. 
 
 Example funion_0 : ∀ F, ⋃{F|x ∊ ∅} = ∅.
-Proof. intros. rewrite repl_empty. apply union_0_0. Qed.
+Proof. intros. rewrite repl_empty. apply union_empty. Qed.
 
 Example funion_1 : ∀ X F,
   (∀x ∈ X, F x ∈ 2) → (∃x ∈ X, F x = 1) → ⋃{F|x ∊ X} = 1.

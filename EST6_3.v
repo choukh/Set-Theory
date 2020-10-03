@@ -147,6 +147,19 @@ Proof with auto.
   apply trans_sub... apply ω_trans.
 Qed.
 
+(* 被有限集支配的集合是有限集 *)
+Lemma dominated_by_finite_is_finite : ∀ A B,
+  A ≼ B → finite B → finite A.
+Proof with auto.
+  intros A B [f [Hf [Hd Hr]]] Hfin.
+  apply set_finite_iff_eqnum_finite_set.
+  exists (dom (f⁻¹)). split.
+  - symmetry. exists (f⁻¹). split; [|split]...
+    apply inv_injective... rewrite inv_ran...
+  - apply (sub_of_finite_is_finite _ B)...
+    intros y Hy. rewrite inv_dom in Hy. apply Hr...
+Qed.
+
 (* 基数的序关系 *)
 Definition CardLeq : set → set → Prop := λ 𝜅 𝜆,
   is_card 𝜅 ∧ is_card 𝜆 ∧ 𝜅 ≼ 𝜆.

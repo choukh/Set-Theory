@@ -111,7 +111,7 @@ Qed.
 
 Fact inter_0 : ⋂ ∅ = ∅.
 Proof.
-  unfold Inter. rewrite union_0_0. rewrite sep_0. reflexivity.
+  unfold Inter. rewrite union_empty. rewrite sep_0. reflexivity.
 Qed.
 
 (** 二元交 **)

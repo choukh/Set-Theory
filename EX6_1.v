@@ -17,6 +17,7 @@ Proof with auto.
     as [K [Heq Ha]]. exists K. split...
 Qed.
 
+(* ==可以不用选择公理== *)
 (* 有限集到自身的映射是单射当且仅当该映射是满射 *)
 Example ex6_7 : ∀ A f, finite A → f: A ⇒ A →
   injective f ↔ ran f = A.
@@ -215,7 +216,7 @@ Proof with eauto.
   set {n ∊ ω | λ n, ∀ A, A ≈ n →
     (∀a ∈ A, finite a) → finite ⋃ A} as N.
   ω_induction N Hn; intros A HA Hfa.
-  - apply eqnum_empty in HA. subst A. rewrite union_0_0...
+  - apply eqnum_empty in HA. subst A. rewrite union_empty...
   - apply set_eqnum_suc_inhabited in HA as Hi...
     destruct Hi as [a Ha].
     apply split_one_element in Ha as HeqA.

@@ -322,9 +322,9 @@ Definition Inverse : set → set := λ F,
   {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
 Notation "F ⁻¹" := (Inverse F) (at level 9).
 
-Lemma inv_rel : ∀ F, is_relation F⁻¹.
+Lemma inv_rel : ∀ R, is_relation R⁻¹.
 Proof.
-  intros F x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
+  intros R x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
 Qed.
 Hint Immediate inv_rel : core.
 
