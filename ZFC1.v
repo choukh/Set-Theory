@@ -262,6 +262,13 @@ Proof.
   destruct H1 ; subst; auto.
 Qed.
 
+Lemma bunion_self : ∀ A, A ∪ A = A.
+Proof.
+  intros. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as []; auto.
+  - apply BUnionI1; auto.
+Qed.
+
 (** 集族的并 **)
 
 Lemma FUnionI : ∀ X F, ∀x ∈ X, ∀y ∈ F x, y ∈ ⋃{F|x ∊ X}.

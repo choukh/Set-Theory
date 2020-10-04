@@ -35,14 +35,14 @@ Definition AC_V : Prop := ∀ A B, A ≼ B ∨ B ≼ A.
 Definition is_chain : set → Prop := λ ℬ,
   ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
 
-(* 存在子集关系下的极大元 *)
-Definition has_max : set → Prop := λ 𝒜,
-  ∃M ∈ 𝒜, ∀A ∈ 𝒜, A ⊆ M.
+(* 子集关系下的极大元 *)
+Definition max_member : set → set → Prop := λ M 𝒜,
+  M ∈ 𝒜 ∧ ∀A ∈ 𝒜, M ⊈ A ∨ M = A.
 
 (* 选择公理等效表述6：佐恩引理（第一极大原理） *)
-(* 若偏序集中任意链均有上界，则该偏序集存在极大元 *)
+(* 若偏序集中任意全序子集(链)均有上界，则该偏序集存在极大元 *)
 Definition AC_VI : Prop := ∀ 𝒜,
-  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → has_max 𝒜.
+  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → ∃ M, max_member M 𝒜.
 
 (* AC cycle
     1 → 2 → (3 ↔ 3') → 4 → 1
@@ -256,8 +256,9 @@ Proof with eauto.
   apply comp_inhabited in Hps as [a Ha].
   apply SepE in Ha as [Ha Hb]. apply domE in Ha as [b Hab].
   set (M ∪ ⎨<a, b>⎬) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM'. apply Hb.
-    eapply domI. apply HM'. apply BUnionI2...
+    intros HM'. apply Hmax in HM' as [].
+    - apply H. intros x Hx. apply BUnionI1...
+    - apply Hb. rewrite H. eapply domI. apply BUnionI2...
   }
   apply SepI.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
@@ -330,8 +331,9 @@ Proof with eauto; try congruence.
   apply SepE in Ha as [Ha Ha'].
   apply SepE in Hb as [Hb Hb'].
   set ((M ∪ ⎨<a, b>⎬)) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM'. apply Ha'.
-    eapply domI. apply HM'. apply BUnionI2...
+    intros HM'. apply Hmax in HM' as [].
+    - apply H. intros x Hx. apply BUnionI1...
+    - apply Ha'. rewrite H. eapply domI. apply BUnionI2...
   }
   assert (Hinj' := Hinj). destruct Hinj' as [Hf Hs].
   apply SepI; [|split].

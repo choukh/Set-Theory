@@ -60,6 +60,26 @@ Proof with auto.
     exists a. split...
 Qed.
 
+(* 配对与贰等势 *)
+Lemma eqnum_pair_two : ∀ a b, a ≠ b → {a, b} ≈ 2.
+Proof with eauto; try congruence.
+  intros * Hnq. set (Func {a, b} 2 (λ x, match (ixm (x = a)) with
+    | inl _ => 0
+    | inr _ => 1
+  end)) as F.
+  assert (H1_2: 1 ∈ 2) by apply suc_has_n.
+  assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
+  exists F. apply meta_bijective.
+  - intros x Hx. destruct (ixm (x = a))...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    destruct (ixm (x1 = a)); destruct (ixm (x2 = a));
+    apply PairE in Hx1 as []; apply PairE in Hx2 as []...
+    exfalso; eapply suc_neq_0... exfalso; eapply suc_neq_0...
+  - intros y Hy. rewrite two in Hy. apply PairE in Hy as [].
+    exists a. split. apply PairI1. destruct (ixm (a = a))...
+    exists b. split. apply PairI2. destruct (ixm (b = a))... rewrite one...
+Qed.
+
 (* 所有的单集等势 *)
 Lemma eqnum_single : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
 Proof. intros. repeat rewrite eqnum_single_one; auto. Qed.
@@ -334,6 +354,10 @@ Hint Resolve empty_finite : core.
 Fact single_finite : ∀ a, finite ⎨a⎬.
 Proof. exists 1. split. nauto. apply eqnum_single_one. Qed.
 Hint Resolve single_finite : core.
+
+(* 配对是有限集 *)
+Fact pair_finite : ∀ a b, a ≠ b → finite {a, b}.
+Proof. exists 2. split. nauto. apply eqnum_pair_two. apply H. Qed.
 
 (* 自然数是有限集 *)
 Fact nat_finite : ∀n ∈ ω, finite n.
