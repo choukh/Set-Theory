@@ -22,7 +22,7 @@ Definition AC_III : Prop := ∀ A, ∃ F, is_function F ∧
 Definition AC_III' : Prop := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
   ∃ F, is_function F ∧ dom F = 𝒜 ∧ ∀A ∈ 𝒜, F[A] ∈ A.
 
-(* 选择公理等效表述4：存在单选集 *)
+(* 选择公理等效表述4：策梅洛公设 (Zermelo’s Postulate) *)
 Definition AC_IV : Prop := ∀ 𝒜,
   (* a 子集非空 *) (∀A ∈ 𝒜, ⦿ A) →
   (* b 子集不交 *) (∀ A B ∈ 𝒜, A ≠ B → disjoint A B) →

@@ -169,4 +169,8 @@ Proof with eauto.
   destruct HF as [_ [Hd _]]. rewrite Hd. eapply ap_ran...
 Qed.
 
-(* ex6_21: see EST6_4_EX Theorem AC_VI_to_AC_VII *)
+(* ex6_21: see EST6_4_EXTEND Theorem AC_VI_to_AC_VII *)
+
+
+
+

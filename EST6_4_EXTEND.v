@@ -15,7 +15,7 @@ Definition finite_character_set : set → Prop := λ 𝒜,
 Notation "'𝗙𝗖' 𝒜" := (finite_character_set 𝒜) (at level 70).
 
 (* 选择公理等效表述7：图基引理（第二极大原理） *)
-(* 具有有穷特征的非空集合必有子集关系下的极大元 *)
+(* 具有有限特征的非空集合必有子集关系下的极大元 *)
 Definition AC_VII : Prop := ∀ 𝒜, ⦿ 𝒜 →
   𝗙𝗖 𝒜 → ∃ M, max_member M 𝒜.
 
@@ -30,6 +30,17 @@ Definition max_chain : set → set → Prop := λ ℳ 𝒜,
 (* 对于偏序集中任意全序子集(链)，都存在极大全序子集(极大链)包含它 *)
 Definition AC_VIII : Prop := ∀ 𝒜 ℬ, ℬ ⊆ 𝒜 → is_chain ℬ →
   ∃ ℳ, max_chain ℳ 𝒜 ∧ ℬ ⊆ ℳ.
+
+(* 选择公理等效表述8'：极大原理 *)
+(* 偏序集有极大元，如果对于该偏序集中的任意链，
+  都存在该偏序集中的一个成员，包含链中的所有成员 *)
+Definition AC_VIII' : Prop := ∀ 𝒜,
+  (∀ ℬ, ℬ ⊆ 𝒜 → is_chain ℬ → ∃N ∈ 𝒜, ∀B ∈ ℬ, B ⊆ N) →
+  ∃ M, max_member M 𝒜.
+
+(* 空集是链 *)
+Lemma emptyset_is_chain : is_chain ∅.
+Proof. intros x Hx. exfalso0. Qed.
 
 (* 链的子集仍是链 *)
 Lemma sub_of_chain_is_chain : ∀ ℬ 𝒞, is_chain ℬ → 𝒞 ⊆ ℬ → is_chain 𝒞.
@@ -147,7 +158,7 @@ Proof with eauto.
 Qed.
 
 (* ==需要选择公理== *)
-(* 有限特征集的任意成员都存在极大元包含它 *)
+(* 对于有限特征集的任意成员都存在极大元包含它 *)
 Lemma for_all_in_fc_set_ex_max_contains_it : AC_VII → ∀ 𝒜, 𝗙𝗖 𝒜 →
   ∀A ∈ 𝒜, ∃ M, max_member M 𝒜 ∧ A ⊆ M.
 Proof with eauto; try congruence.
@@ -174,7 +185,7 @@ Proof with eauto; try congruence.
     * apply BUnionE in Hx as []... apply H. apply Hsub...
 Qed.
 
-(* 任意集合的链集具有有限特征 *)
+(* 集合的链集具有有限特征 *)
 Lemma set_of_all_chains_in_set_is_fc_set : ∀ A, 𝗙𝗖 (Chains A).
 Proof with eauto.
   split.
@@ -205,4 +216,44 @@ Proof with auto.
   apply for_all_in_fc_set_ex_max_contains_it.
   apply Tukey. apply set_of_all_chains_in_set_is_fc_set.
   apply SepI... apply PowerAx...
+Qed.
+
+Theorem AC_VIII_to_AC_VIII' : AC_VIII → AC_VIII'.
+Proof with auto.
+  unfold AC_VIII, AC_VIII'.
+  intros Hausdorff 𝒜 H.
+  pose proof (Hausdorff 𝒜 ∅) as [ℳ [[HM Hmax] _]].
+  { apply empty_sub_all. }
+  { apply emptyset_is_chain. }
+  apply SepE in HM as [HM Hchn]. apply PowerAx in HM.
+  specialize H with ℳ as [N [HN Hmax']]...
+  exists N. split... intros K HK.
+  destruct (classic (N ⊆ K)) as [Hsub|]... right.
+  apply sub_asym... apply Hmax'...
+  replace ℳ with (ℳ ∪ ⎨K⎬). apply BUnionI2...
+  cut (ℳ ∪ ⎨K⎬ ∈ Chains 𝒜). {
+    intros Hu. apply Hmax in Hu as [Hm|]... exfalso.
+    apply Hm. intros x Hx. apply BUnionI1...
+  }
+  apply SepI.
+  - apply PowerAx. intros x Hx.
+    apply BUnionE in Hx as [Hx|Hx]. apply HM...
+    apply SingE in Hx. subst x...
+  - intros C HC D HD.
+    apply BUnionE in HC as [HC|HC]; apply BUnionE in HD as [HD|HD].
+    + apply Hchn...
+    + apply SingE in HD. subst D. left.
+      eapply sub_tran. apply Hmax'... apply Hsub.
+    + apply SingE in HC. subst C. right.
+      eapply sub_tran. apply Hmax'... apply Hsub.
+    + apply SingE in HC. apply SingE in HD. subst C D. left...
+Qed.
+
+Theorem AC_VIII'_to_AC_VI : AC_VIII' → AC_VI.
+Proof with auto.
+  unfold AC_VIII', AC_VI.
+  intros MP A Hbnd.
+  apply MP. intros B Hsub Hchn.
+  pose proof (Hbnd _ Hchn Hsub) as Hu.
+  exists (⋃ B). split... intros b Hb. apply ex2_3...
 Qed.
