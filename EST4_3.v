@@ -7,9 +7,9 @@ Require Export ZFC.EST4_2.
 
 Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : Nat_scope.
 
-Lemma leq_iff_lt_suc : ∀ p k ∈ ω, p ≤ k ↔ p ∈ k⁺.
+Lemma leq_iff_lt_suc : ∀ m n ∈ ω, m ≤ n ↔ m ∈ n⁺.
 Proof with nauto.
-  intros p Hp k Hk. split.
+  intros m Hm n Hn. split.
   - intros []. apply BUnionI1... subst...
   - intros H. apply BUnionE in H as []. left...
     right. apply SingE in H...
@@ -29,28 +29,21 @@ Proof with try apply ω_inductive; neauto.
     + subst...
 Qed.
 
-Lemma lt_iff_leq_suc : ∀ p k ∈ ω, p ∈ k ↔ p⁺ ≤ k.
+Lemma lt_iff_leq_suc : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ≤ n.
 Proof with auto.
-  intros p Hp k Hk. split.
+  intros m Hm n Hn. split.
   - intros H. apply suc_preserve_lt in H...
     apply leq_iff_lt_suc in H... apply ω_inductive...
   - intros H. apply leq_iff_lt_suc in H...
     apply suc_preserve_lt... apply ω_inductive...
 Qed.
 
-Lemma lt_not_refl : ∀n ∈ ω, n ∉ n.
+Lemma lt_irrefl : ∀n ∈ ω, n ∉ n.
 Proof with auto.
   intros n Hn.
   set {n ∊ ω | λ n, n ∉ n} as N.
   ω_induction N Hn; intros Hc. exfalso0.
   apply IH. apply suc_preserve_lt...
-Qed.
-
-(* 自然数与其单集不交 *)
-Corollary nat_and_its_single_disjoint : ∀n ∈ ω, disjoint n ⎨n⎬.
-Proof.
-  intros n Hn. apply disjointI. intros [m [Hm Heq]].
-  apply SingE in Heq; subst. eapply lt_not_refl; eauto.
 Qed.
 
 Lemma suc_has_0 : ∀n ∈ ω, 0 ∈ n⁺.
@@ -59,6 +52,20 @@ Proof with nauto.
   set {n ∊ ω | λ n, 0 ∈ n⁺} as N.
   ω_induction N Hn...
   apply leq_iff_lt_suc... apply ω_inductive...
+Qed.
+
+(* 任意自然数不等于其后继 *)
+Lemma suc_neq_n : ∀n ∈ ω, n ≠ n⁺.
+Proof.
+  intros n Hn. pose proof (suc_has_n n). intros Heq.
+  rewrite <- Heq in H at 1. apply (lt_irrefl n); auto.
+Qed.
+
+(* 自然数与其单集不交 *)
+Corollary nat_and_its_single_disjoint : ∀n ∈ ω, disjoint n ⎨n⎬.
+Proof.
+  intros n Hn. apply disjointI. intros [m [Hm Heq]].
+  apply SingE in Heq; subst. eapply lt_irrefl; eauto.
 Qed.
 
 (* 自然数的小于关系 *)
@@ -96,7 +103,7 @@ Qed.
 Lemma ωLt_irreflexive : irreflexive ωLt ω.
 Proof with eauto.
   intros [k [Hk Hp]]. apply SepE in Hp as [_ Hp].
-  zfcrewrite. eapply lt_not_refl...
+  zfcrewrite. eapply lt_irrefl...
 Qed.
 
 Lemma ωLt_connected : connected ωLt ω.
@@ -140,17 +147,34 @@ Proof.
    split. apply ωLt_rel. split. apply ωLt_tranr. apply ωLt_trich.
 Qed.
 
-Corollary lt_iff_sub : ∀ m n ∈ ω, m ∈ n ↔ m ⊂ n.
+Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
+Proof with nauto.
+  intros n Hn. split; intros.
+  - apply lt_connected in H as []... exfalso0.
+  - destruct (classic (n = 0))... subst. exfalso0.
+Qed.
+
+Corollary lt_iff_psub : ∀ m n ∈ ω, m ∈ n ↔ m ⊂ n.
 Proof with eauto.
   intros m Hm n Hn. split.
   - intros H. split. intros x Hx. eapply nat_trans...
-    intros Heq. subst. eapply lt_not_refl...
+    intros Heq. subst. eapply lt_irrefl...
   - intros [H Hnq].
     apply lt_connected in Hnq as []...
-    apply H in H0. exfalso. eapply lt_not_refl...
+    apply H in H0. exfalso. eapply lt_irrefl...
 Qed.
 
-Corollary leq_iff_subeq : ∀ m n ∈ ω, m ≤ n ↔ m ⊆ n.
+Corollary lt_iff_not_sub : ∀ m n ∈ ω, m ∈ n ↔ n ⊈ m.
+Proof with auto.
+  intros m Hm n Hn. split; intros H.
+  - intros Hsub. apply Hsub in H. apply (lt_irrefl m)...
+  - destruct (classic (m = n)) as [Heq|Hnq].
+    + exfalso. apply H. subst...
+    + apply lt_connected in Hnq as [|Hnm]... exfalso.
+      apply H. apply lt_iff_psub in Hnm as []...
+Qed.
+
+Corollary leq_iff_sub : ∀ m n ∈ ω, m ≤ n ↔ m ⊆ n.
 Proof with eauto.
   intros m Hm n Hn. split.
   - intros [].
@@ -158,7 +182,23 @@ Proof with eauto.
     + subst. apply sub_refl.
   - intros H. destruct (classic (m = n)). right...
     left. apply lt_connected in H0 as []...
-    apply H in H0. exfalso. eapply lt_not_refl...
+    apply H in H0. exfalso. eapply lt_irrefl...
+Qed.
+
+Corollary lt_suc_iff_sub : ∀ m n ∈ ω, m ∈ n⁺ ↔ m ⊆ n.
+Proof.
+  intros m Hm n Hn. rewrite <- (leq_iff_lt_suc m Hm n Hn).
+  exact (leq_iff_sub m Hm n Hn).
+Qed.
+
+Corollary leq_iff_neg_lt : ∀ m n ∈ ω, m ≤ n ↔ n ∉ m.
+Proof with eauto.
+  intros m Hm n Hn.
+  rewrite (leq_iff_sub _ Hm _ Hn).
+  split; intros H.
+  - intros Hnm. apply lt_iff_not_sub in Hnm...
+  - destruct (classic (m ⊆ n))...
+    exfalso. apply H. apply lt_iff_not_sub...
 Qed.
 
 Theorem add_preserve_lt : ∀ m n p ∈ ω, m ∈ n ↔ m + p ∈ n + p.
@@ -178,14 +218,14 @@ Proof with eauto.
   }
   intros m Hm n Hn p Hp. split. apply Hright...
   intros H. destruct (classic (m = n)).
-  - subst. exfalso. eapply lt_not_refl; revgoals.
+  - subst. exfalso. eapply lt_irrefl; revgoals.
     apply H. apply add_ran...
   - apply lt_connected in H0 as []...
     pose proof (Hright n Hn m Hm p Hp H0).
     assert (n + p ∈ n + p). {
       eapply nat_trans... apply add_ran...
     }
-    exfalso. eapply lt_not_refl; revgoals. apply H2. apply add_ran...
+    exfalso. eapply lt_irrefl; revgoals. apply H2. apply add_ran...
 Qed.
 
 Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ 0 →
@@ -210,14 +250,14 @@ Proof with eauto.
   }
   intros m Hm n Hn p Hp Hnq0. split. apply Hright...
   intros H. destruct (classic (m = n)).
-  - subst. exfalso. eapply lt_not_refl; revgoals.
+  - subst. exfalso. eapply lt_irrefl; revgoals.
     apply H. apply mul_ran...
   - apply lt_connected in H0 as []...
     pose proof (Hright n Hn m Hm p Hp Hnq0 H0).
     assert (n ⋅ p ∈ n ⋅ p). {
       eapply nat_trans... apply mul_ran...
     }
-    exfalso. eapply lt_not_refl; revgoals. apply H2. apply mul_ran...
+    exfalso. eapply lt_irrefl; revgoals. apply H2. apply mul_ran...
 Qed.
 
 Corollary add_preserve_lt_tran : ∀ m n p q ∈ ω,
@@ -236,9 +276,9 @@ Proof with eauto.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
   - eapply add_preserve_lt in H... rewrite Heq in H.
-    eapply lt_not_refl; revgoals... apply add_ran...
+    eapply lt_irrefl; revgoals... apply add_ran...
   - eapply add_preserve_lt in H... rewrite Heq in H.
-    eapply lt_not_refl; revgoals... apply add_ran...
+    eapply lt_irrefl; revgoals... apply add_ran...
 Qed.
 
 Corollary add_cancel' : ∀ m n p ∈ ω, p + m = p + n → m = n.
@@ -253,9 +293,9 @@ Proof with eauto.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
   - eapply mul_preserve_lt in H... rewrite Heq in H.
-    eapply lt_not_refl; revgoals... apply mul_ran...
+    eapply lt_irrefl; revgoals... apply mul_ran...
   - eapply mul_preserve_lt in H... rewrite Heq in H.
-    eapply lt_not_refl; revgoals... apply mul_ran...
+    eapply lt_irrefl; revgoals... apply mul_ran...
 Qed.
 
 Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ 0 → p ⋅ m = p ⋅ n → m = n.
@@ -284,14 +324,14 @@ Definition wellOrder : set → set → Prop := λ Ord X,
 Theorem ωLt_wellOrder : wellOrder ωLt ω.
 Proof with eauto.
   split. apply ωLt_totalOrd.
-  intros A Hnq0 Hsub.
-  destruct (classic (∃m ∈ A, ∀n ∈ A, <m, n> ∈ ωLt ∨ m = n))...
-  exfalso. apply Hnq0. apply EmptyI. intros x Hx.
-  cut (∀ n m ∈ ω, m ∈ n → m ∉ A). intros.
-  apply Hsub in Hx as Hxω.
-  assert (x ∈ x⁺) by (apply BUnionI2; apply SingI).
-  eapply (H0 x⁺)... apply ω_inductive...
-  intros n Hn. clear Hnq0 x Hx.
+  intros A Hnq0 Hsub. apply EmptyNE in Hnq0 as [a Ha].
+  destruct (classic (∃m ∈ A, ∀n ∈ A, <m, n> ∈ ωLt ∨ m = n))... exfalso.
+  cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
+    intros. apply Hsub in Ha as Haω.
+    assert (a ∈ a⁺) by (apply BUnionI2; apply SingI).
+    eapply (H0 a⁺)... apply ω_inductive...
+  }
+  intros n Hn. clear a Ha.
   set {n ∊ ω | λ n, ∀m ∈ ω, m ∈ n → m ∉ A} as N.
   ω_induction N Hn; intros k Hk H0. exfalso0.
   apply leq_iff_lt_suc in H0 as []... apply IH...
@@ -330,8 +370,8 @@ Proof with neauto.
     eapply ap_ran. split... apply ω_inductive...
   }
   apply Hmin in Hr as [].
-  - eapply lt_not_refl. apply Hf0. eapply nat_trans...
-  - eapply lt_not_refl. apply Hf0. congruence.
+  - eapply lt_irrefl. apply Hf0. eapply nat_trans...
+  - eapply lt_irrefl. apply Hf0. congruence.
 Qed.
 
 (* 强归纳原理 *)
@@ -355,8 +395,8 @@ Proof with eauto.
   destruct (classic (k ∈ A))... exfalso.
   assert (Hk: k ∈ ω - A) by (apply CompI; auto).
   apply Hmin in Hk as [].
-  - eapply lt_not_refl... eapply nat_trans...
-  - subst. eapply lt_not_refl...
+  - eapply lt_irrefl... eapply nat_trans...
+  - subst. eapply lt_irrefl...
 Qed.
 
 Theorem ω_ind_strong_0 : ∀ C, C ⊆ ω →
@@ -368,25 +408,8 @@ Proof with eauto.
   pose proof (ω_wellOrder C H0 HC) as [m [Hm Hmin]]...
   pose proof (Hincr m Hm) as [n [Hnc Hnm]]. apply HC in Hnc as Hn.
   pose proof (Hmin n Hnc) as [].
-  - eapply lt_not_refl. apply Hn. eapply nat_trans; revgoals...
-  - subst. eapply lt_not_refl...
-Qed.
-
-Lemma nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
-Proof with nauto.
-  intros n Hn. split; intros.
-  - apply lt_connected in H as []... exfalso0.
-  - destruct (classic (n = 0))... subst. exfalso0.
-Qed.
-
-Lemma leq_iff_neg_lt : ∀ m n ∈ ω, m ≤ n ↔ n ∉ m.
-Proof with eauto.
-  intros m Hm n Hn. split; intros.
-  - intros Hc. destruct H.
-    apply (lt_not_refl m)... eapply nat_trans...
-    apply (lt_not_refl m)... subst...
-  - destruct (classic (m = n)). right... left.
-    apply lt_connected in H0 as []... exfalso...
+  - eapply lt_irrefl. apply Hn. eapply nat_trans; revgoals...
+  - subst. eapply lt_irrefl...
 Qed.
 
 Lemma leq_add_enlarge : ∀ m n ∈ ω, m ≤ m + n.
@@ -428,18 +451,18 @@ Proof with eauto.
   apply mul_ran... apply ω_inductive... intros Hc.
   rewrite mul_m_n in Hc...
   apply lt_add_shrink in Hc; try apply mul_ran...
-  eapply lt_not_refl; revgoals...
+  eapply lt_irrefl; revgoals...
 Qed.
 
 Lemma not_lt_gt : ∀ m n ∈ ω, m ∈ n → n ∈ m → ⊥.
 Proof.
-  intros m Hm n Hn Hlt Hgt. eapply lt_not_refl. apply Hm.
+  intros m Hm n Hn Hlt Hgt. eapply lt_irrefl. apply Hm.
   eapply nat_trans; eauto.
 Qed.
 
 Lemma not_lt_self : ∀ m n ∈ ω, m = n → n ∈ m → ⊥.
 Proof.
-  intros m Hm n Hn Heq Hlt. subst. eapply lt_not_refl; eauto.
+  intros m Hm n Hn Heq Hlt. subst. eapply lt_irrefl; eauto.
 Qed.
 
 Lemma not_leq_gt : ∀ m n ∈ ω, m ≤ n → n ∈ m → ⊥.
@@ -453,6 +476,6 @@ Lemma ω_not_dense : ∀m ∈ ω, ¬∃n ∈ ω, m ∈ n ∧ n ∈ m⁺.
 Proof with eauto.
   intros m Hm [n [Hn [Hmn Hnm]]].
   apply BUnionE in Hnm as [Hnm|Heq].
-  - eapply lt_not_refl... eapply nat_trans...
-  - apply SingE in Heq. subst. eapply lt_not_refl...
+  - eapply lt_irrefl... eapply nat_trans...
+  - apply SingE in Heq. subst. eapply lt_irrefl...
 Qed.

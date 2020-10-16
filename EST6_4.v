@@ -3,20 +3,25 @@
 
 Require Export ZFC.EST6_3.
 
-(*** EST第六章4：选择公理的系统考察：选择函数，势的可比较性，佐恩引理，
+(*** EST第六章4：选择公理的系统考察：单值化原则，选择函数，势的可比较性，佐恩引理，
   阿列夫零是最小的无限基数，戴德金无穷 ***)
 
-(* 选择公理的等效表述1：可以从关系中选出函数 *)
-Definition AC_I : Prop := ∀ R,
-  is_relation R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
+(* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
+Definition AC_I : Prop := ∀ R, is_relation R →
+  ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
+
+(* 选择公理等效表述1'：存在从并集到原集合的函数使得参数是值的成员 *)
+Definition AC_I' : Prop := ∀ A,
+  ∃ F, F: ⋃A ⇒ A ∧ ∀x ∈ dom F, x ∈ F[x].
 
 (* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
 Definition AC_II : Prop := ∀ I X,
   (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
 
 (* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
-Definition AC_III : Prop := ∀ A, ∃ F, is_function F ∧
-  dom F = {x ∊ 𝒫 A | nonempty} ∧ (∀ B, ⦿ B → B ⊆ A → F[B] ∈ B).
+Definition AC_III : Prop := ∀ A,
+  ∃ F, is_function F ∧ dom F = {x ∊ 𝒫 A | nonempty} ∧ 
+  ∀ B, ⦿ B → B ⊆ A → F[B] ∈ B.
 
 (* 选择公理等效表述3'：非空集合所组成的集合上存在选择函数 *)
 Definition AC_III' : Prop := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
@@ -45,7 +50,7 @@ Definition AC_VI : Prop := ∀ 𝒜,
   (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → ∃ M, max_member M 𝒜.
 
 (* AC cycle
-    1 → 2 → (3 ↔ 3') → 4 → 1
+    (1 ↔ 1') → 2 → (3 ↔ 3') → 4 → 1
     6 → [1, 5] (to be continued at ch7)
 *)
 
@@ -54,9 +59,10 @@ Proof with eauto.
   unfold AC_I, AC_II. intros * AC1 I X Hxi.
   set (I × ⋃{λ i, X[i] | i ∊ I}) as P.
   set {p ∊ P | λ p, π2 p ∈ X[π1 p]} as R.
-  assert (H: is_relation R) by apply sep_cp_is_rel.
-  apply AC1 in H as [F [Hf [Hsub Hdeq]]].
-  assert (Hdeq2: dom F = I). {
+  specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
+    apply sep_cp_is_rel.
+  }
+  assert (Hdeq2: dom f = I). {
     rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
     - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as [Hi _]. zfcrewrite.
@@ -64,18 +70,90 @@ Proof with eauto.
       eapply domI. apply SepI. apply CProdI...
       eapply FUnionI... zfcrewrite.
   }
-  exists F. apply SepI.
-  + apply SepI. rewrite PowerAx. intros x Hp.
-    apply func_pair in Hp as Hxeq... rewrite Hxeq in *.
-    apply domI in Hp as Hd. rewrite Hdeq2 in Hd.
-    apply Hsub in Hp. apply SepE in Hp as [_ Hp]. zfcrewrite.
-    apply CProdI... eapply FUnionI... split... split...
-    intros y Hy. apply ranE in Hy as [i Hp].
+  exists f. apply InfCProdI.
+  - split... split... intros y Hy.
+    apply ranE in Hy as [i Hp].
     apply Hsub in Hp. apply SepE in Hp as [Hp _].
     apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
-  + intros i Hi. rewrite <- Hdeq2 in Hi.
+  - intros i Hi. rewrite <- Hdeq2 in Hi.
     apply func_correct in Hi... apply Hsub in Hi.
     apply SepE in Hi as [_ Hy]. zfcrewrite.
+Qed.
+
+(* 如果单集与配对相等那么它们的成员都相等 *)
+Lemma single_eq_pair : ∀ a b c, ⎨a⎬ = {b, c} → a = b ∧ b = c.
+Proof.
+  intros. assert (Hb: b ∈ {b, c}) by apply PairI1.
+  rewrite <- H in Hb. apply SingE in Hb.
+  assert (Hc: c ∈ {b, c}) by apply PairI2.
+  rewrite <- H in Hc. apply SingE in Hc. split; congruence.
+Qed.
+
+(* 如果单集与单集相等那么它们的成员相等 *)
+Lemma single_injective : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
+Proof.
+  intros. apply single_eq_pair in H as [H _]. apply H.
+Qed.
+
+Theorem AC_I_iff_AC_I' : AC_I ↔ AC_I'.
+Proof with eauto; try congruence.
+  unfold AC_I, AC_I'. split.
+  - intros AC1 A.
+    set {p ∊ ⋃A × A | λ p, π1 p ∈ π2 p} as R.
+    specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
+      apply sep_cp_is_rel.
+    }
+    assert (Hd: dom f = ⋃ A). {
+      rewrite Hdeq. apply ExtAx. split; intros Hx.
+      - apply domE in Hx as [y Hp].
+        apply SepE in Hp as [Hp _].
+        apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+      - assert (Hu := Hx). apply UnionAx in Hx as [a [Ha Hx]].
+        eapply domI. apply SepI. apply CProdI... zfcrewrite.
+    }
+    exists f. split; [split; [|split]|]...
+    + intros y Hy. apply ranE in Hy as [x Hp].
+      apply Hsub in Hp. apply SepE in Hp as [Hp _].
+      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+    + intros x Hx. apply domE in Hx as [y Hp].
+      apply func_ap in Hp as Hap... rewrite Hap.
+      apply Hsub in Hp. apply SepE in Hp as [_ H]. zfcrewrite.
+  - intros AC1' R Hrel.
+    specialize AC1' with R as [f [[Hf [Hd Hr]] Hin]].
+    assert (Hdf: ∀x ∈ dom R, ⎨x⎬ ∈ dom f). {
+      intros x Hx. rewrite Hd. apply UnionAx.
+      eapply domE in Hx as [y Hp].
+      exists <x, y>. split... apply PairI1.
+    }
+    assert (Hrf: ∀x ∈ dom R, ∃ a b, <a, b> ∈ R ∧ f[⎨x⎬] = <a, b>). {
+      intros x Hx. apply Hdf in Hx.
+      apply domE in Hx as [y Hp]. apply ranI in Hp as Hy.
+      apply func_ap in Hp... subst y. apply Hr in Hy.
+      apply rel_pair in Hy as Heqy...
+      exists (π1 f[⎨x⎬]), (π2 f[⎨x⎬]). split...
+    }
+    set (Func (dom R) (ran R) (λ x, π2 f[⎨x⎬])) as g.
+    assert (Hg: is_function g). {
+      apply meta_maps_into. intros x Hx.
+      apply Hrf in Hx as [a [b [Hp Hfx]]].
+      rewrite Hfx. zfcrewrite. eapply ranI...
+    }
+    exists g. split; [|split]...
+    + intros p Hp. apply SepE in Hp as [Hp Heq].
+      apply cprod_iff in Hp as [x [Hx [y [_ Hp]]]].
+      subst p. zfcrewrite. subst y.
+      apply Hdf in Hx as Hsx. apply Hin in Hsx.
+      apply Hrf in Hx as [a [b [Hp Hfx]]].
+      rewrite Hfx in *. zfcrewrite.
+      apply PairE in Hsx as [].
+      * apply single_injective in H...
+      * apply single_eq_pair in H as [H1 H2]...
+    + apply ExtAx. split; intros Hx.
+      * apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
+        apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+      * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
+        apply ranI in Hp. eapply domI. apply SepI. apply CProdI...
+        zfcrewrite. rewrite Hfx. zfcrewrite.
 Qed.
 
 Theorem AC_II_to_IV : AC_II → AC_IV.
@@ -93,7 +171,7 @@ Proof with eauto.
     apply func_ap in Hp... subst y. 
     destruct (classic (A = x)). subst x...
     exfalso. apply Hdj in H... eapply disjointE...
-  - apply in_impl_sing_sub. apply BInterI.
+  - apply single_of_member_is_subset. apply BInterI.
     + rewrite <- (ident_ap 𝒜 A) at 2... apply Hin...
     + eapply ap_ran... split...
 Qed.
@@ -451,7 +529,7 @@ Qed.
 Theorem ω_is_the_least_infinite_set : AC_III → ∀ A, infinite A → ω ≼ A.
 Proof with neauto; try congruence.
   intros AC3 A Hinf.
-  pose proof (AC3 A) as [F [HFf [HFd HFr]]].
+  pose proof (AC3 A) as [F [_ [_ Hch]]].
   set {B ∊ 𝒫 A | λ B, finite B} as 𝒜.
   set (Func 𝒜 𝒜 (λ B, B ∪ ⎨F[A - B]⎬)) as ℋ.
   assert (Hℋ: ℋ: 𝒜 ⇒ 𝒜). {
@@ -461,7 +539,7 @@ Proof with neauto; try congruence.
     - apply PowerAx. intros x Hx.
       apply BUnionE in Hx as [Hx|Hx]. apply Hsub...
       apply SingE in Hx. subst. assert (A - B ⊆ A) by auto.
-      apply H. apply HFr... apply infinite_set_nonempty.
+      apply H. apply Hch... apply infinite_set_nonempty.
       apply comp_of_finite_is_infinite...
     - apply finite_set_adding_one_still_finite...
   }
@@ -482,7 +560,7 @@ Proof with neauto; try congruence.
   set (Func ω A (λ n, F[A - h[n]])) as g.
   exists g. apply meta_injective.
   - intros n Hn. assert (Hsub: A - h[n] ⊆ A) by auto.
-    apply Hsub. apply HFr... apply Hne...
+    apply Hsub. apply Hch... apply Hne...
   - cut (∀ m n ∈ ω, m ∈ n → F [A - h[m]] ≠ F [A - h[n]]). {
       intros Hcut. intros m Hm n Hn Heq.
       destruct (classic (m = n))... exfalso.
@@ -495,7 +573,7 @@ Proof with neauto; try congruence.
       rewrite meta_func_ap; [|auto|eapply ap_ran]... apply BUnionI2...
     }
     assert (Hgn: F[A - h[n]] ∈ A - h[n]). {
-      apply HFr... apply Hne...
+      apply Hch... apply Hne...
     }
     cut (h[m⁺] ⊆ h[n]). {
       intros Hcut. apply Hcut in Hgm. apply SepE in Hgn as []...
@@ -559,9 +637,9 @@ Proof with auto.
   rewrite <- set_finite_iff_card_finite...
 Qed.
 
-(* Check EST6_1.sub_of_finite_is_finite *)
+(* Check EST6_1.subset_of_finite_is_finite *)
 (* 有限集的子集是有限集 *)
-Corollary sub_of_finite_is_finite : ∀ A B,
+Corollary subset_of_finite_is_finite : ∀ A B,
   A ⊆ B → finite B → finite A.
 Proof.
   intros * Hsub Hfin.

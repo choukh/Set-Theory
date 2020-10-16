@@ -184,8 +184,8 @@ Lemma compo_bijection : ∀ F G A B C,
   F: A ⟺ B → G: B ⟺ C → (G ∘ F): A ⟺ C.
 Proof with eauto; try congruence.
   intros * Hf Hg.
-  apply bijection_is_surjective_injection in Hf as Hif.
-  apply bijection_is_surjective_injection in Hg as Hig.
+  apply bijection_is_injection in Hf as Hif.
+  apply bijection_is_injection in Hg as Hig.
   destruct Hf as [_ [_ Hfr]]. destruct Hif as [Hif _].
   destruct Hg as [_ [Hgd Hgr]]. destruct Hig as [Hig _].
   pose proof (compo_injection _ _ _ _ _ Hif Hig) as [Hi [Hd Hr]].

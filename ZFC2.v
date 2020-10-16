@@ -58,7 +58,7 @@ Lemma sep_power : ∀ X P, {x ∊ X | P} ∈ 𝒫 X.
 Proof. intros. apply PowerAx. apply sep_sub. Qed.
 
 Lemma sep_0 : ∀ P, {x ∊ ∅ | P} = ∅.
-Proof. intros. apply sub_0_iff_0. apply sep_sub. Qed.
+Proof. intros. apply sub_empty. apply sep_sub. Qed.
 
 Lemma sep_0_inv : ∀ X P, {x ∊ X | P} = ∅ -> ∀x ∈ X, ¬P x.
 Proof.
@@ -72,7 +72,7 @@ Lemma sep_sing : ∀ x P,
   (¬P x ∧ {x ∊ ⎨x⎬ | P} = ∅).
 Proof with auto.
   intros. pose proof (sep_sub ⎨x⎬ P).
-  apply sub_sing in H. destruct H.
+  apply subset_of_single in H. destruct H.
   - rewrite H. right. split...
     eapply sep_0_inv. apply H... apply SingI.
   - rewrite H. left. split...
@@ -201,7 +201,7 @@ Qed.
 Lemma π1_correct : ∀ x y, π1 <x, y> = x.
 Proof.
   unfold π1. intros. rewrite op_inter.
-  rewrite union_sing_x_x. reflexivity. 
+  rewrite union_single. reflexivity. 
 Qed.
 
 Lemma pair_eq_pair_i : ∀ a b c d, {a, b} = {c, d} ->
@@ -321,6 +321,6 @@ Proof. unfold CProd. intros. rewrite funion_0. reflexivity. Qed.
 
 Fact cprod_x_0 : ∀ A, A × ∅ = ∅.
 Proof.
-  intros. apply sub_0_iff_0. intros x H.
+  intros. apply sub_empty. intros x H.
   apply CProdE1 in H. destruct H as [_ H]. exfalso0.
 Qed.

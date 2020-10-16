@@ -43,7 +43,7 @@ Proof with auto.
 Qed.
 
 (* 双射是满的单射 *)
-Lemma bijection_is_surjective_injection : ∀ F A B,
+Lemma bijection_is_injection : ∀ F A B,
   F: A ⟺ B ↔ F: A ⇔ B ∧ ran F = B.
 Proof with auto.
   split. intros [Hi [Hd Hr]]. split;[split;[|split]|]... rewrite Hr...
@@ -51,11 +51,20 @@ Proof with auto.
 Qed.
 
 (* 双射是一对一的满射 *)
-Lemma bijection_is_injective_surjection : ∀ F A B,
+Lemma bijection_is_surjection : ∀ F A B,
   F: A ⟺ B ↔ F: A ⟹ B ∧ injective F.
 Proof with auto.
   split. intros [Hi [Hd Hr]]. split... split... destruct Hi...
   intros [[_ [Hd Hr]] Hi]. split...
+Qed.
+
+(* 双射是一对一的且满的映射 *)
+Lemma bijection_is_func : ∀ F A B,
+  F: A ⟺ B ↔ F: A ⇒ B ∧ injective F ∧ ran F = B.
+Proof with auto.
+  split. intros [Hi [Hd Hr]]. split... split.
+  destruct Hi... split... rewrite Hr...
+  intros [[Hf [Hd _]] [Hi Hr]]. split...
 Qed.
 
 (* 函数应用属于值域 *)
@@ -172,7 +181,7 @@ Proof.
   apply Hu in Hbi. apply SingE in Hbi. subst. reflexivity.
 Qed.
 
-(* 选择公理的等效表述1：可以从关系中选出函数 *)
+(* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
 Definition AC_I : Prop := ∀ R,
   is_relation R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
@@ -509,6 +518,16 @@ Definition Arrow : set → set → set := λ A B,
   {F ∊ 𝒫(A × B) | λ F, F: A ⇒ B}.
 Notation "A ⟶ B" := (Arrow A B) (at level 60).
 
+Theorem ArrowI : ∀ F A B, F: A ⇒ B → F ∈ A ⟶ B.
+Proof with auto; try congruence.
+  intros. apply SepI... apply PowerAx. intros p Hp.
+  destruct H as [Hff [Hdf Hrf]].
+  apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
+  apply domI in Hp as Hd. apply ranI in Hp as Hr.
+  apply cprod_iff. exists (π1 p). split...
+  exists (π2 p). split... apply Hrf...
+Qed.
+
 Theorem arrow_iff : ∀ F A B,
   F ∈ A ⟶ B ↔ is_function F ∧ dom F = A ∧ ∀x ∈ A, F[x] ∈ B.
 Proof with eauto.
@@ -537,6 +556,20 @@ Qed.
 Definition InfCProd : set → set → set := λ I X,
   {f ∊ I ⟶ ⋃{λ i, X[i] | i ∊ I} | λ f, ∀i ∈ I, f[i] ∈ X[i]}.
 
+Lemma InfCProdI : ∀ x I A, x: I ⇒ ⋃ {ap A | i ∊ I} →
+  (∀i ∈ I, x[i] ∈ A[i]) → x ∈ InfCProd I A.
+Proof with auto.
+  intros * Hx Hxi. apply SepI. apply ArrowI...
+  intros i Hi. apply Hxi...
+Qed.
+
+Lemma InfCProdE : ∀ x I A, x ∈ InfCProd I A →
+  x: I ⇒ ⋃ {ap A | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ A[i].
+Proof.
+  intros * Hx. apply SepE in Hx as [Hx Hxi].
+  apply SepE in Hx as [_ Hx]. split; auto.
+Qed.
+
 Example infcprod_self : ∀ I X A,
   ⦿ I → (∀i ∈ I, X[i] = A) → InfCProd I X = I ⟶ A.
 Proof with eauto.
@@ -553,7 +586,7 @@ Proof with eauto.
     apply SepE in Hf as [_ Hf]. eapply ap_ran...
 Qed.
 
-(* 选择公理等效表述2：非空集合的笛卡尔积非空 *)
+(* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
 Definition AC_II : Prop := ∀ I X,
   (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
 
@@ -573,13 +606,9 @@ Proof with eauto.
         eapply domI. apply SepI. apply CProdI...
         eapply FUnionI... zfcrewrite.
     }
-    exists F. apply SepI.
-    + apply SepI. rewrite PowerAx. intros x Hp.
-      apply func_pair in Hp as Hxeq... rewrite Hxeq in *.
-      apply domI in Hp as Hd. rewrite Hdeq2 in Hd.
-      apply Hsub in Hp. apply SepE in Hp as [_ Hp]. zfcrewrite.
-      apply CProdI... eapply FUnionI... split... split...
-      intros y Hy. apply ranE in Hy as [i Hp].
+    exists F. apply InfCProdI.
+    + split... split... intros y Hy.
+      apply ranE in Hy as [i Hp].
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
     + intros i Hi. rewrite <- Hdeq2 in Hi.

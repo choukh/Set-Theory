@@ -141,47 +141,52 @@ Proof. intros. apply PairE. apply H. Qed.
 
 (* 更多引理 *)
 
-Lemma in_impl_sing_sub : ∀ X, ∀x ∈ X, ⎨x⎬ ⊆ X.
+(* 集合的成员的单集是原集合的子集 *)
+Lemma single_of_member_is_subset : ∀ A, ∀x ∈ A, ⎨x⎬ ⊆ A.
 Proof.
-  intros X x Hx y Hy.
+  intros A x Hx y Hy.
   apply SingE in Hy. subst. apply Hx.
 Qed.
 
-Lemma sing_char : ∀ X, ∀ x ∈ X, (∀ y ∈ X, x = y) → X = ⎨x⎬.
+(* 任意成员都与给定的任意成员相等的集合是单集 *)
+Lemma character_of_single : ∀ A, ∀x ∈ A, (∀y ∈ A, x = y) → A = ⎨x⎬.
 Proof.
-  intros X x Hx H.
+  intros A x Hx H.
   apply ExtAx. split; intros.
   - apply H in H0. subst. apply SingI.
   - apply SingE in H0. subst. apply Hx.
 Qed.
 
-Lemma sub_sing : ∀ x A, A ⊆ ⎨x⎬ → A = ∅ ∨ A = ⎨x⎬.
+(* 单集的子集是空集或该单集 *)
+Lemma subset_of_single : ∀ x A, A ⊆ ⎨x⎬ → A = ∅ ∨ A = ⎨x⎬.
 Proof.
   intros. destruct (empty_or_inh A).
   - left. apply H0.
   - right. destruct H0 as [a Ha].
-    unfold Sub in H...
-    apply sing_char...
+    apply character_of_single.
     + apply H in Ha as Hs. apply SingE in Hs.
       subst. apply Ha.
     + intros b Hb.
       apply H in Hb. apply SingE in Hb. auto.
 Qed.
 
-Lemma sub_1 : ∀ A, A ⊆ 1 -> A = ∅ ∨ A = 1.
-Proof. apply sub_sing. Qed.
+(* 壹的子集是零或壹 *)
+Lemma subset_of_one : ∀ A, A ⊆ 1 -> A = ∅ ∨ A = 1.
+Proof. apply subset_of_single. Qed.
 
-Lemma empty_1_2_0 : ∀ O I, O ∈ I → I ∈ 2 → O = ∅.
+(* 贰的成员的成员必是零 *)
+Lemma member_of_member_of_two_is_zero :
+  ∀ a A, a ∈ A → A ∈ 2 → a = ∅.
 Proof.
-  intros. apply EmptyI. unfold not. intros.
-  apply TwoE in H0.
-  destruct H0.
-  - subst. eapply EmptyAx. apply H.
-  - subst. apply OneE in H.
-    subst. eapply EmptyAx. apply H1.
+  intros. apply EmptyI. intros x Hx.
+  apply TwoE in H0 as []; subst.
+  - exfalso0.
+  - apply OneE in H. subst. exfalso0.
 Qed.
 
-Lemma in_2_inh_1 : ∀S ∈ 2, ⦿ S → S = 1.
+(* 属于贰的非空集合必是壹 *)
+Lemma nonempty_member_of_two_is_one :
+  ∀S ∈ 2, ⦿ S → S = 1.
 Proof.
   intros S HS Hi.
   apply TwoE in HS. destruct HS.
@@ -189,7 +194,8 @@ Proof.
   - apply H.
 Qed.
 
-Example union_sing_x_x : ∀ X, ⋃ ⎨X⎬ = X.
+(* 任意集合的单集的并就是原集合 *)
+Example union_single : ∀ X, ⋃ ⎨X⎬ = X.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H as [a [H1 H2]].
@@ -197,17 +203,21 @@ Proof.
   - eapply UnionI. apply SingI. apply H.
 Qed.
 
-Example union_1_0 : ⋃ 1 = ∅.
-Proof. exact (union_sing_x_x ∅). Qed.
+(* 壹的并是零 *)
+Example union_one : ⋃ 1 = ∅.
+Proof. exact (union_single ∅). Qed.
 
-Example in_2_impl_union_0 : ∀ X, X ∈ 2 → ⋃ X = ∅.
+(* 贰的成员的并必是零 *)
+Example union_of_any_member_of_two_is_zero :
+  ∀ X, X ∈ 2 → ⋃ X = ∅.
 Proof.
   intros. apply TwoE in H. destruct H.
   - subst. apply union_empty.
-  - subst. apply union_1_0.
+  - subst. apply union_one.
 Qed.
 
-Example union_2_1 : ⋃ 2 = 1.
+(* 贰的并是壹 *)
+Example union_two : ⋃ 2 = 1.
 Proof.
   apply ExtAx. split; intro.
   - apply UnionAx in H as [a [H1 H2]].
@@ -217,20 +227,22 @@ Proof.
   - eapply UnionI. apply TwoI2. apply H.
 Qed.
 
-Example power_0_1 : 𝒫 ∅ = 1.
+(* 零的幂集是壹 *)
+Example power_zero : 𝒫 ∅ = 1.
 Proof.
   apply ExtAx. split; intros.
   - apply PowerAx in H. apply OneI2.
-    apply sub_0_iff_0. apply H.
+    apply sub_empty. apply H.
   - apply PowerAx. apply OneE in H.
-    subst. apply sub_0_iff_0. reflexivity.
+    subst. apply sub_empty. reflexivity.
 Qed.
 
-Example power_1_2 : 𝒫 1 = 2.
+(* 壹的幂集是贰 *)
+Example power_one : 𝒫 1 = 2.
 Proof.
   apply ExtAx. split; intros.
   - apply PowerAx in H.
-    apply TwoI3. apply sub_1. apply H.
+    apply TwoI3. apply subset_of_one. apply H.
   - apply PowerAx. apply TwoE in H. destruct H; subst.
     + intros x H. exfalso0.
     + apply sub_refl.
@@ -295,7 +307,7 @@ Proof.
   intros. assert (∀ x ∈ ⋃{F | x ∊ X}, x = ∅). {
     intros x Hx. apply FUnionE in Hx as [y [H1 H2]].
     apply H in H1.
-    eapply empty_1_2_0. apply H2. apply H1.
+    eapply member_of_member_of_two_is_zero. apply H2. apply H1.
   }
   apply ExtAx. split; intros.
   - apply H1 in H2. subst. apply OneI1.

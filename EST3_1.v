@@ -235,16 +235,48 @@ Proof.
   - assert (Hxy: < x, y > ∈ ⎨< x, y >⎬) by apply SingI.
     rewrite ExtAx in Heq. apply Heq in Hxy.
     apply SepE in Hxy as [Hxy _]. apply Hxy.
-  - unfold ap. rewrite Heq. rewrite union_sing_x_x.
+  - unfold ap. rewrite Heq. rewrite union_single.
     rewrite π2_correct. reflexivity.
 Qed.
 
-Lemma func_ap : ∀ F,
-  is_function F → ∀ x y, <x, y> ∈ F → F[x] = y.
+Lemma func_ap : ∀ F x y, is_function F →
+  <x, y> ∈ F → F[x] = y.
 Proof.
-  intros F Hf x y Hp. apply domI in Hp as Hd.
+  intros * Hf Hp. apply domI in Hp as Hd.
   pose proof (ap_exists F Hf x Hd) as [y' [_ [Hp' Heq]]].
   subst y'. eapply func_sv; eauto.
+Qed.
+
+Lemma func_correct : ∀ F x, is_function F →
+  x ∈ dom F → <x, F[x]> ∈ F.
+Proof with auto.
+  intros F x Hf Hx. apply domE in Hx as [y Hp].
+  apply func_ap in Hp as Hap... subst y...
+Qed.
+
+Lemma func_point : ∀ F x y, is_function F →
+  x ∈ dom F → F[x] = y → <x, y> ∈ F.
+Proof with auto.
+  intros * Hf Hx Hap. apply func_correct in Hx... subst y...
+Qed.
+
+Theorem func_ext : ∀ F G, is_function F → is_function G →
+  dom F = dom G → (∀x ∈ dom F, F[x] = G[x]) → F = G.
+Proof with auto.
+  intros F G Hf Hg Heqd Heqap.
+  apply ExtAx. intros p. split; intros Hp.
+  - apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
+    apply func_ap in Hp as Hap...
+    apply domI in Hp as Hd. rewrite Heqap in Hap; [|apply Hd].
+    rewrite Heqd in Hd. apply func_correct in Hd; [|apply Hg].
+    rewrite Hap in Hd. rewrite Heqp...
+  - apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
+    apply func_ap in Hp as Hap...
+    apply domI in Hp as Hd. rewrite <- Heqd in Hd.
+    rewrite <- Heqap in Hap; [|apply Hd].
+    rewrite Heqd in Hd. rewrite <- Heqd in Hd.
+    apply func_correct in Hd; [|apply Hf].
+    rewrite Hap in Hd. rewrite Heqp...
 Qed.
 
 Lemma ident_ap : ∀ X, ∀x ∈ X, (Ident X)[x] = x.
@@ -252,34 +284,6 @@ Proof.
   intros X x Hx. apply func_ap.
   - apply ident_is_func.
   - apply ReplAx. exists x. split. apply Hx. reflexivity.
-Qed.
-
-Lemma func_correct : ∀ F x, is_function F → x ∈ dom F → <x, F[x]> ∈ F.
-Proof.
-  intros F x Hf Hx. apply domE in Hx as [y Hp].
-  pose proof (func_ap _ Hf _ _ Hp). subst y. apply Hp.
-Qed.
-
-Theorem func_ext : ∀ F G,
-  is_function F → is_function G → dom F = dom G
-  → (∀x ∈ dom F, F[x] = G[x]) → F = G.
-Proof.
-  intros F G Hf Hg Heqd Heqap.
-  apply ExtAx. intros p. split; intros Hp.
-  - pose proof (func_pair _ Hf _ Hp) as Heqp.
-    simpl in Heqp. rewrite Heqp in Hp.
-    pose proof (func_ap _ Hf _ _ Hp) as Hap.
-    apply domI in Hp as Hd. rewrite Heqap in Hap; [|apply Hd].
-    rewrite Heqd in Hd. apply func_correct in Hd; [|apply Hg].
-    rewrite Hap in Hd. rewrite Heqp. apply Hd.
-  - pose proof (func_pair _ Hg _ Hp) as Heqp.
-    simpl in Heqp. rewrite Heqp in Hp.
-    pose proof (func_ap _ Hg _ _ Hp) as Hap.
-    apply domI in Hp as Hd. rewrite <- Heqd in Hd.
-    rewrite <- Heqap in Hap; [|apply Hd].
-    rewrite Heqd in Hd. rewrite <- Heqd in Hd.
-    apply func_correct in Hd; [|apply Hf].
-    rewrite Hap in Hd. rewrite Heqp. apply Hd.
 Qed.
 
 (* 单源 *)
@@ -493,7 +497,7 @@ Qed.
 Lemma compo_dom : ∀ F G,
   is_function F → is_function G →
   dom (F ∘ G) = {x ∊ dom G | λ x, G[x] ∈ dom F}.
-Proof.
+Proof with eauto.
   intros F G Hf Hg. apply ExtAx. split; intros.
   - apply domE in H as [y Hp].
     apply compoE in Hp as [t [Hpg Hpf]].
@@ -503,8 +507,8 @@ Proof.
   - apply SepE in H as [Hdg Hdf].
     apply domE in Hdg as [t Hpg].
     apply domE in Hdf as [y Hpf].
-    pose proof (func_ap _ Hg _ _ Hpg). rewrite H in Hpf.
-    eapply domI. eapply compoI; eauto.
+    apply func_ap in Hpg as Hap... subst t.
+    eapply domI. eapply compoI...
 Qed.
 
 Lemma compo_ran : ∀ F G,
@@ -529,15 +533,14 @@ Qed.
 Theorem compo_correct : ∀ F G,
   is_function F → is_function G →
   ∀x ∈ dom (F ∘ G), (F ∘ G)[x] = F[G[x]].
-Proof.
+Proof with auto.
   intros F G Hf Hg x Hx.
   apply domE in Hx as [y Hp].
   pose proof (compo_func _ _ Hf Hg) as Hcf.
-  pose proof (func_ap _ Hcf _ _ Hp).
+  apply func_ap in Hp as Hap...
   apply compoE in Hp as [t [Hpg Hpf]].
   apply func_ap in Hpg; [|apply Hg].
-  apply func_ap in Hpf; [|apply Hf].
-  subst t y. apply H.
+  apply func_ap in Hpf; [|apply Hf]. subst t y...
 Qed.
 
 Example compo_inv_dom : ∀ G,

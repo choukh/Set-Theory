@@ -242,7 +242,7 @@ Lemma empty_sub_all : ∀ X, ∅ ⊆ X.
 Proof. intros X x Hx. exfalso0. Qed.
 
 (* 集合是空集的子集当且仅当该集合是空集 *)
-Lemma sub_0_iff_0 : ∀ A, A ⊆ ∅ ↔ A = ∅.
+Lemma sub_empty : ∀ A, A ⊆ ∅ ↔ A = ∅.
 Proof.
   split; intros.
   - apply EmptyI. unfold not. intros.
@@ -325,6 +325,6 @@ Qed.
 (* 若某集合的替代是空集，那么该集合是空集 *)
 Fact repl_eq_empty : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
 Proof.
-  intros. apply sub_0_iff_0. intros x Hx.
+  intros. apply sub_empty. intros x Hx.
   eapply ReplI in Hx. rewrite H in Hx. exfalso0.
 Qed.

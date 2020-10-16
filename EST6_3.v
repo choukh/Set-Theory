@@ -15,15 +15,15 @@ Notation "A ≺ B" := (A ≼ B ∧ A ≉ B) (at level 70).
 Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B ∧ B ≼ A.
 Proof with auto.
   intros * [f Hf]. split.
-  exists f. apply bijection_is_surjective_injection...
-  exists (f⁻¹). apply bijection_is_surjective_injection. apply inv_bijection...
+  exists f. apply bijection_is_injection...
+  exists (f⁻¹). apply bijection_is_injection. apply inv_bijection...
 Qed.
 
 (* 支配关系是自反的 *)
 Lemma dominate_refl : ∀ A, A ≼ A.
 Proof.
   intros. exists (Ident A).
-  apply bijection_is_surjective_injection. apply ident_bijective.
+  apply bijection_is_injection. apply ident_bijective.
 Qed.
 Hint Immediate dominate_refl : core.
 
@@ -156,7 +156,7 @@ Proof with auto.
   exists (dom (f⁻¹)). split.
   - symmetry. exists (f⁻¹). split; [|split]...
     apply inv_injective... rewrite inv_ran...
-  - apply (sub_of_finite_is_finite _ B)...
+  - apply (subset_of_finite_is_finite _ B)...
     intros y Hy. rewrite inv_dom in Hy. apply Hr...
 Qed.
 
@@ -190,9 +190,9 @@ Proof with eauto; try congruence.
     symmetry in Hg. destruct Hg as [g Hg].
     pose proof (CardAx0 B) as [h Hh].
     exists (h ∘ f ∘ g). eapply compo_injection.
-    apply bijection_is_surjective_injection. apply Hg.
+    apply bijection_is_injection. apply Hg.
     eapply compo_injection. apply Hf.
-    apply bijection_is_surjective_injection. apply Hh.
+    apply bijection_is_injection. apply Hh.
 Qed.
 
 Lemma cardLeq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → |𝜅| ≤ |𝜆|.
@@ -210,9 +210,9 @@ Proof with eauto.
   intros * Hf [g Hg] [h Hh].
   symmetry in Hf. destruct Hf as [f Hf].
   exists (g ∘ h ∘ f). eapply compo_injection.
-  apply bijection_is_surjective_injection. apply Hf.
+  apply bijection_is_injection. apply Hf.
   eapply compo_injection. apply Hh.
-  apply bijection_is_surjective_injection. apply Hg.
+  apply bijection_is_injection. apply Hg.
 Qed.
 
 (* 基数的小于关系 *)
@@ -294,9 +294,9 @@ Proof with auto.
   - apply fin_cardLeq_iff_dominate in H...
     destruct (classic (m = n))... left.
     apply lt_connected in H0 as []... exfalso.
-    apply lt_iff_sub in H0 as []... apply dominate_sub in H0.
+    apply lt_iff_psub in H0 as []... apply dominate_sub in H0.
     apply H1. apply nat_eqnum_eq... apply Schröeder_Bernstein...
-  - apply leq_iff_subeq in H... apply dominate_sub in H.
+  - apply leq_iff_sub in H... apply dominate_sub in H.
     apply fin_cardLeq_iff_dominate...
 Qed.
 
@@ -304,9 +304,9 @@ Lemma fin_cardLt_iff_lt : ∀ m n ∈ ω, m <𝐜 n ↔ m ∈ n.
 Proof with eauto.
   intros m Hm n Hn. split; intros.
   - destruct H as [Hleq Hnq]. apply fin_cardLeq_iff_leq in Hleq...
-    apply leq_iff_subeq in Hleq... apply lt_iff_sub...
+    apply leq_iff_sub in Hleq... apply lt_iff_psub...
   - split. apply fin_cardLeq_iff_leq...
-    intros Heq. subst. eapply lt_not_refl...
+    intros Heq. subst. eapply lt_irrefl...
 Qed.
 
 (* 任意基数都小于自身的幂集的基数 *)
@@ -502,7 +502,7 @@ Proof with nauto.
     apply eqnum_empty in H. rewrite H in Hn. exfalso0.
   - assert (Heqw: ω = (ω - ⎨∅⎬) ∪ ⎨∅⎬) by (apply split_one_element; nauto).
     apply CardAx1 in H. rewrite Heqw in H. symmetry in H.
-    apply fin_set_remove_one_element in H...
+    apply finite_set_remove_one_element in H...
     apply IH. apply CardAx1. rewrite <- H. symmetry.
     exists σ. apply σ_bijective.
 Qed.

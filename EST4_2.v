@@ -61,6 +61,7 @@ Definition Proj (N : set) : nat :=
     | inl (exist _ n _) => n
     | inr _ => 0
   end.
+Notation "「 n 」" := (Proj n).
 
 Lemma proj : ∀n ∈ ω, ∃ m : nat, Embed m = n.
 Proof with auto.
@@ -82,7 +83,7 @@ Proof with auto.
 Qed.
 
 (* 集合论自然数与元语言自然数同构 *)
-Lemma embed_proj_id : ∀ n: nat, Proj (Embed n) = n. 
+Lemma embed_proj_id : ∀ n : nat,「n」= n. 
 Proof.
   intros. unfold Proj.
   destruct (dit (sig (λ k, iter k Suc ∅ = Embed n))).
@@ -90,7 +91,7 @@ Proof.
   - exfalso. apply f. exists n. reflexivity.
 Qed.
 
-Lemma proj_embed_id : ∀n ∈ ω, Embed (Proj n) = n.
+Lemma proj_embed_id : ∀n ∈ ω, Embed「n」= n.
 Proof.
   intros n Hn. destruct (proj n Hn) as [m Heq].
   subst. rewrite embed_proj_id. reflexivity.

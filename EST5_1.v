@@ -634,7 +634,7 @@ Proof with auto.
     as [p [Hp [q [Hq [Hx [H H0]]]]]]...
   exists p. split... exists q. split... split...
   rewrite <- Hx. unfold IntProj. rewrite Hsg.
-  apply union_sing_x_x.
+  apply union_single.
 Qed.
 
 Lemma intProj_η : ∀a ∈ ℤ, a = [IntProj a]~.

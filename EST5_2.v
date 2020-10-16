@@ -268,7 +268,7 @@ Proof with nauto.
   assert (Hw: m⋅q + n⋅p ∈ ω) by (amr; auto).
   apply lt_connected in Hmn as [H1|H1];
   apply lt_connected in Hpq as [H2|H2]; auto;
-  intros Heq; eapply lt_not_refl; revgoals;
+  intros Heq; eapply lt_irrefl; revgoals;
   (eapply ex4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
   try apply Hw; [|
     |rewrite add_comm, (add_comm (n⋅p)) in H2; [|mr;auto..]
@@ -411,11 +411,11 @@ Proof.
   - apply intLtI; auto.
 Qed.
 
-Lemma intLt_not_refl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
+Lemma intLt_irrefl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
 Proof with auto.
   intros a Ha Hc.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intLt in Hc... eapply lt_not_refl; revgoals.
+  apply intLt in Hc... eapply lt_irrefl; revgoals.
   apply Hc. ar...
 Qed.
 
@@ -456,7 +456,7 @@ Proof with auto.
   intros [x [Hx Hlt]]. apply intLtE in Hlt
     as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
   subst x. apply int_ident in H2... rewrite H2 in Hlt.
-  eapply lt_not_refl; revgoals; eauto; ar...
+  eapply lt_irrefl; revgoals; eauto; ar...
 Qed.
 
 Lemma intLt_connected : connected IntLt ℤ.
@@ -491,7 +491,7 @@ Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
 Lemma int_neq_0 : ∀a ∈ ℤ, intPos a ∨ intNeg a → a ≠ Int 0.
 Proof.
   intros a Ha [Hpa|Hna]; intros H; subst;
-  eapply intLt_not_refl; revgoals; eauto.
+  eapply intLt_irrefl; revgoals; eauto.
 Qed.
 
 Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ -b <𝐳 -a.
@@ -553,11 +553,11 @@ Proof with nauto.
   cut (∀ a b c ∈ ℤ, intPos c → a <𝐳 b → (a ⋅ c <𝐳 b ⋅ c)%z).
   intros Hright a Ha b Hb c Hc Hpc. split; intros Hlt.
   apply Hright... destruct (classic (a = b)).
-  subst. exfalso. eapply intLt_not_refl; revgoals.
+  subst. exfalso. eapply intLt_irrefl; revgoals.
   apply Hlt. apply intMul_ran...
   apply intLt_connected in H as []... exfalso.
   eapply (Hright b Hb a Ha c Hc Hpc) in H.
-  eapply intLt_not_refl; revgoals.
+  eapply intLt_irrefl; revgoals.
   eapply intLt_tranr; eauto. apply intMul_ran...
   intros a Ha b Hb c Hc Hpc Hlt.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
@@ -607,9 +607,9 @@ Proof with eauto.
   destruct (classic (a = b))... exfalso.
   apply intLt_connected in H as []...
   - eapply intAdd_preserve_lt in H... rewrite Heq in H.
-    eapply intLt_not_refl; revgoals... apply intAdd_ran...
+    eapply intLt_irrefl; revgoals... apply intAdd_ran...
   - eapply intAdd_preserve_lt in H... rewrite Heq in H.
-    eapply intLt_not_refl; revgoals... apply intAdd_ran...
+    eapply intLt_irrefl; revgoals... apply intAdd_ran...
 Qed.
 
 Corollary intAdd_cancel' : ∀ a b c ∈ ℤ, c + a = c + b → a = b.
@@ -634,13 +634,13 @@ Proof with neauto.
       eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq' in H;
-      eapply intLt_not_refl; revgoals;
+      eapply intLt_irrefl; revgoals;
         [apply H|apply intMul_ran|apply H|apply intMul_ran]...
   - apply intLt_connected in H as [H|H]; [|auto..];
       eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq in H;
-      eapply intLt_not_refl; revgoals;
+      eapply intLt_irrefl; revgoals;
     [apply H|apply intMul_ran|apply H|apply intMul_ran]...
 Qed.
 

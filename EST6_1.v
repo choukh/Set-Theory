@@ -262,7 +262,7 @@ Proof with neauto; try congruence.
         apply ranE in Hy as [x Hp'].
         apply restrE2 in Hp' as [Hp' Hx]...
         eapply singrE in Hp... subst.
-        eapply lt_not_refl; revgoals...
+        eapply lt_irrefl; revgoals...
       - apply SingE in Hy; subst. apply func_ap...
     }
     apply sub_asym... intros p Hp.
@@ -291,7 +291,7 @@ Proof with neauto; try congruence.
     apply ranI in Hpr as Hyr. apply Hr in Hyr.
     apply BUnionE in Hyr as [|Hyr]... apply SingE in Hyr.
     exfalso. cut (k = p). intros. rewrite H in Hp.
-    eapply lt_not_refl; revgoals... eapply injectiveE... split...
+    eapply lt_irrefl; revgoals... eapply injectiveE... split...
   }
   destruct Hf' as [[Hf' _] [Hd' _]]. intros x Hx.
   destruct (classic (x = p)) as [Hxp|Hxp]; [|
@@ -300,7 +300,7 @@ Proof with neauto; try congruence.
     apply domE in Hpd as [y Hpr]. apply func_ap in Hpr as Hap...
     rewrite Heqf' in Hpr. apply SepE in Hpr as [_ Hpr]. zfcrewrite.
     destruct (ixm (p = p))...
-  - subst x. exfalso. eapply lt_not_refl; revgoals...
+  - subst x. exfalso. eapply lt_irrefl; revgoals...
   - assert (Hxd: x ∈ dom f) by (rewrite Hd; apply BUnionI1; auto).
     assert (Hxd': x ∈ dom f') by (rewrite Hd'; apply BUnionI1; auto).
     apply domE in Hxd' as [y Hpr]. apply func_ap in Hpr as Hap...
@@ -380,8 +380,9 @@ Proof with auto.
   intros [B [H1 [n [Hn H2]]]]. exists n. split... rewrite <- H2...
 Qed.
 
-(* 鸽笼原理推论：任意集合都不与自身的真子集等势 *)
-Corollary no_fin_eqnum_proper_sub : ∀ A B, finite A → B ⊂ A → A ≉ B.
+(* 鸽笼原理推论：任意有限集都不与自身的真子集等势 *)
+Corollary no_fin_set_eqnum_its_proper_subset : ∀ A B,
+  finite A → B ⊂ A → A ≉ B.
 Proof with eauto.
   intros * [n [Hn [g Hg]]] Hsub [f Hf].
   assert (Hf': f: A ⇔ A). {
@@ -414,7 +415,7 @@ Corollary infinite_if_eqnum_proper_sub : ∀ A B,
   B ⊂ A → A ≈ B → infinite A.
 Proof.
   intros A B Hsub Heqn Hfin.
-  eapply no_fin_eqnum_proper_sub; eauto.
+  eapply no_fin_set_eqnum_its_proper_subset; eauto.
 Qed.
 
 (* ω是无限集 *)
@@ -450,7 +451,7 @@ Proof with nauto.
 Qed.
 
 (* 有限集与唯一自然数等势 *)
-Corollary finite_eqnum_unique_nat : ∀ A, finite A →
+Corollary fin_set_eqnum_unique_nat : ∀ A, finite A →
   ∃! n, n ∈ ω ∧ A ≈ n.
 Proof with eauto.
   intros A Hfin. split...
@@ -458,10 +459,10 @@ Proof with eauto.
   destruct (classic (m = n))... exfalso.
   rewrite H1 in H2.
   apply lt_connected in H as []...
-  - apply lt_iff_sub in H... apply (no_fin_eqnum_proper_sub n m)...
+  - apply lt_iff_psub in H... apply (no_fin_set_eqnum_its_proper_subset n m)...
     apply nat_finite... symmetry...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_proper_sub m n)... apply nat_finite...
+  - apply lt_iff_psub in H...
+    apply (no_fin_set_eqnum_its_proper_subset m n)... apply nat_finite...
 Qed.
 
 (* 等势的自然数相等 *)
@@ -470,10 +471,10 @@ Proof with auto.
   intros m Hm n Hn Hqn.
   destruct (classic (m = n))... exfalso.
   apply lt_connected in H as []...
-  - apply lt_iff_sub in H... apply (no_fin_eqnum_proper_sub n m)...
+  - apply lt_iff_psub in H... apply (no_fin_set_eqnum_its_proper_subset n m)...
     apply nat_finite... symmetry...
-  - apply lt_iff_sub in H...
-    apply (no_fin_eqnum_proper_sub m n)... apply nat_finite...
+  - apply lt_iff_psub in H...
+    apply (no_fin_set_eqnum_its_proper_subset m n)... apply nat_finite...
 Qed.
 
 (* 有限基数 *)
@@ -488,7 +489,7 @@ Proof with auto.
   apply ExtAx. split; intros Hx.
   - apply UnionAx in Hx as [m [Hm Hx]].
     apply SepE in Hm as [Hm H2].
-    pose proof (finite_eqnum_unique_nat A) as [_ Hu]...
+    pose proof (fin_set_eqnum_unique_nat A) as [_ Hu]...
     cut (m = n). congruence. apply Hu; split...
   - apply UnionAx. exists n. split... apply SepI...
 Qed.
@@ -527,7 +528,7 @@ Proof with auto.
 Qed.
 
 (* 自然数的子集是有限集 *)
-Lemma sub_of_nat_is_finite : ∀n ∈ ω, ∀ C,
+Lemma subset_of_ω_is_finite : ∀n ∈ ω, ∀ C,
   C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m.
 Proof with neauto.
   intros n Hn.
@@ -576,9 +577,9 @@ Proof with neauto.
       apply bijection_add_point...
       * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
         subst x. apply BInterE in H1 as [_ H].
-        eapply lt_not_refl; revgoals...
+        eapply lt_irrefl; revgoals...
       * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
-        subst m. eapply lt_not_refl; revgoals...
+        subst m. eapply lt_irrefl; revgoals...
 Qed.
 
 (* 单射的定义域与该单射的像等势 *)
@@ -591,7 +592,7 @@ Proof with eauto.
 Qed.
 
 (* 有限集的子集是有限集 *)
-Corollary sub_of_finite_is_finite : ∀ A B,
+Corollary subset_of_finite_is_finite : ∀ A B,
   A ⊆ B → finite B → finite A.
 Proof with neauto.
   intros A B H1 [n [Hn [f [Hi [Hd Hr]]]]].
@@ -600,7 +601,7 @@ Proof with neauto.
   destruct (classic (f⟦A⟧ = n)) as [Heq|Hnq].
   - exists n. split... rewrite <- Heq...
   - assert (Hps: f⟦A⟧ ⊂ n) by (split; auto).
-    apply sub_of_nat_is_finite in Hps as [m [Hm [Hmn Hqn]]]...
+    apply subset_of_ω_is_finite in Hps as [m [Hm [Hmn Hqn]]]...
     exists m. split... rewrite H1...
 Qed.
 
@@ -608,7 +609,7 @@ Qed.
 Lemma disjoint_nat_single : ∀n ∈ ω, disjoint n ⎨n⎬.
 Proof.
   intros n Hn. apply disjointI. intros [x [H1 H2]].
-  apply SingE in H2. subst. eapply lt_not_refl; eauto.
+  apply SingE in H2. subst. eapply lt_irrefl; eauto.
 Qed.
 
 (* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)

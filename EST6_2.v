@@ -393,7 +393,7 @@ Proof with neauto; try congruence.
     destruct (single_pair_bijective 0 x) as [[Hf Hi] [Hd Hr]].
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
-    eapply in_impl_sing_sub... eapply ap_ran... split... split...
+    eapply single_of_member_is_subset... eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
     rewrite Heq in H. apply SingE in H.
@@ -444,7 +444,7 @@ Lemma arrow_from_empty : ∀ A, 0 ⟶ A = 1.
 Proof with nauto.
   intros. apply ExtAx. intros p. split; intros Hp.
   - apply SepE in Hp as [Hp _].
-    rewrite PowerAx, cprod_0_x, sub_0_iff_0 in Hp.
+    rewrite PowerAx, cprod_0_x, sub_empty in Hp.
     subst. apply suc_has_0...
   - apply BUnionE in Hp as []. exfalso0.
     apply SingE in H. subst. rewrite <- ident_empty.
@@ -549,7 +549,7 @@ Theorem cardAdd_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 + 𝜆) + 𝜇 = 𝜅 + (𝜆 
 Proof with neauto; try congruence.
   intros. apply CardAx1.
   assert (Hnq: Embed 1 = Embed 2 → ⊥). {
-    intros. apply (lt_not_refl 2)...
+    intros. apply (lt_irrefl 2)...
     rewrite <- H at 1. apply suc_has_n.
   }
   eapply eqnum_tran. {
@@ -986,12 +986,12 @@ Proof with auto.
 Qed.
 
 (* 有限集的二元并仍是有限集 *)
-Corollary bunion_of_finite_sets_is_finite :
+Corollary bunion_finite :
   ∀ A B, finite A → finite B → finite (A ∪ B).
 Proof with auto.
   intros * Hfa Hfb. rewrite <- ex2_11_2.
   assert (Hfb': finite (B - A)). {
-    apply (sub_of_finite_is_finite _ B)...
+    apply (subset_of_finite_is_finite _ B)...
   }
   destruct Hfa as [m [Hm Ha]]. destruct Hfb' as [n [Hn Hb]].
   exists (m + n). split. apply cardAdd_ω...
@@ -1004,7 +1004,7 @@ Proof with auto.
 Qed.
 
 (* 有限集的笛卡尔积仍是有限集 *)
-Corollary cprod_of_finite_sets_is_finite :
+Corollary cprod_finite :
   ∀ A B, finite A → finite B → finite (A × B).
 Proof with auto.
   intros * [m [Hm Ha]] [n [Hn Hb]].
@@ -1014,7 +1014,7 @@ Proof with auto.
 Qed.
 
 (* 有限集的函数空间仍是有限集 *)
-Corollary arrow_of_finite_sets_is_finite :
+Corollary arrow_finite :
   ∀ A B, finite A → finite B → finite (B ⟶ A).
 Proof with auto.
   intros * [m [Hm Ha]] [n [Hn Hb]].

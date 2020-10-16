@@ -26,7 +26,7 @@ Proof.
   - left. intros H1. apply H. apply CompI; assumption.
 Qed.
 
-Example union_comp : ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
+Lemma union_comp : ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H. destruct H as [H HC].
@@ -55,6 +55,22 @@ Proof.
   intros A B x Hx. apply CompE in Hx as []; auto.
 Qed.
 Hint Immediate comp_sub : core.
+
+(* 空集的补集是原集合 *)
+Lemma comp_empty : ∀ A, A - ∅ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as []...
+  - apply SepI... intros H. exfalso0.
+Qed.
+
+(* 空集里的补集是空集 *)
+Lemma empty_comp : ∀ A, ∅ - A = ∅.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as []. exfalso0.
+  - exfalso0.
+Qed.
 
 (** 真子集 **)
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).

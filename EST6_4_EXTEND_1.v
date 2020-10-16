@@ -1,9 +1,9 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 4 EX **)
+(** Based on "Elements of Set Theory" Chapter 6 Part 4 EX 1 **)
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.EST6_4.
 
-(*** EST第六章4扩展：选择公理的系统考察：图基引理，豪斯多夫极大原理 ***)
+(*** EST第六章4扩展1：选择公理的系统考察：图基引理，豪斯多夫极大原理 ***)
 
 (* 有限特征条件：集合满足条件当且仅当该集合的每个有限子集都满足条件 *)
 Definition finite_character_property : (set → Prop) → Prop := λ P,
@@ -66,7 +66,7 @@ Proof with eauto; try congruence.
   }
   pose proof (IH (ℬ - ⎨B⎬)) as [M [HM Hmax]].
   - apply EmptyNE...
-  - apply fin_set_remove_one_element...
+  - apply finite_set_remove_one_element...
   - eapply sub_of_chain_is_chain...
   - assert (HM': M ∈ ℬ). { apply SepE in HM as []... }
     pose proof (Hchn B HB M HM') as [].
@@ -147,7 +147,7 @@ Proof with eauto.
     + apply Hfc. intros C HfC HsC.
       set (B ∩ C) as D.
       assert (HD: D ∈ {B ∊ 𝒜 | λ B, A ∪ B ∈ 𝒜}). {
-        apply H. apply (sub_of_finite_is_finite _ C)...
+        apply H. apply (subset_of_finite_is_finite _ C)...
         intros x Hx. apply BInterE in Hx as []...
         intros x Hx. apply BInterE in Hx as []...
       }

@@ -40,11 +40,11 @@ Proof with neauto.
   intros a Ha b Hb Hpb Hpp.
   destruct (classic (a = Int 0)).
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
-    eapply intLt_not_refl; revgoals...
+    eapply intLt_irrefl; revgoals...
   - apply intLt_connected in H as []... exfalso.
     eapply intMul_preserve_lt in H...
     rewrite intMul_0_l in H...
-    eapply intLt_not_refl; revgoals.
+    eapply intLt_irrefl; revgoals.
     eapply intLt_tranr... mr.
 Qed.
 
@@ -54,12 +54,12 @@ Proof with neauto.
   intros a Ha b Hb Hpb Hpp.
   destruct (classic (a = Int 0)).
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
-    eapply intLt_not_refl; revgoals...
+    eapply intLt_irrefl; revgoals...
   - apply intLt_connected in H as []... exfalso.
     eapply intMul_preserve_lt in H.
     apply H in Hpb as Hc.
     rewrite (intMul_comm b), intMul_0_l in Hc...
-    eapply intLt_not_refl; revgoals.
+    eapply intLt_irrefl; revgoals.
     eapply intLt_tranr... mr. nauto. auto. auto.
 Qed.
 
@@ -166,11 +166,11 @@ Proof with eauto.
   - apply ratLtI...
 Qed.
 
-Lemma ratLt_not_refl : ∀r ∈ ℚ, r <𝐪 r → ⊥.
+Lemma ratLt_irrefl : ∀r ∈ ℚ, r <𝐪 r → ⊥.
 Proof with eauto.
   intros r Hr Hc.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]]. subst r.
-  apply ratLt in Hc... eapply intLt_not_refl; revgoals... mr;nz.
+  apply ratLt in Hc... eapply intLt_irrefl; revgoals... mr;nz.
 Qed.
 
 Lemma ratNeqE : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
@@ -215,7 +215,7 @@ Proof with auto.
   intros [x [Hx Hlt]]. apply ratLtE in Hlt
     as [a [Ha [b [Hb [c [Hc [d [Hd [Hpb [Hpd [H1 [H2 Hlt]]]]]]]]]]]].
   subst x. apply rat_ident in H2... rewrite H2 in Hlt.
-  eapply intLt_not_refl; revgoals; eauto; mr; nz.
+  eapply intLt_irrefl; revgoals; eauto; mr; nz.
 Qed.
 
 Lemma ratLt_connected : connected RatLt ℚ.
@@ -250,7 +250,7 @@ Definition ratNeg : set → Prop := λ r, r <𝐪 Rat 0.
 Lemma rat_neq_0 : ∀r ∈ ℚ, ratPos r ∨ ratNeg r → r ≠ Rat 0.
 Proof.
   intros r Hr [Hpr|Hnr]; intros H; subst;
-  eapply ratLt_not_refl; revgoals; eauto.
+  eapply ratLt_irrefl; revgoals; eauto.
 Qed.
 
 Lemma ratPos_intPos : ∀a ∈ ℤ, ∀b ∈ ℤ',
@@ -328,7 +328,7 @@ Proof with neauto.
   rewrite intMul_0_l, intMul_ident in H...
   assert (Ha': a ∈ ℤ'). {
     apply nzIntI0... intros Heq. rewrite Heq in H.
-    eapply intLt_not_refl; revgoals...
+    eapply intLt_irrefl; revgoals...
   }
   rewrite ratMulInv... apply ratLt...
   rewrite intMul_0_l, intMul_ident...
@@ -366,9 +366,9 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hn. destruct H.
-    + eapply ratLt_not_refl; revgoals.
+    + eapply ratLt_irrefl; revgoals.
       eapply ratLt_tranr... auto.
-    + subst. eapply ratLt_not_refl...
+    + subst. eapply ratLt_irrefl...
 Qed.
 
 Lemma ratNeg_not_nonNeg : ∀r ∈ ℚ, ¬ ratNonNeg r ↔ ratNeg r.
@@ -386,9 +386,9 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hp. destruct H.
-    + eapply ratLt_not_refl; revgoals.
+    + eapply ratLt_irrefl; revgoals.
       eapply ratLt_tranr... nauto.
-    + subst. eapply ratLt_not_refl...
+    + subst. eapply ratLt_irrefl...
 Qed.
 
 Lemma ratPos_not_nonPos : ∀r ∈ ℚ, ¬ ratNonPos r ↔ ratPos r.
@@ -415,7 +415,7 @@ Proof with neauto.
     + right. rewrite H0, ratAddInv_0...
     + apply ratLt_connected in H0 as []... left...
       apply ratPos_neg in H0. exfalso.
-      eapply ratLt_not_refl; revgoals.
+      eapply ratLt_irrefl; revgoals.
       eapply ratLt_tranr... apply ratAddInv_ran...
   - destruct (classic (r = Rat 0)). right...
     apply ratLt_connected in H0 as []...
@@ -465,11 +465,11 @@ Proof with nauto.
   cut (∀ r s t ∈ ℚ, ratPos t → r <𝐪 s → (r ⋅ t <𝐪 s ⋅ t)%q).
   intros Hright r Hr s Hs t Ht Hpt. split; intros Hlt.
   apply Hright... destruct (classic (r = s)).
-  subst. exfalso. eapply ratLt_not_refl; revgoals.
+  subst. exfalso. eapply ratLt_irrefl; revgoals.
   apply Hlt. apply ratMul_ran...
   apply ratLt_connected in H as []... exfalso.
   apply (Hright s Hs r Hr t Ht Hpt) in H.
-  eapply ratLt_not_refl; revgoals.
+  eapply ratLt_irrefl; revgoals.
   eapply ratLt_tranr; eauto. apply ratMul_ran...
   intros r Hr s Hs t Ht Hpt Hlt.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].

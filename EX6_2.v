@@ -1,7 +1,10 @@
 (** Solutions to "Elements of Set Theory" Chapter 6 Part 2 **)
-(** Coq coding by choukh, Sep 2020 **)
+(** Coq coding by choukh, Oct 2020 **)
 
 Require Export ZFC.EST6_4.
+Require Import ZFC.lib.NatIsomorphism.
+Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.IndexedFamilyUnion.
 
 (* 所有集合的支配集不能构成一个集合 *)
 Example ex6_15 : ¬∃ 𝒜, ∀ B, ∃A ∈ 𝒜, B ≼ A.
@@ -104,9 +107,9 @@ Proof with eauto; try congruence.
     + apply SepI. apply empty_in_all_power.
       apply injection_is_func. apply empty_injective.
     + intros i Hi. exfalso0.
-  - apply set_eqnum_suc_inhabited in Hqn as HneI...
+  - apply set_eqnum_suc_nonempty in Hqn as HneI...
     destruct HneI as [j Hj]. apply split_one_element in Hj as HeqI.
-    rewrite HeqI in Hqn. apply fin_set_remove_one_element in Hqn...
+    rewrite HeqI in Hqn. apply finite_set_remove_one_element in Hqn...
     specialize IH with (I - ⎨j⎬) as [f Hf]... {
       intros i Hi. apply HneX. apply SepE in Hi as []...
     }
@@ -169,8 +172,164 @@ Proof with eauto.
   destruct HF as [_ [Hd _]]. rewrite Hd. eapply ap_ran...
 Qed.
 
-(* ex6_21: see EST6_4_EXTEND Theorem AC_VI_to_AC_VII *)
+(* ex6_21: see EST6_4_EXTEND_1 Theorem AC_VI_to_AC_VII *)
+(* ex6_22: see EST6_4 Theorem AC_I_iff_AC_I' *)
 
+Example ex6_23 : ∀ A F g h,
+  is_function g → dom g = ω →
+  (∀n ∈ ω, g[n] = F[A - h[n]]) → h[∅] = ∅ →
+  (∀n ∈ ω, h[n⁺] = h[n] ∪ ⎨F[A - h[n]]⎬) →
+  ∀n ∈ ω, g⟦n⟧ = h[n].
+Proof with eauto; try congruence.
+  intros * Hfg Hdg Hrg Hh0 Hhn n Hn.
+  set {n ∊ ω | λ n, g⟦n⟧ = h[n]} as N.
+  ω_induction N Hn.
+  - apply ExtAx. split; intros Hx.
+    + apply imgE in Hx as [k [Hk _]]. exfalso0.
+    + rewrite Hh0 in Hx. exfalso0.
+  - apply ExtAx. split; intros Hx.
+    + apply imgE in Hx as [k [Hk Hp]]. rewrite Hhn...
+      apply BUnionE in Hk as [].
+      * apply BUnionI1. rewrite <- IH. eapply imgI...
+      * apply BUnionI2. apply SingE in H. subst k.
+        apply func_ap in Hp... subst x. rewrite <- Hrg...
+    + rewrite Hhn in Hx... apply BUnionE in Hx as [].
+      * rewrite <- IH in H. apply imgE in H as [k [Hk Hp]].
+        eapply imgI. apply BUnionI1... apply Hp.
+      * apply SingE in H. subst x. rewrite <- Hrg...
+        eapply imgI. apply BUnionI2... apply func_correct...
+Qed.
 
+(* ex6_24 see EST6_4_EXTEND_2 *)
 
+(** ex6_25 **)
 
+(* 增长序列 *)
+Definition incr_seq : (nat → set) → Prop := λ Q,
+  ∀ n, Q n ⊆ Q (S n).
+
+(* 若增长序列的元素下标有小于等于关系那么元素有包含关系 *)
+Lemma incr_seq_index_leq_impl_sub : ∀ Q, incr_seq Q →
+  ∀ n m, n <= m → Q n ⊆ Q m.
+Proof with auto.
+  intros Q Hinc n m Hle.
+  induction m.
+  - apply Le.le_n_0_eq in Hle. subst...
+  - apply PeanoNat.Nat.le_succ_r in Hle as []; [|subst]...
+    eapply sub_tran. apply IHm... apply Hinc.
+Qed.
+
+(* ==使用了选择公理== *)
+Example ex6_25 : ∀ Q A, incr_seq Q → A ⊆ ⋃ᵢ Q →
+  (∀ B, infinite B → B ⊆ A → ∃ n, infinite (B ∩ Q n)) →
+  ∃ n, A ⊆ Q n.
+Proof with neauto; try congruence.
+  intros * Hinc Hsuba Hinf.
+  apply not_all_not_ex. intros Han.
+  assert (Hnea: ∀ n, ⦿ (A - Q n)). {
+    intros. apply EmptyNE. intros H.
+    apply sub_iff_no_comp in H. eapply Han...
+  }
+  clear Han.
+  pose proof (ac3 A) as [F [_ [_ Hch]]].
+  set (λ n, F[A - Q n]) as g.
+  set {λ n, g「n」| n ∊ ω} as B.
+  assert (Hneb: ⦿ B). {
+    exists (F[A - Q 0]). apply ReplAx.
+    exists ∅. split... rewrite <- zero, embed_proj_id...
+  }
+  assert (Hgn1: ∀ n, g n ∈ A - Q n). { intros. apply Hch... }
+  assert (Hgn2: ∀ n, ∃ m, g n ∈ Q m). {
+    intros. specialize Hgn1 with n.
+    apply SepE in Hgn1 as [Hgn _]. apply Hsuba in Hgn.
+    apply IFUnionE in Hgn as [m Hgm]. exists m...
+  }
+  assert (Hgn3: ∀ n, g n ∈ B). {
+    intros. apply ReplAx. exists (Embed n). split.
+    apply embed_ran. rewrite embed_proj_id...
+  }
+  assert (Hgn4: ∀ n, g n ∉ Q n). {
+    intros. specialize Hgn1 with n.
+    apply SepE in Hgn1 as []...
+  }
+  specialize Hinf with B as [n Hinf].
+  - intros Hfin.
+    set (λ x, {n ∊ ω | λ n, x ∈ Q「n」}) as 𝒩.
+    set (λ x, min[𝒩 x]) as f.
+    assert (Hmin: ∀b ∈ B, f b ∈ 𝒩 b ∧ ∀n ∈ 𝒩 b, f b ⊆ n). {
+      intros b Hb. apply min_correct.
+      apply ReplAx in Hb as [n [Hn Heqb]]. subst b.
+      specialize Hgn2 with 「n」as [m Hgn].
+      exists (Embed m). apply SepI.
+      apply embed_ran. rewrite embed_proj_id...
+      intros x Hx. apply SepE in Hx as []...
+    }
+    apply (repl_finite f) in Hfin.
+    apply finite_subset_of_ω_is_bounded in Hfin as [m [Hm Hmax]]; revgoals. {
+      intros x Hx. apply ReplAx in Hx as [b [Hb Hfb]]. subst x.
+      apply Hmin in Hb as [Hfb _]. apply SepE in Hfb as []...
+    } {
+      destruct Hneb as [b Hb]. exists (f b).
+      apply ReplAx. exists b. split...
+    }
+    cut (B ⊆ Q「m」). {
+      intros Hsub. apply (Hgn4「m」). apply Hsub...
+    }
+    apply ReplAx in Hm as [b [Hb Heqm]].
+    apply Hmin in Hb as [Hfb _]. apply SepE in Hfb as [Hfb _].
+    assert (Hsub: B ⊆ ⋃{λ n, Q「n」| n ∊ m ⁺}). {
+      intros x Hx. assert (Hx' := Hx).
+      apply Hmin in Hx' as [Hfx Hsub].
+      apply SepE in Hfx as [Hfx Hxq].
+      apply UnionAx. exists (Q「f x」). split...
+      apply ReplAx. exists (f x). split...
+      apply lt_suc_iff_sub... apply Hmax.
+      apply ReplAx. exists x. split...
+    }
+    eapply sub_tran. apply Hsub.
+    intros x Hx. apply UnionAx in Hx as [q [Hq Hx]].
+    apply ReplAx in Hq as [n [Hn Hq]]. subst q.
+    assert (Hnw: n ∈ ω). {
+      eapply ω_trans... apply ω_inductive...
+    }
+    apply BUnionE in Hn as [].
+    + apply (incr_seq_index_leq_impl_sub Q Hinc「n」)...
+      apply Le_isomorphic. repeat rewrite proj_embed_id...
+      apply lt_iff_psub...
+    + apply SingE in H...
+  - intros x Hx. apply ReplAx in Hx as [n [Hn Hx]]. subst x.
+    assert (Hsub: A - Q「n」⊆ A) by auto. apply Hsub...
+  - set {m ∊ ω | λ m, g「m」∈ Q n} as M.
+    set {λ m, g「m」| m ∊ M} as C.
+    assert (Hsubm: M ⊆ ω). {
+      intros x Hx. apply SepE in Hx as []...
+    }
+    assert (Heq: B ∩ Q n = C). {
+      apply ExtAx. split; intros Hx.
+      - apply BInterE in Hx as [H1 H2].
+        apply ReplAx in H1 as [m [Hm Hgm]]. subst x.
+        apply ReplAx. exists m. split... apply SepI...
+      - apply ReplAx in Hx as [m [Hm Hgm]]. subst x.
+        apply SepE in Hm as [_ Hgm]. apply BInterI...
+    }
+    assert (HinfM: infinite M). {
+      intros Hfin. apply Hinf. rewrite Heq.
+      apply (dominated_by_finite_is_finite _ M)...
+      set (Func M C (λ x, g「x」)) as f.
+      apply (domain_of_surjection_dominate_range ac1 _ _ f).
+      apply meta_surjective.
+      - intros x Hx. apply ReplAx. exists x. split...
+      - intros y Hy. apply ReplAx in Hy as [x [Hx Heqy]].
+        exists x. split...
+    }
+    pose proof (infinite_subset_of_ω_is_unbound M) as [_ Harc]...
+    pose proof (embed_ran n) as Hnw.
+    apply Harc in Hnw as [m [Hm Hnm]].
+    apply SepE in Hm as [Hm Hgm].
+    apply lt_iff_psub in Hnm as [Hnm _]...
+    rewrite <- (proj_embed_id m) in Hnm...
+    apply Le_isomorphic in Hnm.
+    apply (incr_seq_index_leq_impl_sub Q Hinc) in Hnm.
+    apply Hnm in Hgm. specialize Hgn1 with「m」.
+    apply SepE in Hgn1 as []...
+Qed.
