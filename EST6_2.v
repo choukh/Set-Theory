@@ -18,6 +18,13 @@ Lemma card_is_card : ∀ A, is_card (|A|).
 Proof. intros. exists A. reflexivity. Qed.
 Hint Immediate card_is_card : core.
 
+(* 基数的基数等于自身 *)
+Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → 𝜅 = |𝜅|.
+Proof.
+  intros 𝜅 [K H𝜅]. rewrite H𝜅 at 1.
+  apply CardAx1. rewrite H𝜅. apply CardAx0.
+Qed.
+
 (* 自然数的基数等于自身 *)
 Lemma card_of_nat : ∀n ∈ ω, n = |n|.
 Proof with auto.
@@ -31,11 +38,13 @@ Proof.
   intros n Hn. exists n. apply (card_of_nat _ Hn).
 Qed.
 
-(* 基数的基数等于自身 *)
-Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → 𝜅 = |𝜅|.
+(* 有限基数是自然数 *)
+Lemma fin_card_is_nat : ∀ n, is_card n → finite n → n ∈ ω.
 Proof.
-  intros 𝜅 [K H𝜅]. rewrite H𝜅 at 1.
-  apply CardAx1. rewrite H𝜅. apply CardAx0.
+  intros n Hcd Hfin. apply CardAx2 in Hfin as Heqn.
+  rewrite <- card_of_card in Heqn; auto.
+  apply fin_card_correct in Hfin as [m [Hm [Heqm _]]].
+  congruence.
 Qed.
 
 (* 集合的基数为零当且仅当它是空集 *)

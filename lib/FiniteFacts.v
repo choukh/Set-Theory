@@ -1,7 +1,7 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import ZFC.EST6_2.
 Require Import Coq.Logic.FinFun.
+Require Import ZFC.EST6_2.
 
 (* 有限集添加一个元素仍是有限集 *)
 Lemma finite_set_adding_one_still_finite : ∀ A a,
@@ -214,7 +214,7 @@ Proof.
   intros. rewrite binter_comm. apply binter_finite_r. apply H.
 Qed.
 
-(** properties about finite subset of ω **)
+(** properties about finite / infinite subset of ω **)
 
 (* 自然数集子集里存在极大元 *)
 Definition max_number : set → set → Prop := λ m N,

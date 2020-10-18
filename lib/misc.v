@@ -57,9 +57,15 @@ Inductive ex (A : Type) (P : A → Prop) : Prop :=
 Axiom A : Type.
 Axiom a : A.
 
-Fact test : ∀ (P : A → Prop) (Q : Prop),
+Fact ex_test : ∀ (P : A → Prop) (Q : Prop),
   P a → ex A P.
 Proof.
   intros P Q Hpa.
   exact (ex_intro A P a Hpa).
+Qed.
+
+Lemma test : ∀ {A : Type} (R : A → Prop) (S : A → Prop),
+  ((∀ y, R y) ∧ (∃ y, S y)) → ∃ y, (R y ∧ S y).
+Proof.
+  firstorder.
 Qed.

@@ -596,9 +596,12 @@ Proof with auto.
   apply cardLeq_iff. apply ω_is_the_least_infinite_set...
 Qed.
 
-(* ==可以不用选择公理== *)
+(* ==使用选择公理的代替证法== *)
+Module AlternativeProofWithAC.
+
+(* Check EST6_3.infinite_subset_of_ω_eqnum_ω *)
 (* ω的任意无限子集与ω等势 *)
-Corollary any_infinite_subset_of_ω_eqnum_ω : ∀ N,
+Corollary infinite_subset_of_ω_eqnum_ω : ∀ N,
   N ⊆ ω → infinite N → N ≈ ω.
 Proof.
   intros N Hsub Hinf.
@@ -607,9 +610,9 @@ Proof.
   apply Schröeder_Bernstein; auto.
 Qed.
 
-(* ==可以不用选择公理== *)
+(* Check EST6_3.cardLt_aleph0_iff_finite *)
 (* 基数是有限基数当且仅当它小于ℵ₀ *)
-Corollary card_is_finite_iff_lt_aleph0 : ∀ 𝜅,
+Corollary cardLt_aleph0_iff_finite : ∀ 𝜅,
   is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
@@ -618,11 +621,8 @@ Proof with auto.
     apply Hnq. apply cardLeq_asym...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
     rewrite <- card_of_card, <- card_of_nat in Hqn... rewrite Hqn.
-    apply cardLt_nat_aleph0...
+    apply cardLt_aleph0_if_finite...
 Qed.
-
-(* ==使用选择公理的代替证法== *)
-Module AlternativeProofWithAC.
 
 (* Check EST6_3.dominated_by_finite_is_finite *)
 (* 被有限集支配的集合是有限集 *)
@@ -631,9 +631,9 @@ Corollary dominated_by_finite_is_finite : ∀ A B,
 Proof with auto.
   intros * Hdm Hfin.
   rewrite set_finite_iff_card_finite.
-  apply card_is_finite_iff_lt_aleph0...
+  apply cardLt_aleph0_iff_finite...
   eapply cardLeq_lt_tran. apply cardLeq_iff. apply Hdm.
-  apply card_is_finite_iff_lt_aleph0...
+  apply cardLt_aleph0_iff_finite...
   rewrite <- set_finite_iff_card_finite...
 Qed.
 

@@ -3,6 +3,7 @@
 
 Require Export ZFC.EX6_1.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Import ZFC.lib.NaturalSubsetMin.
 
 (*** EST第六章3：支配关系，施罗德-伯恩斯坦定理，基数的序，阿列夫零 ***)
 
@@ -158,6 +159,54 @@ Proof with auto.
     apply inv_injective... rewrite inv_ran...
   - apply (subset_of_finite_is_finite _ B)...
     intros y Hy. rewrite inv_dom in Hy. apply Hr...
+Qed.
+
+(* ω的任意无限子集与ω等势 *)
+Theorem infinite_subset_of_ω_eqnum_ω : ∀ N,
+  N ⊆ ω → infinite N → N ≈ ω.
+Proof with neauto; try congruence.
+  intros N Hsub Hinf.
+  apply Schröeder_Bernstein. apply dominate_sub...
+  apply infinite_subset_of_ω_is_unbound in Hinf as [Hne Harc]...
+  destruct (ω_wellOrder N) as [n0 [Hn0 H0]]... apply EmptyNI...
+  apply Hsub in Hn0 as Hn0w.
+  assert (Hsubn: ∀n ∈ ω, 𝒩xt N n ⊆ N). {
+    intros n Hn x Hx. apply SepE in Hx as []...
+  }
+  set (Func N N (λ n, Next N n)) as F.
+  assert (HF: F: N ⇔ N). {
+    apply meta_injective.
+    - intros n Hn. apply Hsub in Hn as Hnw. apply (Hsubn n Hnw).
+      pose proof (Harc n Hnw) as [m [Hm Hnm]].
+      apply min_correct. exists m. apply SepI...
+      eapply sub_tran. apply Hsubn... apply Hsub.
+    - apply next_injective...
+  }
+  assert (Hn0': n0 ∈ N - ran F). {
+    destruct HF as [[Hf _] [Hd Hr]].
+    apply SepI... intros H.
+    apply ranE in H as [x Hp]. apply domI in Hp as Hx.
+    rewrite Hd in Hx. apply Hsub in Hx as Hxw.
+    apply func_ap in Hp... unfold F in Hp.
+    rewrite meta_func_ap in Hp; [|split|]...
+    pose proof (H0 x Hx) as Hn0x. apply leq_iff_sub in Hn0x...
+    apply min_next in Hx as [_ [Hx _]]...
+    rewrite Hp in Hx. apply Hn0x in Hx. apply (lt_irrefl x)...
+  }
+  pose proof (injective_recursion _ _ _ HF Hn0') as [f [Hf _]].
+  exists f...
+Qed.
+
+(* 被ω支配的无限集与ω等势 *)
+Corollary infinite_set_dominated_by_ω_eqnum_ω : ∀ A,
+  A ≼ ω → infinite A → A ≈ ω.
+Proof with auto.
+  intros A [f [Hf [Hd Hr]]] Hinf.
+  assert (A ≈ ran f). { exists f. split... }
+  rewrite H. apply infinite_subset_of_ω_eqnum_ω...
+  intros Hfin. apply Hinf.
+  apply (dominated_by_finite_is_finite _ (ran f))...
+  exists f. split...
 Qed.
 
 (* 基数的序关系 *)
@@ -508,11 +557,32 @@ Proof with nauto.
 Qed.
 
 (* 有限基数小于阿列夫零 *)
-Lemma cardLt_nat_aleph0 : ∀n ∈ ω, n <𝐜 ℵ₀.
+Lemma cardLt_aleph0_if_finite : ∀n ∈ ω, n <𝐜 ℵ₀.
 Proof with eauto.
   intros n Hn. rewrite card_of_nat... apply cardLt_iff.
   split. apply ω_dominate... intros Hqn.
   apply CardAx1 in Hqn. eapply fin_card_neq_aleph0...
+Qed.
+
+(* 小于阿列夫零的基数是有限基数 *)
+Lemma cardLt_aleph0_is_finite : ∀ 𝜅,
+  is_card 𝜅 → 𝜅 <𝐜 ℵ₀ → finite 𝜅.
+Proof with auto.
+  intros 𝜅 [A Heq𝜅] Hlt. subst 𝜅.
+  apply cardLt_iff in Hlt as [Hdm Hqn].
+  rewrite <- set_finite_iff_card_finite.
+  destruct (classic (finite A)) as [|Hinf]... exfalso.
+  apply Hqn. apply infinite_set_dominated_by_ω_eqnum_ω...
+Qed.
+
+(* 基数是有限基数当且仅当它小于阿列夫零 *)
+Lemma cardLt_aleph0_iff_finite : ∀ 𝜅,
+  is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
+Proof with auto.
+  intros 𝜅 Hcd. split.
+  - apply cardLt_aleph0_is_finite...
+  - intros Hfin. apply cardLt_aleph0_if_finite.
+    apply fin_card_is_nat...
 Qed.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
@@ -590,5 +660,5 @@ Proof with auto.
     apply cardLeq_sub. apply trans_sub_power. apply ω_trans.
   - rewrite <- (cardMul_ident (2 ^ ℵ₀)) at 1...
     rewrite cardMul_comm. apply cardMul_preserve_leq.
-    pose proof (cardLt_nat_aleph0 1) as []; nauto.
+    pose proof (cardLt_aleph0_if_finite 1) as []; nauto.
 Qed.
