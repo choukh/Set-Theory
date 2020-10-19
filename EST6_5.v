@@ -24,3 +24,5 @@ Proof with auto.
       apply trans_sub... apply ω_trans.
     + exists f. apply bijection_is_injection...
 Qed.
+
+

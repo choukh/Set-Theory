@@ -18,7 +18,6 @@ Proof with auto.
     as [K [Heq Ha]]. exists K. split...
 Qed.
 
-(* ==可以不用选择公理== *)
 (* 有限集到自身的映射是单射当且仅当该映射是满射 *)
 Example ex6_7 : ∀ A f, finite A → f: A ⇒ A →
   injective f ↔ ran f = A.

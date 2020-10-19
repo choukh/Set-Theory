@@ -478,8 +478,8 @@ Proof with eauto.
 Qed.
 
 (* ==需要选择公理== *)
-(* 对任意非空集合，存在到此集合的满射如果此集合被定义域支配 *)
-Lemma surjective_if_domain_dominate_range : AC_I →
+(* 任意非空集合B被集合A支配如果B被A满射 *)
+Lemma dominated_impl_mapped_onto : AC_I →
   ∀ A B, ⦿ B → B ≼ A → ∃ F, F: A ⟹ B.
 Proof with auto.
   intros AC1 * Hne [G HG].
@@ -489,22 +489,13 @@ Proof with auto.
 Qed.
 
 (* ==需要选择公理== *)
-(* 对任意非空集合，存在到此集合的满射当且仅当此集合被定义域支配 *)
-Fact surjective_iff_domain_dominate_range : AC_I →
+(* 任意非空集合B被集合A支配当且仅当B被A满射 *)
+Fact dominated_iff_mapped_onto : AC_I →
   ∀ A B, ⦿ B → (∃ F, F: A ⟹ B) ↔ B ≼ A.
 Proof with eauto.
   split; intros [F HF].
   - eapply domain_of_surjection_dominate_range...
-  - apply surjective_if_domain_dominate_range... exists F...
-Qed.
-
-(* ==可以不用选择公理== *)
-(* 对任意非空集合，存在定义域为ω且值域为此集合的满射当且仅当此集合被ω支配 *)
-Corollary surjective_iff_ω_dominate_range :
-  ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
-Proof.
-  intros. apply surjective_iff_domain_dominate_range.
-  apply ac1. apply H.
+  - apply dominated_impl_mapped_onto... exists F...
 Qed.
 
 (* 有限集在无限集里的补集是无限集 *)
@@ -598,6 +589,15 @@ Qed.
 
 (* ==使用选择公理的代替证法== *)
 Module AlternativeProofWithAC.
+
+(* Check EST6_3.dominated_by_ω_iff_mapped_onto_by_ω *)
+(* 任意非空集合被ω支配当且仅当它被ω满射 *)
+Corollary dominated_by_ω_iff_mapped_onto_by_ω :
+  ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
+Proof.
+  intros. apply dominated_iff_mapped_onto.
+  apply ac1. apply H.
+Qed.
 
 (* Check EST6_3.infinite_subset_of_ω_eqnum_ω *)
 (* ω的任意无限子集与ω等势 *)

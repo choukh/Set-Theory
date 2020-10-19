@@ -2,7 +2,8 @@
 
 Require Import ZFC.lib.Natural.
 
-(* 自然数子集的极小元函数 *)
+(* ω子集的极小元函数 *)
+(* 相当于ω上的选择函数 *)
 
 Local Definition F := λ n, {λ N, <N, n> | N ∊ 𝒫 ω - ⎨∅⎬}.
 Local Definition P := λ p, π2 p ∈ π1 p ∧ ∀m ∈ π1 p, π2 p ⊆ m.

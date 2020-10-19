@@ -209,6 +209,56 @@ Proof with auto.
   exists f. split...
 Qed.
 
+(* 任意非空集合被ω支配当且仅当它被ω满射 *)
+Corollary dominated_by_ω_iff_mapped_onto_by_ω :
+  ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
+Proof with auto; try congruence.
+  intros B [b Hb]. split.
+  - intros [f [Hf [Hd Hr]]].
+    set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
+    set (Func B ω (λ x, min[𝒩 x])) as g.
+    exists g. apply meta_injective.
+    + intros x Hx. eapply ap_ran.
+      apply min_maps_into. apply SepI.
+      * apply PowerAx. intros n Hn. apply SepE in Hn as []...
+      * rewrite <- Hr in Hx. apply ranE in Hx as [n Hp].
+        apply domI in Hp as Hn. apply func_ap in Hp...
+        apply SingNI. apply EmptyNI. exists n. apply SepI...
+    + intros b1 Hb1 b2 Hb2 Heq.
+      assert (Hsub: ∀ b, 𝒩 b ⊆ ω). {
+        intros b0 x Hx. apply SepE in Hx as []...
+      }
+      specialize (min_correct (𝒩 b1)) as [H1 _]... {
+        rewrite <- Hr in Hb1. apply ranE in Hb1 as [n1 H1].
+        apply domI in H1 as Hn1. apply func_ap in H1...
+        exists n1. apply SepI...
+      }
+      specialize (min_correct (𝒩 b2)) as [H2 _]... {
+        rewrite <- Hr in Hb2. apply ranE in Hb2 as [n2 H2].
+        apply domI in H2 as Hn2. apply func_ap in H2...
+        exists n2. apply SepI...
+      }
+      apply SepE in H1 as [_ H1].
+      apply SepE in H2 as [_ H2]. congruence.
+  - intros Hdm. destruct (classic (finite B)).
+    + destruct H as [n [Hn [f Hf]]].
+      set (Func ω B (λ x, match (ixm (x ∈ n)) with
+        | inl _ => f⁻¹[x]
+        | inr _ => b
+      end)) as g.
+      exists g. apply meta_surjective.
+      * intros x Hx. destruct (ixm (x ∈ n))... apply (ap_ran n)...
+        apply bijection_is_func. apply inv_bijection...
+      * intros y Hy. destruct Hf as [[Hf Hs] [Hd Hr]].
+        rewrite <- Hd in Hy. apply domE in Hy as [x Hp].
+        apply ranI in Hp as Hx. rewrite Hr in Hx.
+        exists x. split. apply (ω_trans _ n)...
+        destruct (ixm (x ∈ n))... apply func_ap.
+        apply inv_func_iff_sr... rewrite <- inv_op...
+    + apply infinite_set_dominated_by_ω_eqnum_ω in H as [f Hf]...
+      exists (f⁻¹). apply bijection_is_surjection. apply inv_bijection...
+Qed.
+
 (* 基数的序关系 *)
 Definition CardLeq : set → set → Prop := λ 𝜅 𝜆,
   is_card 𝜅 ∧ is_card 𝜆 ∧ 𝜅 ≼ 𝜆.
