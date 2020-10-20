@@ -71,7 +71,7 @@ Proof with auto.
   destruct IH as [k' Heq]. subst. exists (S k')...
 Qed.
 
-(* 嵌入操作是单射 *)
+(* 嵌入是单射 *)
 Lemma embed_injective : ∀ m n : nat,
   Embed m = Embed n → m = n.
 Proof with auto.
@@ -95,6 +95,14 @@ Lemma proj_embed_id : ∀n ∈ ω, Embed「n」= n.
 Proof.
   intros n Hn. destruct (proj n Hn) as [m Heq].
   subst. rewrite embed_proj_id. reflexivity.
+Qed.
+
+(* 投射是单射 *)
+Lemma proj_injective : ∀ n m ∈ ω,「n」=「m」→ n = m.
+Proof.
+  intros n Hn m Hm Heq.
+  assert (Embed「n」= Embed「m」) by auto.
+  do 2 rewrite proj_embed_id in H; auto.
 Qed.
 
 (** 自然数算术 **)

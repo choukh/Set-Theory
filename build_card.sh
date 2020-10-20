@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "building Inj_2n3m"
+coqc -R . ZFC lib/algebra/Inj_2n3m.v
 echo "building NatIsomorphism"
 coqc -R . ZFC lib/NatIsomorphism.v
 echo "building NaturalSubsetMin"

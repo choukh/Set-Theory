@@ -60,6 +60,8 @@ coqc -R . ZFC EST5_7.v
 echo "building Real"
 coqc -R . ZFC lib/Real.v
 
+echo "building Inj_2n3m"
+coqc -R . ZFC lib/algebra/Inj_2n3m.v
 echo "building NatIsomorphism"
 coqc -R . ZFC lib/NatIsomorphism.v
 echo "building NaturalSubsetMin"

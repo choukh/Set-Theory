@@ -4,6 +4,8 @@
 Require Export ZFC.EX6_1.
 Require Import ZFC.lib.IndexedFamilyUnion.
 Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.NatIsomorphism.
+Require Import ZFC.lib.algebra.Inj_2n3m.
 
 (*** EST第六章3：支配关系，施罗德-伯恩斯坦定理，基数的序，阿列夫零 ***)
 
@@ -257,6 +259,31 @@ Proof with auto; try congruence.
         apply inv_func_iff_sr... rewrite <- inv_op...
     + apply infinite_set_dominated_by_ω_eqnum_ω in H as [f Hf]...
       exists (f⁻¹). apply bijection_is_surjection. apply inv_bijection...
+Qed.
+
+Fact ω_eqnum_ω_cp_ω : ω ≈ ω × ω.
+Proof with nauto.
+  apply Schröeder_Bernstein.
+  - set (Func ω (ω × ω) (λ n, <n, ∅>)) as f.
+    exists f. apply meta_injective.
+    + intros n Hn. apply CProdI...
+    + intros x1 _ x2 _ Heq. apply op_iff in Heq as []...
+  - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%n)) as f.
+    exists f. apply meta_injective.
+    + intros p Hp.
+      apply cprod_iff in Hp as [n [Hn [m [Hm Hp]]]].
+      subst p. zfcrewrite. apply mul_ran; apply exp_ran...
+    + intros p1 H1 p2 H2 Heq.
+      apply cprod_iff in H1 as [n [Hn [m [Hm H1]]]].
+      apply cprod_iff in H2 as [p [Hp [q [Hq H2]]]].
+      subst p1 p2. zfcrewrite.
+      do 4 rewrite pow_isomorphic_ω in Heq...
+      do 2 rewrite mul_isomorphic_ω in Heq...
+      repeat rewrite embed_proj_id in Heq.
+      apply embed_injective in Heq.
+      apply inj_2n3m in Heq as [H1 H2].
+      apply proj_injective in H1...
+      apply proj_injective in H2... apply op_iff...
 Qed.
 
 (* 基数的序关系 *)
@@ -711,4 +738,11 @@ Proof with auto.
   - rewrite <- (cardMul_ident (2 ^ ℵ₀)) at 1...
     rewrite cardMul_comm. apply cardMul_preserve_leq.
     pose proof (cardLt_aleph0_if_finite 1) as []; nauto.
+Qed.
+
+Fact cardMul_aleph0_aleph0 : ℵ₀ ⋅ ℵ₀ = ℵ₀.
+Proof with auto.
+  apply CardAx1. eapply eqnum_tran.
+  apply cardMul_well_defined; rewrite <- CardAx0; reflexivity.
+  symmetry. apply ω_eqnum_ω_cp_ω.
 Qed.

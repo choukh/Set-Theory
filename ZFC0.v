@@ -2,9 +2,9 @@
 (** based on the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
-Require Export Utf8_core.
-Require Export Classical.
-Require Export Epsilon.
+Require Export Coq.Unicode.Utf8_core.
+Require Export Coq.Logic.Classical.
+Require Export Coq.Logic.Epsilon.
 
 Set Implicit Arguments.
 
