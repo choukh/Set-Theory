@@ -352,7 +352,7 @@ Example ex4_27: ∀ A G f₁ f₂, is_function G →
   f₁ = f₂.
 Proof with eauto; try congruence.
   intros A G f₁ f₂ HG [Hf₁ [Hf₁d Hf₁r]] [Hf₂ [Hf₂d Hf₂r]] H...
-  apply func_ext... intros n Hn. rewrite Hf₁d in Hn.
+  apply func_ext_intro... intros n Hn. rewrite Hf₁d in Hn.
   pose proof (H n) as [_ [_ [Heq1 Heq2]]]...
   cut (f₁ ↾ n = f₂ ↾ n)... clear Heq1 Heq2.
   set {n ∊ ω | λ n, f₁ ↾ n = f₂ ↾ n} as N.

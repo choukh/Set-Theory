@@ -260,7 +260,7 @@ Proof with auto.
   intros * Hf Hx Hap. apply func_correct in Hx... subst y...
 Qed.
 
-Theorem func_ext : ∀ F G, is_function F → is_function G →
+Lemma func_ext_intro : ∀ F G, is_function F → is_function G →
   dom F = dom G → (∀x ∈ dom F, F[x] = G[x]) → F = G.
 Proof with auto.
   intros F G Hf Hg Heqd Heqap.
@@ -277,6 +277,26 @@ Proof with auto.
     rewrite Heqd in Hd. rewrite <- Heqd in Hd.
     apply func_correct in Hd; [|apply Hf].
     rewrite Hap in Hd. rewrite Heqp...
+Qed.
+
+Lemma func_ext_elim : ∀ F G, is_function F → is_function G →
+  F = G → dom F = dom G ∧ (∀x ∈ dom F, F[x] = G[x]).
+Proof with eauto.
+  intros F G Hf Hg Heq. split.
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp]. rewrite Heq in Hp. eapply domI...
+    + apply domE in Hx as [y Hp]. rewrite <- Heq in Hp. eapply domI...
+  - intros x Hx. apply domE in Hx as [y Hp].
+    apply func_ap in Hp as Hap... rewrite Heq in Hap.
+    rewrite Hap. apply func_ap...
+Qed.
+
+Theorem func_ext : ∀ F G, is_function F → is_function G →
+  (dom F = dom G ∧ ∀x ∈ dom F, F[x] = G[x]) ↔ F = G.
+Proof with auto.
+  intros F G Hf Hg. split.
+  - intros []. apply func_ext_intro...
+  - apply func_ext_elim...
 Qed.
 
 Lemma ident_ap : ∀ X, ∀x ∈ X, (Ident X)[x] = x.
@@ -571,7 +591,7 @@ Example compo_inv_dom_ident : ∀ G,
   injective G → (G⁻¹ ∘ G) = Ident (dom G).
 Proof with auto.
   intros G Hi. assert (Hi' := Hi).
-  destruct Hi' as [Hf Hs]. apply func_ext.
+  destruct Hi' as [Hf Hs]. apply func_ext_intro.
   - apply compo_func... apply inv_func_iff_sr...
   - apply ident_is_func.
   - rewrite compo_inv_dom, dom_ident...

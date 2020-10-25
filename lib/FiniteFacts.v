@@ -1,6 +1,5 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import Coq.Logic.FinFun.
 Require Import ZFC.EST6_2.
 
 (* 有限集添加一个元素仍是有限集 *)
@@ -140,7 +139,8 @@ Proof with auto.
 Qed.
 
 (* 任意集合与其一对一的替代等势 *)
-Lemma eqnum_repl : ∀ F A, Injective F → A ≈ {F | x ∊ A}.
+Lemma eqnum_repl : ∀ F A, (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
+  A ≈ {F | x ∊ A}.
 Proof with auto.
   intros. set (Func A {F | x ∊ A} (λ x, F x)) as f.
   exists f. apply meta_bijective.

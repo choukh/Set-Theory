@@ -47,12 +47,16 @@ Proof.
   congruence.
 Qed.
 
+(* 空集的基数为零 *)
+Lemma card_empty : |∅| = 0.
+Proof. rewrite CardAx2, fin_card_n; nauto. Qed.
+
 (* 集合的基数为零当且仅当它是空集 *)
-Lemma card_empty : ∀ A, |A| = ∅ ↔ A = ∅.
+Lemma card_empty_iff : ∀ A, |A| = ∅ ↔ A = ∅.
 Proof with nauto.
   split; intros.
   - rewrite <- eqnum_empty, <- CardAx1, (CardAx2 ∅), (fin_card_n ∅)...
-  - subst A. rewrite CardAx2, fin_card_n...
+  - subst A. apply card_empty.
 Qed.
 
 (* 单集与壹等势 *)
@@ -82,7 +86,7 @@ Lemma set_nonzero_card_nonzero : ∀ A, ⦿ A ↔ ⦿ |A|.
 Proof with nauto.
   split; intros [a Ha].
   - apply EmptyNE. intro.
-    rewrite card_empty in H. subst. exfalso0.
+    rewrite card_empty_iff in H. subst. exfalso0.
   - apply EmptyNE. intro. subst A.
     rewrite CardAx2, fin_card_n in Ha... exfalso0.
 Qed.
@@ -379,7 +383,7 @@ Qed.
 (* 基数乘于零等于零 *)
 Lemma cardMul_0_r : ∀ 𝜅, 𝜅 ⋅ 0 = 0.
 Proof.
-  intros 𝜅. apply card_empty. apply EmptyI.
+  intros 𝜅. apply card_empty_iff. apply EmptyI.
   intros x Hx. apply CProdE1 in Hx as []. exfalso0.
 Qed.
 
@@ -391,18 +395,18 @@ Proof.
   rewrite one. apply eqnum_cprod_single.
 Qed.
 
-(* 基数的1次幂等于自身 *)
-Lemma cardExp_1_r : ∀ 𝜅, is_card 𝜅 → 𝜅 ^ 1 = 𝜅.
+(* 壹到集合A的函数的集合与A等势 *)
+Lemma arrow_from_one : ∀ A, 1 ⟶ A ≈ A.
 Proof with neauto; try congruence.
-  intros 𝜅 Hcd. apply card_of_card in Hcd.
-  rewrite Hcd at 2. apply CardAx1. symmetry.
-  set (Func 𝜅 (1 ⟶ 𝜅) (λ x, ⎨<0, x>⎬)) as F.
+  intros. symmetry.
+  set (Func A (1 ⟶ A) (λ x, ⎨<0, x>⎬)) as F.
   exists F. apply meta_bijective.
   - intros x Hx.
     destruct (single_pair_bijective 0 x) as [[Hf Hi] [Hd Hr]].
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
-    eapply single_of_member_is_subset... eapply ap_ran... split... split...
+    eapply single_of_member_is_subset...
+    eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
     rewrite Heq in H. apply SingE in H.
@@ -417,6 +421,13 @@ Proof with neauto; try congruence.
         apply cprod_iff in Hcp as [a [Ha [b [Hb Hp']]]].
         subst p. rewrite one in Ha. apply SingE in Ha. subst a.
         cut (b = y). intros Heq. subst... eapply func_sv...
+Qed.
+
+(* 基数的1次幂等于自身 *)
+Lemma cardExp_1_r : ∀ 𝜅, is_card 𝜅 → 𝜅 ^ 1 = 𝜅.
+Proof.
+  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  rewrite Hcd at 2. apply CardAx1. apply arrow_from_one.
 Qed.
 
 (* 1的任意基数次幂等于1 *)
@@ -482,7 +493,7 @@ Qed.
 Lemma cardExp_0_l : ∀ 𝜅, 𝜅 ≠ ∅ → 0 ^ 𝜅 = 0.
 Proof with auto.
   intros. unfold CardExp. rewrite arrow_to_empty.
-  apply card_empty... apply EmptyNE. apply H.
+  apply card_empty_iff... apply EmptyNE. apply H.
 Qed.
 
 Fact cardExp_0_0 : 0 ^ 0 = 1.
@@ -665,7 +676,7 @@ Proof with eauto; try congruence.
     apply op_iff in Heq as [H1 H2].
     apply arrow_iff in Hf1 as [Hf1 [Hd1 Hr1]].
     apply arrow_iff in Hf2 as [Hf2 [Hd2 Hr2]].
-    apply func_ext... intros x Hx. rewrite Hd1 in Hx.
+    apply func_ext_intro... intros x Hx. rewrite Hd1 in Hx.
     apply BUnionE in Hx as [Hx|Hx].
     + assert (HF: <x, f1[x]> ∈ Func s 𝜅 (λ x, f1[x])). {
         apply SepI. apply CProdI... apply Hr1.
@@ -764,7 +775,7 @@ Proof with eauto; try congruence.
       apply arrow_iff in Hh1 as [Hh1 [Hdh1 _]].
       apply arrow_iff in Hg2 as [Hg2 [Hdg2 _]].
       apply arrow_iff in Hh2 as [Hh2 [Hdh2 _]].
-      intros H; split; eapply func_ext...
+      intros H; split; eapply func_ext_intro...
       - intros x Hx. rewrite Hdg1 in Hx.
         apply H in Hx. apply op_iff in Hx as []...
       - intros x Hx. rewrite Hdh1 in Hx.
@@ -852,7 +863,7 @@ Proof with eauto; try congruence.
   - intros f1 Hf1 f2 Hf2 Heq.
     apply arrow_iff in Hf1 as [Hf1 [Hdf1 Hrf1]].
     apply arrow_iff in Hf2 as [Hf2 [Hdf2 _]].
-    apply func_ext... intros x Hx. rewrite Hdf1 in Hx.
+    apply func_ext_intro... intros x Hx. rewrite Hdf1 in Hx.
     apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
     remember (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, f1[<x, y>]))) as F1.
     cut (<b, Func 𝜆 𝜅 (λ x, f1[<x, b>])> ∈ F1). {
@@ -877,7 +888,7 @@ Proof with eauto; try congruence.
       intros x Hx. apply func_correct in Hx as Hfx...
       apply ranI in Hfx. apply Hrf in Hfx.
       apply arrow_iff in Hfx as [Hhf [Hhd Hhr]].
-      apply func_ext... apply func_is_func.
+      apply func_ext_intro... apply func_is_func.
       - apply ExtAx. intros y. split; intros Hy.
         + eapply domI. apply SepI.
           * apply CProdI... apply Hhr. rewrite <- Hhd. apply Hy.
@@ -915,7 +926,7 @@ Proof with eauto; try congruence.
       subst p. zfcrewrite. rewrite <- Hdf in Hb.
       apply func_correct in Hb... apply ranI in Hb. apply Hrf in Hb.
       apply arrow_iff in Hb as [_ [_ Hr]]. apply Hr...
-    + apply func_ext... apply func_is_func.
+    + apply func_ext_intro... apply func_is_func.
       intros x Hx. rewrite H3 in Hx.
       apply func_ap. apply func_is_func. apply H2...
 Qed.

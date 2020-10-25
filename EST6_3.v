@@ -14,6 +14,10 @@ Definition dominate : set → set → Prop := λ A B, ∃ f, f: A ⇔ B.
 Notation "A ≼ B" := (dominate A B) (at level 70).
 Notation "A ≺ B" := (A ≼ B ∧ A ≉ B) (at level 70).
 
+(* 空集被任意集合支配 *)
+Lemma empty_dominated : ∀ A, ∅ ≼ A.
+Proof. intros. exists ∅. apply empty_injective. Qed.
+
 (* 等势的集合相互支配 *)
 Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B ∧ B ≼ A.
 Proof with auto.
@@ -35,6 +39,18 @@ Lemma dominate_tran : ∀ A B C, A ≼ B → B ≼ C → A ≼ C.
 Proof.
   intros * [f Hf] [g Hg].
   exists (g ∘ f). eapply compo_injection; eauto.
+Qed.
+
+Lemma dominate_rewrite_l : ∀ A B C, C ≈ A → B ≼ C → B ≼ A.
+Proof.
+  intros * Hqn Hdm. eapply dominate_tran; revgoals.
+  apply eqnum_dominate. symmetry. apply Hqn. apply Hdm.
+Qed.
+
+Lemma dominate_rewrite_r : ∀ A B C, B ≈ A → B ≼ C → A ≼ C.
+Proof.
+  intros * Hqn Hdm. eapply dominate_tran.
+  apply eqnum_dominate. apply Hqn. apply Hdm.
 Qed.
 
 (* 可以证明支配关系也是反对称的 *)
@@ -211,54 +227,69 @@ Proof with auto.
   exists f. split...
 Qed.
 
-(* 任意非空集合被ω支配当且仅当它被ω满射 *)
-Corollary dominated_by_ω_iff_mapped_onto_by_ω :
-  ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
+(* 集合被ω支配如果它被ω满射 *)
+Lemma dominated_by_ω_if_mapped_onto_by_ω :
+  ∀ B F, F: ω ⟹ B → B ≼ ω.
 Proof with auto; try congruence.
-  intros B [b Hb]. split.
-  - intros [f [Hf [Hd Hr]]].
-    set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
-    set (Func B ω (λ x, min[𝒩 x])) as g.
-    exists g. apply meta_injective.
-    + intros x Hx. eapply ap_ran.
-      apply min_maps_into. apply SepI.
-      * apply PowerAx. intros n Hn. apply SepE in Hn as []...
-      * rewrite <- Hr in Hx. apply ranE in Hx as [n Hp].
-        apply domI in Hp as Hn. apply func_ap in Hp...
-        apply SingNI. apply EmptyNI. exists n. apply SepI...
-    + intros b1 Hb1 b2 Hb2 Heq.
-      assert (Hsub: ∀ b, 𝒩 b ⊆ ω). {
-        intros b0 x Hx. apply SepE in Hx as []...
-      }
-      specialize (min_correct (𝒩 b1)) as [H1 _]... {
-        rewrite <- Hr in Hb1. apply ranE in Hb1 as [n1 H1].
-        apply domI in H1 as Hn1. apply func_ap in H1...
-        exists n1. apply SepI...
-      }
-      specialize (min_correct (𝒩 b2)) as [H2 _]... {
-        rewrite <- Hr in Hb2. apply ranE in Hb2 as [n2 H2].
-        apply domI in H2 as Hn2. apply func_ap in H2...
-        exists n2. apply SepI...
-      }
-      apply SepE in H1 as [_ H1].
-      apply SepE in H2 as [_ H2]. congruence.
-  - intros Hdm. destruct (classic (finite B)).
-    + destruct H as [n [Hn [f Hf]]].
-      set (Func ω B (λ x, match (ixm (x ∈ n)) with
-        | inl _ => f⁻¹[x]
-        | inr _ => b
-      end)) as g.
-      exists g. apply meta_surjective.
-      * intros x Hx. destruct (ixm (x ∈ n))... apply (ap_ran n)...
-        apply bijection_is_func. apply inv_bijection...
-      * intros y Hy. destruct Hf as [[Hf Hs] [Hd Hr]].
-        rewrite <- Hd in Hy. apply domE in Hy as [x Hp].
-        apply ranI in Hp as Hx. rewrite Hr in Hx.
-        exists x. split. apply (ω_trans _ n)...
-        destruct (ixm (x ∈ n))... apply func_ap.
-        apply inv_func_iff_sr... rewrite <- inv_op...
-    + apply infinite_set_dominated_by_ω_eqnum_ω in H as [f Hf]...
-      exists (f⁻¹). apply bijection_is_surjection. apply inv_bijection...
+  intros B f [Hf [Hd Hr]].
+  set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
+  set (Func B ω (λ x, min[𝒩 x])) as g.
+  exists g. apply meta_injective.
+  + intros x Hx. eapply ap_ran.
+    apply min_maps_into. apply SepI.
+    * apply PowerAx. intros n Hn. apply SepE in Hn as []...
+    * rewrite <- Hr in Hx. apply ranE in Hx as [n Hp].
+      apply domI in Hp as Hn. apply func_ap in Hp...
+      apply SingNI. apply EmptyNI. exists n. apply SepI...
+  + intros b1 Hb1 b2 Hb2 Heq.
+    assert (Hsub: ∀ b, 𝒩 b ⊆ ω). {
+      intros b0 x Hx. apply SepE in Hx as []...
+    }
+    specialize (min_correct (𝒩 b1)) as [H1 _]... {
+      rewrite <- Hr in Hb1. apply ranE in Hb1 as [n1 H1].
+      apply domI in H1 as Hn1. apply func_ap in H1...
+      exists n1. apply SepI...
+    }
+    specialize (min_correct (𝒩 b2)) as [H2 _]... {
+      rewrite <- Hr in Hb2. apply ranE in Hb2 as [n2 H2].
+      apply domI in H2 as Hn2. apply func_ap in H2...
+      exists n2. apply SepI...
+    }
+    apply SepE in H1 as [_ H1].
+    apply SepE in H2 as [_ H2]. congruence.
+Qed.
+
+(* 非空集合被ω支配蕴含它被ω满射 *)
+Lemma dominated_by_ω_impl_mapped_onto_by_ω :
+  ∀ B, ⦿ B → B ≼ ω → ∃ F, F: ω ⟹ B.
+Proof with auto; try congruence.
+  intros B [b Hb] Hdm.
+  destruct (classic (finite B)).
+  - destruct H as [n [Hn [f Hf]]].
+    set (Func ω B (λ x, match (ixm (x ∈ n)) with
+      | inl _ => f⁻¹[x]
+      | inr _ => b
+    end)) as g.
+    exists g. apply meta_surjective.
+    + intros x Hx. destruct (ixm (x ∈ n))... apply (ap_ran n)...
+      apply bijection_is_func. apply inv_bijection...
+    + intros y Hy. destruct Hf as [[Hf Hs] [Hd Hr]].
+      rewrite <- Hd in Hy. apply domE in Hy as [x Hp].
+      apply ranI in Hp as Hx. rewrite Hr in Hx.
+      exists x. split. apply (ω_trans _ n)...
+      destruct (ixm (x ∈ n))... apply func_ap.
+      apply inv_func_iff_sr... rewrite <- inv_op...
+  - apply infinite_set_dominated_by_ω_eqnum_ω in H as [f Hf]...
+    exists (f⁻¹). apply bijection_is_surjection. apply inv_bijection...
+Qed.
+
+(* 非空集合被ω支配当且仅当它被ω满射 *)
+Fact dominated_by_ω_iff_mapped_onto_by_ω :
+  ∀ B, ⦿ B → (∃ F, F: ω ⟹ B) ↔ B ≼ ω.
+Proof with eauto.
+  intros B Hne. split.
+  - intros [f Hf]. eapply dominated_by_ω_if_mapped_onto_by_ω...
+  - apply dominated_by_ω_impl_mapped_onto_by_ω...
 Qed.
 
 Fact ω_eqnum_ω_cp_ω : ω ≈ ω × ω.
@@ -398,10 +429,10 @@ Proof with auto.
 Qed.
 
 (* 任意基数大于等于零 *)
-Fact cardLeq_0_k : ∀ 𝜅, is_card 𝜅 → 0 ≤ 𝜅.
+Fact cardLeq_0 : ∀ 𝜅, is_card 𝜅 → 0 ≤ 𝜅.
 Proof with nauto.
-  intros 𝜅 Hcd. split; [|split]... apply nat_is_card...
-  exists ∅. apply empty_injective.
+  intros 𝜅 Hcd. split; [|split]...
+  apply nat_is_card... apply empty_dominated.
 Qed.
 
 (* 有限基数的序关系与支配关系等价 *)
@@ -615,7 +646,7 @@ Proof. exists ω. reflexivity. Qed.
 Fact card_of_power_ω : |𝒫 ω| = 2 ^ ℵ₀.
 Proof. apply card_of_power. Qed.
 
-Fact aleph_0_neq_exp : ℵ₀ ≠ 2 ^ ℵ₀.
+Fact aleph0_neq_power : ℵ₀ ≠ 2 ^ ℵ₀.
 Proof. apply card_neq_exp. apply aleph0_is_card. Qed.
 
 (* 有限基数不等于阿列夫零 *)
@@ -724,18 +755,23 @@ Proof with neauto; try congruence.
       exfalso. eapply suc_neq_0...
 Qed.
 
-Fact cardMul_2aleph0_2aleph0 : 2 ^ ℵ₀ ⋅ 2 ^ ℵ₀ = 2 ^ ℵ₀.
+Fact cardMul_expAleph0_expAleph0 :
+  ∀ 𝜅, 𝜅 ^ ℵ₀ ⋅ 𝜅 ^ ℵ₀ = 𝜅 ^ ℵ₀.
 Proof.
-  rewrite <- cardExp_id_1, cardAdd_aleph0_aleph0. reflexivity.
+  intros. rewrite <- cardExp_id_1.
+  rewrite cardAdd_aleph0_aleph0. reflexivity.
 Qed.
 
-Fact cardMul_aleph0_2aleph0 : ℵ₀ ⋅ 2 ^ ℵ₀ = 2 ^ ℵ₀.
+Fact cardMul_aleph0_expAleph0 :
+  ∀ 𝜅, 2 ≤ 𝜅 → ℵ₀ ⋅ 𝜅 ^ ℵ₀ = 𝜅 ^ ℵ₀.
 Proof with auto.
-  eapply cardLeq_asym.
-  - rewrite <- cardMul_2aleph0_2aleph0 at 2.
-    apply cardMul_preserve_leq. rewrite <- card_of_power_ω.
-    apply cardLeq_sub. apply trans_sub_power. apply ω_trans.
-  - rewrite <- (cardMul_ident (2 ^ ℵ₀)) at 1...
+  intros. eapply cardLeq_asym.
+  - rewrite <- cardMul_expAleph0_expAleph0 at 2.
+    apply cardMul_preserve_leq.
+    eapply cardLeq_tran; revgoals.
+    apply cardExp_preserve_base_leq. apply H.
+    apply cardLt_power. apply aleph0_is_card.
+  - rewrite <- (cardMul_ident (𝜅 ^ ℵ₀)) at 1...
     rewrite cardMul_comm. apply cardMul_preserve_leq.
     pose proof (cardLt_aleph0_if_finite 1) as []; nauto.
 Qed.
@@ -745,4 +781,16 @@ Proof with auto.
   apply CardAx1. eapply eqnum_tran.
   apply cardMul_well_defined; rewrite <- CardAx0; reflexivity.
   symmetry. apply ω_eqnum_ω_cp_ω.
+Qed.
+
+Fact cardExp_aleph0_n : ∀n ∈ ω, n ≠ ∅ → ℵ₀ ^ n = ℵ₀.
+Proof with auto.
+  intros n Hn.
+  set {n ∊ ω | λ n, n ≠ ∅ → ℵ₀ ^ n = ℵ₀} as N.
+  ω_induction N Hn.
+  - intros. exfalso...
+  - intros _. destruct (classic (m = 0)).
+    + subst m. rewrite cardExp_1_r...
+    + apply IH in H. rewrite <- card_suc, cardExp_suc, H...
+      apply cardMul_aleph0_aleph0.
 Qed.

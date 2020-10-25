@@ -28,3 +28,7 @@ echo "building EX6_2"
 coqc -R . ZFC EX6_2.v
 echo "building EST6_5"
 coqc -R . ZFC EST6_5.v
+echo "building EST6_6"
+coqc -R . ZFC EST6_6.v
+echo "building EX6_3"
+coqc -R . ZFC EX6_3.v

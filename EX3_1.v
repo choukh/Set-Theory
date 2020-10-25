@@ -161,7 +161,7 @@ Proof. reflexivity. Qed.
 Example ex3_11: ∀ F G,
   is_function F → is_function G → dom F = dom G
   → (∀x ∈ dom F, F[x] = G[x]) → F = G.
-Proof. exact func_ext. Qed.
+Proof. exact func_ext_intro. Qed.
 
 Example ex3_12: ∀ f g,
   is_function f → is_function g →
@@ -182,7 +182,7 @@ Qed.
 Example ex3_13: ∀ f g,
   is_function f → is_function g → f ⊆ g → dom g ⊆ dom f → f = g.
 Proof with eauto.
-  intros f g Hf Hg Hs Hds. apply func_ext...
+  intros f g Hf Hg Hs Hds. apply func_ext_intro...
   - apply sub_asym... intros x Hx. apply domE in Hx as [y Hp].
     apply Hs in Hp. eapply domI...
   - intros x Hx. apply domE in Hx as [y Hp].
