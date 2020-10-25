@@ -127,8 +127,11 @@
 - 基数的无限累加和
 - 基数的无限累乘积
 
-## EST6_5.v (TODO)
+## EST6_5.v
 - 可数集
+
+## EST6_6.v
+- 无限基数的运算律
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
