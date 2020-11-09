@@ -4,7 +4,7 @@
 Require Export ZFC.EX6_2.
 Require Import ZFC.lib.NaturalSubsetMin.
 
-(*** EST第六章5：可数集 ***)
+(*** EST第六章5：可数集，可数多个可数集的并是可数集 ***)
 
 (* 可数集 *)
 Definition countable : set → Prop := λ A, A ≼ ω.

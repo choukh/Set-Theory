@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST6_5.
 
-(*** EST第六章6：无限基数的运算律 ***)
+(*** EST第六章6：无限基数的运算律：自乘等于自身，加法和乘法的吸收律 ***)
 
 (* finite_union的引理 *)
 Local Lemma finite_repl : ∀ a 𝒜,
