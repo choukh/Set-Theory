@@ -2,6 +2,37 @@
 
 Require Import ZFC.EST6_2.
 
+(* 集合除去非自身的元素，集合不变 *)
+Lemma remove_no_member : ∀ a A, a ∉ A → A - ⎨a⎬ = A.
+Proof with auto.
+  intros * Ha. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as []...
+  - apply SepI... apply SingNI. intros Heq.
+    apply Ha. subst...
+Qed.
+
+(* 集合除去自身的一个元素再放回去，集合不变 *)
+Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply SepE in H0 as []...
+    + apply SingE in H0. subst...
+  - destruct (classic (x = a)).
+    + subst. apply BUnionI2...
+    + apply BUnionI1. apply SepI... apply SingNI...
+Qed.
+
+(* 集合加入一个不是自身的元素再去掉，集合不变 *)
+Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [].
+    apply BUnionE in H0 as []... exfalso...
+  - apply SepI. apply BUnionI1...
+    apply SingNI. intros Heq. congruence.
+Qed.
+
 (* 有限集添加一个元素仍是有限集 *)
 Lemma finite_set_adding_one_still_finite : ∀ A a,
   finite A → finite (A ∪ ⎨a⎬).
@@ -121,6 +152,16 @@ Proof with auto.
       apply ExtAx. split; intros Hx.
       * apply SingE in Hx; subst. apply SepI...
       * apply SepE in Hx as []...
+Qed.
+
+(* 如果单集的补集是有限集，那么全集是有限集 *)
+Lemma comp_single_finite : ∀ a A, finite (A - ⎨a⎬) → finite A.
+Proof with auto.
+  intros * Hfin.
+  destruct (classic (a ∈ A)).
+  - rewrite <- (remove_one_member_then_return A a)...
+    apply bunion_finite...
+  - rewrite remove_no_member in Hfin...
 Qed.
 
 (* 二元并的替代等于替代的二元并 *)
@@ -324,28 +365,6 @@ Proof with eauto.
   intros N Hne Hsub Harc Hfin.
   eapply archimedean_iff_no_max_number...
   apply finite_subset_of_ω_is_bounded...
-Qed.
-
-(* 集合除去自身的一个元素再放回去，集合不变 *)
-Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
-Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
-  - apply BUnionE in Hx as [].
-    + apply SepE in H0 as []...
-    + apply SingE in H0. subst...
-  - destruct (classic (x = a)).
-    + subst. apply BUnionI2...
-    + apply BUnionI1. apply SepI... apply SingNI...
-Qed.
-
-(* 集合加入一个不是自身的元素再去掉，集合不变 *)
-Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
-Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
-  - apply SepE in Hx as [].
-    apply BUnionE in H0 as []... exfalso...
-  - apply SepI. apply BUnionI1...
-    apply SingNI. intros Heq. congruence.
 Qed.
 
 (* 自然数集的有极大元的子集是非空有限集 *)

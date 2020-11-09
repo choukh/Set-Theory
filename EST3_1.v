@@ -131,6 +131,13 @@ Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
 Definition is_function : set → Prop :=
   λ R, is_relation R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.
 
+(* 空集是函数 *)
+Fact empty_is_func : is_function ∅.
+Proof.
+  repeat split. intros x Hx. exfalso0.
+  apply domE. apply H. intros y1 y2 H1 H2. exfalso0.
+Qed.
+
 Lemma func_pair : ∀ F, is_function F → ∀p ∈ F, p = < π1 p, π2 p >.
 Proof.
   intros F Hf p Hp. destruct Hf as [Hr _]. exact (rel_pair F Hr p Hp).

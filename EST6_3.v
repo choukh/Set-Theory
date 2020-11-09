@@ -430,9 +430,19 @@ Qed.
 
 (* 任意基数大于等于零 *)
 Fact cardLeq_0 : ∀ 𝜅, is_card 𝜅 → 0 ≤ 𝜅.
+Proof.
+  intros 𝜅 Hcd. split; [|split]; nauto. apply empty_dominated.
+Qed.
+
+(* 非零基数大于等于1 *)
+Fact cardLeq_1 : ∀ 𝜅, is_card 𝜅 → 𝜅 ≠ 0 → 1 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
-  apply nat_is_card... apply empty_dominated.
+  apply EmptyNE in H as [k Hk].
+  set (Func 1 𝜅 (λ x, k)) as f.
+  exists f. apply meta_injective. intros _ _...
+  intros x1 H1 x2 H2 _. rewrite one in H1, H2.
+  apply SingE in H1. apply SingE in H2. congruence.
 Qed.
 
 (* 有限基数的序关系与支配关系等价 *)
@@ -541,6 +551,30 @@ Proof with auto.
   apply cardMul_well_defined. symmetry. apply H1. reflexivity.
   apply cardMul_well_defined. symmetry. apply H2. reflexivity.
   apply dominate_sub. apply sub_mono_cprod...
+Qed.
+
+Corollary cardAdd_preserve_leq' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 + 𝜅 ≤ 𝜇 + 𝜆.
+Proof.
+  intros * Hleq. rewrite cardAdd_comm, (cardAdd_comm 𝜇).
+  apply cardAdd_preserve_leq. apply Hleq.
+Qed.
+
+Corollary cardMul_preserve_leq' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 ⋅ 𝜅 ≤ 𝜇 ⋅ 𝜆.
+Proof.
+  intros * Hleq. rewrite cardMul_comm, (cardMul_comm 𝜇).
+  apply cardMul_preserve_leq. apply Hleq.
+Qed.
+
+Corollary cardAdd_enlarge : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜅 ≤ 𝜅 + 𝜆.
+Proof with auto.
+  intros * Hk Hl. rewrite <- cardAdd_ident at 1...
+  apply cardAdd_preserve_leq'. apply cardLeq_0...
+Qed.
+
+Corollary cardMul_enlarge : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
+Proof with auto.
+  intros * Hk Hl H0. rewrite <- cardMul_ident at 1...
+  apply cardMul_preserve_leq'. apply cardLeq_1...
 Qed.
 
 Lemma sub_mono_arrow : ∀ A B C, A ⊆ B → C ⟶ A ⊆ C ⟶ B.
@@ -690,7 +724,7 @@ Proof with auto.
   intros 𝜅 Hcd. split.
   - apply cardLt_aleph0_is_finite...
   - intros Hfin. apply cardLt_aleph0_if_finite.
-    apply fin_card_is_nat...
+    apply nat_iff_fincard... split...
 Qed.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
@@ -774,6 +808,13 @@ Proof with auto.
   - rewrite <- (cardMul_ident (𝜅 ^ ℵ₀)) at 1...
     rewrite cardMul_comm. apply cardMul_preserve_leq.
     pose proof (cardLt_aleph0_if_finite 1) as []; nauto.
+Qed.
+
+Fact cardExp_expAleph0_expAleph0 : ∀ 𝜅 𝜆, 2 ≤ 𝜆 →
+  (𝜅 ^ ℵ₀) ^ (𝜆 ^ ℵ₀) = 𝜅 ^ (𝜆 ^ ℵ₀).
+Proof with auto.
+  intros AC6 * H2.
+  rewrite cardExp_id_3, cardMul_aleph0_expAleph0...
 Qed.
 
 Fact cardMul_aleph0_aleph0 : ℵ₀ ⋅ ℵ₀ = ℵ₀.

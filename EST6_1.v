@@ -516,11 +516,11 @@ Proof with auto.
 Qed.
 
 (* 有限基数 *)
-Definition fin_card : set → set := λ A, ⋃{n ∊ ω | λ n, A ≈ n}.
+Definition FinCard : set → set := λ A, ⋃{n ∊ ω | λ n, A ≈ n}.
 
 (* 有限基数定义为与有限集自身等势的自然数 *)
 Lemma fin_card_correct : ∀ A, finite A →
-  ∃n ∈ ω, fin_card A = n ∧ A ≈ n.
+  ∃n ∈ ω, FinCard A = n ∧ A ≈ n.
 Proof with auto.
   intros A Hfin. assert (Hfin' := Hfin).
   destruct Hfin' as [n [Hn H1]]. exists n. repeat split...
@@ -533,7 +533,7 @@ Proof with auto.
 Qed.
 
 (* 有限集与其基数等势 *)
-Lemma fin_set_eqnum_its_card : ∀ A, finite A → A ≈ fin_card A.
+Lemma fin_set_eqnum_its_card : ∀ A, finite A → A ≈ FinCard A.
 Proof.
   intros A Hfin.
   apply fin_card_correct in Hfin as [n [_ [Hc Hqn]]].
@@ -542,7 +542,7 @@ Qed.
 
 (* 两个有限集等势当且仅当它们的基数相等 *)
 Lemma fin_sets_eqnum_iff_cards_eq : ∀ A B, finite A → finite B → 
-  fin_card A = fin_card B ↔ A ≈ B.
+  FinCard A = FinCard B ↔ A ≈ B.
 Proof with auto.
   intros A B H1 H2.
   apply fin_card_correct in H1 as [m [Hm [H11 H12]]].
@@ -555,7 +555,7 @@ Proof with auto.
 Qed.
 
 (* 自然数的基数与该自然数相等 *)
-Lemma fin_card_n : ∀n ∈ ω, fin_card n = n.
+Lemma fin_card_n : ∀n ∈ ω, FinCard n = n.
 Proof with auto.
   intros n Hn.
   apply ExtAx. split; intros Hx.
@@ -650,21 +650,36 @@ Proof.
   apply SingE in H2. subst. eapply lt_irrefl; eauto.
 Qed.
 
+Lemma disjoint_cprod_l : ∀ A B C D,
+  disjoint A C → disjoint (A × B) (C × D).
+Proof.
+  intros * Hdj. apply disjointI. intros [x [H1 H2]].
+  apply cprod_iff in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CProdE1 in H2 as [Ha' _]. zfcrewrite.
+  eapply disjointE; eauto.
+Qed.
+
+Lemma disjoint_cprod_r : ∀ A B C D,
+  disjoint B D → disjoint (A × B) (C × D).
+Proof.
+  intros * Hdj. apply disjointI. intros [x [H1 H2]].
+  apply cprod_iff in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CProdE1 in H2 as [_ Hb']. zfcrewrite.
+  eapply disjointE; eauto.
+Qed.
+
 (* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)
-Lemma disjoint_cprod : ∀ A B m n,
+Lemma disjoint_cprod_single : ∀ A B m n,
   m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
 Proof.
-  intros. apply disjointI.
-  intros [x [H1 H2]].
-  apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
-  apply cprod_iff in H2 as [c [Hc [d [Hd H2]]]].
-  apply SingE in Hb. apply SingE in Hd. subst.
-  apply op_iff in H2 as [_ Contra]. apply H. apply Contra.
+  intros. apply disjoint_cprod_r.
+  apply disjointI. intros [x [H1 H2]].
+  apply SingE in H1. apply SingE in H2. congruence.
 Qed.
 
 Corollary disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
 Proof.
-  intros. apply disjoint_cprod. intro. eapply suc_neq_0. eauto.
+  intros. apply disjoint_cprod_single. intro. eapply suc_neq_0. eauto.
 Qed.
 
 (* 壹与单集的笛卡尔积 *)

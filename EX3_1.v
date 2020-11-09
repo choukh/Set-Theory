@@ -3,18 +3,32 @@
 
 Require Export ZFC.EST3_3.
 
-Example ex3_2_a: ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
-Proof.
+Example ex3_2_a : ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
+Proof with auto.
   intros. apply ExtAx. split; intros.
   - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
     apply BUnionE in Hb as [].
-    + apply BUnionI1. subst x. apply CProdI; assumption.
-    + apply BUnionI2. subst x. apply CProdI; assumption.
+    + apply BUnionI1. subst x. apply CProdI...
+    + apply BUnionI2. subst x. apply CProdI...
   - apply BUnionE in H as [];
       apply cprod_iff in H as [a [Ha [b [Hb H]]]];
-      subst x; apply CProdI; try apply Ha.
+      subst x; apply CProdI...
     + apply BUnionI1. apply Hb.
     + apply BUnionI2. apply Hb.
+Qed.
+
+Example ex3_2_a' : ∀ A B C, (A ∪ B) × C = (A × C) ∪ (B × C).
+Proof with auto.
+  intros. apply ExtAx. split; intros.
+  - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
+    apply BUnionE in Ha as [].
+    + apply BUnionI1. subst x. apply CProdI...
+    + apply BUnionI2. subst x. apply CProdI...
+  - apply BUnionE in H as [];
+      apply cprod_iff in H as [a [Ha [b [Hb H]]]];
+      subst x; apply CProdI...
+    + apply BUnionI1. apply Ha.
+    + apply BUnionI2. apply Ha.
 Qed.
 
 Example ex3_2_b: ∀ A B C, ⦿ A → A × B = A × C → B = C.

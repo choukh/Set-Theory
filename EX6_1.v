@@ -110,13 +110,13 @@ Proof. exact bunion_assoc. Qed.
 Example ex6_12_c : ∀ K L M, K × (L ∪ M) = (K × L) ∪ (K × M).
 Proof. exact ex3_2_a. Qed.
 
+(* ex6_13 *)
 (* 有限个有限集的并集仍是有限集 *)
-Example ex6_13 : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
+Lemma union_finite : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
 Proof with eauto.
   intros A [n [Hn HA]].
   generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, A ≈ n →
-    (∀a ∈ A, finite a) → finite ⋃ A} as N.
+  set {n ∊ ω | λ n, ∀ A, A ≈ n → (∀a ∈ A, finite a) → finite ⋃ A} as N.
   ω_induction N Hn; intros A HA Hfa.
   - apply eqnum_empty in HA. subst A. rewrite union_empty...
   - apply set_eqnum_suc_nonempty in HA as Hi...

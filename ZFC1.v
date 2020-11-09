@@ -111,7 +111,7 @@ Proof. intros. subst. apply OneI1. Qed.
 Lemma OneE : ∀ A, A ∈ 1 → A = ∅.
 Proof. intros. apply SingE. apply H. Qed.
 
-Example empty_neq_one : ∅ ≠ 1.
+Fact empty_neq_one : ∅ ≠ 1.
 Proof.
   intros H. eapply ExtAx in H.
   destruct H as [_ H].
@@ -195,7 +195,7 @@ Proof.
 Qed.
 
 (* 任意集合的单集的并就是原集合 *)
-Example union_single : ∀ X, ⋃ ⎨X⎬ = X.
+Lemma union_single : ∀ X, ⋃ ⎨X⎬ = X.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H as [a [H1 H2]].
@@ -204,20 +204,33 @@ Proof.
 Qed.
 
 (* 壹的并是零 *)
-Example union_one : ⋃ 1 = ∅.
+Lemma union_one : ⋃ 1 = ∅.
 Proof. exact (union_single ∅). Qed.
 
-(* 贰的成员的并必是零 *)
-Example union_of_any_member_of_two_is_zero :
-  ∀ X, X ∈ 2 → ⋃ X = ∅.
-Proof.
-  intros. apply TwoE in H. destruct H.
-  - subst. apply union_empty.
-  - subst. apply union_one.
+(* 集合的并等于空集当且仅当该集合是零或壹 *)
+Lemma union_empty_iff : ∀ A, ⋃ A = ∅ ↔ A = ∅ ∨ A = 1.
+Proof with eauto.
+  split; intros.
+  - destruct (classic (A = ∅)). left...
+    apply EmptyNE in H0 as [a Ha].
+    destruct (classic (a = ∅)). {
+      right. apply ExtAx. intros b. split; intros Hb.
+      - destruct (classic (b = ∅)).
+        + rewrite H1. apply SingI.
+        + exfalso. apply EmptyNE in H1 as [x Hx].
+          eapply EmptyE. apply H. apply UnionAx. exists b. split...
+      - apply SingE in Hb. subst...
+    } {
+      exfalso. apply EmptyNE in H0 as [x Hx].
+      eapply EmptyE. apply H. apply UnionAx. exists a. split...
+    }
+  - destruct H.
+    + subst. apply union_empty.
+    + subst. apply union_one.
 Qed.
 
 (* 贰的并是壹 *)
-Example union_two : ⋃ 2 = 1.
+Lemma union_two : ⋃ 2 = 1.
 Proof.
   apply ExtAx. split; intro.
   - apply UnionAx in H as [a [H1 H2]].
@@ -228,7 +241,7 @@ Proof.
 Qed.
 
 (* 零的幂集是壹 *)
-Example power_zero : 𝒫 ∅ = 1.
+Lemma power_zero : 𝒫 ∅ = 1.
 Proof.
   apply ExtAx. split; intros.
   - apply PowerAx in H. apply OneI2.
@@ -238,7 +251,7 @@ Proof.
 Qed.
 
 (* 壹的幂集是贰 *)
-Example power_one : 𝒫 1 = 2.
+Lemma power_one : 𝒫 1 = 2.
 Proof.
   apply ExtAx. split; intros.
   - apply PowerAx in H.
@@ -298,10 +311,10 @@ Proof.
   exists z. split. apply H3. subst. apply H2.
 Qed. 
 
-Example funion_0 : ∀ F, ⋃{F|x ∊ ∅} = ∅.
+Fact funion_0 : ∀ F, ⋃{F|x ∊ ∅} = ∅.
 Proof. intros. rewrite repl_empty. apply union_empty. Qed.
 
-Example funion_1 : ∀ X F,
+Fact funion_1 : ∀ X F,
   (∀x ∈ X, F x ∈ 2) → (∃x ∈ X, F x = 1) → ⋃{F|x ∊ X} = 1.
 Proof.
   intros. assert (∀ x ∈ ⋃{F | x ∊ X}, x = ∅). {
@@ -316,7 +329,7 @@ Proof.
     + apply H2.
 Qed.
 
-Example funion_const : ∀ X F C,
+Fact funion_const : ∀ X F C,
   ⦿ X → (∀x ∈ X, F x = C) → ⋃{F|x ∊ X} = C.
 Proof.
   intros. apply ExtAx. split; intros.
@@ -326,7 +339,7 @@ Proof.
     apply H. apply H0 in H. subst. auto.
 Qed.
 
-Example funion_const_0 : ∀ X F, 
+Fact funion_const_0 : ∀ X F, 
   (∀x ∈ X, F x = ∅) → ⋃{F|x ∊ X} = ∅.
 Proof.
   intros. destruct (empty_or_inh X).
@@ -334,7 +347,7 @@ Proof.
   - exact (funion_const X F ∅ H0 H).
 Qed.
 
-Example funion_2 : ∀ X F, 
+Fact funion_2 : ∀ X F, 
   (∀x ∈ X, F x ∈ 2) → ⋃{F|x ∊ X} ∈ 2.
 Proof.
   intros. destruct (classic (∃x ∈ X, F x = 1)).

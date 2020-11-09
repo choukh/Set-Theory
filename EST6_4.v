@@ -435,6 +435,12 @@ Proof with eauto; try congruence.
       apply SingE in H2. apply op_iff in H2 as []; subst...
 Qed.
 
+Theorem AC_VI_to_III : AC_VI → AC_III.
+Proof.
+  intros. apply AC_IV_to_III. apply AC_II_to_IV.
+  apply AC_I_to_II. apply AC_VI_to_I. apply H.
+Qed.
+
 Theorem ac1 : AC_I.
 Proof. exact EST3_2.ac1. Qed.
 
@@ -515,6 +521,67 @@ Proof with auto.
   - apply disjoint_cprod_0_1.
 Qed.
 
+(* 所有自然数都被无限集支配 *)
+Lemma nat_dominated_by_infinite : ∀ A, ∀n ∈ ω, infinite A → n ≺ A.
+Proof with eauto; try congruence.
+  intros A n Hn Hinf.
+  set {n ∊ ω | λ n, n ≺ A} as N.
+  ω_induction N Hn. {
+    split. apply empty_dominated...
+    intros Hqn. symmetry in Hqn. apply eqnum_empty in Hqn.
+    apply infinite_set_nonempty in Hinf. apply EmptyNI in Hinf...
+  }
+  split; revgoals. {
+    intros Hqn. apply Hinf. exists m⁺. split.
+    apply ω_inductive... symmetry...
+  }
+  destruct IH as [[f [Hf [Hd Hr]]] Hnq].
+  assert (Hinf': infinite (A - ran f)). {
+    apply comp_of_finite_is_infinite...
+    exists m. split... symmetry. exists f. split...
+  }
+  apply infinite_set_nonempty in Hinf' as [a Ha].
+  exists (f ∪ ⎨<m, a>⎬). split; [|split].
+  - apply bunion_injection...
+    apply single_pair_injective. split.
+    + intros x Hx. exfalso.
+      apply BInterE in Hx as [H1 H2].
+      apply domE in H2 as [y H2].
+      apply SingE in H2. apply op_iff in H2 as [H2 _].
+      rewrite H2, Hd in H1. eapply lt_irrefl...
+    + intros y Hy. exfalso.
+      apply BInterE in Hy as [H1 H2].
+      apply ranE in H2 as [x H2].
+      apply SingE in H2. apply op_iff in H2 as [_ H2].
+      rewrite H2 in H1. apply SepE in Ha as [_ Ha]...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
+      * apply domI in H. rewrite Hd in H. apply BUnionI1...
+      * apply SingE in H. apply op_iff in H as [Hx _].
+        apply BUnionI2. rewrite Hx...
+    + destruct Hf as [Hf _].
+      apply BUnionE in Hx as [].
+      * eapply domI. apply BUnionI1. apply func_correct...
+      * apply SingE in H. rewrite H.
+        eapply domI. apply BUnionI2. apply SingI. 
+  - intros y Hy. apply ranE in Hy as [x Hp].
+    apply BUnionE in Hp as [].
+    + apply ranI in H. apply Hr...
+    + apply SingE in H. apply op_iff in H as [_ H].
+      subst y. apply SepE in Ha as []...
+Qed.
+
+(* 无限基数 *)
+Definition infcard : set → Prop := λ 𝜅, is_card 𝜅 ∧ infinite 𝜅.
+
+(* 所有自然数都小于无限基数 *)
+Corollary cardLt_infinite : ∀ 𝜅, ∀n ∈ ω, infcard 𝜅 → n <𝐜 𝜅.
+Proof with auto.
+  intros 𝜅 n Hn [Hcd Hinf].
+  rewrite card_of_card, card_of_nat...
+  apply cardLt_iff. apply nat_dominated_by_infinite...
+Qed.
+
 (* ==需要选择公理== *)
 (* ω是最小的无限集 *)
 Theorem ω_is_the_least_infinite_set : AC_III → ∀ A, infinite A → ω ≼ A.
@@ -581,9 +648,9 @@ Qed.
 (* ==需要选择公理== *)
 (* ℵ₀是最小的无限基数 *)
 Corollary aleph0_is_the_least_infinite_card : AC_III → ∀ 𝜅,
-  is_card 𝜅 → infinite 𝜅 → ℵ₀ ≤ 𝜅.
+  infcard 𝜅 → ℵ₀ ≤ 𝜅.
 Proof with auto.
-  intros AC3 𝜅 Hcd Hinf. rewrite card_of_card...
+  intros AC3 𝜅 [Hcd Hinf]. rewrite card_of_card...
   apply cardLeq_iff. apply ω_is_the_least_infinite_set...
 Qed.
 
@@ -617,8 +684,8 @@ Corollary cardLt_aleph0_iff_finite : ∀ 𝜅,
 Proof with auto.
   intros 𝜅 Hcd. split.
   - intros [Hleq Hnq]. destruct (classic (finite 𝜅))... exfalso.
-    apply (aleph0_is_the_least_infinite_card ac3) in H...
     apply Hnq. apply cardLeq_asym...
+    apply aleph0_is_the_least_infinite_card. apply ac3. split...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
     rewrite <- card_of_card, <- card_of_nat in Hqn... rewrite Hqn.
     apply cardLt_aleph0_if_finite...
