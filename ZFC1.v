@@ -94,6 +94,21 @@ Proof.
   intros * H Heq. apply H. subst A. apply SingI.
 Qed.
 
+(* 如果单集与配对相等那么它们的成员都相等 *)
+Lemma single_eq_pair : ∀ a b c, ⎨a⎬ = {b, c} → a = b ∧ b = c.
+Proof.
+  intros. assert (Hb: b ∈ {b, c}) by apply PairI1.
+  rewrite <- H in Hb. apply SingE in Hb.
+  assert (Hc: c ∈ {b, c}) by apply PairI2.
+  rewrite <- H in Hc. apply SingE in Hc. split; congruence.
+Qed.
+
+(* 如果单集与单集相等那么它们的成员相等 *)
+Lemma single_injective : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
+Proof.
+  intros. apply single_eq_pair in H as [H _]. apply H.
+Qed.
+
 Declare Scope ZFC1_scope.
 Delimit Scope ZFC1_scope with zfc1.
 Open Scope ZFC1_scope.

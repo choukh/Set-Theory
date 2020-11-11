@@ -8,13 +8,11 @@ Require Import ZFC.lib.NaturalSubsetMin.
 
 (* 可数集 *)
 Definition countable : set → Prop := λ A, A ≼ ω.
+(* 不可数集 *)
+Definition uncountable : set → Prop := λ A, ¬countable A.
 
-(* 集合是可数集当且仅当其基数小于等于阿列夫零 *)
-Lemma countable_iff_cardLeq_aleph0 : ∀ A, countable A ↔ |A| ≤ ℵ₀.
-Proof. split; apply cardLeq_iff; auto. Qed.
-
-(* 集合是可数集当且仅当它是有限集或与ω等势 *)
-Lemma countable_iff_finite_or_eqnum_ω :
+(* 集合是可数集当且仅当它是有限集或可数无限集 *)
+Lemma countable_iff :
   ∀ A, countable A ↔ finite A ∨ A ≈ ω.
 Proof with auto.
   split.
@@ -26,10 +24,22 @@ Proof with auto.
     + exists f. apply bijection_is_injection...
 Qed.
 
+(* 集合是不可数集当且仅当它是无限集且不与ω等势 *)
+Lemma uncountable_iff :
+  ∀ A, uncountable A ↔ infinite A ∧ A ≉ ω.
+Proof.
+  intros. unfold uncountable, infinite.
+  rewrite countable_iff. tauto.
+Qed.
+
+(* 集合是可数集当且仅当其基数小于等于阿列夫零 *)
+Lemma countable_iff_cardLeq_aleph0 : ∀ A, countable A ↔ |A| ≤ ℵ₀.
+Proof. split; apply cardLeq_iff; auto. Qed.
+
 (* 空集是可数集 *)
 Lemma empty_countable : countable ∅.
 Proof.
-  apply countable_iff_finite_or_eqnum_ω.
+  apply countable_iff.
   left. apply empty_finite.
 Qed.
 
@@ -138,8 +148,9 @@ Fact union_of_all_n_arrow_ω_countable :
 Proof with neauto.
   apply countable_union_of_coutable_set.
   - apply ac2.
-  - apply countable_iff_finite_or_eqnum_ω. right.
-    symmetry. apply eqnum_repl. intros n Hn m Hm Heq.
+  - apply countable_iff. right.
+    symmetry. apply eqnum_repl.
+    intros n Hn m Hm Heq.
     set (Func n ω (λ x, x)) as f.
     assert (Hf: f ∈ n ⟶ ω). {
       apply SepI. apply PowerAx.
@@ -150,7 +161,7 @@ Proof with neauto.
     rewrite Heq in Hf. apply arrow_iff in Hf as [_ [Hdm _]].
     congruence.
   - intros A HA. apply ReplAx in HA as [n [Hn Hqn]]. subst A.
-    apply countable_iff_finite_or_eqnum_ω.
+    apply countable_iff.
     destruct (classic (n = 0)).
     + left. subst n. rewrite arrow_from_empty. apply nat_finite...
     + right. eapply eqnum_tran.

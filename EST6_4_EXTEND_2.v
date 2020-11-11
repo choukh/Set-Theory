@@ -2,6 +2,7 @@
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.EST6_4.
+Require Export ZFC.lib.IndexedFamilyUnion.
 
 (*** EST第六章4扩展2：基数的无限累加和，基数的无限累乘积 ***)
 
@@ -9,11 +10,13 @@ Require Export ZFC.EST6_4.
 Definition CardInfSum : set → set → set := λ I X,
   |⋃{λ i, X[i] × ⎨i⎬ | i ∊ I}|.
 Notation "∑" := (CardInfSum) : Card_scope.
+Notation "∑ᵢ" := (CardInfSum ω) : Card_scope.
 
 (* 基数的无限累乘积 *)
 Definition CardInfProd : set → set → set := λ I X,
   |InfCProd I X|.
 Notation "∏" := (CardInfProd) : Card_scope.
+Notation "∏ᵢ" := (CardInfProd ω) : Card_scope.
 
 (* 函数不交化：给定任意函数和单集，可以构造一个新的函数，使得
   (1) 新函数的定义域是原函数的定义域与给定单集的笛卡尔积 且
@@ -278,4 +281,209 @@ Proof with eauto; try congruence.
       * rewrite Hr. eapply InfCProdE...
       * apply meta_maps_into. intros j Hj. apply HgFy'...
       * apply meta_maps_into. intros j Hj. apply HgFx'...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累加保持序关系 *)
+Theorem cardInfSum_preserve_leq : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A[i]| ≤ |B[i]|) → ∑ I A ≤ ∑ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A[i] ⟶ B[i] | λ f, f: A[i] ⇔ B[i]}) as F_.
+  set (λ i, {FuncDisjointify i | f ∊ F_ i}) as F'_.
+  set {F'_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    exists (FuncDisjointify i f). apply ReplAx.
+    exists f. split... apply SepI... apply ArrowI.
+    apply injection_is_func...
+  }
+  set {λ F, g[F] | F ∊ ℱ} as G.
+  assert (HpUG: ∀p ∈ ⋃G, ∃i ∈ I, p ∈ g[F'_ i]). {
+    intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
+    apply ReplAx in Hf as [F [HF Heqf]].
+    apply ReplAx in HF as [i [Hi HeqF]].
+    subst F f. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, ∃ f, f: A[i] ⇔ B[i] ∧ g[F'_ i] = FuncDisjointify i f). {
+    intros i Hi.
+    assert (HFi: F'_ i ∈ ℱ). { apply ReplAx. exists i. split... }
+    apply Hrg in HFi. apply ReplAx in HFi as [f [Hf Heq]].
+    apply SepE in Hf as [_ Hf]. exists f. split...
+  }
+  apply cardLeq_iff. exists (⋃ G). split; split.
+  - repeat split.
+    + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply CProdE2 in Hp...
+    + apply domE in H...
+    + intros y1 y2 H1 H2.
+      apply HpUG in H1 as [i1 [Hi1 Hp1]].
+      apply HpUG in H2 as [i2 [Hi2 Hp2]].
+      apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+      apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+      apply SepE in Hp1 as [Hp1 H1]. apply CProdE1 in Hp1 as [Hx1 _].
+      apply SepE in Hp2 as [Hp2 H2]. apply CProdE1 in Hp2 as [Hx2 _].
+      zfcrewrite. destruct (classic (i1 = i2)). {
+        cut (f1 = f2). { intros Heqf. subst. apply op_iff... }
+        apply (funcDisjointify_injective i1)...
+        destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+      }
+      exfalso. eapply disjointE; revgoals.
+      apply Hx1. apply Hx2. apply disjoint_cprod_single...
+  - intros y Hy. split. apply ranE in Hy...
+    intros x1 x2 H1 H2.
+    apply HpUG in H1 as [i1 [Hi1 Hp1]].
+    apply HpUG in H2 as [i2 [Hi2 Hp2]].
+    apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+    apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+    apply SepE in Hp1 as [Hp1 H1]. apply CProdE1 in Hp1 as [Hx1 Hy1].
+    apply SepE in Hp2 as [Hp2 H2]. apply CProdE1 in Hp2 as [Hx2 Hy2].
+    apply cprod_iff in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply cprod_iff in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply SingE in Hb. apply SingE in Hd. zfcrewrite. subst x1 x2.
+    zfcrewrite. destruct (classic (i1 = i2)). {
+      cut (f1 = f2). {
+        intros Heqf. subst. apply op_iff in H2 as [Hap Hi].
+        apply op_iff. split... eapply injectiveE... destruct Hf2...
+      }
+      apply (funcDisjointify_injective i1)...
+      destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+    }
+    exfalso. eapply disjointE; revgoals.
+    apply Hy1. apply Hy2. apply disjoint_cprod_single...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply HpUG in Hp as [i [Hi Hp]].
+      apply UnionAx. exists (A[i] × ⎨i⎬). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply CProdE1 in Hp as [Hx _].
+      zfcrewrite. destruct Hf as [_ [Hdf _]]...
+    + apply UnionAx in Hx as [X [HX Hx]].
+      apply ReplAx in HX as [i [Hi Heq]]. subst X.
+      apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]].
+      apply SingE in Hb. subst.
+      cut (<<a, i>, g[F'_ i][<a, i>]> ∈ ⋃G). { eapply domI... }
+      apply UnionAx. exists (g[F'_ i]). split.
+      apply ReplAx. exists (F'_ i). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq.
+      destruct Hf as [Hif [Hdf _]].
+      pose proof (bijection_disjointify f i) as [[Hfd _] [Hdd _]]...
+      apply func_correct... rewrite Hdd. apply CProdI...
+  - intros y Hy.
+    apply ranE in Hy as [x Hp].
+    apply HpUG in Hp as [i [Hi Hp]].
+    apply UnionAx. exists (B[i] × ⎨i⎬). split...
+    apply ReplAx. exists i. split...
+    apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+    apply SepE in Hp as [Hp _].
+    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+    apply cprod_iff in Hy as [a [Ha [b [Hb Hy]]]]. subst y.
+    apply CProdI... destruct Hf as [_ [_ Hrf]]. apply Hrf...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累乘保持序关系 *)
+Theorem cardInfProd_preserve_leq : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A[i]| ≤ |B[i]|) → ∏ I A ≤ ∏ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A[i] ⟶ B[i] | λ f, f: A[i] ⇔ B[i]}) as F_.
+  set {F_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    exists f. apply SepI... apply ArrowI. apply injection_is_func...
+  }
+  set (⋃{ap B | i ∊ I}) as ℬ.
+  set (⋃{ap A | i ∊ I}) as 𝒜.
+  set (λ x, Func I ℬ (λ i, g[F_ i][x[i]])) as G.
+  set (λ y, Func I 𝒜 (λ i, g[F_ i]⁻¹[y[i]])) as G'.
+  assert (HFi: ∀i ∈ I, F_ i ∈ ℱ). {
+    intros i Hi. apply ReplAx. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, g[F_ i]: A[i] ⇔ B[i]). {
+    intros i Hi. apply HFi in Hi.
+    apply Hrg in Hi. apply SepE in Hi as [_ HgF]...
+  }
+  assert (HgFx: ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ B[i]). {
+    intros i Hi x Hx. eapply ap_ran. apply injection_is_func...
+    apply HgF... eapply InfCProdE...
+  }
+  assert (HBi: ∀i ∈ I, B[i] ⊆ ℬ). {
+    intros i Hi b Hb. apply UnionAx. exists (B[i]). split...
+    apply ReplAx. exists i. split...
+  }
+  assert (HgFx': ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ ℬ). {
+    intros i Hi x Hx. eapply HBi... apply HgFx...
+  }
+  assert (HG: ∀x ∈ InfCProd I A, G x: I ⇒ ℬ). {
+    intros x Hx. apply meta_maps_into. intros i Hi.
+    eapply HBi... apply HgFx...
+  }
+  set (Func (InfCProd I A) (InfCProd I B) G) as h.
+  apply cardLeq_iff. exists h. apply meta_injective.
+  - intros x Hx. apply SepI.
+    + apply ArrowI. apply HG...
+    + intros i Hi. unfold G. rewrite meta_func_ap...
+      apply HgFx... apply HG...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    assert (∀i ∈ I, g[F_ i][x1[i]] = g[F_ i][x2[i]]). {
+      intros i Hi. eapply func_sv. apply HG... rewrite <- Heq.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+    }
+    apply InfCProdE in Hx1 as [Hx1 Hxi1].
+    apply InfCProdE in Hx2 as [Hx2 Hxi2].
+    destruct Hx1 as [Hf1 [Hd1 Hr1]].
+    destruct Hx2 as [Hf2 [Hd2 Hr2]].
+    apply func_ext_intro... intros i Hi. rewrite Hd1 in Hi.
+    pose proof (HgF _ Hi) as [Hinj [Hd _]].
+    eapply injectiveE...
+    + rewrite Hd. apply Hxi1...
+    + rewrite Hd. apply Hxi2...
+    + apply H...
+Qed.
+
+(* 相同基数的无限累加等价于基数乘法 *)
+Theorem cardInfSum_of_same_card : ∀ I 𝜅, is_card 𝜅 →
+  ∑ I (Func I ⎨𝜅⎬ (λ _, 𝜅)) = |I| ⋅ 𝜅.
+Proof with auto; try congruence.
+  intros * Hcd.
+  set (Func I ⎨𝜅⎬ (λ _, 𝜅)) as K.
+  assert (HK: K: I ⇒ ⎨𝜅⎬). {
+    apply meta_maps_into. intros _ _...
+  }
+  assert (Hap: ∀i ∈ I, K[i] = 𝜅). {
+    intros i Hi. unfold K. rewrite meta_func_ap...
+  }
+  rewrite (card_of_card 𝜅), cardMul_comm, cardMul...
+  apply CardAx1.
+  replace (⋃{λ i, K[i] × ⎨i⎬ | i ∊ I}) with (𝜅 × I)...
+  apply ExtAx. intros p. split; intros Hp.
+  - apply cprod_iff in Hp as [k [Hk [i [Hi Hp]]]]. subst p.
+    apply UnionAx. exists (𝜅 × ⎨i⎬). split...
+    apply ReplAx. exists i. split... rewrite Hap... apply CProdI...
+  - apply UnionAx in Hp as [P [HP Hp]].
+    apply ReplAx in HP as [i [Hi HP]]. subst P.
+    apply cprod_iff in Hp as [k [Hk [j [Hj Hp]]]]. subst p.
+    rewrite Hap in Hk... apply SingE in Hj; subst. apply CProdI...
+Qed.
+
+Lemma cardInfSum_eq_ifunion : ∀ A, ∑ᵢ A = |⋃ᵢ (λ i, A[i] × ⎨i⎬)|.
+Proof with auto.
+  intros. unfold CardInfSum.
+  replace (⋃{λ i, A[i] × ⎨i⎬ | i ∊ ω})
+  with (⋃ᵢ (λ i, A[i] × ⎨i⎬))...
+  apply ExtAx. split; intros Hx.
+  - apply IFUnionE in Hx as [n Hx].
+    apply UnionAx. exists (A[n] × ⎨n⎬). split...
+    apply ReplAx. exists n. split... apply embed_ran.
+  - apply UnionAx in Hx as [P [HP Hx]].
+    apply ReplAx in HP as [n [Hn HP]]. subst P.
+    rewrite <- (proj_embed_id n) in Hx...
+    eapply IFUnionI. apply Hx.
 Qed.

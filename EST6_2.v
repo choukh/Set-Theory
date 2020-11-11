@@ -54,7 +54,7 @@ Proof with auto; try congruence.
 Qed.
 
 (* 空集的基数为零 *)
-Lemma card_empty : |∅| = 0.
+Lemma card_of_empty : |∅| = 0.
 Proof. rewrite CardAx2, fin_card_n; nauto. Qed.
 
 (* 集合的基数为零当且仅当它是空集 *)
@@ -62,11 +62,11 @@ Lemma card_empty_iff : ∀ A, |A| = ∅ ↔ A = ∅.
 Proof with nauto.
   split; intros.
   - rewrite <- eqnum_empty, <- CardAx1, (CardAx2 ∅), (fin_card_n ∅)...
-  - subst A. apply card_empty.
+  - subst A. apply card_of_empty.
 Qed.
 
 (* 单集与壹等势 *)
-Lemma card_single : ∀ a, |⎨a⎬| = 1.
+Lemma card_of_single : ∀ a, |⎨a⎬| = 1.
 Proof with nauto.
   intros. rewrite (card_of_nat 1)...
   apply CardAx1. apply eqnum_single_one.
@@ -371,6 +371,82 @@ Proof with eauto; try congruence.
         apply domI in H as Hw. apply func_ap in H...
         split... rewrite <- H. apply Hry...
 Qed.
+
+(* 不交集的二元并与基数加法的相互转化 *)
+Lemma cardAdd_iff : ∀ A B C, disjoint A B →
+  A ∪ B ≈ C ↔ |A| + |B| = |C|.
+Proof with auto.
+  intros * Hdj. split; intros H.
+  - apply CardAx1.
+    eapply eqnum_tran. {
+      apply cardAdd_well_defined.
+      - apply cardMul_well_defined.
+        symmetry. apply CardAx0. reflexivity.
+      - apply cardMul_well_defined.
+        symmetry. apply CardAx0. reflexivity.
+      - apply disjoint_cprod_0_1.
+      - apply disjoint_cprod_0_1.
+    }
+    eapply eqnum_tran. {
+      apply cardAdd_well_defined.
+      - symmetry. apply eqnum_cprod_single.
+      - symmetry. apply eqnum_cprod_single.
+      - apply disjoint_cprod_0_1.
+      - apply Hdj.
+    }
+    apply H.
+  - eapply eqnum_tran. {
+      apply cardAdd_well_defined.
+      + apply (eqnum_cprod_single _ 0).
+      + apply (eqnum_cprod_single _ 1).
+      + apply Hdj.
+      + apply disjoint_cprod_0_1.
+    }
+    eapply eqnum_tran. {
+      apply cardAdd_well_defined.
+      - apply cardMul_well_defined. apply CardAx0. reflexivity.
+      - apply cardMul_well_defined. apply CardAx0. reflexivity.
+      - apply disjoint_cprod_0_1.
+      - apply disjoint_cprod_0_1.
+    }
+    apply CardAx1. apply H.
+Qed.
+
+(* 笛卡尔积与基数乘法的相互转化 *)
+Lemma cardMul_iff : ∀ A B C, A × B ≈ C ↔ (|A| ⋅ |B|) = |C|.
+Proof with auto.
+  split; intros.
+  - apply CardAx1. eapply eqnum_tran.
+    + apply cardMul_well_defined; symmetry; apply CardAx0.
+    + apply H.
+  - eapply eqnum_tran.
+    + apply cardMul_well_defined; apply CardAx0.
+    + apply CardAx1. apply H.
+Qed.
+
+(* 函数空间与基数乘方的相互转化 *)
+Lemma cardExp_iff : ∀ A B C, B ⟶ A ≈ C ↔ (|A| ^ |B|) = |C|.
+Proof with auto.
+  split; intros.
+  - apply CardAx1. eapply eqnum_tran.
+    + apply cardExp_well_defined; symmetry; apply CardAx0.
+    + apply H.
+  - eapply eqnum_tran.
+    + apply cardExp_well_defined; apply CardAx0.
+    + apply CardAx1. apply H.
+Qed.
+
+(* 不交集的基数的和等于它们的二元并的基数 *)
+Lemma cardAdd : ∀ A B, disjoint A B → |A| + |B| = |A ∪ B|.
+Proof. intros. apply cardAdd_iff; auto. Qed.
+
+(* 集合的基数的积等于它们的笛卡尔积的基数*)
+Lemma cardMul : ∀ A B, (|A| ⋅ |B|) = |A × B|.
+Proof. intros. apply cardMul_iff; auto. Qed.
+
+(* 集合的基数的幂等于它们张起的函数空间的基数*)
+Lemma cardExp : ∀ A B, (|A| ^ |B|) = |B ⟶ A|.
+Proof. intros. apply cardExp_iff; auto. Qed.
 
 (* 零是基数加法单位元 *)
 Lemma cardAdd_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 + 0 = 𝜅.

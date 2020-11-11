@@ -80,21 +80,6 @@ Proof with eauto.
     apply SepE in Hi as [_ Hy]. zfcrewrite.
 Qed.
 
-(* 如果单集与配对相等那么它们的成员都相等 *)
-Lemma single_eq_pair : ∀ a b c, ⎨a⎬ = {b, c} → a = b ∧ b = c.
-Proof.
-  intros. assert (Hb: b ∈ {b, c}) by apply PairI1.
-  rewrite <- H in Hb. apply SingE in Hb.
-  assert (Hc: c ∈ {b, c}) by apply PairI2.
-  rewrite <- H in Hc. apply SingE in Hc. split; congruence.
-Qed.
-
-(* 如果单集与单集相等那么它们的成员相等 *)
-Lemma single_injective : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
-Proof.
-  intros. apply single_eq_pair in H as [H _]. apply H.
-Qed.
-
 Theorem AC_I_iff_AC_I' : AC_I ↔ AC_I'.
 Proof with eauto; try congruence.
   unfold AC_I, AC_I'. split.
@@ -439,6 +424,11 @@ Theorem AC_VI_to_III : AC_VI → AC_III.
 Proof.
   intros. apply AC_IV_to_III. apply AC_II_to_IV.
   apply AC_I_to_II. apply AC_VI_to_I. apply H.
+Qed.
+
+Theorem AC_VI_to_III' : AC_VI → AC_III'.
+Proof.
+  intros. apply AC_III_iff_AC_III'. apply AC_VI_to_III. apply H.
 Qed.
 
 Theorem ac1 : AC_I.

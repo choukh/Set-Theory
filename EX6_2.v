@@ -95,7 +95,7 @@ Qed.
 
 (* ex6_18: see EST6_4 Theorem AC_III_iff_AC_III' *)
 
-(* ==未使用选择公理== *)
+(* ==不需要选择公理== *)
 (* 有限个非空集合的笛卡尔积非空 *)
 Example ex6_19 : ∀ I X, finite I → (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
 Proof with eauto; try congruence.
@@ -219,19 +219,19 @@ Proof with auto.
     eapply sub_tran. apply IHm... apply Hinc.
 Qed.
 
-(* ==使用了选择公理== *)
-Example ex6_25 : ∀ Q A, incr_seq Q → A ⊆ ⋃ᵢ Q →
+(* ==需要选择公理== *)
+Example ex6_25 : AC_III → ∀ Q A, incr_seq Q → A ⊆ ⋃ᵢ Q →
   (∀ B, infinite B → B ⊆ A → ∃ n, infinite (B ∩ Q n)) →
   ∃ n, A ⊆ Q n.
 Proof with neauto; try congruence.
-  intros * Hinc Hsuba Hinf.
+  intros AC3 * Hinc Hsuba Hinf.
   apply not_all_not_ex. intros Han.
   assert (Hnea: ∀ n, ⦿ (A - Q n)). {
     intros. apply EmptyNE. intros H.
     apply sub_iff_no_comp in H. eapply Han...
   }
   clear Han.
-  pose proof (ac3 A) as [F [_ [_ Hch]]].
+  pose proof (AC3 A) as [F [_ [_ Hch]]].
   set (λ n, F[A - Q n]) as g.
   set {λ n, g「n」| n ∊ ω} as B.
   assert (Hneb: ⦿ B). {

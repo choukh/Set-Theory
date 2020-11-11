@@ -525,84 +525,9 @@ Proof.
   rewrite <- cardExp_finite_iff; tauto.
 Qed.
 
-(* 不交集的二元并与基数加法的相互转化 *)
-Lemma cardAdd_iff : ∀ A B C, disjoint A B →
-  A ∪ B ≈ C ↔ |A| + |B| = |C|.
-Proof with auto.
-  intros * Hdj. split; intros H.
-  - apply CardAx1.
-    eapply eqnum_tran. {
-      apply cardAdd_well_defined.
-      - apply cardMul_well_defined.
-        symmetry. apply CardAx0. reflexivity.
-      - apply cardMul_well_defined.
-        symmetry. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
-    }
-    eapply eqnum_tran. {
-      apply cardAdd_well_defined.
-      - symmetry. apply eqnum_cprod_single.
-      - symmetry. apply eqnum_cprod_single.
-      - apply disjoint_cprod_0_1.
-      - apply Hdj.
-    }
-    apply H.
-  - eapply eqnum_tran. {
-      apply cardAdd_well_defined.
-      + apply (eqnum_cprod_single _ 0).
-      + apply (eqnum_cprod_single _ 1).
-      + apply Hdj.
-      + apply disjoint_cprod_0_1.
-    }
-    eapply eqnum_tran. {
-      apply cardAdd_well_defined.
-      - apply cardMul_well_defined. apply CardAx0. reflexivity.
-      - apply cardMul_well_defined. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
-    }
-    apply CardAx1. apply H.
-Qed.
-
-(* 笛卡尔积与基数乘法的相互转化 *)
-Lemma cardMul_iff : ∀ A B C, A × B ≈ C ↔ (|A| ⋅ |B|) = |C|.
-Proof with auto.
-  split; intros.
-  - apply CardAx1. eapply eqnum_tran.
-    + apply cardMul_well_defined; symmetry; apply CardAx0.
-    + apply H.
-  - eapply eqnum_tran.
-    + apply cardMul_well_defined; apply CardAx0.
-    + apply CardAx1. apply H.
-Qed.
-
-(* 函数空间与基数乘方的相互转化 *)
-Lemma cardExp_iff : ∀ A B C, B ⟶ A ≈ C ↔ (|A| ^ |B|) = |C|.
-Proof with auto.
-  split; intros.
-  - apply CardAx1. eapply eqnum_tran.
-    + apply cardExp_well_defined; symmetry; apply CardAx0.
-    + apply H.
-  - eapply eqnum_tran.
-    + apply cardExp_well_defined; apply CardAx0.
-    + apply CardAx1. apply H.
-Qed.
-
-(* 不交集的基数的和等于它们的二元并的基数 *)
-Lemma cardAdd : ∀ A B, disjoint A B → |A| + |B| = |A ∪ B|.
-Proof. intros. apply cardAdd_iff; auto. Qed.
-
-(* 集合的基数的积等于它们的笛卡尔积的基数*)
-Lemma cardMul : ∀ A B, (|A| ⋅ |B|) = |A × B|.
-Proof. intros. apply cardMul_iff; auto. Qed.
-
-(* 集合的基数的幂等于它们张起的函数空间的基数*)
-Lemma cardExp : ∀ A B, (|A| ^ |B|) = |B ⟶ A|.
-Proof. intros. apply cardExp_iff; auto. Qed.
-
-(* 无限基数自乘而不变 *)
-Theorem cardMul_infinite_id : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ⋅ 𝜅 = 𝜅.
+(* ==需要选择公理== *)
+(* 无限基数自乘等于自身 *)
+Theorem cardMul_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ⋅ 𝜅 = 𝜅.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [[B Heq𝜅] Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }
@@ -767,7 +692,7 @@ Proof with neauto; try congruence.
     }
     apply cardLeq_refl. apply cardAdd_is_card.
   }
-  (* Goal: 𝜆 ≰ | B - A₀ | *)
+  (* Goal: 𝜆 ≰ |B - A₀| *)
   exfalso. unfold 𝜆 in H. rewrite cardLeq_iff in H.
   apply dominate_iff in H as [D [HsubD HqnD]].
   assert (Heq𝜆: 𝜆 = |D|). { apply CardAx1... }
@@ -882,43 +807,62 @@ Proof with neauto; try congruence.
         }
 Qed.
 
-(* 无限基数自加而不变 *)
-Theorem cardAdd_infinite_id : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
+(* ==需要选择公理== *)
+(* 无限基数的有限次幂等于自身 *)
+Corollary cardExp_infinite_n : AC_VI → ∀ 𝜅, ∀n ∈ ω,
+  infcard 𝜅 → n ≠ ∅ → 𝜅 ^ n = 𝜅.
+Proof with auto.
+  intros AC6 𝜅 n Hn [Hinf Hcd].
+  set {n ∊ ω | λ n, n ≠ ∅ → 𝜅 ^ n = 𝜅} as N.
+  ω_induction N Hn.
+  - intros. exfalso...
+  - intros _. destruct (classic (m = 0)).
+    + subst m. rewrite cardExp_1_r...
+    + apply IH in H. rewrite <- card_suc, cardExp_suc, H...
+      apply cardMul_infinite_self... split...
+Qed.
+
+(* ==需要选择公理== *)
+(* 无限基数自加等于自身 *)
+Theorem cardAdd_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
 Proof with nauto.
   intros AC6 𝜅 Hic. apply cardLeq_asym.
   - rewrite cardAdd_k_k. eapply cardLeq_tran.
     apply cardMul_preserve_leq. apply (cardLt_infinite 𝜅)...
-    rewrite cardMul_infinite_id... apply cardLeq_refl. apply Hic.
+    rewrite cardMul_infinite_self... apply cardLeq_refl. apply Hic.
   - apply cardAdd_enlarge; apply Hic.
 Qed.
 
+(* ==需要选择公理== *)
 (* 基数加法的吸收律 *)
 Theorem cardAdd_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜅 + 𝜆 = 𝜅.
 Proof.
   intros AC6 * Hinf Hle. apply cardLeq_asym.
   - eapply cardLeq_tran. apply cardAdd_preserve_leq'. apply Hle.
-    rewrite cardAdd_infinite_id; [|auto|split; auto; apply Hle].
+    rewrite cardAdd_infinite_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
   - apply cardAdd_enlarge; apply Hle.
 Qed.
 
+(* ==需要选择公理== *)
 (* 基数乘法的吸收律 *)
 Theorem cardMul_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜆 ≠ 0 → 𝜅 ⋅ 𝜆 = 𝜅.
 Proof.
   intros AC6 * Hinf Hle H0. apply cardLeq_asym.
   - eapply cardLeq_tran. apply cardMul_preserve_leq'. apply Hle.
-    rewrite cardMul_infinite_id; [|auto|split; auto; apply Hle].
+    rewrite cardMul_infinite_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
 - apply cardMul_enlarge; auto; apply Hle.
 Qed.
 
+(* ==需要选择公理== *)
 (* 无限基数自乘方等于2的幂 *)
-Theorem cardExp_infinite_eq : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
+Theorem cardExp_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
 Proof with nauto.
   intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_asym.
-  - rewrite <- (cardMul_infinite_id AC6 𝜅) at 3; [|split]...
+  - rewrite <- (cardMul_infinite_self AC6 𝜅) at 3; [|split]...
     rewrite <- cardExp_id_3.
     apply cardExp_preserve_base_leq. apply cardLt_power...
   - apply cardExp_preserve_base_leq.
