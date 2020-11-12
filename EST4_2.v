@@ -55,22 +55,6 @@ Proof.
     + rewrite <- one. apply suc_has_n.
 Qed.
 
-(* 集合论自然数投射出元语言自然数 *)
-Definition Proj (N : set) : nat :=
-  match dit (sig (λ n, iter n Suc ∅ = N)) with
-    | inl (exist _ n _) => n
-    | inr _ => 0
-  end.
-Notation "「 n 」" := (Proj n).
-
-Lemma proj : ∀n ∈ ω, ∃ m : nat, Embed m = n.
-Proof with auto.
-  intros n Hn.
-  set {n ∊ ω | λ n, ∃ k : nat, Embed k = n} as N.
-  ω_induction N Hn. exists 0...
-  destruct IH as [k' Heq]. subst. exists (S k')...
-Qed.
-
 (* 嵌入是单射 *)
 Lemma embed_injective : ∀ m n : nat,
   Embed m = Embed n → m = n.
@@ -82,8 +66,23 @@ Proof with auto.
   - apply suc_injective in H... apply embed_ran. apply embed_ran.
 Qed.
 
+(* 集合论自然数投射出元语言自然数 *)
+Coercion Proj (N : set) : nat :=
+  match dit (sig (λ n, iter n Suc ∅ = N)) with
+    | inl (exist _ n _) => n
+    | inr _ => 0
+  end.
+
+Lemma proj : ∀n ∈ ω, ∃ m : nat, Embed m = n.
+Proof with auto.
+  intros n Hn.
+  set {n ∊ ω | λ n, ∃ k : nat, Embed k = n} as N.
+  ω_induction N Hn. exists 0...
+  destruct IH as [k' Heq]. subst. exists (S k')...
+Qed.
+
 (* 集合论自然数与元语言自然数同构 *)
-Lemma embed_proj_id : ∀ n : nat,「n」= n. 
+Lemma embed_proj_id : ∀ n : nat, Proj n = n. 
 Proof.
   intros. unfold Proj.
   destruct (dit (sig (λ k, iter k Suc ∅ = Embed n))).
@@ -91,17 +90,17 @@ Proof.
   - exfalso. apply f. exists n. reflexivity.
 Qed.
 
-Lemma proj_embed_id : ∀n ∈ ω, Embed「n」= n.
+Lemma proj_embed_id : ∀n ∈ ω, Embed n = n.
 Proof.
   intros n Hn. destruct (proj n Hn) as [m Heq].
   subst. rewrite embed_proj_id. reflexivity.
 Qed.
 
 (* 投射是单射 *)
-Lemma proj_injective : ∀ n m ∈ ω,「n」=「m」→ n = m.
+Lemma proj_injective : ∀ n m ∈ ω, Proj n = Proj m → n = m.
 Proof.
   intros n Hn m Hm Heq.
-  assert (Embed「n」= Embed「m」) by auto.
+  assert (Embed n = Embed m) by auto.
   do 2 rewrite proj_embed_id in H; auto.
 Qed.
 

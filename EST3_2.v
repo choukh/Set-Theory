@@ -553,28 +553,28 @@ Qed.
     ...
   }
 **)
-Definition InfCProd : set → set → set := λ I X,
-  {f ∊ I ⟶ ⋃{λ i, X[i] | i ∊ I} | λ f, ∀i ∈ I, f[i] ∈ X[i]}.
+Definition InfCProd : set → (set → set) → set := λ I ℱ,
+  {f ∊ I ⟶ ⋃{λ i, ℱ i | i ∊ I} | λ f, ∀i ∈ I, f[i] ∈ ℱ i}.
 
-Lemma InfCProdI : ∀ x I A, x: I ⇒ ⋃ {ap A | i ∊ I} →
-  (∀i ∈ I, x[i] ∈ A[i]) → x ∈ InfCProd I A.
+Lemma InfCProdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ | i ∊ I} →
+  (∀i ∈ I, x[i] ∈ ℱ i) → x ∈ InfCProd I ℱ.
 Proof with auto.
   intros * Hx Hxi. apply SepI. apply ArrowI...
   intros i Hi. apply Hxi...
 Qed.
 
-Lemma InfCProdE : ∀ x I A, x ∈ InfCProd I A →
-  x: I ⇒ ⋃ {ap A | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ A[i].
+Lemma InfCProdE : ∀ x I ℱ, x ∈ InfCProd I ℱ →
+  x: I ⇒ ⋃ {ℱ | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ ℱ i.
 Proof.
   intros * Hx. apply SepE in Hx as [Hx Hxi].
   apply SepE in Hx as [_ Hx]. split; auto.
 Qed.
 
-Example infcprod_self : ∀ I X A,
-  ⦿ I → (∀i ∈ I, X[i] = A) → InfCProd I X = I ⟶ A.
+Example infcprod_self : ∀ I ℱ A, ⦿ I →
+  (∀i ∈ I, ℱ i = A) → InfCProd I ℱ = I ⟶ A.
 Proof with eauto.
   intros * [i Hi] H.
-  assert (Heq: ⋃ {ap X | i ∊ I} = A). {
+  assert (Heq: ⋃ {ℱ | i ∊ I} = A). {
     apply ExtAx. split; intros Hx.
     - apply FUnionE in Hx as [j [Hj Hx]]. apply H in Hj. subst A...
     - eapply FUnionI... apply H in Hi. subst A...
@@ -587,15 +587,15 @@ Proof with eauto.
 Qed.
 
 (* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
-Definition AC_II : Prop := ∀ I X,
-  (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
+Definition AC_II : Prop :=
+  ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 
 Theorem AC_I_iff_II : AC_I ↔ AC_II.
 Proof with eauto.
   unfold AC_I, AC_II. split.
-  - intros * AC1 I X Hxi.
-    set (I × ⋃{λ i, X[i] | i ∊ I}) as P.
-    set {p ∊ P | λ p, π2 p ∈ X[π1 p]} as R.
+  - intros * AC1 I ℱ Hxi.
+    set (I × ⋃{ℱ | i ∊ I}) as P.
+    set {p ∊ P | λ p, π2 p ∈ ℱ (π1 p)} as R.
     assert (H: is_relation R) by apply sep_cp_is_rel.
     apply AC1 in H as [F [Hf [Hsub Hdeq]]].
     assert (Hdeq2: dom F = I). {

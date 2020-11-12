@@ -97,10 +97,10 @@ Qed.
 
 (* ==不需要选择公理== *)
 (* 有限个非空集合的笛卡尔积非空 *)
-Example ex6_19 : ∀ I X, finite I → (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
+Example ex6_19 : ∀ I ℱ, finite I → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 Proof with eauto; try congruence.
   intros * [n [Hn Hqn]]. generalize dependent I.
-  set {n ∊ ω | λ n, ∀ I, I ≈ n → (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X} as N.
+  set {n ∊ ω | λ n, ∀ I, I ≈ n → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ} as N.
   ω_induction N Hn; intros I Hqn HneX.
   - apply eqnum_empty in Hqn. rewrite Hqn.
     exists ∅. apply SepI.
@@ -122,7 +122,7 @@ Proof with eauto; try congruence.
       rewrite dom_of_single_pair in H2.
       rewrite Hd in H1. apply SepE in H1 as []...
     }
-    assert (Hstar: ∀i ∈ I, (f ∪ ⎨<j, xⱼ>⎬)[i] ∈ X[i]). {
+    assert (Hstar: ∀i ∈ I, (f ∪ ⎨<j, xⱼ>⎬)[i] ∈ ℱ i). {
       intros i Hi. destruct (classic (i = j)).
       * subst. replace ((f ∪ ⎨<j, xⱼ>⎬)[j]) with xⱼ...
         symmetry. apply func_ap... apply BUnionI2...
@@ -140,7 +140,7 @@ Proof with eauto; try congruence.
         subst. eapply domI. apply BUnionI2...
         eapply domI. apply BUnionI1. apply func_correct...
         rewrite Hd. apply SepI... apply SingNI...
-    + intros i Hi. apply UnionAx. exists (X[i]). split.
+    + intros i Hi. apply UnionAx. exists (ℱ i). split.
       apply ReplAx. exists i. split... apply Hstar...
     + exact Hstar.
 Qed.
@@ -233,7 +233,7 @@ Proof with neauto; try congruence.
   clear Han.
   pose proof (AC3 A) as [F [_ [_ Hch]]].
   set (λ n, F[A - Q n]) as g.
-  set {λ n, g「n」| n ∊ ω} as B.
+  set {λ n, g n | n ∊ ω} as B.
   assert (Hneb: ⦿ B). {
     exists (F[A - Q 0]). apply ReplAx.
     exists ∅. split... rewrite <- zero, embed_proj_id...
@@ -242,7 +242,7 @@ Proof with neauto; try congruence.
   assert (Hgn2: ∀ n, ∃ m, g n ∈ Q m). {
     intros. specialize Hgn1 with n.
     apply SepE in Hgn1 as [Hgn _]. apply Hsuba in Hgn.
-    apply IFUnionE in Hgn as [m Hgm]. exists m...
+    apply nat_IFUnionE in Hgn as [m Hgm]. exists m...
   }
   assert (Hgn3: ∀ n, g n ∈ B). {
     intros. apply ReplAx. exists (Embed n). split.
@@ -254,12 +254,12 @@ Proof with neauto; try congruence.
   }
   specialize Hinf with B as [n Hinf].
   - intros Hfin.
-    set (λ x, {n ∊ ω | λ n, x ∈ Q「n」}) as 𝒩.
+    set (λ x, {n ∊ ω | λ n, x ∈ Q n}) as 𝒩.
     set (λ x, min[𝒩 x]) as f.
     assert (Hmin: ∀b ∈ B, f b ∈ 𝒩 b ∧ ∀n ∈ 𝒩 b, f b ⊆ n). {
       intros b Hb. apply min_correct.
       apply ReplAx in Hb as [n [Hn Heqb]]. subst b.
-      specialize Hgn2 with 「n」as [m Hgn].
+      specialize Hgn2 with n as [m Hgn].
       exists (Embed m). apply SepI.
       apply embed_ran. rewrite embed_proj_id...
       intros x Hx. apply SepE in Hx as []...
@@ -272,16 +272,16 @@ Proof with neauto; try congruence.
       destruct Hneb as [b Hb]. exists (f b).
       apply ReplAx. exists b. split...
     }
-    cut (B ⊆ Q「m」). {
-      intros Hsub. apply (Hgn4「m」). apply Hsub...
+    cut (B ⊆ Q m). {
+      intros Hsub. apply (Hgn4 m). apply Hsub...
     }
     apply ReplAx in Hm as [b [Hb Heqm]].
     apply Hmin in Hb as [Hfb _]. apply SepE in Hfb as [Hfb _].
-    assert (Hsub: B ⊆ ⋃{λ n, Q「n」| n ∊ m ⁺}). {
+    assert (Hsub: B ⊆ ⋃{λ n, Q n | n ∊ m ⁺}). {
       intros x Hx. assert (Hx' := Hx).
       apply Hmin in Hx' as [Hfx Hsub].
       apply SepE in Hfx as [Hfx Hxq].
-      apply UnionAx. exists (Q「f x」). split...
+      apply UnionAx. exists (Q (f x)). split...
       apply ReplAx. exists (f x). split...
       apply lt_suc_iff_sub... apply Hmax.
       apply ReplAx. exists x. split...
@@ -293,14 +293,14 @@ Proof with neauto; try congruence.
       eapply ω_trans... apply ω_inductive...
     }
     apply BUnionE in Hn as [].
-    + apply (incr_seq_index_leq_impl_sub Q Hinc「n」)...
+    + apply (incr_seq_index_leq_impl_sub Q Hinc n)...
       apply le_isomorphic. repeat rewrite proj_embed_id...
       apply lt_iff_psub...
     + apply SingE in H...
   - intros x Hx. apply ReplAx in Hx as [n [Hn Hx]]. subst x.
-    assert (Hsub: A - Q「n」⊆ A) by auto. apply Hsub...
-  - set {m ∊ ω | λ m, g「m」∈ Q n} as M.
-    set {λ m, g「m」| m ∊ M} as C.
+    assert (Hsub: A - Q n ⊆ A) by auto. apply Hsub...
+  - set {m ∊ ω | λ m, g m ∈ Q n} as M.
+    set {λ m, g m | m ∊ M} as C.
     assert (Hsubm: M ⊆ ω). {
       intros x Hx. apply SepE in Hx as []...
     }
@@ -315,7 +315,7 @@ Proof with neauto; try congruence.
     assert (HinfM: infinite M). {
       intros Hfin. apply Hinf. rewrite Heq.
       apply (dominated_by_finite_is_finite _ M)...
-      set (Func M C (λ x, g「x」)) as f.
+      set (Func M C (λ x, g x)) as f.
       apply (domain_of_surjection_dominate_range ac1 _ _ f).
       apply meta_surjective.
       - intros x Hx. apply ReplAx. exists x. split...
@@ -330,6 +330,6 @@ Proof with neauto; try congruence.
     rewrite <- (proj_embed_id m) in Hnm...
     apply le_isomorphic in Hnm.
     apply (incr_seq_index_leq_impl_sub Q Hinc) in Hnm.
-    apply Hnm in Hgm. specialize Hgn1 with「m」.
+    apply Hnm in Hgm. specialize Hgn1 with m.
     apply SepE in Hgn1 as []...
 Qed.

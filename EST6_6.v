@@ -808,8 +808,8 @@ Proof with neauto; try congruence.
 Qed.
 
 (* ==需要选择公理== *)
-(* 无限基数的有限次幂等于自身 *)
-Corollary cardExp_infinite_n : AC_VI → ∀ 𝜅, ∀n ∈ ω,
+(* 无限基数的非零有限次幂等于自身 *)
+Corollary cardExp_infinite_id : AC_VI → ∀ 𝜅, ∀n ∈ ω,
   infcard 𝜅 → n ≠ ∅ → 𝜅 ^ n = 𝜅.
 Proof with auto.
   intros AC6 𝜅 n Hn [Hinf Hcd].
@@ -820,6 +820,19 @@ Proof with auto.
     + subst m. rewrite cardExp_1_r...
     + apply IH in H. rewrite <- card_suc, cardExp_suc, H...
       apply cardMul_infinite_self... split...
+Qed.
+
+(* ==需要选择公理== *)
+(* 无限基数的有限次幂不大于自身 *)
+Corollary cardExp_infinite_leq : AC_VI → ∀ 𝜅, ∀n ∈ ω,
+  infcard 𝜅 → 𝜅 ^ n ≤ 𝜅.
+Proof with nauto.
+  intros AC6 𝜅 n Hn [Hinf Hcd].
+  destruct (classic (n = 0)). {
+    subst n. rewrite cardExp_0_r.
+    apply cardLt_infinite... split...
+  }
+  rewrite cardExp_infinite_id... apply cardLeq_refl... split...
 Qed.
 
 (* ==需要选择公理== *)

@@ -15,8 +15,8 @@ Definition AC_I' : Prop := ∀ A,
   ∃ F, F: ⋃A ⇒ A ∧ ∀x ∈ dom F, x ∈ F[x].
 
 (* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
-Definition AC_II : Prop := ∀ I X,
-  (∀i ∈ I, ⦿ X[i]) → ⦿ InfCProd I X.
+Definition AC_II : Prop :=
+  ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 
 (* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
 Definition AC_III : Prop := ∀ A,
@@ -56,9 +56,9 @@ Definition AC_VI : Prop := ∀ 𝒜,
 
 Theorem AC_I_to_II : AC_I → AC_II.
 Proof with eauto.
-  unfold AC_I, AC_II. intros * AC1 I X Hxi.
-  set (I × ⋃{λ i, X[i] | i ∊ I}) as P.
-  set {p ∊ P | λ p, π2 p ∈ X[π1 p]} as R.
+  unfold AC_I, AC_II. intros * AC1 I ℱ Hxi.
+  set (I × ⋃{ℱ | i ∊ I}) as P.
+  set {p ∊ P | λ p, π2 p ∈ ℱ (π1 p)} as R.
   specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
     apply sep_cp_is_rel.
   }
@@ -144,20 +144,20 @@ Qed.
 Theorem AC_II_to_IV : AC_II → AC_IV.
 Proof with eauto.
   unfold AC_II, AC_IV. intros AC2 𝒜 Hi Hdj.
-  destruct (AC2 𝒜 (Ident 𝒜)) as [f Hf]. {
-    intros A HA. rewrite ident_ap... apply Hi...
+  destruct (AC2 𝒜 (λ x, x)) as [f Hf]. {
+    intros A HA. apply Hi...
   }
   apply SepE in Hf as [Hf Hin].
   apply arrow_iff in Hf as [Hf [Hd _]].
   exists (ran f). intros A HA. exists (f[A]). apply sub_asym.
   - intros y Hy. apply BInterE in Hy as [H1 H2].
     apply ranE in H2 as [x Hp]. apply domI in Hp as Hx.
-    rewrite Hd in Hx. apply Hin in Hx as Hfx. rewrite ident_ap in Hfx...
+    rewrite Hd in Hx. apply Hin in Hx as Hfx.
     apply func_ap in Hp... subst y. 
     destruct (classic (A = x)). subst x...
     exfalso. apply Hdj in H... eapply disjointE...
   - apply single_of_member_is_subset. apply BInterI.
-    + rewrite <- (ident_ap 𝒜 A) at 2... apply Hin...
+    + apply Hin...
     + eapply ap_ran... split...
 Qed.
 

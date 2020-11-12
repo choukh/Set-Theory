@@ -77,7 +77,44 @@ Proof with auto.
   split; [|split]...
 Qed.
 
+(* 通过指定定义域讲类型论函数嵌入到集合论函数 *)
+Definition LambdaEmbed : (set → set) → set → set := λ F A,
+  Func A {F | a ∊ A} F.
+Notation "F ↿ A" := (LambdaEmbed F A) (at level 60).
+Notation "'Λ' x ∊ A , F" := ((λ x, F) ↿ A) (at level 200).
+
+Lemma lambdaEmbed : ∀ F A, ∀a ∈ A, (F ↿ A)[a] = F a.
+Proof with auto.
+  intros * a Ha. unfold LambdaEmbed.
+  rewrite meta_func_ap... apply meta_maps_into.
+  intros x Hx. apply ReplAx. exists x. split...
+Qed.
+
 (** special cases **)
+
+(* 常函数 *)
+Definition Const : set → set → set := λ A b,
+  Func A ⎨b⎬ (λ _, b).
+
+(* 常函数是映射 *)
+Lemma const_maps_into : ∀ A b, (Const A b): A ⇒ ⎨b⎬.
+Proof.
+  intros A b. apply meta_maps_into. intros _ _. auto.
+Qed.
+
+(* 常函数应用 *)
+Lemma const_func_ap : ∀ A b, ∀x ∈ A, (Const A b)[x] = b.
+Proof with auto.
+  intros * x Hx. unfold Const.
+  rewrite meta_func_ap... apply const_maps_into.
+Qed.
+
+(* 常函数是满射 *)
+Lemma const_surjective : ∀ A b, ⦿ A → (Const A b): A ⟹ ⎨b⎬.
+Proof with auto.
+  intros A b [a Ha]. apply meta_surjective. intros _ _...
+  intros y Hy. apply SingE in Hy. exists a. split...
+Qed.
 
 (* 恒等函数是双射 *)
 Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.

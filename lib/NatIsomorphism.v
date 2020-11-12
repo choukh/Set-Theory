@@ -3,18 +3,18 @@
 Require Import Coq.Arith.PeanoNat.
 Require Import ZFC.lib.Natural.
 
-Lemma suc_isomorphic_n : ∀ n : nat, S n = 「n⁺」.
+Lemma suc_isomorphic_n : ∀ n : nat, S n = n⁺.
 Proof.
   intros. rewrite <- (embed_proj_id (S n)). reflexivity.
 Qed.
 
-Lemma suc_isomorphic_ω : ∀n ∈ ω, n⁺ = S「n」.
+Lemma suc_isomorphic_ω : ∀n ∈ ω, n⁺ = S n.
 Proof with auto.
   intros n Hn. rewrite suc_isomorphic_n.
   repeat rewrite proj_embed_id... apply ω_inductive...
 Qed.
 
-Lemma add_isomorphic_n : ∀ n m, (n + m)%nat = 「n + m」.
+Lemma add_isomorphic_n : ∀ n m, (n + m)%nat = n + m.
 Proof with nauto.
   intros. induction m.
   - rewrite Nat.add_0_r, add_ident, embed_proj_id...
@@ -25,13 +25,13 @@ Proof with nauto.
     rewrite suc_isomorphic_ω, IHm, embed_proj_id...
 Qed.
 
-Lemma add_isomorphic_ω : ∀ n m ∈ ω, n + m = (「n」+「m」)%nat.
+Lemma add_isomorphic_ω : ∀ n m ∈ ω, n + m = (n + m)%nat.
 Proof with nauto.
   intros n Hn m Hm. rewrite add_isomorphic_n.
   repeat rewrite proj_embed_id... apply add_ran...
 Qed.
 
-Lemma mul_isomorphic_n : ∀ n m, n * m = 「n ⋅ m」.
+Lemma mul_isomorphic_n : ∀ n m, n * m = n ⋅ m.
 Proof with nauto.
   intros. induction m.
   - rewrite Nat.mul_0_r, mul_0_r, embed_proj_id...
@@ -42,13 +42,13 @@ Proof with nauto.
     rewrite add_isomorphic_n, proj_embed_id...
 Qed.
 
-Lemma mul_isomorphic_ω : ∀ n m ∈ ω, n ⋅ m =「n」*「m」.
+Lemma mul_isomorphic_ω : ∀ n m ∈ ω, n ⋅ m = n * m.
 Proof with nauto.
   intros n Hn m Hm. rewrite mul_isomorphic_n.
   repeat rewrite proj_embed_id... apply mul_ran...
 Qed.
 
-Lemma pow_isomorphic_n : ∀ n m, (n ^ m)%nat = 「n ^ m」.
+Lemma pow_isomorphic_n : ∀ n m, (n ^ m)%nat = n ^ m.
 Proof with nauto.
   intros. induction m.
   - rewrite Nat.pow_0_r, exp_0_r, embed_proj_id...
@@ -59,7 +59,7 @@ Proof with nauto.
     rewrite mul_isomorphic_n, proj_embed_id...
 Qed.
 
-Lemma pow_isomorphic_ω : ∀ n m ∈ ω, n ^ m = (「n」^「m」)%nat.
+Lemma pow_isomorphic_ω : ∀ n m ∈ ω, n ^ m = (n ^ m)%nat.
 Proof with nauto.
   intros n Hn m Hm. rewrite pow_isomorphic_n.
   repeat rewrite proj_embed_id... apply exp_ran...
@@ -76,7 +76,7 @@ Proof with nauto.
   - rename m into k. pose proof (embed_ran k) as Hk.
     rewrite <- (embed_proj_id k).
     generalize dependent n.
-    set {k ∊ ω | λ k, ∀ n : nat, n ⊆ k → n <=「k」} as N.
+    set {k ∊ ω | λ k, ∀ n : nat, n ⊆ k → n <= k} as N.
     ω_induction N Hk; intros n Hn.
     + apply sub_empty in Hn.
       rewrite <- Hn, embed_proj_id...

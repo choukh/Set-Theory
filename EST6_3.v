@@ -19,11 +19,9 @@ Lemma empty_dominated : ∀ A, ∅ ≼ A.
 Proof. intros. exists ∅. apply empty_injective. Qed.
 
 (* 等势的集合相互支配 *)
-Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B ∧ B ≼ A.
+Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B.
 Proof with auto.
-  intros * [f Hf]. split.
-  exists f. apply bijection_is_injection...
-  exists (f⁻¹). apply bijection_is_injection. apply inv_bijection...
+  intros * [f Hf]. exists f. apply bijection_is_injection...
 Qed.
 
 (* 支配关系是自反的 *)
@@ -44,13 +42,13 @@ Qed.
 Lemma dominate_rewrite_l : ∀ A B C, C ≈ A → B ≼ C → B ≼ A.
 Proof.
   intros * Hqn Hdm. eapply dominate_tran; revgoals.
-  apply eqnum_dominate. symmetry. apply Hqn. apply Hdm.
+  apply eqnum_dominate. apply Hqn. apply Hdm.
 Qed.
 
 Lemma dominate_rewrite_r : ∀ A B C, B ≈ A → B ≼ C → A ≼ C.
 Proof.
   intros * Hqn Hdm. eapply dominate_tran.
-  apply eqnum_dominate. apply Hqn. apply Hdm.
+  apply eqnum_dominate. symmetry. apply Hqn. apply Hdm.
 Qed.
 
 (* 可以证明支配关系也是反对称的 *)
@@ -72,10 +70,10 @@ Proof with eauto; try congruence.
   assert (HeqC0: Cᵢ 0 = C₀) by reflexivity.
   assert (HeqCn: ∀ n, Cᵢ (S n) = g⟦Dᵢ n⟧). { intros. unfold Dᵢ... }
   assert (HsubC: C₀ ⊆ C). {
-    intros x Hx. eapply IFUnionI. rewrite HeqC0...
+    intros x Hx. eapply nat_IFUnionI. rewrite HeqC0...
   }
   assert (HsubA: C ⊆ A). {
-    intros x Hx. apply IFUnionE in Hx as [m Hm].
+    intros x Hx. apply nat_IFUnionE in Hx as [m Hm].
     destruct m. rewrite HeqC0 in Hm. apply SepE in Hm as []...
     rewrite HeqCn in Hm. apply img_included in Hm. apply Hrg...
   }
@@ -84,7 +82,7 @@ Proof with eauto; try congruence.
     exfalso. apply H. apply HsubC. apply SepI...
   }
   assert (Hdc: ∀ n, ∀x ∈ ran g, (g⁻¹)[x] ∈ Dᵢ n → x ∈ C). {
-    intros n x Hx H. eapply IFUnionI. rewrite HeqCn.
+    intros n x Hx H. eapply nat_IFUnionI. rewrite HeqCn.
     eapply imgI. apply H. rewrite inv_op. apply func_correct.
     apply inv_func_iff_sr... rewrite inv_dom...
   }
@@ -97,31 +95,31 @@ Proof with eauto; try congruence.
     destruct (ixm (x1 ∈ C)) as [H1|H1];
     destruct (ixm (x2 ∈ C)) as [H2|H2].
     + apply (injectiveE f)...
-    + apply IFUnionE in H1 as [m Hcm].
+    + apply nat_IFUnionE in H1 as [m Hcm].
       exfalso. apply H2. eapply Hdc. apply Hxrg...
       rewrite <- Heq. eapply imgI. apply Hcm. apply func_correct...
-    + apply IFUnionE in H2 as [m Hcm].
+    + apply nat_IFUnionE in H2 as [m Hcm].
       exfalso. apply H1. eapply Hdc. apply Hxrg...
       rewrite Heq. eapply imgI. apply Hcm. apply func_correct...
     + apply (injectiveE g⁻¹)... apply inv_injective...
       rewrite inv_dom. apply Hxrg...
       rewrite inv_dom. apply Hxrg...
   - intros y Hy. destruct (classic (y ∈ D)). {
-      apply IFUnionE in H as [m H].
+      apply nat_IFUnionE in H as [m H].
       apply imgE in H as [x [Hx Hpf]].
-      apply IFUnionI in Hx. apply func_ap in Hpf...
+      apply nat_IFUnionI in Hx. apply func_ap in Hpf...
       exists x. split. apply HsubA...
       destruct (ixm (x ∈ C))... exfalso... 
     }
     exists (g[y]). split. eapply ap_ran... split...
     destruct (ixm (g[y] ∈ C)) as [Hgy|Hgy];
       [exfalso|rewrite inv_dom_reduction]...
-    apply IFUnionE in Hgy as [m Hgy]. destruct m.
+    apply nat_IFUnionE in Hgy as [m Hgy]. destruct m.
     + rewrite HeqC0 in Hgy. apply SepE in Hgy as [_ Hgy].
       apply Hgy. eapply ap_ran... split...
     + rewrite HeqCn in Hgy. apply imgE in Hgy as [x [Hx Hp]].
       apply domI in Hp as Hxdg. apply func_ap in Hp...
-      apply injectiveE in Hp... subst x. apply H. eapply IFUnionI...
+      apply injectiveE in Hp... subst x. apply H. eapply nat_IFUnionI...
 Qed.
 
 (* 子集被支配 *)
@@ -143,7 +141,8 @@ Proof.
   intros * H1 H2 Hqn.
   apply dominate_sub in H1.
   apply dominate_sub in H2.
-  apply eqnum_dominate in Hqn as [H3 H4].
+  apply eqnum_dominate in Hqn as H3. symmetry in Hqn.
+  apply eqnum_dominate in Hqn as H4.
   split; apply Schröeder_Bernstein; auto;
   eapply dominate_tran; eauto.
 Qed.
@@ -495,6 +494,12 @@ Proof with auto.
   intros. rewrite (card_of_card 𝜅)... apply cardLeq_iff...
 Qed.
 
+(* 相等的基数满足序关系 *)
+Lemma eq_cardLeq : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 = 𝜆 → 𝜅 ≤ 𝜆.
+Proof.
+  intros. subst. apply cardLeq_refl. apply H.
+Qed.
+
 (* 基数的序关系是传递的 *)
 Lemma cardLeq_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
 Proof with eauto.
@@ -834,4 +839,18 @@ Proof with auto.
     + subst m. rewrite cardExp_1_r...
     + apply IH in H. rewrite <- card_suc, cardExp_suc, H...
       apply cardMul_aleph0_aleph0.
+Qed.
+
+(* 阿列夫零的自乘方等于2的幂 *)
+Theorem cardExp_aleph0_aleph0 : ℵ₀ ^ ℵ₀ = 2 ^ ℵ₀.
+Proof with nauto.
+  apply cardLeq_asym.
+  - rewrite <- cardMul_aleph0_aleph0 at 3.
+    rewrite <- cardExp_id_3.
+    apply cardExp_preserve_base_leq.
+    apply cardLt_power...
+  - apply cardExp_preserve_base_leq.
+    eapply cardLt_leq_tran.
+    apply cardLt_aleph0_if_finite...
+    apply cardLeq_refl...
 Qed.

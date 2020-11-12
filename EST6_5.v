@@ -3,6 +3,7 @@
 
 Require Export ZFC.EX6_2.
 Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.IndexedFamilyUnion.
 
 (*** EST第六章5：可数集，可数多个可数集的并是可数集 ***)
 
@@ -143,14 +144,14 @@ Proof with eauto; try congruence.
 Qed.
 
 (* ==可以不用选择公理== (用算术基本定理直接建立双射) *)
-Fact union_of_all_n_arrow_ω_countable :
-  countable ⋃{λ n, n ⟶ ω | n ∊ ω}.
+(* 所有自然数到ω的函数空间的并是可数集 *)
+Fact ifunion_arrow_ω_countable :
+  countable ⋃ᵢ λ i, i ⟶ ω.
 Proof with neauto.
   apply countable_union_of_coutable_set.
   - apply ac2.
-  - apply countable_iff. right.
-    symmetry. apply eqnum_repl.
-    intros n Hn m Hm Heq.
+  - apply countable_iff. right. symmetry.
+    apply eqnum_repl. intros n Hn m Hm Heq.
     set (Func n ω (λ x, x)) as f.
     assert (Hf: f ∈ n ⟶ ω). {
       apply SepI. apply PowerAx.
@@ -169,42 +170,64 @@ Proof with neauto.
       * apply CardAx1. rewrite <- cardExp_aleph0_n at 2... reflexivity.
 Qed.
 
-(* 自然数序列 *)
-Definition Sq : set → set := λ A,
+(* 有限序列集 *)
+Definition FiniteSequences : set → set := λ A,
   {f ∊ 𝒫 (ω × A) | λ f, ∃n ∈ ω, f: n ⇒ A}.
+Notation "'𝗦𝗾' A" := (FiniteSequences A) (at level 60).
 
-Fact sq_ω_eqnum_ω : Sq ω ≈ ω.
-Proof with neauto; try congruence.
-  apply Schröeder_Bernstein.
-  - eapply dominate_tran; [|apply union_of_all_n_arrow_ω_countable].
-    apply dominate_sub. intros f Hf.
-    apply SepE in Hf as [_ [n [Hn Hf]]].
-    apply UnionAx. exists (n ⟶ ω). split.
-    + apply ReplAx. exists n. split...
-    + destruct Hf as [Hf [Hd Hr]].
-      apply arrow_iff. split... split...
-      intros x Hx. apply Hr. eapply ranI. apply func_correct...
-  - set (Func ω (Sq ω) (λ x, Func 1 ω (λ _, x))) as f.
-    exists f. apply meta_injective.
-    + intros x Hx. apply SepI.
-      * apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
-        apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
-        subst p. apply CProdI... eapply ω_trans...
-      * exists 1. split... apply meta_maps_into. intros _ _...
-    + intros x1 Hx1 x2 Hx2 Heq.
-      assert (<∅, x1> ∈ Func 1 ω (λ _, x1)). {
-        apply SepI. apply CProdI... apply suc_has_0... zfcrewrite.
-      }
-      rewrite Heq in H. apply SepE in H as [_ H]. zfcrewrite.
+(* 空集的有限序列等于1 *)
+Fact sq_empty : 𝗦𝗾 ∅ = 1.
+Proof with nauto.
+  apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [Hx _].
+    rewrite cprod_x_0, power_zero, <- one in Hx...
+  - rewrite one in Hx. apply SingE in Hx. subst. apply SepI.
+    + rewrite cprod_x_0, power_zero. apply SingI.
+    + exists 0. split... apply injection_is_func.
+      apply empty_injective.
 Qed.
 
-Fact sq_countable : ∀ A, countable A → countable (Sq A).
+(* 任意集合被自身的有限序列集支配 *)
+Lemma dominated_by_sq : ∀ A, A ≼ 𝗦𝗾 A.
+Proof with neauto.
+  intros. set (Func A (𝗦𝗾 A) (λ x, Func 1 A (λ _, x))) as f.
+  exists f. apply meta_injective.
+  + intros x Hx. apply SepI.
+    * apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
+      apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
+      subst p. apply CProdI... eapply ω_trans...
+    * exists 1. split... apply meta_maps_into. intros _ _...
+  + intros x1 Hx1 x2 Hx2 Heq.
+    assert (<∅, x1> ∈ Func 1 A (λ _, x1)). {
+      apply SepI. apply CProdI... apply suc_has_0... zfcrewrite.
+    }
+    rewrite Heq in H. apply SepE in H as [_ H]. zfcrewrite.
+Qed.
+
+(* 有限序列集是函数空间的并的子集 *)
+Lemma sq_sub_ifunion_arrow : ∀ A, 𝗦𝗾 A ⊆ ⋃ᵢ λ i, i ⟶ A.
+Proof with eauto.
+  intros A f Hf.
+  apply SepE in Hf as [_ [n [Hn Hf]]].
+  eapply IFUnionI... apply ArrowI...
+Qed.
+
+(* ω的有限序列集与自身等势 *)
+Fact ω_eqnum_sq_ω : ω ≈ 𝗦𝗾 ω.
+Proof.
+  apply Schröeder_Bernstein. apply dominated_by_sq.
+  eapply dominate_tran. apply dominate_sub.
+  apply sq_sub_ifunion_arrow.
+  apply ifunion_arrow_ω_countable.
+Qed.
+
+Fact sq_countable : ∀ A, countable A → countable (𝗦𝗾 A).
 Proof with eauto; try congruence.
   intros A [g Hg].
   eapply dominate_tran; revgoals. {
-    apply eqnum_dominate. rewrite <- sq_ω_eqnum_ω...
+    apply eqnum_dominate. rewrite ω_eqnum_sq_ω...
   }
-  set (Func (Sq A) (Sq ω) (λ f,
+  set (Func (𝗦𝗾 A) (𝗦𝗾 ω) (λ f,
     Func (dom f) ω (λ n, g[f[n]])
   )) as F.
   exists F. apply meta_injective.
@@ -312,13 +335,13 @@ Proof with auto; try congruence.
   eapply domain_of_surjection_dominate_range... apply Hf.
 Qed.
 
-Fact sq_dominated_by_ω_arrow : ∀ A, 2 ≤ |A| → Sq A ≼ ω ⟶ A.
+Fact sq_dominated_by_ω_arrow : ∀ A, 2 ≤ |A| → 𝗦𝗾 A ≼ ω ⟶ A.
 Proof with neauto; try congruence.
   intros A Hle.
   eapply dominate_rewrite_l. {
     apply cardExp_well_defined; symmetry; apply CardAx0.
   }
-  cut (|Sq A| ≤ |A| ^ ℵ₀). { apply cardLeq_iff. }
+  cut (|𝗦𝗾 A| ≤ |A| ^ ℵ₀). { apply cardLeq_iff. }
   rewrite <- cardMul_aleph0_expAleph0...
   apply cardLeq_iff.
   eapply dominate_rewrite_l. {
@@ -340,20 +363,20 @@ Proof with neauto; try congruence.
       | inr _ => a
     end
   )) as G.
-  set (Func (Sq A) (ω ⟶ A) (λ f, G f)) as g.
-  set (Func (Sq A) (ω × (ω ⟶ A)) (λ f, <dom f, g[f]>)) as F.
-  assert (HGp: ∀f ∈ Sq A, G f ∈ 𝒫 (ω × A)). {
+  set (Func (𝗦𝗾 A) (ω ⟶ A) (λ f, G f)) as g.
+  set (Func (𝗦𝗾 A) (ω × (ω ⟶ A)) (λ f, <dom f, g[f]>)) as F.
+  assert (HGp: ∀f ∈ 𝗦𝗾 A, G f ∈ 𝒫 (ω × A)). {
     intros f Hf. apply PowerAx. intros p Hp.
     apply SepE in Hp as []...
   }
-  assert (HG: ∀f ∈ Sq A, G f : ω ⇒ A). {
+  assert (HG: ∀f ∈ 𝗦𝗾 A, G f : ω ⇒ A). {
     intros f Hf.
     apply SepE in Hf as [_ [n [Hn [Hf [Hd Hr]]]]].
     apply meta_maps_into.
     intros x Hx. destruct (ixm (x ∈ dom f))...
     eapply ap_ran... split...
   }
-  assert (Hg: g: Sq A ⇒ (ω ⟶ A)). {
+  assert (Hg: g: 𝗦𝗾 A ⇒ (ω ⟶ A)). {
     apply meta_maps_into. intros f Hf.
     apply SepI. apply HGp... apply HG...
   }
