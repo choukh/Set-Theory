@@ -163,6 +163,21 @@ Proof.
   apply H. apply BInterI; eauto.
 Qed.
 
+(* 非空集合的二元并具有单射性 *)
+Lemma disjoint_bunion_injective : ∀ A B C,
+  disjoint A C → disjoint B C →
+  A ∪ C = B ∪ C → A = B.
+Proof with auto.
+  intros * Hdja Hdjb Heq.
+  apply ExtAx. split; intros Hx.
+  - assert (Hx': x ∈ A ∪ C) by (apply BUnionI1; auto).
+    rewrite Heq in Hx'. apply BUnionE in Hx' as []...
+    exfalso. apply (disjointE A C x)...
+  - assert (Hx': x ∈ B ∪ C) by (apply BUnionI1; auto).
+    rewrite <- Heq in Hx'. apply BUnionE in Hx' as []...
+    exfalso. apply (disjointE B C x)...
+Qed.
+
 (** 有序对 **)
 Definition OPair : set → set → set := λ x y, {⎨x⎬, {x, y}}.
 Notation "< x , y , .. , z >" :=
@@ -323,4 +338,12 @@ Fact cprod_x_0 : ∀ A, A × ∅ = ∅.
 Proof.
   intros. apply sub_empty. intros x H.
   apply CProdE1 in H. destruct H as [_ H]. exfalso0.
+Qed.
+
+Fact cprod_single_single : ∀ x, ⎨x⎬ × ⎨x⎬ = ⎨<x, x>⎬.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
+    apply SingE in Ha. apply SingE in Hb. subst...
+  - apply SingE in Hx. subst. apply CProdI...
 Qed.

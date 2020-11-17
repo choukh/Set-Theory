@@ -93,7 +93,7 @@ Proof with nauto.
   apply suc_neq_0. apply suc_neq_0.
 Qed.
 
-(* ex6_18: see EST6_4 Theorem AC_III_iff_AC_III' *)
+(* ex6_18: see EST6_4 Theorem AC_III_iff_III' *)
 
 (* ==不需要选择公理== *)
 (* 有限个非空集合的笛卡尔积非空 *)
@@ -117,7 +117,7 @@ Proof with eauto; try congruence.
     apply arrow_iff in Hf as [Hf [Hd Hr]].
     pose proof (HneX _ Hj) as [xⱼ Hxj].
     assert (Hf': is_function (f ∪ ⎨<j, xⱼ>⎬)). {
-      apply bunion_func... apply single_pair_is_func.
+      apply bunion_is_func... apply single_pair_is_func.
       intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
       rewrite dom_of_single_pair in H2.
       rewrite Hd in H1. apply SepE in H1 as []...
@@ -173,7 +173,7 @@ Proof with eauto.
 Qed.
 
 (* ex6_21: see EST6_4_EXTEND_1 Theorem AC_VI_to_AC_VII *)
-(* ex6_22: see EST6_4 Theorem AC_I_iff_AC_I' *)
+(* ex6_22: see EST6_4 Theorem AC_I_iff_I' *)
 
 Example ex6_23 : ∀ A F g h,
   is_function g → dom g = ω →

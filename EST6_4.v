@@ -80,7 +80,7 @@ Proof with eauto.
     apply SepE in Hi as [_ Hy]. zfcrewrite.
 Qed.
 
-Theorem AC_I_iff_AC_I' : AC_I ↔ AC_I'.
+Theorem AC_I_iff_I' : AC_I ↔ AC_I'.
 Proof with eauto; try congruence.
   unfold AC_I, AC_I'. split.
   - intros AC1 A.
@@ -238,7 +238,7 @@ Proof with eauto.
     exists (⎨B⎬ × B). split... apply CProdI...
 Qed.
 
-Theorem AC_III_iff_AC_III' : AC_III ↔ AC_III'.
+Theorem AC_III_iff_III' : AC_III ↔ AC_III'.
 Proof with eauto.
   unfold AC_III, AC_III'. split.
   - intros AC3 𝒜 Hne.
@@ -326,7 +326,7 @@ Proof with eauto.
   apply SepI.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
     apply Hsub... apply SingE in H. subst...
-  - apply bunion_func... apply single_pair_is_func.
+  - apply bunion_is_func... apply single_pair_is_func.
     intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
     rewrite dom_of_single_pair in H2. apply SingE in H2.
@@ -402,7 +402,7 @@ Proof with eauto; try congruence.
   apply SepI; [|split].
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
     apply Hsub... apply SingE in H. subst. apply CProdI...
-  - apply bunion_func... apply single_pair_is_func.
+  - apply bunion_is_func... apply single_pair_is_func.
     intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
     rewrite dom_of_single_pair in H2. apply SingE in H2.
@@ -428,7 +428,7 @@ Qed.
 
 Theorem AC_VI_to_III' : AC_VI → AC_III'.
 Proof.
-  intros. apply AC_III_iff_AC_III'. apply AC_VI_to_III. apply H.
+  intros. apply AC_III_iff_III'. apply AC_VI_to_III. apply H.
 Qed.
 
 Theorem ac1 : AC_I.
@@ -444,7 +444,7 @@ Theorem ac3 : AC_III.
 Proof. apply AC_IV_to_III. apply ac4. Qed.
 
 Theorem ac3' : AC_III'.
-Proof. apply AC_III_iff_AC_III'. apply ac3. Qed.
+Proof. apply AC_III_iff_III'. apply ac3. Qed.
 
 (* ==需要选择公理== *)
 (* 基数具有可比较性 *)
@@ -532,7 +532,7 @@ Proof with eauto; try congruence.
   }
   apply infinite_set_nonempty in Hinf' as [a Ha].
   exists (f ∪ ⎨<m, a>⎬). split; [|split].
-  - apply bunion_injection...
+  - apply bunion_injective...
     apply single_pair_injective. split.
     + intros x Hx. exfalso.
       apply BInterE in Hx as [H1 H2].
@@ -565,7 +565,7 @@ Qed.
 Definition infcard : set → Prop := λ 𝜅, is_card 𝜅 ∧ infinite 𝜅.
 
 (* 所有自然数都小于无限基数 *)
-Corollary cardLt_infinite : ∀ 𝜅, ∀n ∈ ω, infcard 𝜅 → n <𝐜 𝜅.
+Corollary cardLt_infcard_n : ∀ 𝜅, ∀n ∈ ω, infcard 𝜅 → n <𝐜 𝜅.
 Proof with auto.
   intros 𝜅 n Hn [Hcd Hinf].
   rewrite card_of_card, card_of_nat...
@@ -636,7 +636,7 @@ Proof with neauto; try congruence.
 Qed.
 
 (* ==需要选择公理== *)
-(* ℵ₀是最小的无限基数 *)
+(* 阿列夫零是最小的无限基数 *)
 Corollary aleph0_is_the_least_infinite_card : AC_III → ∀ 𝜅,
   infcard 𝜅 → ℵ₀ ≤ 𝜅.
 Proof with auto.
@@ -668,7 +668,7 @@ Proof.
 Qed.
 
 (* Check EST6_3.cardLt_aleph0_iff_finite *)
-(* 基数是有限基数当且仅当它小于ℵ₀ *)
+(* 基数是有限基数当且仅当它小于阿列夫零 *)
 Corollary cardLt_aleph0_iff_finite : ∀ 𝜅,
   is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.

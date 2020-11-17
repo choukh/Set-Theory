@@ -210,7 +210,7 @@ Proof.
 Qed.
 
 (* 任意集合的单集的并就是原集合 *)
-Lemma union_single : ∀ X, ⋃ ⎨X⎬ = X.
+Lemma union_single : ∀ A, ⋃ ⎨A⎬ = A.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H as [a [H1 H2]].
@@ -256,7 +256,7 @@ Proof.
 Qed.
 
 (* 零的幂集是壹 *)
-Lemma power_zero : 𝒫 ∅ = 1.
+Lemma power_empty : 𝒫 ∅ = 1.
 Proof.
   apply ExtAx. split; intros.
   - apply PowerAx in H. apply OneI2.
@@ -265,16 +265,21 @@ Proof.
     subst. apply sub_empty. reflexivity.
 Qed.
 
+(* 集合的单集的幂集 *)
+Lemma power_single : ∀ a, 𝒫 ⎨a⎬ = {∅, ⎨a⎬}.
+Proof.
+  intros. apply ExtAx. split; intros.
+  - apply PowerAx in H.
+    apply subset_of_single in H as []; subst.
+    apply PairI1. apply PairI2.
+  - apply PairE in H as []; subst.
+    apply empty_in_all_power.
+    apply PowerAx. apply sub_refl.
+Qed.
+
 (* 壹的幂集是贰 *)
 Lemma power_one : 𝒫 1 = 2.
-Proof.
-  apply ExtAx. split; intros.
-  - apply PowerAx in H.
-    apply TwoI3. apply subset_of_one. apply H.
-  - apply PowerAx. apply TwoE in H. destruct H; subst.
-    + intros x H. exfalso0.
-    + apply sub_refl.
-Qed.
+Proof. exact (power_single ∅). Qed.
 
 (** 二元并 **)
 Definition BUnion : set → set → set := λ X Y, ⋃{X, Y}.

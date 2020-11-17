@@ -134,6 +134,15 @@ Proof with auto.
   intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
 Qed.
 
+(* 空函数是空集到空集的双射 *)
+Lemma empty_bijective : ∅: ∅ ⟺ ∅.
+Proof with auto.
+  apply bijection_is_injection. split.
+  apply empty_injective.
+  apply ExtAx. intros y. split; intros Hy.
+  apply ranE in Hy as [x Hp]. exfalso0. exfalso0.
+Qed.
+
 (* 能与空集建立双射的集合是空集 *)
 Lemma bijection_to_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
 Proof.
@@ -326,21 +335,21 @@ Qed.
 (** bunion **)
 
 (* 若两个函数在定义域的交集上的值相等，则这两个函数的并也是函数 *)
-Lemma bunion_func : ∀ f g,
+Lemma bunion_is_func : ∀ f g,
   is_function f → is_function g →
   (∀x ∈ dom f ∩ dom g, f[x] = g[x]) ↔ is_function (f ∪ g).
 Proof. exact ex3_14_b. Qed.
 
 (* 若两个单射在定义域的交集上的值相等，且在值域的交集上有相同的原值，
   则这两个单射的并也是单射 *)
-Lemma bunion_injection : ∀ f g,
+Lemma bunion_injective : ∀ f g,
   injective f → injective g →
   ( (∀x ∈ dom f ∩ dom g, f[x] = g[x]) ∧
     (∀y ∈ ran f ∩ ran g, f⁻¹[y] = g⁻¹[y])
   ) ↔ injective (f ∪ g).
 Proof with eauto.
   intros * [Hf Hsf] [Hg Hsg]. split.
-  - intros [Hreq Hdeq]. split. apply bunion_func...
+  - intros [Hreq Hdeq]. split. apply bunion_is_func...
     intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply BUnionE in H1 as [H1|H1]; apply BUnionE in H2 as [H2|H2].
@@ -360,7 +369,7 @@ Proof with eauto.
       rewrite inv_op in H2. apply func_ap in H2. congruence.
       apply inv_func_iff_sr... apply inv_func_iff_sr...
     + eapply (singrE g)...
-  - intros [Hu Hsu]. split. apply bunion_func...
+  - intros [Hu Hsu]. split. apply bunion_is_func...
     intros y Hy. apply BInterE in Hy as [Hyf Hyg].
     apply ranE in Hyf as [x1 Hpf]. rewrite inv_op in Hpf.
     apply func_ap in Hpf as Hap1. subst x1.
@@ -370,6 +379,108 @@ Proof with eauto.
     apply BUnionI1. rewrite inv_op... 
     apply BUnionI2. rewrite inv_op...
     apply inv_func_iff_sr... apply inv_func_iff_sr...
+Qed.
+
+(* 映射的并也是映射 *)
+Lemma bunion_maps_into : ∀ F G A B C D,
+  F: A ⇒ B → G: C ⇒ D →
+  (∀x ∈ A ∩ C, F[x] = G[x]) →
+  (∀y ∈ B ∩ D, F⁻¹[y] = G⁻¹[y]) →
+  F ∪ G: A ∪ C ⇒ B ∪ D.
+Proof with eauto; try congruence.
+  intros * [HiF [HdF HrF]] [HiG [HdG HrG]] Hreq Hdeq.
+  split; [|split].
+  - apply bunion_is_func...
+    intros x Hx. rewrite HdF, HdG in Hx. apply Hreq...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply BUnionE in Hp as [].
+      * apply BUnionI1. apply domI in H...
+      * apply BUnionI2. apply domI in H...
+    + apply BUnionE in Hx as []; eapply domI.
+      * apply BUnionI1. apply func_correct...
+      * apply BUnionI2. apply func_correct...
+  - intros y Hy. apply ranE in Hy as [x Hp].
+    apply BUnionE in Hp as [].
+    + apply BUnionI1. apply ranI in H. apply HrF...
+    + apply BUnionI2. apply ranI in H. apply HrG...
+Qed.
+
+(* 单射的并也是单射 *)
+Lemma bunion_injection : ∀ F G A B C D,
+  F: A ⇔ B → G: C ⇔ D →
+  (∀x ∈ A ∩ C, F[x] = G[x]) →
+  (∀y ∈ B ∩ D, F⁻¹[y] = G⁻¹[y]) →
+  F ∪ G: A ∪ C ⇔ B ∪ D.
+Proof with eauto; try congruence.
+  intros * HF HG Hreq Hdeq.
+  apply injection_is_func in HF as [HF HiF].
+  apply injection_is_func in HG as [HG HiG].
+  apply injection_is_func. split.
+  apply bunion_maps_into... apply bunion_injective...
+  destruct HF as [HfF [HdF HrF]].
+  destruct HG as [HfG [HdG HrG]]. split...
+  - intros x Hx. rewrite HdF, HdG in Hx. apply Hreq...
+  - intros y Hy. apply BInterE in Hy as [H1 H2].
+    apply Hdeq. apply BInterI. apply HrF... apply HrG...
+Qed.
+
+(* 双射的并也是双射 *)
+Lemma bunion_bijection : ∀ F G A B C D,
+  F: A ⟺ B → G: C ⟺ D →
+  (∀x ∈ A ∩ C, F[x] = G[x]) →
+  (∀y ∈ B ∩ D, F⁻¹[y] = G⁻¹[y]) →
+  F ∪ G: A ∪ C ⟺ B ∪ D.
+Proof with eauto; try congruence.
+  intros * HF HG Hreq Hdeq.
+  apply bijection_is_injection in HF as [HF HrF].
+  apply bijection_is_injection in HG as [HG HrG].
+  apply bijection_is_injection. split.
+  apply bunion_injection...
+  apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply BUnionE in Hp as [].
+    + apply BUnionI1. apply ranI in H...
+    + apply BUnionI2. apply ranI in H...
+  - apply BUnionE in Hy as [].
+    + rewrite <- HrF in H. apply ranE in H as [x Hp].
+      eapply ranI. apply BUnionI1...
+    + rewrite <- HrG in H. apply ranE in H as [x Hp].
+      eapply ranI. apply BUnionI2...
+Qed.
+
+(* 函数的并的应用 *)
+Lemma bunion_func_ap : ∀ F G A B C D,
+  F: A ⇒ B → G: C ⇒ D →
+  (∀x ∈ A ∩ C, F[x] = G[x]) →
+  (∀y ∈ B ∩ D, F⁻¹[y] = G⁻¹[y]) →
+  (∀x ∈ A, (F ∪ G)[x] = F[x]) ∧ ∀x ∈ C, (F ∪ G)[x] = G[x].
+Proof with auto; try congruence.
+  intros * HF HG Hreq Hdeq.
+  assert (HU: F ∪ G: A ∪ C ⇒ B ∪ D)
+    by (apply bunion_maps_into; auto).
+  destruct HF as [HfF [HdF _]].
+  destruct HG as [HfG [HdG _]].
+  destruct HU as [HfU [HdU _]].
+  split; intros x Hx.
+  - assert (Hd: x ∈ dom (F ∪ G)). {
+      rewrite HdU. apply BUnionI1...
+    }
+    apply domE in Hd as [y Hp].
+    apply func_ap in Hp as Hap...
+    apply BUnionE in Hp as [].
+    + apply func_ap in H...
+    + rewrite Hreq... apply func_ap in H...
+      apply BInterI... apply domI in H...
+  - assert (Hd: x ∈ dom (F ∪ G)). {
+      rewrite HdU. apply BUnionI2...
+    }
+    apply domE in Hd as [y Hp].
+    apply func_ap in Hp as Hap...
+    apply BUnionE in Hp as [].
+    + rewrite <- Hreq... apply func_ap in H...
+      apply BInterI... apply domI in H...
+    + apply func_ap in H...
 Qed.
 
 (** add point **)
@@ -382,7 +493,7 @@ Proof with eauto.
   intros * [Hf [Hd Hr]] Hdj1 Hdj2.
   pose proof (single_pair_bijective a b) as [[Hf' _] [Hd' Hr']].
   split; [|split].
-  - apply bunion_func... intros x Hx. exfalso.
+  - apply bunion_is_func... intros x Hx. exfalso.
     apply BInterE in Hx as [H1 H2].
     rewrite Hd in H1. rewrite Hd' in H2.
     eapply disjointE; [apply Hdj1|..]...
@@ -414,7 +525,7 @@ Proof with eauto.
   }
   pose proof (func_add_point _ _ _ _ _ Hmap Hdj1 Hdj2) as [Hfu [Hdu Hru]].
   pose proof (single_pair_bijective a b) as [[Hfs Hss] [Hds Hrs]].
-  split; [|split]... apply bunion_injection...
+  split; [|split]... apply bunion_injective...
   apply single_pair_injective. split.
   - intros x Hx. rewrite Hdf, Hds in Hx.
     apply BInterE in Hx as [H1 H2].

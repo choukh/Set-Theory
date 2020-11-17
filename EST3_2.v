@@ -85,7 +85,7 @@ Proof with auto.
     apply SingE in Hy. apply SingE in Hy'. subst...
 Qed.
 
-Lemma bunion_func : ∀ F G,
+Lemma bunion_is_func : ∀ F G,
   is_function F → is_function G →
   dom F ∩ dom G = ∅ → is_function (F ∪ G).
 Proof with eauto.
@@ -131,7 +131,7 @@ Proof with eauto.
   exists (F⁻¹ ∪ (B - ran F) × ⎨a⎬). split.
   (* G: B ⇒ A *) split.
   (* is_function G *)
-  - apply bunion_func.
+  - apply bunion_is_func.
     + apply inv_func_iff_sr...
     + apply cprod_single_is_func.
     + apply EmptyI. intros x Hx.

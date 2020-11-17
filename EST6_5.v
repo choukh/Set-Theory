@@ -180,9 +180,9 @@ Fact sq_empty : 𝗦𝗾 ∅ = 1.
 Proof with nauto.
   apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hx _].
-    rewrite cprod_x_0, power_zero, <- one in Hx...
+    rewrite cprod_x_0, power_empty, <- one in Hx...
   - rewrite one in Hx. apply SingE in Hx. subst. apply SepI.
-    + rewrite cprod_x_0, power_zero. apply SingI.
+    + rewrite cprod_x_0, power_empty. apply SingI.
     + exists 0. split... apply injection_is_func.
       apply empty_injective.
 Qed.
@@ -291,7 +291,7 @@ Proof with auto; try congruence.
   eapply cardLeq_tran; revgoals.
   apply cardMul_preserve_leq. apply Hle'.
   apply cardLeq_iff.
-  eapply dominate_rewrite_l. {
+  eapply dominate_rewrite_r. {
     apply cardMul_well_defined. apply CardAx0. apply CardAx0.
   }
   set (Func 𝒜' 𝒫 (K ⟶ ⋃ 𝒜') (λ A,
@@ -338,19 +338,19 @@ Qed.
 Fact sq_dominated_by_ω_arrow : ∀ A, 2 ≤ |A| → 𝗦𝗾 A ≼ ω ⟶ A.
 Proof with neauto; try congruence.
   intros A Hle.
-  eapply dominate_rewrite_l. {
+  eapply dominate_rewrite_r. {
     apply cardExp_well_defined; symmetry; apply CardAx0.
   }
   cut (|𝗦𝗾 A| ≤ |A| ^ ℵ₀). { apply cardLeq_iff. }
   rewrite <- cardMul_aleph0_expAleph0...
   apply cardLeq_iff.
-  eapply dominate_rewrite_l. {
+  eapply dominate_rewrite_r. {
     apply cardMul_well_defined. apply CardAx0.
     eapply eqnum_tran; revgoals. apply CardAx0.
     apply cardExp_well_defined; apply CardAx0.
   }
   assert (Hne: ⦿ A). {
-    apply EmptyNE. intros H. apply card_empty_iff in H.
+    apply EmptyNE. intros H. apply card_eq_0 in H.
     rewrite H in Hle. apply fin_cardLeq_iff_leq in Hle...
     apply leq_iff_sub in Hle... apply sub_empty in Hle.
     eapply (lt_irrefl 2)... rewrite Hle at 1.

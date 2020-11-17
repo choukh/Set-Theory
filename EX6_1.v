@@ -129,7 +129,8 @@ Proof with eauto.
       intros b Hb. apply Hfa. apply SepE in Hb as []...
 Qed.
 
-(* ex6_14 *)
+(** ex6_14 **)
+
 (* 全排列 *)
 Definition Permutation : set → set := λ A,
   {f ∊ A ⟶ A | λ f, f: A ⟺ A}.
@@ -138,22 +139,28 @@ Definition CardFactorial : set → set := λ 𝜅,
   |Permutation 𝜅|.
 Notation "𝜅 !" := (CardFactorial 𝜅) (at level 60) : Card_scope.
 
-(* 基数阶乘良定义 *)
-Theorem cardFactorial_well_defined : ∀ A B, A ≈ B → A! = B!.
+Lemma permutation_iff : ∀ f A, f: A ⟺ A ↔ f ∈ Permutation A.
+Proof with auto.
+  split; intros H.
+  - apply SepI... apply ArrowI. apply bijection_is_func...
+  - apply SepE in H as []...
+Qed.
+
+(* ex6_14: 基数阶乘良定义 *)
+Theorem cardFactorial_well_defined : ∀ A B, |A| = |B| → A! = B!.
 Proof with eauto; try congruence.
-  intros * [g Hg]. apply CardAx1.
+  intros. apply CardAx1.
+  apply CardAx1 in H as [g Hg].
   set (λ f, g ∘ f ∘ g⁻¹) as ℱ.
-  set (Func (Permutation A) (Permutation B) (λ f, ℱ f )) as F.
+  set (Func (Permutation A) (Permutation B) ℱ) as F.
   exists F. apply meta_bijective.
-  - intros f Hf. assert (Hh: ℱ f: B ⟺ B). {
-      apply SepE in Hf as [_ Hf]. eapply bijection_transform...
-    }
-    apply SepI... destruct Hh as [[Hfh _] [Hdh Hrh]].
-    apply arrow_iff. split; [|split]...
-    intros x Hx. eapply ap_ran... split... split...
+  - intros f Hf.
+    apply permutation_iff.
+    apply permutation_iff in Hf.
+    eapply bijection_transform...
   - intros f1 Hf1 f2 Hf2 Heq. destruct Hg as [Hig [Hdg _]].
-    apply SepE in Hf1 as [_ [[[Hrel1 _] _] [Hdf1 Hrf1]]].
-    apply SepE in Hf2 as [_ [[[Hrel2 _] _] [Hdf2 Hrf2]]].
+    apply permutation_iff in Hf1 as [[[Hrel1 _] _] [Hdf1 Hrf1]].
+    apply permutation_iff in Hf2 as [[[Hrel2 _] _] [Hdf2 Hrf2]].
     assert (H1: (ℱ f1) ∘ g  = (ℱ f2) ∘ g) by congruence.
     unfold ℱ in H1. rewrite
       compo_assoc, compo_inv_dom_ident, Hdg, <- Hdf1,
@@ -175,12 +182,7 @@ Proof with eauto; try congruence.
       eapply bijection_transform... apply inv_bijection...
       destruct Hg as [[[]]]...
     }
-    assert (Hfp: f ∈ Permutation A). {
-      apply SepI... destruct Hf as [[Hff _] [Hdf Hrf]].
-      apply arrow_iff. split; [|split]...
-      intros x Hx. eapply ap_ran... split... split...
-    }
-    exists f. split...
+    exists f. split. apply permutation_iff...
     destruct Hg as [[Hfg _] [_ Hrg]].
     destruct Hh as [[[Hrelh _] _] [Hdh Hrh]].
     unfold ℱ, f. rewrite

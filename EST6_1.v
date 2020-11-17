@@ -643,6 +643,14 @@ Proof with neauto.
     exists m. split... rewrite H1...
 Qed.
 
+(* 无限集的父集是无限集 *)
+Corollary parent_set_of_infinite_is_infinite : ∀ A B,
+  A ⊆ B → infinite A → infinite B.
+Proof.
+  intros * Hsub Hinf Hfin. apply Hinf.
+  eapply subset_of_finite_is_finite; eauto.
+Qed.
+
 (* 任意自然数与自身的单集不交 *)
 Lemma disjoint_nat_single : ∀n ∈ ω, disjoint n ⎨n⎬.
 Proof.

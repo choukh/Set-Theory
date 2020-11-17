@@ -92,3 +92,6 @@ echo "building EST6_6"
 coqc -R . ZFC EST6_6.v
 echo "building EX6_3"
 coqc -R . ZFC EX6_3.v
+
+echo "building EST7_1"
+coqc -R . ZFC EST7_1.v

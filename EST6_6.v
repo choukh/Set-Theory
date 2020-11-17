@@ -34,8 +34,8 @@ Proof with auto.
       apply ReplAx. exists X. split...
   - replace ({λ X, X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
     with {λ X, X - ⎨a⎬ | X ∊ 𝒜 - ⎨A⎬ - ⎨A ∪ ⎨a⎬⎬} in Hqn. {
-      apply IH in Hqn. eapply comp_single_finite.
-      eapply comp_single_finite. apply Hqn.
+      apply IH in Hqn. eapply add_one_member_to_finite.
+      eapply add_one_member_to_finite. apply Hqn.
     }
     apply ExtAx. split; intros Hx.
     + apply ReplAx in Hx as [X [HX Hx]].
@@ -525,9 +525,18 @@ Proof.
   rewrite <- cardExp_finite_iff; tauto.
 Qed.
 
+(* 无限集的幂集是无限集 *)
+Corollary power_infinite : ∀ A, infinite A → infinite 𝒫 A.
+Proof with nauto.
+  intros. apply set_infinite_iff_card_infinite.
+  rewrite card_of_power. apply cardExp_infinite_exponent...
+  apply cardLeq_refl... split...
+  rewrite <- set_infinite_iff_card_infinite...
+Qed.
+
 (* ==需要选择公理== *)
 (* 无限基数自乘等于自身 *)
-Theorem cardMul_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ⋅ 𝜅 = 𝜅.
+Theorem cardMul_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ⋅ 𝜅 = 𝜅.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [[B Heq𝜅] Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }
@@ -674,11 +683,11 @@ Proof with neauto; try congruence.
   rewrite <- Hmul.
   eapply cardLeq_tran; revgoals. {
     apply cardMul_preserve_leq.
-    apply (cardLt_infinite _ 2)... split...
+    apply (cardLt_infcard_n _ 2)... split...
   }
   rewrite <- cardAdd_k_k.
   assert (Heq: |A₀| + |B - A₀| = |B|). {
-    rewrite cardAdd.
+    rewrite cardAdd_disjoint.
     - replace (A₀ ∪ (B - A₀)) with B... rewrite ex2_11_2.
       apply ExtAx. split; intros Hx. apply BUnionI2...
       apply BUnionE in Hx as []... apply HsubA₀...
@@ -701,12 +710,12 @@ Proof with neauto; try congruence.
     apply HsubD in H2. apply SepE in H2 as []...
   }
   assert (Hqn: (A₀ × D) ∪ (D × A₀) ∪ (D × D) ≈ D). {
-    apply cardAdd_iff. {
+    apply cardAdd_disjoint_iff. {
       apply disjointI. intros [x [H1 H2]]. apply BUnionE in H1 as [].
       - eapply disjointE. apply disjoint_cprod_l... apply H. apply H2.
       - eapply disjointE. apply disjoint_cprod_r... apply H. apply H2.
     }
-    rewrite <- cardAdd; revgoals. {
+    rewrite <- cardAdd_disjoint; revgoals. {
       apply disjointI. intros [x [H1 H2]].
       eapply disjointE. apply disjoint_cprod_l... apply H1. apply H2.
     }
@@ -719,7 +728,7 @@ Proof with neauto; try congruence.
     rewrite <- Hmul at 4.
     replace (𝜆 + 𝜆 + 𝜆) with (3 ⋅ 𝜆). {
       apply cardMul_preserve_leq.
-      apply (cardLt_infinite _ 3)... split...
+      apply (cardLt_infcard_n _ 3)... split...
     }
     rewrite pred, <- card_suc...
     rewrite cardMul_comm, cardMul_distr, cardMul_ident...
@@ -772,7 +781,7 @@ Proof with neauto; try congruence.
     + rewrite ex3_2_a, ex3_2_a', ex3_2_a', <- bunion_assoc,
         (bunion_assoc (D × A₀)), (bunion_comm (D × A₀)).
       split; [|split].
-      * apply bunion_injection... split. {
+      * apply bunion_injective... split. {
           intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
           rewrite Hdf₀ in H1. rewrite Hdg in H2.
           apply BUnionE in H2 as []; [apply BUnionE in H as []|].
@@ -809,7 +818,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的非零有限次幂等于自身 *)
-Corollary cardExp_infinite_id : AC_VI → ∀ 𝜅, ∀n ∈ ω,
+Corollary cardExp_infcard_id : AC_VI → ∀ 𝜅, ∀n ∈ ω,
   infcard 𝜅 → n ≠ ∅ → 𝜅 ^ n = 𝜅.
 Proof with auto.
   intros AC6 𝜅 n Hn [Hinf Hcd].
@@ -819,31 +828,41 @@ Proof with auto.
   - intros _. destruct (classic (m = 0)).
     + subst m. rewrite cardExp_1_r...
     + apply IH in H. rewrite <- card_suc, cardExp_suc, H...
-      apply cardMul_infinite_self... split...
+      apply cardMul_infcard_self... split...
 Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的有限次幂不大于自身 *)
-Corollary cardExp_infinite_leq : AC_VI → ∀ 𝜅, ∀n ∈ ω,
+Corollary cardExp_infcard_leq : AC_VI → ∀ 𝜅, ∀n ∈ ω,
   infcard 𝜅 → 𝜅 ^ n ≤ 𝜅.
 Proof with nauto.
   intros AC6 𝜅 n Hn [Hinf Hcd].
   destruct (classic (n = 0)). {
     subst n. rewrite cardExp_0_r.
-    apply cardLt_infinite... split...
+    apply cardLt_infcard_n... split...
   }
-  rewrite cardExp_infinite_id... apply cardLeq_refl... split...
+  rewrite cardExp_infcard_id... apply cardLeq_refl... split...
 Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自加等于自身 *)
-Theorem cardAdd_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
+Theorem cardAdd_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
 Proof with nauto.
   intros AC6 𝜅 Hic. apply cardLeq_asym.
   - rewrite cardAdd_k_k. eapply cardLeq_tran.
-    apply cardMul_preserve_leq. apply (cardLt_infinite 𝜅)...
-    rewrite cardMul_infinite_self... apply cardLeq_refl. apply Hic.
+    apply cardMul_preserve_leq. apply (cardLt_infcard_n 𝜅)...
+    rewrite cardMul_infcard_self... apply cardLeq_refl. apply Hic.
   - apply cardAdd_enlarge; apply Hic.
+Qed.
+
+(* ==需要选择公理== *)
+(* 无限基数加1等于自身 *)
+Theorem cardAdd_infcard_1 : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 1 = 𝜅.
+Proof with nauto.
+  intros AC6 𝜅 Hic. apply cardLeq_asym.
+  - rewrite <- cardAdd_infcard_self, cardAdd_comm...
+    apply cardAdd_preserve_leq. apply (cardLt_infcard_n 𝜅)...
+  - apply cardAdd_enlarge... apply Hic.
 Qed.
 
 (* ==需要选择公理== *)
@@ -853,7 +872,7 @@ Theorem cardAdd_absorption : AC_VI → ∀ 𝜅 𝜆,
 Proof.
   intros AC6 * Hinf Hle. apply cardLeq_asym.
   - eapply cardLeq_tran. apply cardAdd_preserve_leq'. apply Hle.
-    rewrite cardAdd_infinite_self; [|auto|split; auto; apply Hle].
+    rewrite cardAdd_infcard_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
   - apply cardAdd_enlarge; apply Hle.
 Qed.
@@ -865,17 +884,17 @@ Theorem cardMul_absorption : AC_VI → ∀ 𝜅 𝜆,
 Proof.
   intros AC6 * Hinf Hle H0. apply cardLeq_asym.
   - eapply cardLeq_tran. apply cardMul_preserve_leq'. apply Hle.
-    rewrite cardMul_infinite_self; [|auto|split; auto; apply Hle].
+    rewrite cardMul_infcard_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
 - apply cardMul_enlarge; auto; apply Hle.
 Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自乘方等于2的幂 *)
-Theorem cardExp_infinite_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
+Theorem cardExp_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
 Proof with nauto.
   intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_asym.
-  - rewrite <- (cardMul_infinite_self AC6 𝜅) at 3; [|split]...
+  - rewrite <- (cardMul_infcard_self AC6 𝜅) at 3; [|split]...
     rewrite <- cardExp_id_3.
     apply cardExp_preserve_base_leq. apply cardLt_power...
   - apply cardExp_preserve_base_leq.

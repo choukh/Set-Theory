@@ -39,16 +39,16 @@ Proof.
   exists (g ∘ f). eapply compo_injection; eauto.
 Qed.
 
-Lemma dominate_rewrite_l : ∀ A B C, C ≈ A → B ≼ C → B ≼ A.
-Proof.
-  intros * Hqn Hdm. eapply dominate_tran; revgoals.
-  apply eqnum_dominate. apply Hqn. apply Hdm.
-Qed.
-
-Lemma dominate_rewrite_r : ∀ A B C, B ≈ A → B ≼ C → A ≼ C.
+Lemma dominate_rewrite_l : ∀ A B C, B ≈ A → B ≼ C → A ≼ C.
 Proof.
   intros * Hqn Hdm. eapply dominate_tran.
   apply eqnum_dominate. symmetry. apply Hqn. apply Hdm.
+Qed.
+
+Lemma dominate_rewrite_r : ∀ A B C, C ≈ A → B ≼ C → B ≼ A.
+Proof.
+  intros * Hqn Hdm. eapply dominate_tran; revgoals.
+  apply eqnum_dominate. apply Hqn. apply Hdm.
 Qed.
 
 (* 可以证明支配关系也是反对称的 *)
@@ -507,6 +507,18 @@ Proof with eauto.
   repeat split... eapply dominate_tran...
 Qed.
 
+Lemma cardLeq_rewrite_l : ∀ 𝜅 𝜆 𝜇, 𝜆 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
+Proof with eauto.
+  intros * Heq Hle. eapply cardLeq_tran; revgoals...
+  apply eq_cardLeq... destruct Hle as []... congruence.
+Qed.
+
+Lemma cardLeq_rewrite_r : ∀ 𝜅 𝜆 𝜇, 𝜇 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜆 ≤ 𝜅.
+Proof with eauto.
+  intros * Heq Hle. eapply cardLeq_tran; revgoals...
+  apply eq_cardLeq... destruct Hle as [_ []]...
+Qed.
+
 (* 基数的序关系是反对称的 *)
 Lemma cardLeq_asym : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜅 → 𝜅 = 𝜆.
 Proof with auto.
@@ -627,7 +639,7 @@ Proof with neauto.
         apply SingE in Hb. subst b...
     }
     split; [|split].
-    + apply bunion_func... {
+    + apply bunion_is_func... {
         repeat split.
         - apply cprod_is_rel.
         - apply domE in H...
@@ -730,6 +742,15 @@ Proof with auto.
   - apply cardLt_aleph0_is_finite...
   - intros Hfin. apply cardLt_aleph0_if_finite.
     apply nat_iff_fincard... split...
+Qed.
+
+(* 大于等于阿列夫零的基数是无限基数 *)
+Corollary cardGeq_aleph0_is_infinite : ∀ 𝜅,
+  is_card 𝜅 → ℵ₀ ≤ 𝜅 → infinite 𝜅.
+Proof with auto.
+  intros AC3 𝜅 Hcd Hfin.
+  apply cardLt_aleph0_iff_finite in Hfin as [Hle Hnq]...
+  apply Hnq. apply cardLeq_asym...
 Qed.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.

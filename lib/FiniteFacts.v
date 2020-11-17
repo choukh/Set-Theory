@@ -154,14 +154,23 @@ Proof with auto.
       * apply SepE in Hx as []...
 Qed.
 
-(* 如果单集的补集是有限集，那么全集是有限集 *)
-Lemma comp_single_finite : ∀ a A, finite (A - ⎨a⎬) → finite A.
+(* 有限集加上一个元素仍是有限集 *)
+Lemma add_one_member_to_finite :
+  ∀ a A, finite (A - ⎨a⎬) → finite A.
 Proof with auto.
   intros * Hfin.
   destruct (classic (a ∈ A)).
   - rewrite <- (remove_one_member_then_return A a)...
     apply bunion_finite...
   - rewrite remove_no_member in Hfin...
+Qed.
+
+(* 无限集除去一个元素仍是无限集 *)
+Lemma remove_one_member_from_infinite :
+  ∀ a A, infinite A → infinite (A - ⎨a⎬).
+Proof.
+  intros * Hinf Hfin. apply Hinf.
+  eapply add_one_member_to_finite; eauto.
 Qed.
 
 (* 二元并的替代等于替代的二元并 *)
