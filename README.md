@@ -135,6 +135,9 @@
 - 无限基数的运算律
   - 自乘等于自身
   - 加法和乘法的吸收律
+  
+## EST7_1.v (TODO)
+- 偏序
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
