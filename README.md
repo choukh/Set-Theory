@@ -136,8 +136,12 @@
   - 自乘等于自身
   - 加法和乘法的吸收律
   
-## EST7_1.v (TODO)
-- 偏序
+## EST7_1.v
+- 偏序结构
+- 上下确界
+
+## EST7_2.v (TODO)
+- 良序
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
