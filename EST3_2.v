@@ -183,7 +183,7 @@ Qed.
 
 (* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
 Definition AC_I : Prop := ∀ R,
-  is_relation R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
+  is_rel R → ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
 Theorem ac1 : AC_I.
 Proof with eauto.
@@ -265,7 +265,7 @@ Proof with eauto.
   apply compoE in Hp as [t [_ Ht]]. eapply ranI...
   (* <- *)
   intros [_ [_ Hr]].
-  assert (H: is_relation F ⁻¹) by apply inv_rel.
+  assert (H: is_rel F ⁻¹) by apply inv_rel.
   apply AC1 in H as [G [H1 [H2 H3]]].
   exists G. split.
   (* G: B ⇒ A *) split... split.
@@ -322,7 +322,7 @@ Proof.
   apply SepE in Hx as [Hp _]. eapply ranI. apply Hp.
 Qed.
 
-Lemma restr_to_dom : ∀ F, is_relation F → F ↾ (dom F) = F.
+Lemma restr_to_dom : ∀ F, is_rel F → F ↾ (dom F) = F.
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hx Heq]]]]. subst...
@@ -345,7 +345,7 @@ Qed.
 Example restr_func : ∀ F A,
   is_function F → is_function (F ↾ A).
 Proof.
-  unfold is_function, is_relation. intros F A [H1 H2]. split.
+  unfold is_function, is_rel. intros F A [H1 H2]. split.
   - intros x Hx. apply SepE in Hx as [Hx _].
     apply H1 in Hx. apply Hx.
   - intros x Hx. split.
@@ -596,7 +596,7 @@ Proof with eauto.
   - intros * AC1 I ℱ Hxi.
     set (I × ⋃{ℱ | i ∊ I}) as P.
     set {p ∊ P | λ p, π2 p ∈ ℱ (π1 p)} as R.
-    assert (H: is_relation R) by apply sep_cp_is_rel.
+    assert (H: is_rel R) by apply sep_cp_is_rel.
     apply AC1 in H as [F [Hf [Hsub Hdeq]]].
     assert (Hdeq2: dom F = I). {
       rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.

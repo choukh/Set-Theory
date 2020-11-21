@@ -34,14 +34,14 @@ Proof with auto.
     assert (Hf': f: A ⇔ A) by (split; auto).
     pose proof (injection_transform f g A n Hf' Hg) as Hh.
     apply injection_between_same_nat_surjective in Hh as Hreq...
-    apply sub_asym... intros y Hy. rewrite <- Hdg in Hy.
+    apply sub_antisym... intros y Hy. rewrite <- Hdg in Hy.
     apply domE in Hy as [x Hp]. apply ranI in Hp as Hx.
     rewrite Hrg, <- Hreq, compo_ran in Hx...
     apply SepE in Hx as [Hx _]. rewrite compo_ran in Hx...
     apply SepE in Hx as [_ Hx]. apply inv_op in Hp as Hp'.
     apply func_ap in Hp'... subst y...
-  - assert (Hrel: is_relation f) by (destruct Hff; auto).
-    assert (Hrel': is_relation f⁻¹) by (apply inv_rel; auto).
+  - assert (Hrel: is_rel f) by (destruct Hff; auto).
+    assert (Hrel': is_rel f⁻¹) by (apply inv_rel; auto).
     assert (Hf': f: A ⟹ A) by (split; auto).
     pose proof (surjection_transform f g A n Hf' Hg) as Hh.
     apply surjection_between_same_nat_injective in Hh as Hreq...

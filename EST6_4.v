@@ -7,7 +7,7 @@ Require Export ZFC.EST6_3.
   阿列夫零是最小的无限基数，戴德金无穷 ***)
 
 (* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
-Definition AC_I : Prop := ∀ R, is_relation R →
+Definition AC_I : Prop := ∀ R, is_rel R →
   ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
 (* 选择公理等效表述1'：存在从并集到原集合的函数使得参数是值的成员 *)
@@ -149,7 +149,7 @@ Proof with eauto.
   }
   apply SepE in Hf as [Hf Hin].
   apply arrow_iff in Hf as [Hf [Hd _]].
-  exists (ran f). intros A HA. exists (f[A]). apply sub_asym.
+  exists (ran f). intros A HA. exists (f[A]). apply sub_antisym.
   - intros y Hy. apply BInterE in Hy as [H1 H2].
     apply ranE in H2 as [x Hp]. apply domI in Hp as Hx.
     rewrite Hd in Hx. apply Hin in Hx as Hfx.
@@ -674,7 +674,7 @@ Corollary cardLt_aleph0_iff_finite : ∀ 𝜅,
 Proof with auto.
   intros 𝜅 Hcd. split.
   - intros [Hleq Hnq]. destruct (classic (finite 𝜅))... exfalso.
-    apply Hnq. apply cardLeq_asym...
+    apply Hnq. apply cardLeq_antisym...
     apply aleph0_is_the_least_infinite_card. apply ac3. split...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
     rewrite <- card_of_card, <- card_of_nat in Hqn... rewrite Hqn.

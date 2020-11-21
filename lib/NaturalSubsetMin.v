@@ -32,13 +32,13 @@ Proof with auto.
     intros n1 n2 H1 H2.
     apply minE in H1 as [_ [Hn1 H1]].
     apply minE in H2 as [_ [Hn2 H2]].
-    apply H1 in Hn2. apply H2 in Hn1. apply sub_asym...
+    apply H1 in Hn2. apply H2 in Hn1. apply sub_antisym...
   - apply ExtAx. intros N. split; intros HN.
     + apply domE in HN as [n Hp].
       apply minE in Hp as []...
     + apply SepE in HN as [HN HN'].
       apply PowerAx in HN as Hsub. apply SingNE in HN' as Hne.
-      pose proof (ω_wellOrder N Hne Hsub) as [n [Hn Hmin]].
+      pose proof (ω_well_ordered N Hne Hsub) as [n [Hn Hmin]].
       eapply domI. apply UnionAx. exists (G n). split.
       * apply ReplAx. exists n. split... apply Hsub...
       * apply SepI. apply ReplAx. exists N. split.

@@ -59,7 +59,7 @@ Lemma meta_surjective : ∀ A B F,
 Proof with eauto.
   intros * Hf Hsurj.
   apply meta_maps_into in Hf as [Hf [Hd Hr]].
-  split; [|split]... apply sub_asym...
+  split; [|split]... apply sub_antisym...
   intros y Hy. pose proof (Hsurj _ Hy) as [x [Hx Hap]].
   eapply ranI. apply SepI. apply CProdI... zfcrewrite.
 Qed.
@@ -533,7 +533,7 @@ Proof with eauto.
   - intros y Hy. rewrite Hrf, Hrs in Hy.
     apply BInterE in Hy as [H1 H2].
     exfalso. eapply disjointE; [apply Hdj2|..]...
-  - apply sub_asym... intros y Hy. apply BUnionE in Hy as [].
+  - apply sub_antisym... intros y Hy. apply BUnionE in Hy as [].
     + rewrite <- Hrf in H. eapply ranE in H as [x Hp]. 
       eapply ranI. apply BUnionI1...
     + rewrite <- Hrs in H. eapply ranE in H as [x Hp]. 
@@ -607,7 +607,7 @@ Proof with eauto.
   assert ((F ↾ A): A ⟺ ran F). {
     split. apply restr_injective... split.
     apply restr_dom. destruct Hf... rewrite <- Hd...
-    apply sub_asym. apply restr_ran_included.
+    apply sub_antisym. apply restr_ran_included.
     intros y Hy. apply ranE in Hy as [x Hp].
     apply domI in Hp as Hxd. rewrite Hd in Hxd.
     eapply ranI. apply restrI...
@@ -792,7 +792,7 @@ Proof with auto.
     right_compo_ident... destruct (ident_is_func A)...
 Qed.
 
-Lemma left_compo_ident' : ∀ F A, is_relation F →
+Lemma left_compo_ident' : ∀ F A, is_rel F →
   Ident A ∘ F = (F⁻¹ ↾ A)⁻¹.
 Proof with auto.
   intros. rewrite <- (inv_inv F) at 1... rewrite left_compo_ident...
@@ -880,7 +880,7 @@ Lemma right_inv_of_surjection_injective : AC_I → ∀ F A B,
   F: A ⟹ B → ∃ G, G: B ⇔ A ∧ F ∘ G = Ident B.
 Proof with eauto.
   intros AC1 * [Hf [Hd Hr]].
-  assert (H: is_relation F⁻¹) by apply inv_rel.
+  assert (H: is_rel F⁻¹) by apply inv_rel.
   apply AC1 in H as [G [H1 [H2 H3]]].
   (* G: B ⇔ A *)
   exists G. split. {

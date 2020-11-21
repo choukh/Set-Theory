@@ -361,7 +361,7 @@ Proof.
 Qed.
 
 (* 整数的小于关系 *)
-Definition IntLt : set := Relation ℤ ℤ (λ a b,
+Definition IntLt : set := BinRel ℤ (λ a b,
   let u := IntProj a in let v := IntProj b in
   let m := π1 u in let n := π2 u in
   let p := π1 v in let q := π2 v in
@@ -373,7 +373,7 @@ Lemma intLtI : ∀ m n p q ∈ ω,
   m + q ∈ p + n → [<m, n>]~ <𝐳 [<p, q>]~.
 Proof with auto.
   intros m Hm n Hn p Hp q Hq Hlt.
-  apply SepI. apply CProdI; apply pQuotI... zfcrewrite.
+  apply binRelI. apply pQuotI... apply pQuotI...
   pose proof (intProj m Hm n Hn)
     as [m' [Hm' [n' [Hn' [H11 H12]]]]].
   pose proof (intProj p Hp q Hq)
@@ -411,14 +411,6 @@ Proof.
   - apply intLtI; auto.
 Qed.
 
-Lemma intLt_irrefl : ∀a ∈ ℤ, a <𝐳 a → ⊥.
-Proof with auto.
-  intros a Ha Hc.
-  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
-  apply intLt in Hc... eapply lt_irrefl; revgoals.
-  apply Hc. ar...
-Qed.
-
 Lemma intNeqE : ∀ m n p q ∈ ω,
   [<m, n>]~ ≠ [<p, q>]~ → m + q ≠ p + n.
 Proof with auto.
@@ -426,7 +418,7 @@ Proof with auto.
   apply Hnq. apply int_ident...
 Qed.
 
-Lemma intLt_rel : binRel IntLt ℤ.
+Lemma intLt_rel : is_binRel IntLt ℤ.
 Proof with auto.
   intros x Hx. apply SepE in Hx as []...
 Qed.
@@ -451,12 +443,12 @@ Proof with auto.
   eapply nat_trans; revgoals; eauto; ar; ar.
 Qed.
 
-Lemma intLt_irreflexive : irreflexive IntLt ℤ.
+Lemma intLt_irrefl : irrefl IntLt.
 Proof with auto.
-  intros [x [Hx Hlt]]. apply intLtE in Hlt
-    as [m [Hm [n [Hn [p [Hp [q [Hq [H1 [H2 Hlt]]]]]]]]]].
-  subst x. apply int_ident in H2... rewrite H2 in Hlt.
-  eapply lt_irrefl; revgoals; eauto; ar...
+  intros a Hlt. assert (H := Hlt). apply intLtE in H
+    as [m [Hm [n [Hn [_ [_ [_ [_ [Ha _]]]]]]]]].
+  subst a. apply intLt in Hlt...
+  eapply lt_irrefl; revgoals. apply Hlt. ar...
 Qed.
 
 Lemma intLt_connected : connected IntLt ℤ.
@@ -473,10 +465,10 @@ Qed.
 Lemma intLt_trich : trich IntLt ℤ.
 Proof with auto.
   eapply trich_iff. apply intLt_rel. apply intLt_tranr. split.
-  apply intLt_irreflexive. apply intLt_connected.
+  apply intLt_irrefl. apply intLt_connected.
 Qed.
 
-Theorem intLt_totalOrd : totalOrd IntLt ℤ.
+Theorem intLt_linearOrder : linearOrder IntLt ℤ.
 Proof with auto.
   split. apply intLt_rel. split. apply intLt_tranr.
   apply intLt_trich.
@@ -491,7 +483,7 @@ Definition intNeg : set → Prop := λ a, a <𝐳 Int 0.
 Lemma int_neq_0 : ∀a ∈ ℤ, intPos a ∨ intNeg a → a ≠ Int 0.
 Proof.
   intros a Ha [Hpa|Hna]; intros H; subst;
-  eapply intLt_irrefl; revgoals; eauto.
+  eapply intLt_irrefl; eauto.
 Qed.
 
 Lemma intLt_addInv : ∀ a b ∈ ℤ, a <𝐳 b ↔ -b <𝐳 -a.
@@ -549,16 +541,14 @@ Qed.
 
 Theorem intMul_preserve_lt : ∀ a b c ∈ ℤ,
   intPos c → a <𝐳 b ↔ (a ⋅ c <𝐳 b ⋅ c)%z.
-Proof with nauto.
+Proof with neauto.
   cut (∀ a b c ∈ ℤ, intPos c → a <𝐳 b → (a ⋅ c <𝐳 b ⋅ c)%z).
   intros Hright a Ha b Hb c Hc Hpc. split; intros Hlt.
   apply Hright... destruct (classic (a = b)).
-  subst. exfalso. eapply intLt_irrefl; revgoals.
-  apply Hlt. apply intMul_ran...
+  subst. exfalso. eapply intLt_irrefl...
   apply intLt_connected in H as []... exfalso.
   eapply (Hright b Hb a Ha c Hc Hpc) in H.
-  eapply intLt_irrefl; revgoals.
-  eapply intLt_tranr; eauto. apply intMul_ran...
+  eapply intLt_irrefl. eapply intLt_tranr...
   intros a Ha b Hb c Hc Hpc Hlt.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
@@ -605,11 +595,9 @@ Corollary intAdd_cancel : ∀ a b c ∈ ℤ, a + c = b + c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Heq.
   destruct (classic (a = b))... exfalso.
-  apply intLt_connected in H as []...
-  - eapply intAdd_preserve_lt in H... rewrite Heq in H.
-    eapply intLt_irrefl; revgoals... apply intAdd_ran...
-  - eapply intAdd_preserve_lt in H... rewrite Heq in H.
-    eapply intLt_irrefl; revgoals... apply intAdd_ran...
+  apply intLt_connected in H as []; auto;
+  eapply intAdd_preserve_lt in H; eauto;
+  rewrite Heq in H; eapply intLt_irrefl...
 Qed.
 
 Corollary intAdd_cancel' : ∀ a b c ∈ ℤ, c + a = c + b → a = b.
@@ -634,14 +622,12 @@ Proof with neauto.
       eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq' in H;
-      eapply intLt_irrefl; revgoals;
-        [apply H|apply intMul_ran|apply H|apply intMul_ran]...
+      eapply intLt_irrefl; [apply H|apply H]...
   - apply intLt_connected in H as [H|H]; [|auto..];
       eapply intMul_preserve_lt in H; swap 1 5; swap 2 10;
         [apply Hpos|apply Hpos|auto..];
       rewrite Heq in H;
-      eapply intLt_irrefl; revgoals;
-    [apply H|apply intMul_ran|apply H|apply intMul_ran]...
+      eapply intLt_irrefl; [apply H|apply H]...
 Qed.
 
 Notation "a ≤ b" := (a <𝐳 b ∨ a = b) (at level 70) : Int_scope.

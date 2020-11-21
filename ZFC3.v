@@ -54,7 +54,7 @@ Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
   ∀s ∈ S, ∃ x, s ∩ {Choice | s ∊ S} = ⎨x⎬.
 Proof with eauto.
   intros S Hi Hdj s Hs.
-  exists (Choice s). apply sub_asym.
+  exists (Choice s). apply sub_antisym.
   - intros x Hx. apply BInterE in Hx as [Hx1 Hx2].
     cut (x = Choice s).
     + intros. subst...

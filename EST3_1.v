@@ -6,28 +6,28 @@ Require Export ZFC.EX2.
 (*** EST第三章1：关系，函数，逆，复合 ***)
 
 (** 关系 **)
-Definition is_relation : set → Prop := λ X, ∀x ∈ X, is_pair x.
+Definition is_rel : set → Prop := λ X, ∀x ∈ X, is_pair x.
 
 (* 关系是有序对的集合 *)
-Lemma rel_pair : ∀ R, is_relation R → ∀p ∈ R, p = < π1 p, π2 p >.
+Lemma rel_pair : ∀ R, is_rel R → ∀p ∈ R, p = < π1 p, π2 p >.
 Proof.
   intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
 Qed.
 
 (* 由命题构造集合论关系 *)
-Definition Relation : set → set → (set → set → Prop) → set :=
+Definition Rel : set → set → (set → set → Prop) → set :=
   λ A B P, {p ∊ A × B | λ p, P (π1 p) (π2 p)}.
 
-Lemma rel_is_rel : ∀ A B P, is_relation (Relation A B P).
+Lemma rel_is_rel : ∀ A B P, is_rel (Rel A B P).
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
   apply CProdE2 in Hx. apply Hx.
 Qed.
 
-Lemma cprod_is_rel : ∀ A B, is_relation (A × B).
+Lemma cprod_is_rel : ∀ A B, is_rel (A × B).
 Proof. intros * x Hx. apply CProdE2 in Hx. apply Hx. Qed.
 
-Lemma sep_cp_is_rel : ∀ A B P, is_relation {p ∊ A × B | P}.
+Lemma sep_cp_is_rel : ∀ A B P, is_rel {p ∊ A × B | P}.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
   apply CProdE2 in Hx. apply Hx.
@@ -36,7 +36,7 @@ Qed.
 (* 恒等关系 *)
 Definition Ident : set → set := λ A, {λ x, <x, x> | x ∊ A}.
 
-Lemma ident_is_rel : ∀ A, is_relation (Ident A).
+Lemma ident_is_rel : ∀ A, is_rel (Ident A).
 Proof.
   intros. intros x Hx. apply ReplAx in Hx as [a [_ Heq]].
     exists a, a. subst x. reflexivity.
@@ -54,7 +54,7 @@ Proof.
 Qed.
 
 Fact ident_eq_rel : ∀ A,
-  Ident A = Relation A A (λ a b, a = b).
+  Ident A = Rel A A (λ a b, a = b).
 Proof with auto.
   intros. apply ExtAx. split; intros.
   - apply ReplAx in H as [a [Ha Heq]]. subst x.
@@ -105,6 +105,22 @@ Proof. intros R x Hx. apply SepE in Hx as [_ H]. apply H. Qed.
 Lemma ranE : ∀ R, ∀y ∈ ran R, ∃ x, <x, y> ∈ R.
 Proof. intros R x Hx. apply SepE in Hx as [_ H]. apply H. Qed.
 
+Lemma dom_rel : ∀ A B P, dom (Rel A B P) ⊆ A.
+Proof.
+  intros * x Hx.
+  apply domE in Hx as [y Hp].
+  apply SepE in Hp as [Hp _].
+  apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+Qed.
+
+Lemma ran_rel : ∀ A B P, ran (Rel A B P) ⊆ B.
+Proof.
+  intros * y Hy.
+  apply ranE in Hy as [x Hp].
+  apply SepE in Hp as [Hp _].
+  apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+Qed.
+
 Lemma dom_ident : ∀ X, dom (Ident X) = X.
 Proof.
   intros. apply ExtAx. intros x. split; intros Hx.
@@ -129,7 +145,7 @@ Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
 
 (** 函数是单值关系 **)
 Definition is_function : set → Prop :=
-  λ R, is_relation R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.
+  λ R, is_rel R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.
 
 (* 空集是函数 *)
 Fact empty_is_func : is_function ∅.
@@ -158,7 +174,7 @@ Qed.
 
 (* 由类型论函数构造集合论函数 *)
 Definition Func : set → set → (set → set) → set := λ A B F,
-  Relation A B (λ x y, y = F x).
+  Rel A B (λ x y, y = F x).
 
 Lemma func_is_func : ∀ F A B, is_function (Func A B F).
 Proof with auto.
@@ -353,7 +369,7 @@ Definition Inverse : set → set := λ F,
   {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
 Notation "F ⁻¹" := (Inverse F) (at level 9).
 
-Lemma inv_rel : ∀ R, is_relation R⁻¹.
+Lemma inv_rel : ∀ R, is_rel R⁻¹.
 Proof.
   intros R x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
 Qed.
@@ -403,12 +419,12 @@ Proof.
     eapply ranI. apply Hp.
 Qed.
 
-Theorem inv_inv : ∀ F, is_relation F → (F⁻¹)⁻¹ = F.
+Theorem inv_inv : ∀ F, is_rel F → (F⁻¹)⁻¹ = F.
 Proof.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ [Hp Hx]]. rewrite <- inv_op in Hx.
     apply op_η in Hp. rewrite <- Hp in Hx. apply Hx.
-  - unfold is_relation in H.
+  - unfold is_rel in H.
     pose proof (H x Hx) as [a [b Heq]].
     subst x. apply SepI; try split.
     + apply inv_dom_ran. rewrite <- inv_op. apply Hx.
@@ -421,7 +437,7 @@ Qed.
 
 Theorem inv_func_iff_sr : ∀ F, is_function F⁻¹ ↔ single_rooted F.
 Proof.
-  unfold is_function, is_relation, single_rooted. split.
+  unfold is_function, is_rel, single_rooted. split.
   - intros [_ Hs]. intros y Hy. rewrite <- inv_dom in Hy.
     apply Hs in Hy as [[x Hp] H]. split.
     + exists x. rewrite inv_op. apply Hp.
@@ -435,7 +451,7 @@ Proof.
 Qed.
 
 Theorem inv_sr_iff_func : ∀ F, 
-  (is_relation F ∧ single_rooted F⁻¹) ↔ is_function F.
+  (is_rel F ∧ single_rooted F⁻¹) ↔ is_function F.
 Proof with auto.
   unfold single_rooted, is_function. split.
   - intros [Hr Hs]. split...
@@ -501,7 +517,7 @@ Proof.
   exists t. split; assumption.
 Qed.
 
-Lemma compo_rel : ∀ F G, is_relation (F ∘ G).
+Lemma compo_rel : ∀ F G, is_rel (F ∘ G).
 Proof.
   intros. intros x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
 Qed.

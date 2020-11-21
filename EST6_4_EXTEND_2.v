@@ -51,7 +51,7 @@ Lemma funcDisjointify_injective : ∀ i f g,
 Proof with eauto.
   cut (∀ i f g, is_function f → is_function g →
       FuncDisjointify i f = FuncDisjointify i g → f ⊆ g). {
-    intros H * Hf Hg Heq. apply sub_asym; eapply H...
+    intros H * Hf Hg Heq. apply sub_antisym; eapply H...
   }
   intros * Hf Hg Heq p Hpf.
   apply func_pair in Hpf as Heqp... rewrite Heqp in Hpf.

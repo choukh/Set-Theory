@@ -115,7 +115,7 @@ Proof with neauto.
   apply intMul_preserve_lt; nz; auto; mr; nz.
 Qed.
 
-(* ex5_15 see EST5_5 Theorem reals_bounded_has_sup *)
+(* ex5_15 see EST5_5 Theorem reals_bounded_has_supremum *)
 (* ex5_16 see EST5_5 Lemma realAdd_ran *)
 
 Example ex5_17: ∀ a b ∈ ℤ, intPos a →

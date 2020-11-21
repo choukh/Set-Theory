@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST4_2.
 
-(*** EST第四章3：自然数全序，自然数良序，强归纳原理 ***)
+(*** EST第四章3：自然数线序，自然数良序，强归纳原理 ***)
 
 Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : Nat_scope.
 
@@ -89,7 +89,7 @@ Proof with auto.
   apply ωLtI... apply ωLtE...
 Qed.
 
-Lemma ωLt_rel : binRel ωLt ω.
+Lemma ωLt_rel : is_binRel ωLt ω.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 
 Lemma ωLt_tranr : tranr ωLt.
@@ -100,9 +100,10 @@ Proof with eauto.
   apply SepI. apply CProdI... zfcrewrite. eapply nat_trans...
 Qed.
 
-Lemma ωLt_irreflexive : irreflexive ωLt ω.
+Lemma ωLt_irrefl : irrefl ωLt.
 Proof with eauto.
-  intros [k [Hk Hp]]. apply SepE in Hp as [_ Hp].
+  intros k Hp. apply SepE in Hp as [Hp Hlt].
+  apply CProdE1 in Hp as [Hk _].
   zfcrewrite. eapply lt_irrefl...
 Qed.
 
@@ -138,11 +139,11 @@ Qed.
 Lemma ωLt_trich : trich ωLt ω.
 Proof with auto.
   eapply trich_iff. apply ωLt_rel. apply ωLt_tranr. split.
-  apply ωLt_irreflexive. apply ωLt_connected.
+  apply ωLt_irrefl. apply ωLt_connected.
 Qed.
 
-(* 自然数的小于关系是全序关系 *)
-Theorem ωLt_totalOrd : totalOrd ωLt ω.
+(* 自然数的小于关系是线序关系 *)
+Theorem ωLt_linearOrder : linearOrder ωLt ω.
 Proof.
    split. apply ωLt_rel. split. apply ωLt_tranr. apply ωLt_trich.
 Qed.
@@ -314,18 +315,22 @@ Proof with eauto.
   - right. apply mul_cancel in H...
 Qed.
 
+(* 最小元 *)
+Definition minimum : set → set → set → Prop := λ m A R,
+  m ∈ A ∧ ∀x ∈ A, <m, x> ∈ R ∨ m = x.
+
 (* 良序关系 *)
-Definition wellOrder : set → set → Prop := λ Ord X,
-  totalOrd Ord X ∧
-  ∀ A, A ≠ ∅ → A ⊆ X →
-  ∃x ∈ A, ∀y ∈ A, <x, y> ∈ Ord ∨ x = y.
+Definition well_ordered : set → set → Prop := λ A R,
+  linearOrder R A ∧
+  ∀ B, B ≠ ∅ → B ⊆ A →
+  ∃ m, minimum m B R.
 
 (* 自然数的小于关系是良序关系 *)
-Theorem ωLt_wellOrder : wellOrder ωLt ω.
+Theorem ω_well_ordered_0 : well_ordered ω ωLt.
 Proof with eauto.
-  split. apply ωLt_totalOrd.
+  split. apply ωLt_linearOrder.
   intros A Hnq0 Hsub. apply EmptyNE in Hnq0 as [a Ha].
-  destruct (classic (∃m ∈ A, ∀n ∈ A, <m, n> ∈ ωLt ∨ m = n))... exfalso.
+  destruct (classic (∃ m, minimum m A ωLt))... exfalso.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
     assert (a ∈ a⁺) by (apply BUnionI2; apply SingI).
@@ -342,17 +347,17 @@ Proof with eauto.
   apply ωLtI... exfalso. eapply IH...
 Qed.
 
-Theorem ω_wellOrder : ∀ A, A ≠ ∅ → A ⊆ ω → 
+Theorem ω_well_ordered : ∀ A, A ≠ ∅ → A ⊆ ω → 
   ∃m ∈ A, ∀n ∈ A, m ≤ n.
 Proof with auto.
   intros A Hnq0 Hsub. assert (Hsub' := Hsub).
-  apply ωLt_wellOrder in Hsub' as [m [Hm Hlt]]...
+  apply ω_well_ordered_0 in Hsub' as [m [Hm Hlt]]...
   exists m. split... intros n Hn. assert (Hn' := Hn).
   apply Hlt in Hn' as []. left. apply ωLt_iff...
   apply Hsub... apply Hsub... right...
 Qed.
 
-Corollary f_ran_wellOrder : ¬ ∃ f, f: ω ⇒ ω ∧
+Corollary f_ran_well_ordered : ¬ ∃ f, f: ω ⇒ ω ∧
   ∀n ∈ ω, f[n⁺] ∈ f[n].
 Proof with neauto.
   intros [f [[Hff [Hfd Hfr]] H]].
@@ -360,7 +365,7 @@ Proof with neauto.
     apply EmptyNI. exists (f[0]). eapply ranI.
     apply func_correct... rewrite Hfd...
   }
-  eapply ω_wellOrder in Hnq0 as [m [Hm Hmin]]...
+  eapply ω_well_ordered in Hnq0 as [m [Hm Hmin]]...
   apply Hfr in Hm as Hf0.
   apply ranE in Hm as [x Hp].
   apply func_ap in Hp as Hap... subst m.
@@ -382,14 +387,14 @@ Proof with eauto.
   intros A HA Hind.
   destruct (classic (A = ω))... exfalso.
   assert (Hnq0: ω - A ≠ 0). {
-    intros H0. apply H. apply sub_asym... intros x Hx.
+    intros H0. apply H. apply sub_antisym... intros x Hx.
     destruct (classic (x ∈ A))... exfalso.
     eapply EmptyE in H0. apply H0. apply CompI...
   }
   assert (Hsub: ω - A ⊆ ω). {
     intros x Hx. apply CompE in Hx as []...
   }
-  apply ω_wellOrder in Hsub as [m [Hm Hmin]]...
+  apply ω_well_ordered in Hsub as [m [Hm Hmin]]...
   apply CompE in Hm as [Hmw Hma].
   apply Hma. apply Hind... intros k Hkw Hkm.
   destruct (classic (k ∈ A))... exfalso.
@@ -405,7 +410,7 @@ Theorem ω_ind_strong_0 : ∀ C, C ⊆ ω →
 Proof with eauto.
   intros C HC Hincr.
   destruct (classic (C = 0)) as [H0|H0]... exfalso.
-  pose proof (ω_wellOrder C H0 HC) as [m [Hm Hmin]]...
+  pose proof (ω_well_ordered C H0 HC) as [m [Hm Hmin]]...
   pose proof (Hincr m Hm) as [n [Hnc Hnm]]. apply HC in Hnc as Hn.
   pose proof (Hmin n Hnc) as [].
   - eapply lt_irrefl. apply Hn. eapply nat_trans; revgoals...

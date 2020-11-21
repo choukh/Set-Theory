@@ -3,24 +3,59 @@
 
 Require Export ZFC.EST3_2.
 
-(*** EST第三章3：等价关系，等价类，商集，三歧性，全序 ***)
+(*** EST第三章3：等价关系，等价类，商集，三歧性，线序 ***)
 
 (* 在A上的二元关系R *)
-Definition binRel : set → set → Prop := λ R A, R ⊆ A × A.
+Definition is_binRel : set → set → Prop := λ R A, R ⊆ A × A.
 
-Lemma relI : ∀ R A, binRel R A → is_relation R.
+Definition BinRel : set → (set → set → Prop) → set :=
+  λ A P, Rel A A P.
+
+Lemma binRelI : ∀ A (P : set → set → Prop), ∀ a b ∈ A,
+  P a b → <a, b> ∈ BinRel A P.
+Proof.
+  intros * a Ha b Hb H. apply SepI.
+  apply CProdI; auto. zfcrewrite.
+Qed.
+
+Lemma binRelE : ∀ A P a b,
+  <a, b> ∈ BinRel A P → a ∈ A ∧ b ∈ A ∧ P a b.
+Proof.
+  intros. apply SepE in H as [Hp H].
+  apply CProdE1 in Hp as [Ha Hb]. zfcrewrite. split; auto.
+Qed.
+
+Lemma binRel_iff : ∀ A P p,
+  p ∈ BinRel A P ↔ ∃a ∈ A, ∃b ∈ A, p = <a, b> ∧ P a b.
+Proof with auto.
+  split.
+  - intros Hp. apply SepE in Hp as [Hp H].
+    apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+    zfcrewrite. exists a. split... exists b. split...
+  - intros [a [Ha [b [Hb [Hp H]]]]]. subst p. apply SepI.
+    apply CProdI... zfcrewrite.
+Qed.
+
+Lemma binRel_is_binRel : ∀ A P, is_binRel (BinRel A P) A.
+Proof.
+  intros * p Hp.
+  apply binRel_iff in Hp as [a [Ha [b [Hb [Hp _]]]]].
+  subst p. apply CProdI; auto.
+Qed.
+
+Lemma binRel_is_rel : ∀ R A, is_binRel R A → is_rel R.
 Proof.
   intros * H p Hp. apply H in Hp. apply CProdE2 in Hp. apply Hp.
 Qed.
 
-Lemma rel_dom : ∀ R A, binRel R A → dom R ⊆ A.
+Lemma dom_binRel : ∀ R A, is_binRel R A → dom R ⊆ A.
 Proof.
   intros * Hr x Hx. apply domE in Hx as [y Hp].
   apply Hr in Hp. apply CProdE1 in Hp as [Hx _].
   rewrite π1_correct in Hx. apply Hx.
 Qed.
 
-Lemma rel_ran : ∀ R A, binRel R A → ran R ⊆ A.
+Lemma ran_binRel : ∀ R A, is_binRel R A → ran R ⊆ A.
 Proof.
   intros * Hr x Hx. apply ranE in Hx as [y Hp].
   apply Hr in Hp. apply CProdE1 in Hp as [_ Hx].
@@ -41,9 +76,9 @@ Definition tranr : set → Prop := λ R,
 
 (** 等价关系 **)
 Definition equiv : set → set → Prop := λ R A,
-  binRel R A ∧ refl R A ∧ symm R ∧ tranr R.
+  is_binRel R A ∧ refl R A ∧ symm R ∧ tranr R.
 
-Theorem equiv_fld : ∀ R, is_relation R →
+Theorem equiv_fld : ∀ R, is_rel R →
   symm R → tranr R → equiv R (fld R).
 Proof with eauto.
   intros R Hr Hs Ht. repeat split...
@@ -132,7 +167,7 @@ Proof with eauto.
   set ({λ x, <[x]R, [F[x]]R> | x ∊ A}) as F'.
   assert (Hf': is_function F'). {
     repeat split.
-    (* is_relation *)
+    (* is_rel *)
     - intros p Hp. apply ReplAx in Hp as [x []]. subst p. eexists...
     - apply domE in H...
     (* single value *)
@@ -211,37 +246,41 @@ Definition trich : set → set → Prop := λ R A, ∀ x y ∈ A,
   <x, y> ∉ R ∧ x = y ∧ <y, x> ∉ R ∨
   <x, y> ∉ R ∧ x ≠ y ∧ <y, x> ∈ R.
 
-(* 全序 *)
-Definition totalOrd : set → set → Prop := λ R A,
-  binRel R A ∧ tranr R ∧ trich R A.
+(* 线序 *)
+Definition linearOrder : set → set → Prop := λ R A,
+  is_binRel R A ∧ tranr R ∧ trich R A.
 
-Definition irreflexive : set → set → Prop := λ R A,
-  ¬ ∃ x ∈ A, <x, x> ∈ R.
+(* 反自反性 *)
+Definition irrefl : set → Prop := λ R,
+  ∀ x, <x, x> ∉ R.
 
+(* 连通性 *)
 Definition connected : set → set → Prop := λ R A,
   ∀ x y ∈ A, x ≠ y → <x, y> ∈ R ∨ <y, x> ∈ R.
 
-Theorem totalOrd_irreflexive : ∀ R A,
-  totalOrd R A → irreflexive R A.
-Proof. intros * [_ [_ Htri]] [x [Hx Hp]]. firstorder. Qed.
+Theorem linearOrder_irrefl : ∀ R A,
+  linearOrder R A → irrefl R.
+Proof.
+  intros * [Hrl [_ Htri]] x Hp. apply Hrl in Hp as Hx.
+  apply CProdE1 in Hx as [Hx _]. zfcrewrite. firstorder.
+Qed.
 
-Theorem totalOrd_connected : ∀ R A,
-  totalOrd R A → connected R A.
+Theorem linearOrder_connected : ∀ R A,
+  linearOrder R A → connected R A.
 Proof. intros * [_ [_ Htri]] x Hx y Hy Hnq. firstorder. Qed.
 
-Theorem trich_iff : ∀ R A, binRel R A → tranr R →
-  trich R A ↔ irreflexive R A ∧ connected R A.
+Theorem trich_iff : ∀ R A, is_binRel R A → tranr R →
+  trich R A ↔ irrefl R ∧ connected R A.
 Proof with eauto; try congruence.
   intros * Hrl Htr. split; intros.
-  - firstorder.
+  - split. eapply linearOrder_irrefl. split...
+    apply linearOrder_connected. split...
   - intros x Hx y Hy. destruct H as [Hir Hco].
     destruct (classic (x = y)).
-    + right. left. repeat split...
-      * intros Hp. apply Hir. exists x. split...
-      * intros Hp. apply Hir. exists x. split...
+    + right. left. subst. repeat split...
     + destruct (Hco x Hx y Hy H).
       * left. repeat split...
-        intros Hp. apply Hir. exists x. split...
+        intros Hp. eapply Hir...
       * right. right. repeat split...
-        intros Hp. apply Hir. exists x. split...
+        intros Hp. eapply Hir...
 Qed.

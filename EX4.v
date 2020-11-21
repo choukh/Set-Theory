@@ -455,7 +455,7 @@ Proof with eauto; try congruence.
   intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
            [Hn [g [[Hgf Hgs] [Hgd Hgr]]]] Hdj.
   split. apply add_ran...
-  set (Relation (m + n) (A ∪ B) (λ a y,
+  set (Rel (m + n) (A ∪ B) (λ a y,
     (a ∈ m ∧ y = f[a]) ∨
     (∃b ∈ n, a = m + b ∧ y = g[b])
   )) as h.
@@ -659,7 +659,7 @@ Proof with eauto; try congruence.
 intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
          [Hn [g [[Hgf Hgs] [Hgd Hgr]]]] Hdj.
   split. apply mul_ran...
-  set (Relation (m ⋅ n) (A × B) (λ x y,
+  set (Rel (m ⋅ n) (A × B) (λ x y,
     let u := π1 y in let v := π2 y in
     ∃i ∈ m, ∃j ∈ n, u = f[i] ∧ v = g[j] ∧
     x = m ⋅ j + i

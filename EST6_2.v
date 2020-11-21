@@ -326,7 +326,7 @@ Proof with eauto; try congruence.
   - intros j1 Hj1 j2 Hj2 Heq.
     cut (∀h1 ∈ L₁ ⟶ K₁, ∀h2 ∈ L₁ ⟶ K₁,
       (f ∘ h1) ∘ g ⁻¹ = (f ∘ h2) ∘ g ⁻¹ → h1 ⊆ h2). {
-      intros H. apply sub_asym; apply H...
+      intros H. apply sub_antisym; apply H...
     }
     clear Hj1 Hj2 Heq j1 j2.
     intros j1 Hj1 j2 Hj2 Heq p Hjp.
@@ -576,7 +576,7 @@ Proof with nauto.
   - intros x Hx. apply suc_has_n.
   - intros f1 Hf1 f2 Hf2 Heq.
     cut (∀ g1 g2 𝜆, g1 ∈ 𝜆 ⟶ 1 → g2 ∈ 𝜆 ⟶ 1 → g1 ⊆ g2). {
-      intros H. apply sub_asym; eapply H; eauto.
+      intros H. apply sub_antisym; eapply H; eauto.
     }
     clear Heq Hf1 Hf2 f1 f2 𝜅 F.
     intros f1 f2 𝜅 Hf1 Hf2 p Hp.

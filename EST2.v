@@ -85,7 +85,7 @@ Lemma comp_inhabited : ∀ a A, a ⊂ A → ⦿ (A - a).
 Proof.
   intros * [Hsub Hnq]. apply EmptyNE.
   intros H0. apply sub_iff_no_comp in H0.
-  apply Hnq. apply sub_asym. apply Hsub. apply H0.
+  apply Hnq. apply sub_antisym. apply Hsub. apply H0.
 Qed.
 
 (* 并，交，补运算与子集关系构成集合代数，

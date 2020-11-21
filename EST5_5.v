@@ -2,6 +2,7 @@
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EX5.
+Require Export ZFC.lib.PartialOrder.
 
 (*** EST第五章5：实数的定义(戴德金分割)，实数的序，实数的完备性，
   实数算术：加法，加法逆元 ***)
@@ -18,7 +19,7 @@ Definition CauchySeq : set :=
   }.
 
 Definition CauchyEquiv : set :=
-  Relation CauchySeq CauchySeq (λ r s,
+  Rel CauchySeq CauchySeq (λ r s,
     ∀ε ∈ ℚ, ratPos ε → ∃k ∈ ω, ∀n ∈ ω, k ∈ n →
     |r[n] - s[n]| <𝐪 ε
   ).
@@ -112,58 +113,15 @@ Close Scope Rat_scope.
 Open Scope Int_scope.
 
 (** 实数的序 **)
-Definition RealLt : set := Relation ℝ ℝ (λ x y, x ⊂ y).
+Definition RealLt : set := SubRel ℝ.
 Notation "x <𝐫 y" := (<x, y> ∈ RealLt) (at level 70).
-
-Lemma realLtI : ∀ x y ∈ ℝ, x ⊂ y → x <𝐫 y.
-Proof with auto.
-  intros x Hx y Hy Hsub.
-  apply SepI. apply CProdI... zfcrewrite.
-Qed.
-
-Lemma realLtE : ∀ x y, x <𝐫 y → x ∈ ℝ ∧ y ∈ ℝ ∧ x ⊂ y.
-Proof with auto.
-  intros * Hsub.
-  apply SepE in Hsub as [H1 H2].
-  apply CProdE1 in H1 as [Hx Hy]. zfcrewrite...
-Qed.
-
-Lemma realLt : ∀ x y ∈ ℝ, x <𝐫 y ↔ x ⊂ y.
-Proof with auto.
-  intros x Hx y Hy. split. apply realLtE. apply realLtI...
-Qed.
-
-Lemma realLt_irrefl : ∀x ∈ ℝ, x <𝐫 x → ⊥.
-Proof with auto.
-  intros x Hx Hc. apply realLt in Hc as []...
-Qed.
-
-Lemma realLt_rel : binRel RealLt ℝ.
-Proof with auto.
-  intros x Hx. apply SepE in Hx as []...
-Qed.
-
-Lemma realLt_tranr : tranr RealLt.
-Proof with eauto.
-  intros x y z H1 H2.
-  apply realLtE in H1 as [Hx [Hy [Hxy1 Hxy2]]].
-  apply realLtE in H2 as [_  [Hz [Hyz1 Hyz2]]].
-  apply realLtI... split. eapply sub_tran...
-  intros Heq. subst x. apply Hyz2. apply sub_asym...
-Qed.
-
-Lemma realLt_irreflexive : irreflexive RealLt ℝ.
-Proof with auto.
-  intros [x [Hx Hlt]].
-  apply realLt in Hlt as [Hsub Hnq]...
-Qed.
 
 Lemma realLt_connected : connected RealLt ℝ.
 Proof with eauto.
   intros x Hx y Hy Hnq.
   destruct (classic (x ⊆ y)).
-  left. apply realLtI...
-  right. apply realLtI... split... intros q Hqy.
+  left. apply binRelI...
+  right. apply binRelI... split... intros q Hqy.
   rewrite sub_iff_no_comp in H. apply EmptyNE in H as [r Hr].
   apply CompE in Hr as [Hrx Hry].
   assert (Hrq: r ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
@@ -171,17 +129,20 @@ Proof with eauto.
   eapply realE2; revgoals... eapply realE2_1...
 Qed.
 
-Lemma realLt_trich : trich RealLt ℝ.
-Proof with auto.
-  eapply trich_iff. apply realLt_rel. apply realLt_tranr. split.
-  apply realLt_irreflexive. apply realLt_connected.
+Theorem realLt_loset : ⟨ℝ, RealLt⟩ₗₒ.
+Proof.
+  apply loset_iff_connected_poset. split.
+  apply realLt_connected. apply subRel_poset.
 Qed.
 
-Theorem realLt_totalOrd : totalOrd RealLt ℝ.
-Proof with auto.
-  split. apply realLt_rel. split. apply realLt_tranr.
-  apply realLt_trich.
-Qed.
+Lemma realLt_irrefl : irrefl RealLt.
+Proof. eapply linearOrder_irrefl. apply realLt_loset. Qed.
+
+Lemma realLt_tranr : tranr RealLt.
+Proof. destruct realLt_loset as [_ [H _]]. apply H. Qed.
+
+Lemma realLt_trich : trich RealLt ℝ.
+Proof. destruct realLt_loset as [_ [_ H]]. apply H. Qed.
 
 Close Scope Int_scope.
 Declare Scope Real_scope.
@@ -194,13 +155,13 @@ Lemma realLeqI : ∀ x y ∈ ℝ, x ⊆ y → x ≤ y.
 Proof with auto.
   intros x Hx y Hy Hsub.
   destruct (classic (x = y))...
-  left. apply realLt...
+  left. apply binRelI...
 Qed.
 
 Lemma realLeqE : ∀ x y, x ≤ y → x ⊆ y.
 Proof with auto.
   intros x y [Hlt|Heq].
-  apply realLtE in Hlt as [_ [_ []]]...
+  apply binRelE in Hlt as [_ [_ []]]...
   subst. apply sub_refl.
 Qed.
 
@@ -216,32 +177,6 @@ Proof with eauto.
   apply realLeq... eapply sub_tran...
 Qed.
 
-(* 上界 *)
-Definition upper : set → set → set → Prop :=
-  λ Ord A x, ∀y ∈ A, <y, x> ∈ Ord ∨ y = x.
-
-(* 存在上界 *)
-Definition boundedAbove : set → set → Prop :=
-  λ Ord A, ∃ x, upper Ord A x.
-
-(* 上确界 *)
-Definition sup : set → set → set → Prop :=
-  λ Ord A x, upper Ord A x ∧
-    ∀ y, upper Ord A y → <x, y> ∈ Ord ∨ x = y.
-
-(* 下界 *)
-Definition lower : set → set → set → Prop :=
-  λ Ord A x, ∀y ∈ A, <x, y> ∈ Ord ∨ x = y.
-
-(* 存在下界 *)
-Definition boundedBelow : set → set → Prop :=
-  λ Ord A, ∃ x, lower Ord A x.
-
-(* 下确界 *)
-Definition inf : set → set → set → Prop :=
-  λ Ord A x, lower Ord A x ∧
-    ∀ y, lower Ord A y → <y, x> ∈ Ord ∨ y = x.
-
 Lemma union_reals_sub_rat : ∀ A, A ⊆ ℝ → ⋃A ∈ 𝒫 ℚ.
 Proof with auto.
   intros A H1. pose proof reals_sub_power_rat as H2.
@@ -249,35 +184,26 @@ Proof with auto.
   apply ex2_4 in H3. rewrite ex2_6_a in H3. apply PowerAx...
 Qed.
 
-Lemma union_reals_sub_upper : ∀ A z, upper RealLt A z → ⋃A ⊆ z.
+Lemma union_reals_sub_upperBound : ∀ A z,
+  (∀x ∈ A, x ≤ z) → ⋃A ⊆ z.
 Proof.
-  intros A z Hupz. apply ex2_5.
-  intros x Hx. apply realLeqE. apply Hupz. apply Hx.
+  intros A z Hle. apply ex2_5.
+  intros x Hx. apply realLeqE. apply Hle. apply Hx.
 Qed.
 
-Lemma reals_upper_ran : ∀ A x,
-  A ≠ ∅ → A ⊆ ℝ → upper RealLt A x → x ∈ ℝ.
-Proof with auto.
-  intros A x Hi Hsub Hup. apply EmptyNE in Hi as [y Hy].
-  apply Hup in Hy as Hleq. destruct Hleq as [Hlt|Heq].
-  - apply realLtE in Hlt as [_ [Hx _]]...
-  - subst. apply Hsub...
-Qed.
-
-Lemma union_reals_boundedAbove_ran : ∀ A,
-  A ≠ ∅ → A ⊆ ℝ → boundedAbove RealLt A → ⋃A ∈ ℝ.
+Lemma union_reals_boundedAbove_is_real : ∀ A,
+  A ≠ ∅ → boundedAbove A ℝ RealLt → ⋃A ∈ ℝ.
 Proof with eauto.
-  intros A Hi Hsub [z Hupz]. apply SepI.
+  intros A Hne [z [_ [Hsub [Hz Hle]]]]. apply SepI.
   apply union_reals_sub_rat... repeat split.
-  - apply EmptyNE in Hi as [x Hx]. apply Hsub in Hx as Hxr.
+  - apply EmptyNE in Hne as [x Hx]. apply Hsub in Hx as Hxr.
     apply realE0 in Hxr as [w [_ Hw]]. apply EmptyNI.
     exists w. apply UnionAx. exists x. split...
-  - apply reals_upper_ran in Hupz as Hz...
-    apply real_sub_rat in Hz as Hzsub.
-    apply union_reals_sub_upper in Hupz.
-    intros Heq. rewrite Heq in Hupz.
+  - apply real_sub_rat in Hz as Hzsub.
+    apply union_reals_sub_upperBound in Hle.
+    intros Heq. rewrite Heq in Hle.
     apply SepE in Hz as [_ [[_ Hznq] _]].
-    apply Hznq. apply sub_asym...
+    apply Hznq. apply sub_antisym...
   - intros p Hpq q Hqq Hq Hlt.
     apply UnionAx in Hq as [x [Hx Hq]].
     apply UnionAx. exists x. split...
@@ -288,17 +214,18 @@ Proof with eauto.
 Qed.
 
 (** 实数的戴德金完备性（上确界性） **)
-Theorem reals_boundedAbove_has_sup : ∀ A,
-  A ≠ ∅ → A ⊆ ℝ → boundedAbove RealLt A →
-  ∃s ∈ ℝ, sup RealLt A s.
+Theorem reals_boundedAbove_has_supremum : ∀ A,
+  A ≠ ∅ → boundedAbove A ℝ RealLt →
+  ∃ s, supremum s A ℝ RealLt.
 Proof with eauto.
-  intros A Hi Hsub Hbnd.
-  apply union_reals_boundedAbove_ran in Hbnd as Huar...
-  exists (⋃A). repeat split...
-  - intros x Hxa. apply realLeq...
-    apply Hsub... apply ex2_3...
-  - intros y Hupy. apply realLeqI...
-    eapply reals_upper_ran... apply union_reals_sub_upper...
+  intros A Hne Hbnd.
+  apply union_reals_boundedAbove_is_real in Hbnd as Hur...
+  exists (⋃A). split.
+  - split. apply loset_iff_connected_poset. apply realLt_loset.
+    destruct Hbnd as [_ [_ [Hsub _]]]. repeat split...
+    intros x Hxa. apply realLeq... apply Hsub... apply ex2_3...
+  - intros y Hub. apply realLeqI... apply Hub.
+    apply union_reals_sub_upperBound... apply Hub.
 Qed.
 
 Close Scope Real_scope.
@@ -317,29 +244,18 @@ Proof with nauto.
     left. apply intLt... rewrite add_ident, add_ident...
 Qed.
 
-Lemma ints_lower_int : ∀ A a,
-  A ≠ ∅ → A ⊆ ℤ → lower IntLt A a → a ∈ ℤ.
-Proof with auto.
-  intros A a Hi Hsub Hlow. apply EmptyNE in Hi as [b Hb].
-  apply Hlow in Hb as Hleq. destruct Hleq as [Hlt|Heq].
-  - apply SepE in Hlt as [Hp _].
-    apply CProdE1 in Hp as [Ha _]. zfcrewrite.
-  - subst. apply Hsub...
-Qed.
-
 (* 整数的向上封闭的非空子集具有良序性 *)
 Lemma ints_boundedBelow_has_min : ∀ A,
-  A ≠ ∅ → A ⊆ ℤ → boundedBelow IntLt A →
+  A ≠ ∅ → boundedBelow A ℤ IntLt →
   ∃a ∈ A, ∀b ∈ A, a ≤ b.
 Proof with auto.
-  intros A Hi Hsub [b Hlow].
-  apply ints_lower_int in Hlow as Hbz...
+  intros A Hne [b [_ [Hsub [Hbz Hle]]]].
   set {λ a, a - b | a ∊ A} as A'.
   set {n ∊ ω | λ n, ω_Embed[n] ∈ A'} as N.
   assert (Hnb: -b ∈ ℤ) by (apply intAddInv_ran; auto).
   assert (Hnn: ∀a' ∈ A', Int 0 ≤ a'). {
     intros a' Ha'. apply ReplAx in Ha' as [a [Ha Heq]]. subst a'.
-    apply Hsub in Ha as Haz. apply Hlow in Ha as [].
+    apply Hsub in Ha as Haz. apply Hle in Ha as [].
     - left. rewrite <- (intAddInv_annih b)...
       apply intAdd_preserve_lt...
     - right. rewrite H, intAddInv_annih...
@@ -352,14 +268,14 @@ Proof with auto.
     apply intAdd_ran... apply Hnn. apply HA'...
   }
   assert (H0: N ≠ ∅). {
-    apply EmptyNE in Hi as [c Hc]. assert (Hc' := Hc).
+    apply EmptyNE in Hne as [c Hc]. assert (Hc' := Hc).
     apply Hemb in Hc' as [k [Hk Heqk]]... apply EmptyNI.
     exists k. apply SepI... rewrite <- Heqk... apply HA'...
   }
   assert (H1: N ⊆ ω). {
     intros n Hn. apply SepE in Hn as []...
   }
-  apply ω_wellOrder in H1 as [m [Hm Hmin]]...
+  apply ω_well_ordered in H1 as [m [Hm Hmin]]...
   apply SepE in Hm as [Hmw Hm].
   assert (Hmz: ω_Embed[m] ∈ ℤ) by (apply ω_embed_ran; auto).
   exists (ω_Embed[m] + b). split.
@@ -377,18 +293,19 @@ Proof with auto.
 Qed.
 
 Corollary ints_boundedBelow_has_min' : ∀ A,
-  A ≠ ∅ → A ⊆ ℤ → boundedBelow IntLt A →
+  A ≠ ∅ → boundedBelow A ℤ IntLt →
   ∃a ∈ A, (a - Int 1) ∉ A.
 Proof with neauto.
-  intros A Hi Hsub Hlow.
-  apply ints_boundedBelow_has_min in Hlow as [a [Ha Hmin]]...
+  intros A Hne Hlow.
+  pose proof ints_boundedBelow_has_min as [a [Ha Hmin]]...
+  destruct Hlow as [_ [_ [Hsub _]]].
   apply Hsub in Ha as Haz. exists a. split...
   destruct (classic (a - Int 1 ∈ A))... exfalso.
   apply Hmin in H. eapply intAdd_preserve_leq in H; revgoals.
   apply (int_n 1). apply intAdd_ran... auto.
   rewrite intAdd_assoc, (intAdd_comm (-Int 1)),
     intAddInv_annih, intAdd_ident in H...
-  apply intLt_iff_leq_suc in H... eapply intLt_irrefl; revgoals...
+  apply intLt_iff_leq_suc in H... eapply intLt_irrefl...
 Qed.
 
 Close Scope Int_scope.
@@ -408,15 +325,17 @@ Proof with neauto.
   pose proof (ints_boundedBelow_has_min' A) as [c [Hc Hc']].
   - apply EmptyNI. exists d. apply SepI...
     eapply realE2_2; revgoals... apply ratMul_ran...
-  - intros a Ha. apply SepE in Ha as []...
-  - exists b. intros a Ha. apply SepE in Ha as [Haz Hax].
-    assert (Haq: IntEmbed[a] ∈ ℚ) by (apply intEmbed_ran; auto).
-    destruct (classic (a = b))...
-    apply intLt_connected in H as [Hlt|]... exfalso.
-    apply intEmbed_lt in Hlt...
-    apply (ratMul_preserve_lt' _ Haq _ Hbq p) in Hlt...
-    assert (p ⋅ IntEmbed [a] <𝐪 r) by (eapply ratLt_tranr; eauto).
-    apply Hax. eapply realE2; revgoals... apply ratMul_ran...
+  - exists b. split; [|repeat split]...
+    + apply loset_iff_connected_poset. apply intLt_linearOrder.
+    + intros a Ha. apply SepE in Ha as []...
+    + intros a Ha. apply SepE in Ha as [Haz Hax].
+      assert (Haq: IntEmbed[a] ∈ ℚ) by (apply intEmbed_ran; auto).
+      destruct (classic (a = b))...
+      apply intLt_connected in H as [Hlt|]... exfalso.
+      apply intEmbed_lt in Hlt...
+      apply (ratMul_preserve_lt' _ Haq _ Hbq p) in Hlt...
+      assert (p ⋅ IntEmbed [a] <𝐪 r) by (eapply ratLt_tranr; eauto).
+      apply Hax. eapply realE2; revgoals... apply ratMul_ran...
   - apply SepE in Hc as [Hcz Hleft].
     assert (Hc'z: (c - Int 1)%z ∈ ℤ) by (apply intAdd_ran; nauto).
     exists (p ⋅ IntEmbed[(c - Int 1)%z]). repeat split.
@@ -556,7 +475,7 @@ Proof with neauto.
     apply EmptyNI. exists r. apply SepI...
   - apply ExtNI. exists q. split...
     intros H. apply SepE in H as [_ H].
-    eapply ratLt_irrefl; revgoals...
+    eapply ratLt_irrefl...
   - intros s Hs t Ht Htq Hlt. apply SepE in Htq as [_ Htq].
     apply SepI... eapply ratLt_tranr...
   - intros s Hsq. apply SepE in Hsq as [Hs Hsq].
@@ -759,7 +678,7 @@ Theorem realAdd_preserve_lt : ∀ x y z ∈ ℝ,
 Proof with eauto.
   intros x Hx y Hy z Hz Hlt.
   destruct (classic (x = y)).
-  - exfalso. subst. eapply realLt_irrefl; revgoals...
+  - exfalso. subst. eapply realLt_irrefl...
   - assert (Hleq: x ≤ y) by auto.
     apply (realAdd_preserve_leq _ Hx _ Hy _ Hz) in Hleq as []...
     exfalso. apply H. eapply realAdd_cancel...
@@ -770,11 +689,10 @@ Theorem realSubtr_preserve_lt : ∀ x y z ∈ ℝ,
 Proof with eauto.
   intros x Hx y Hy z Hz Hlt.
   destruct (classic (x = y)). subst. exfalso.
-  eapply realLt_irrefl; revgoals... apply realAdd_ran...
+  eapply realLt_irrefl...
   apply realLt_connected in H as []... exfalso.
   eapply realAdd_preserve_lt in H...
-  eapply realLt_irrefl; revgoals.
-  eapply realLt_tranr... apply realAdd_ran...
+  eapply realLt_irrefl. eapply realLt_tranr...
 Qed.
 
 Theorem realSubtr_preserve_leq : ∀ x y z ∈ ℝ,
@@ -808,7 +726,7 @@ Qed.
 Lemma realLt_addInv : ∀ x y ∈ ℝ, x <𝐫 y → -y <𝐫 -x.
 Proof with auto.
   intros x Hx y Hy Hlt.
-  apply realLtE in Hlt as [_ [_ [Hsub Hnq]]]. apply realLt...
+  apply binRelE in Hlt as [_ [_ [Hsub Hnq]]]. apply binRelI...
   apply realAddInv_ran... apply realAddInv_ran... split.
   - intros q Hq. apply SepE in Hq as [Hq [s [Hs [Hlt Hout]]]].
     apply SepI... exists s. repeat split...
@@ -821,11 +739,11 @@ Lemma realLt_addInv' : ∀ x y ∈ ℝ, -y <𝐫 -x → x <𝐫 y.
 Proof with eauto.
   intros x Hx y Hy Hlt. destruct (classic (x = y)).
   - exfalso. subst.
-    eapply realLt_irrefl; revgoals... apply realAddInv_ran...
+    eapply realLt_irrefl...
   - apply realLt_connected in H as []...
     exfalso. apply realLt_addInv in H...
-    eapply realLt_irrefl; revgoals.
-    eapply realLt_tranr; revgoals... apply realAddInv_ran...
+    eapply realLt_irrefl.
+    eapply realLt_tranr; revgoals...
 Qed.
 
 Lemma realLeq_addInv : ∀ x y ∈ ℝ, x ≤ y → -y ≤ -x.
@@ -848,7 +766,7 @@ Qed.
 Lemma realLt_realq : ∀x ∈ ℝ, ∀q ∈ ℚ, Realq q <𝐫 x ↔ q ∈ x.
 Proof with neauto.
   intros x Hx q Hq. split; intros.
-  - apply realLtE in H as [H0 [_ [Hsub Hnq]]].
+  - apply binRelE in H as [H0 [_ [Hsub Hnq]]].
     destruct (classic (q ∈ x))... exfalso.
     apply Hnq. apply ExtAx. intros p. split; intros Hp.
     + apply Hsub in Hp as Hpx. apply SepE in Hp as [Hpq _].
@@ -856,11 +774,11 @@ Proof with neauto.
       eapply realE2; revgoals...
     + assert (Hpq: p ∈ ℚ) by (apply (real_sub_rat _ Hx); auto).
       apply SepI... eapply realE2_1; revgoals...
-  - apply realLtI... apply real_q... split.
+  - apply binRelI... apply real_q... split.
     + intros p Hp. apply SepE in Hp as [Hpq Hlt].
       eapply realE2; revgoals...
     + intros H0. subst. apply SepE in H as [_ H].
-      eapply ratLt_irrefl; revgoals...
+      eapply ratLt_irrefl...
 Qed.
 
 Corollary realLt_realn : ∀ n, ∀x ∈ ℝ, Real n <𝐫 x ↔ Rat n ∈ x.
@@ -871,7 +789,7 @@ Proof with neauto.
   intros x Hx q Hq. split; intros.
   - intros Hqx. apply realLeq in H...
     apply H in Hqx. apply SepE in Hqx as [_ Hlt].
-    eapply ratLt_irrefl; revgoals... apply real_q...
+    eapply ratLt_irrefl... apply real_q...
   - apply realLeq... apply real_q... intros r Hr.
     assert (Hrq: r ∈ ℚ) by (apply (real_sub_rat _ Hx); auto).
     apply SepI... eapply realE2_1...
@@ -886,7 +804,7 @@ Definition realNeg : set → Prop := λ x, x <𝐫 Real 0.
 Lemma real_neq_0 : ∀x ∈ ℝ, realPos x ∨ realNeg x → x ≠ Real 0.
 Proof.
   intros x Hx [Hpx|Hnx]; intros H; subst;
-  eapply realLt_irrefl; revgoals; eauto.
+  eapply realLt_irrefl; eauto.
 Qed.
 
 Lemma realPos_rat0 : ∀x ∈ ℝ, realPos x ↔ Rat 0 ∈ x.
@@ -897,13 +815,13 @@ Qed.
 Lemma realPos_neg : ∀ x, realPos x → realNeg (-x).
 Proof with neauto.
   intros. apply realLt_addInv in H... rewrite realAddInv_0 in H...
-  apply realLtE in H as [_ [Hx _]]...
+  apply binRelE in H as [_ [Hx _]]...
 Qed.
 
 Lemma realNeg_pos : ∀ x, realNeg x → realPos (-x).
 Proof with nauto.
   intros. apply realLt_addInv in H... rewrite realAddInv_0 in H...
-  apply realLtE in H as [Hx _]...
+  apply binRelE in H as [Hx _]...
 Qed.
 
 Lemma real_suc_neq_0 : ∀ n, Real (S n) ≠ Real 0.
@@ -913,13 +831,13 @@ Proof with neauto.
     apply SepI... apply ratPos_sn.
   }
   apply H in H0. apply SepE in H0 as [_ H0].
-  eapply ratLt_irrefl; revgoals...
+  eapply ratLt_irrefl...
 Qed.
 Hint Immediate real_suc_neq_0 : number_hint.
 
 Lemma realPos_sn : ∀ n, realPos (Real (S n)).
 Proof with nauto.
-  intros. apply realLt... split.
+  intros. apply binRelI... split.
   - intros p Hp. apply SepE in Hp as [Hpq Hlt].
     apply SepI... eapply ratLt_tranr. apply Hlt. apply ratPos_sn.
   - intros H. eapply real_suc_neq_0. rewrite H. reflexivity.
@@ -972,8 +890,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply realLt_connected in H1 as []...
   - intros Hn. destruct H.
-    + eapply realLt_irrefl; revgoals.
-      eapply realLt_tranr... auto.
+    + eapply realLt_irrefl. eapply realLt_tranr...
     + subst. eapply realLt_irrefl...
 Qed.
 
@@ -992,8 +909,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply realLt_connected in H1 as []...
   - intros Hp. destruct H.
-    + eapply realLt_irrefl; revgoals.
-      eapply realLt_tranr... nauto.
+    + eapply realLt_irrefl. eapply realLt_tranr...
     + subst. eapply realLt_irrefl...
 Qed.
 

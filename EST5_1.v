@@ -20,7 +20,7 @@ Lemma quotionFunc_maps_into : ∀ R A F,
   (QuotionFunc R A F): (A/R) × (A/R) ⇒ A/R.
 Proof with eauto.
   intros * [Hqv [[Hf [Hdf Hrf]] Hc]]. repeat split.
-  - (* is_relation *) intros p Hp.
+  - (* is_rel *) intros p Hp.
     apply ReplAx in Hp as [x []]. subst p. eexists...
   - apply domE in H...
   - (* single-valued *) intros y1 y2 Hy1 Hy2.
@@ -73,7 +73,7 @@ Lemma quotionFunc_maps_onto : ∀ R A F,
 Proof with eauto.
   intros * Hc [Hf [Hdf Hrf]].
   pose proof (quotionFunc_maps_into) as [Hf' [Hdf' Hrf']]...
-  split... split... apply sub_asym...
+  split... split... apply sub_antisym...
   intros y Hy. apply quotE in Hy as [p [Hp Heq]].
   rewrite <- Hrf in Hp. apply ranE in Hp as [x Hp].
   apply domI in Hp as Hd. rewrite Hdf in Hd.
@@ -148,7 +148,7 @@ Open Scope PlaneEquiv_scope.
 (* 平面上的等价关系 *)
 Definition PlaneEq := set → set → set → set → Prop.
 Definition PlaneEquiv : set → set → PlaneEq → set :=
-  λ A B Eq, Relation (A × B) (A × B) (λ a b,
+  λ A B Eq, Rel (A × B) (A × B) (λ a b,
     let m := π1 a in let n := π2 a in
     let p := π1 b in let q := π2 b in
     Eq m n p q
@@ -259,7 +259,7 @@ Qed.
 (* 平面算术定义Helper *)
 Definition PlaneF := set → set → set → set → set.
 Definition PlaneArith : set → set → PlaneF → set :=
-  λ A B F, Relation (A × B)² (A × B) (λ x y,
+  λ A B F, Rel (A × B)² (A × B) (λ x y,
   let m := π1 (π1 x) in let n := π2 (π1 x) in
   let p := π1 (π2 x) in let q := π2 (π2 x) in
   y = F m n p q
@@ -283,7 +283,7 @@ Lemma planeArith_maps_onto : ∀ A B F,
   (PlaneArith A B F): (A × B)² ⟹ A × B.
 Proof with eauto.
   intros * HF1 HF2. repeat split.
-  - (* is_relation *) intros x Hx.
+  - (* is_rel *) intros x Hx.
     apply SepE in Hx as [Hx _]. apply CProdE2 in Hx...
   - apply domE in H...
   - (* single-valued *) intros y1 y2 H1 H2.

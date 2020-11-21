@@ -41,6 +41,15 @@ coqc -R . ZFC EX4.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v
 
+echo "building EST7_1"
+coqc -R . ZFC EST7_1.v
+echo "building PartialOrder"
+coqc -R . ZFC lib/PartialOrder.v
+echo "building EST7_2"
+coqc -R . ZFC EST7_2.v
+echo "building EX7_1"
+coqc -R . ZFC EX7_1.v
+
 echo "building EST5_1"
 coqc -R . ZFC EST5_1.v
 echo "building EST5_2"
@@ -92,6 +101,5 @@ echo "building EST6_6"
 coqc -R . ZFC EST6_6.v
 echo "building EX6_3"
 coqc -R . ZFC EX6_3.v
-
-echo "building EST7_1"
-coqc -R . ZFC EST7_1.v
+echo "building Cardinal"
+coqc -R . ZFC lib/Cardinal.v

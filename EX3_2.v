@@ -19,7 +19,7 @@ Proof with eauto.
   - intros x y z H1 H2. apply H. eapply compoI...
 Qed.
 
-Example ex3_33: ∀ R, is_relation R ∧ symm R ∧ tranr R ↔ R = R⁻¹ ∘ R.
+Example ex3_33: ∀ R, is_rel R ∧ symm R ∧ tranr R ↔ R = R⁻¹ ∘ R.
 Proof with eauto.
   split.
   - intros [Hr [Hsy Htr]]. apply ExtAx. intros p. split; intros Hp.
@@ -28,7 +28,7 @@ Proof with eauto.
     + apply SepE in Hp as [_ [Hpp [y [H1 H2]]]].
       apply op_η in Hpp. rewrite Hpp. apply inv_op in H2...
   - intros H.
-    assert (Hr: is_relation R). {
+    assert (Hr: is_rel R). {
       intros p Hp. rewrite ExtAx in H. apply H in Hp.
       apply SepE in Hp as [_ []]...
     }
@@ -90,7 +90,7 @@ Proof with eauto.
 Qed.
 
 Example ex3_37: ∀ Π A, partition Π A →
-  let R := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
+  let R := Rel A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   equiv R A.
 Proof with eauto.
   intros * [Hsub [Hdj Hxh]] R. repeat split.
@@ -117,7 +117,7 @@ Proof with eauto.
 Qed.
 
 Example ex3_38: ∀ Π A, partition Π A →
-  let R := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
+  let R := Rel A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   A/R = Π.
 Proof with eauto; try congruence.
   intros. destruct H as [Hsub [Hdj Hxh]].
@@ -147,19 +147,19 @@ Qed.
 
 Example ex3_39: ∀ R A, equiv R A →
   let Π := A/R in
-  let Rπ := Relation A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
+  let Rπ := Rel A A (λ x y, ∃B ∈ Π, x ∈ B ∧ y ∈ B) in
   Rπ = R.
 Proof with eauto.
   intros * [Hr [Hrf [Hsy Hhx]]] Π Rπ.
-  assert (Hrr: is_relation R) by (eapply relI; eauto).
+  assert (Hrr: is_rel R) by (eapply binRel_is_rel; eauto).
   apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hp [B [HB [H1 H2]]]].
     apply CProdE2 in Hp. apply op_η in Hp. rewrite Hp.
     apply quotE in HB as [a [Ha Heq]]. subst.
     apply eqvcE in H1. apply eqvcE in H2. eapply Hhx...
   - apply rel_pair in Hx as Heq... rewrite Heq in *.
-    apply domI in Hx as Hdx. eapply rel_dom in Hdx...
-    apply ranI in Hx as Hrx. eapply rel_ran in Hrx...
+    apply domI in Hx as Hdx. eapply dom_binRel in Hdx...
+    apply ranI in Hx as Hrx. eapply ran_binRel in Hrx...
     apply SepI. apply CProdI...
     exists ([π1 x]R). split. apply quotI...
     rewrite π1_correct, π2_correct. split.
@@ -168,10 +168,10 @@ Qed.
 
 (* ex3_42 see EST5_1.v quotionFunc_unique *)
 
-Example ex3_43: ∀ R A, totalOrd R A → totalOrd R⁻¹ A.
+Example ex3_43: ∀ R A, linearOrder R A → linearOrder R⁻¹ A.
 Proof with eauto.
   intros * [Hrl [Htr Htri]].
-  assert (Hrl': binRel R ⁻¹ A). {
+  assert (Hrl': is_binRel R ⁻¹ A). {
     intros x Hx. apply SepE in Hx as [_ [Hpp Hp]].
     apply op_η in Hpp. rewrite Hpp.
     apply Hrl in Hp. apply CProdE1 in Hp as [].
@@ -182,14 +182,13 @@ Proof with eauto.
   }
   repeat split... apply trich_iff...
   apply trich_iff in Htri as [Hir Hco]... split.
-  - intros [x [Hx Hp]]. apply Hir.
-    apply inv_op in Hp. exists x. split...
+  - intros x Hp. eapply Hir... apply inv_op...
   - intros x Hx y Hy Hnq. apply Hco in Hnq as []...
     + right. apply inv_op in H...
     + left. apply inv_op in H...
 Qed.
 
-Example ex3_44: ∀ R A f, totalOrd R A → f: A ⇒ A →
+Example ex3_44: ∀ R A f, linearOrder R A → f: A ⇒ A →
   (∀ x y ∈ A, <x, y> ∈ R → <f[x], f[y]> ∈ R) →
   injective f ∧ ∀ x y ∈ A, <f[x], f[y]> ∈ R → <x, y> ∈ R.
 Proof with eauto.
@@ -202,29 +201,25 @@ Proof with eauto.
     apply func_ap in H1... apply func_ap in H2... subst y.
     destruct (classic (x1 = x2))... exfalso.
     apply Hco in H0 as []...
-    + apply H in H0... rewrite H2 in H0. apply Hir.
-      exists (f[x1]). split...
-    + apply H in H0... rewrite H2 in H0. apply Hir.
-      exists (f[x1]). split...
+    + apply H in H0... rewrite H2 in H0. apply (Hir (f[x1]))...
+    + apply H in H0... rewrite H2 in H0. apply (Hir (f[x1]))...
   - intros x1 Hx1 x2 Hx2 Hpf. destruct (classic (x1 = x2)).
-    + exfalso. apply Hir. exists (f[x2]). split.
-      eapply ap_ran... split... rewrite H0 in Hpf...
-    + apply Hco in H0 as []...
-      exfalso. apply Hir. exists (f[x1]). split.
-      eapply ap_ran... split... apply H in H0...
+    + exfalso. subst x1. eapply Hir...
+    + apply Hco in H0 as []... exfalso.
+      eapply Hir... eapply Htr. apply Hpf. apply H...
 Qed.
 
 (* 字典序 *)
-Example ex3_45: ∀ Rᵃ A Rᵇ B, totalOrd Rᵃ A → totalOrd Rᵇ B →
+Example ex3_45: ∀ Rᵃ A Rᵇ B, linearOrder Rᵃ A → linearOrder Rᵇ B →
   let Rˡ := {p ∊ (A × B) × (A × B) | λ p,
     let a1 := π1 (π1 p) in let b1 := π2 (π1 p) in
     let a2 := π1 (π2 p) in let b2 := π2 (π2 p) in
     <a1, a2> ∈ Rᵃ ∨ a1 = a2 ∧ <b1, b2> ∈ Rᵇ
   } in
-  totalOrd Rˡ (A × B).
+  linearOrder Rˡ (A × B).
 Proof with eauto; try congruence.
   intros * [Hrla [Htra Htria]] [Hrlb [Htrb Htrib]] Rˡ.
-  assert (Hrl: binRel Rˡ (A × B)). {
+  assert (Hrl: is_binRel Rˡ (A × B)). {
     intros p Hp. apply SepE in Hp as [Hp _]...
   }
   assert (Htr: tranr Rˡ). {
@@ -242,10 +237,10 @@ Proof with eauto; try congruence.
   repeat split... intros x Hx y Hy. eapply trich_iff...
   apply trich_iff in Htria as [Hira Hcoa]...
   apply trich_iff in Htrib as [Hirb Hcob]... split.
-  - intros [p [Hp Hpp]]. apply CProdE1 in Hp as [Hp1 Hp2].
-    apply SepE in Hpp as [_ []]; rewrite π1_correct, π2_correct in H.
-    + apply Hira. exists (π1 p). split...
-    + apply Hirb. exists (π2 p). split... destruct H as []...
+  - intros p Hp. apply SepE in Hp as [_ []];
+    rewrite π1_correct, π2_correct in H.
+    + apply (Hira (π1 p))...
+    + apply (Hirb (π2 p))... destruct H as []...
   - intros p1 Hp1 p2 Hp2 Hnq.
     apply cprod_iff in Hp1 as [a1 [Ha1 [b1 [Hb1 Heq1]]]].
     apply cprod_iff in Hp2 as [a2 [Ha2 [b2 [Hb2 Heq2]]]].

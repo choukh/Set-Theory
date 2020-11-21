@@ -88,7 +88,7 @@ Proof.
     apply CProdI; assumption.
 Qed.
 
-Example ex3_6: ∀ X, is_relation X ↔ X ⊆ dom X × ran X.
+Example ex3_6: ∀ X, is_rel X ↔ X ⊆ dom X × ran X.
 Proof.
   intros X. split.
   - intros Hr. unfold Sub. intros x Hx. assert (Heq := Hx).
@@ -96,12 +96,12 @@ Proof.
     + eapply domI. apply Hx.
     + eapply ranI. apply Hx.
     + apply Hr.
-  - unfold is_relation. intros Hsub x Hx. apply Hsub in Hx.
+  - unfold is_rel. intros Hsub x Hx. apply Hsub in Hx.
     apply cprod_iff in Hx as [a [Ha [b [Hb Heq]]]].
     exists a, b. apply Heq.
 Qed.
 
-Example ex3_7: ∀ R, is_relation R → fld R = ⋃⋃R.
+Example ex3_7: ∀ R, is_rel R → fld R = ⋃⋃R.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BUnionE in H0 as [].
@@ -197,7 +197,7 @@ Example ex3_13: ∀ f g,
   is_function f → is_function g → f ⊆ g → dom g ⊆ dom f → f = g.
 Proof with eauto.
   intros f g Hf Hg Hs Hds. apply func_ext_intro...
-  - apply sub_asym... intros x Hx. apply domE in Hx as [y Hp].
+  - apply sub_antisym... intros x Hx. apply domE in Hx as [y Hp].
     apply Hs in Hp. eapply domI...
   - intros x Hx. apply domE in Hx as [y Hp].
     apply func_ap in Hp as Heqf... apply Hs in Hp.
@@ -508,10 +508,10 @@ Proof with eauto.
     intros c Hc. apply UnionAx. exists X. split...
   }
   split; [|split].
-  - (* F[B] = B *) apply sub_asym...
+  - (* F[B] = B *) apply sub_antisym...
     intros x Hx. apply InterE in Hx as [_ Hx]. apply Hx.
     apply SepI. apply Hr. eapply ranI... apply HM. split...
-  - (* F[C] = C *) apply sub_asym...
+  - (* F[C] = C *) apply sub_antisym...
     intros x Hx. apply UnionAx. exists (F[C]). split...
     apply SepI. apply Hr. eapply ranI... apply HM. split...
     apply PowerAx. apply Hr. eapply ranI...

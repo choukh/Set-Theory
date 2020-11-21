@@ -189,7 +189,7 @@ Theorem cardExp_infcard_infcard : AC_VI →
   𝜅 ^ 𝜆 = 2 ^ 𝜆.
 Proof with nauto.
   intros AC6 𝜅 𝜆 Hicl Hle1 Hle2.
-  apply cardLeq_asym.
+  apply cardLeq_antisym.
   - (* 𝜅 ^ 𝜆 ≤ 𝜆 ^ 𝜆 ≤ 2 ^ 𝜆 *)
     eapply cardLeq_tran.
     + apply cardExp_preserve_base_leq... apply Hle2.
@@ -538,7 +538,7 @@ Proof with neauto; try congruence.
   intros AC6 𝜅 [Hcd Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }
   assert (AC3': AC_III'). { apply AC_III_iff_III'... }
-  eapply cardLeq_asym. {
+  eapply cardLeq_antisym. {
     eapply cardLeq_tran.
     - apply cardLeq_iff. apply dominate_sub.
       intros x Hx. apply SepE in Hx as [Hx _]. apply Hx.

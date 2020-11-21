@@ -40,12 +40,11 @@ Proof with neauto.
   intros a Ha b Hb Hpb Hpp.
   destruct (classic (a = Int 0)).
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
-    eapply intLt_irrefl; revgoals...
+    eapply intLt_irrefl...
   - apply intLt_connected in H as []... exfalso.
     eapply intMul_preserve_lt in H...
     rewrite intMul_0_l in H...
-    eapply intLt_irrefl; revgoals.
-    eapply intLt_tranr... mr.
+    eapply intLt_irrefl. eapply intLt_tranr...
 Qed.
 
 Lemma intMul_neg_factor : ∀a b ∈ ℤ,
@@ -54,13 +53,12 @@ Proof with neauto.
   intros a Ha b Hb Hpb Hpp.
   destruct (classic (a = Int 0)).
   - subst a. exfalso. rewrite intMul_0_l in Hpp...
-    eapply intLt_irrefl; revgoals...
+    eapply intLt_irrefl...
   - apply intLt_connected in H as []... exfalso.
     eapply intMul_preserve_lt in H.
     apply H in Hpb as Hc.
     rewrite (intMul_comm b), intMul_0_l in Hc...
-    eapply intLt_irrefl; revgoals.
-    eapply intLt_tranr... mr. nauto. auto. auto.
+    eapply intLt_irrefl. eapply intLt_tranr... nauto. auto. auto.
 Qed.
 
 Lemma pQuotE_ratPosDenom : ∀r ∈ ℚ, ∃a ∈ ℤ, ∃b ∈ ℤ',
@@ -109,7 +107,7 @@ Proof.
 Qed.
 
 (* 有理数的小于关系 *)
-Definition RatLt : set := Relation ℚ ℚ (λ r s,
+Definition RatLt : set := BinRel ℚ (λ r s,
   let u := RatProj r in let v := RatProj s in
   let a := π1 u in let b := π2 u in
   let c := π1 v in let d := π2 v in
@@ -122,7 +120,7 @@ Lemma ratLtI : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
   a ⋅ d <𝐳 c ⋅ b → [<a, b>]~ <𝐪 [<c, d>]~.
 Proof with eauto.
   intros a Ha b Hb c Hc d Hd Hpb Hpd Hlt.
-  apply SepI. apply CProdI; apply pQuotI... zfcrewrite.
+  apply binRelI. apply pQuotI... apply pQuotI...
   pose proof (ratProj a Ha b Hb)
     as [a' [Ha' [b' [Hb' [H11 [H12 [_ Hpb']]]]]]].
   pose proof (ratProj c Hc d Hd)
@@ -166,13 +164,6 @@ Proof with eauto.
   - apply ratLtI...
 Qed.
 
-Lemma ratLt_irrefl : ∀r ∈ ℚ, r <𝐪 r → ⊥.
-Proof with eauto.
-  intros r Hr Hc.
-  apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]]. subst r.
-  apply ratLt in Hc... eapply intLt_irrefl; revgoals... mr;nz.
-Qed.
-
 Lemma ratNeqE : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
   [<a, b>]~ ≠ [<c, d>]~ → a ⋅ d ≠ c ⋅ b.
 Proof with auto.
@@ -180,7 +171,7 @@ Proof with auto.
   apply Hnq. apply rat_ident...
 Qed.
 
-Lemma ratLt_rel : binRel RatLt ℚ.
+Lemma ratLt_rel : is_binRel RatLt ℚ.
 Proof with auto.
   intros x Hx. apply SepE in Hx as []...
 Qed.
@@ -210,12 +201,11 @@ Proof with auto.
   ]; try eassumption; nz; mr; nz.
 Qed.
 
-Lemma ratLt_irreflexive : irreflexive RatLt ℚ.
-Proof with auto.
-  intros [x [Hx Hlt]]. apply ratLtE in Hlt
-    as [a [Ha [b [Hb [c [Hc [d [Hd [Hpb [Hpd [H1 [H2 Hlt]]]]]]]]]]]].
-  subst x. apply rat_ident in H2... rewrite H2 in Hlt.
-  eapply intLt_irrefl; revgoals; eauto; mr; nz.
+Lemma ratLt_irrefl : irrefl RatLt.
+Proof with eauto.
+  intros r Hlt. assert (H := Hlt). apply ratLtE in H
+    as [a [Ha [b [Hb [_ [_ [_ [_ [Hpb [_ [Hr _]]]]]]]]]]].
+  subst r. apply ratLt in Hlt... eapply intLt_irrefl...
 Qed.
 
 Lemma ratLt_connected : connected RatLt ℚ.
@@ -232,10 +222,10 @@ Qed.
 Lemma ratLt_trich : trich RatLt ℚ.
 Proof with auto.
   eapply trich_iff. apply ratLt_rel. apply ratLt_tranr. split.
-  apply ratLt_irreflexive. apply ratLt_connected.
+  apply ratLt_irrefl. apply ratLt_connected.
 Qed.
 
-Theorem ratLt_totalOrd : totalOrd RatLt ℚ.
+Theorem ratLt_linearOrder : linearOrder RatLt ℚ.
 Proof with auto.
   split. apply ratLt_rel. split. apply ratLt_tranr.
   apply ratLt_trich.
@@ -250,7 +240,7 @@ Definition ratNeg : set → Prop := λ r, r <𝐪 Rat 0.
 Lemma rat_neq_0 : ∀r ∈ ℚ, ratPos r ∨ ratNeg r → r ≠ Rat 0.
 Proof.
   intros r Hr [Hpr|Hnr]; intros H; subst;
-  eapply ratLt_irrefl; revgoals; eauto.
+  eapply ratLt_irrefl; eauto.
 Qed.
 
 Lemma ratPos_intPos : ∀a ∈ ℤ, ∀b ∈ ℤ',
@@ -328,7 +318,7 @@ Proof with neauto.
   rewrite intMul_0_l, intMul_ident in H...
   assert (Ha': a ∈ ℤ'). {
     apply nzIntI0... intros Heq. rewrite Heq in H.
-    eapply intLt_irrefl; revgoals...
+    eapply intLt_irrefl...
   }
   rewrite ratMulInv... apply ratLt...
   rewrite intMul_0_l, intMul_ident...
@@ -366,8 +356,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hn. destruct H.
-    + eapply ratLt_irrefl; revgoals.
-      eapply ratLt_tranr... auto.
+    + eapply ratLt_irrefl. eapply ratLt_tranr...
     + subst. eapply ratLt_irrefl...
 Qed.
 
@@ -386,8 +375,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hp. destruct H.
-    + eapply ratLt_irrefl; revgoals.
-      eapply ratLt_tranr... nauto.
+    + eapply ratLt_irrefl. eapply ratLt_tranr...
     + subst. eapply ratLt_irrefl...
 Qed.
 
@@ -415,8 +403,7 @@ Proof with neauto.
     + right. rewrite H0, ratAddInv_0...
     + apply ratLt_connected in H0 as []... left...
       apply ratPos_neg in H0. exfalso.
-      eapply ratLt_irrefl; revgoals.
-      eapply ratLt_tranr... apply ratAddInv_ran...
+      eapply ratLt_irrefl. eapply ratLt_tranr...
   - destruct (classic (r = Rat 0)). right...
     apply ratLt_connected in H0 as []...
     exfalso. apply H. apply ratNeg_pos... left...
@@ -465,12 +452,10 @@ Proof with nauto.
   cut (∀ r s t ∈ ℚ, ratPos t → r <𝐪 s → (r ⋅ t <𝐪 s ⋅ t)%q).
   intros Hright r Hr s Hs t Ht Hpt. split; intros Hlt.
   apply Hright... destruct (classic (r = s)).
-  subst. exfalso. eapply ratLt_irrefl; revgoals.
-  apply Hlt. apply ratMul_ran...
+  subst. exfalso. eapply ratLt_irrefl; eauto.
   apply ratLt_connected in H as []... exfalso.
   apply (Hright s Hs r Hr t Ht Hpt) in H.
-  eapply ratLt_irrefl; revgoals.
-  eapply ratLt_tranr; eauto. apply ratMul_ran...
+  eapply ratLt_irrefl. eapply ratLt_tranr; eauto.
   intros r Hr s Hs t Ht Hpt Hlt.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]].

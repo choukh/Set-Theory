@@ -12,7 +12,7 @@ Notation "| r |" := (RealAbs r) : Real_scope.
 Lemma realAbs_nonNeg_id : ∀ x, realNonNeg x → |x| = x.
 Proof with neauto.
   intros x [Hpos|H0].
-  - assert (Hx: x ∈ ℝ) by (apply realLtE in Hpos as [_ []]; auto).
+  - assert (Hx: x ∈ ℝ) by (apply binRelE in Hpos as [_ []]; auto).
     apply realPos_rat0 in Hpos as H0...
     apply ExtAx. intros q. split; intros Hq; revgoals.
     apply BUnionI1... apply BUnionE in Hq as []...
@@ -39,7 +39,7 @@ Qed.
 Lemma realAbs_nonPos_flip : ∀ x, realNonPos x → |x| = -x.
 Proof with neauto.
   intros x [Hneg|Heq].
-  - assert (Hx: x ∈ ℝ) by (apply realLtE in Hneg as []; auto).
+  - assert (Hx: x ∈ ℝ) by (apply binRelE in Hneg as []; auto).
     apply realNeg_pos in Hneg as Hpos.
     apply realPos_rat0 in Hpos as H0; [|apply realAddInv_ran; auto].
     apply ExtAx. intros q. split; intros Hq; revgoals.
@@ -48,8 +48,7 @@ Proof with neauto.
     apply SepI... apply SepE in H0 as [_ [s [Hs [Hlt Hout]]]].
     exists s. split... split... eapply ratLt_tranr...
     eapply realE2_1... intros H. apply realPos_rat0 in H...
-    eapply realLt_irrefl; revgoals.
-    eapply realLt_tranr... apply real_n.
+    eapply realLt_irrefl. eapply realLt_tranr...
   - subst. apply ExtAx. intros q. split; intros Hq.
     + apply BUnionE in Hq as []... rewrite realAddInv_0...
     + apply BUnionI2...
@@ -960,7 +959,7 @@ Qed.
 Lemma realPos_posMulInv : ∀x ∈ ℝ, realPos x → realPos (x⁻¹⁺)%r.
 Proof with neauto.
   intros x Hx Hpx. apply realPos_rat0 in Hpx as H0x...
-  apply realLt... apply realPosMulInv_ran...
+  apply binRelI... apply realPosMulInv_ran...
   pose proof (realE1 _ Hx) as [q [Hqq Hqx]]. 
   assert (Hposq: ratPos q) by (eapply realE2_1; neauto). split.
   - intros p Hp. apply SepE in Hp as [Hpq Hnp].
@@ -974,7 +973,7 @@ Proof with neauto.
     cut (r⁻¹ ∈ (x⁻¹⁺)%r). intros Hrqrx.
     intros H. rewrite ExtAx in H. apply H in Hrqrx.
     apply SepE in Hrqrx as [_ Hnrr].
-    eapply ratLt_irrefl; revgoals. eapply ratLt_tranr... apply Hrr.
+    eapply ratLt_irrefl. eapply ratLt_tranr...
     apply SepI... exists q. repeat split... rewrite ratMul_comm...
     apply ratLt_mulInv'... rewrite ratMulInv_double...
 Qed.

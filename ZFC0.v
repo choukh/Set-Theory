@@ -165,7 +165,7 @@ Proof.
 Qed.
 
 (* 子集关系是反对称的。至此，子集关系构成了集合上的偏序。 *)
-Lemma sub_asym: ∀ A B, A ⊆ B → B ⊆ A → A = B.
+Lemma sub_antisym: ∀ A B, A ⊆ B → B ⊆ A → A = B.
 Proof.
   unfold Sub. intros A B H1 H2.
   apply ExtAx.

@@ -676,7 +676,7 @@ Proof with neauto; try congruence.
     exists f₀...
   }
   replace 𝜅 with 𝜆...
-  apply cardLeq_asym. {
+  apply cardLeq_antisym. {
     rewrite Heq𝜅. apply cardLeq_iff. apply dominate_sub...
   }
   (* Goal: 𝜅 ≤ 𝜆 *)
@@ -721,7 +721,7 @@ Proof with neauto; try congruence.
     }
     do 3 rewrite <- cardMul.
     fold 𝜆. rewrite <- Heq𝜆, Hmul.
-    apply cardLeq_asym; revgoals. {
+    apply cardLeq_antisym; revgoals. {
       rewrite cardAdd_assoc. apply cardAdd_enlarge...
     }
     (* Goal: 𝜆 + 𝜆 + 𝜆 ≤ 𝜆 *)
@@ -848,7 +848,7 @@ Qed.
 (* 无限基数自加等于自身 *)
 Theorem cardAdd_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 Hic. apply cardLeq_asym.
+  intros AC6 𝜅 Hic. apply cardLeq_antisym.
   - rewrite cardAdd_k_k. eapply cardLeq_tran.
     apply cardMul_preserve_leq. apply (cardLt_infcard_n 𝜅)...
     rewrite cardMul_infcard_self... apply cardLeq_refl. apply Hic.
@@ -859,7 +859,7 @@ Qed.
 (* 无限基数加1等于自身 *)
 Theorem cardAdd_infcard_1 : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 1 = 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 Hic. apply cardLeq_asym.
+  intros AC6 𝜅 Hic. apply cardLeq_antisym.
   - rewrite <- cardAdd_infcard_self, cardAdd_comm...
     apply cardAdd_preserve_leq. apply (cardLt_infcard_n 𝜅)...
   - apply cardAdd_enlarge... apply Hic.
@@ -870,7 +870,7 @@ Qed.
 Theorem cardAdd_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜅 + 𝜆 = 𝜅.
 Proof.
-  intros AC6 * Hinf Hle. apply cardLeq_asym.
+  intros AC6 * Hinf Hle. apply cardLeq_antisym.
   - eapply cardLeq_tran. apply cardAdd_preserve_leq'. apply Hle.
     rewrite cardAdd_infcard_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
@@ -882,7 +882,7 @@ Qed.
 Theorem cardMul_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜆 ≠ 0 → 𝜅 ⋅ 𝜆 = 𝜅.
 Proof.
-  intros AC6 * Hinf Hle H0. apply cardLeq_asym.
+  intros AC6 * Hinf Hle H0. apply cardLeq_antisym.
   - eapply cardLeq_tran. apply cardMul_preserve_leq'. apply Hle.
     rewrite cardMul_infcard_self; [|auto|split; auto; apply Hle].
     apply cardLeq_refl. apply Hle.
@@ -893,7 +893,7 @@ Qed.
 (* 无限基数自乘方等于2的幂 *)
 Theorem cardExp_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_asym.
+  intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_antisym.
   - rewrite <- (cardMul_infcard_self AC6 𝜅) at 3; [|split]...
     rewrite <- cardExp_id_3.
     apply cardExp_preserve_base_leq. apply cardLt_power...

@@ -185,7 +185,7 @@ Proof with neauto; try congruence.
   intros N Hsub Hinf.
   apply Schröeder_Bernstein. apply dominate_sub...
   apply infinite_subset_of_ω_is_unbound in Hinf as [Hne Harc]...
-  destruct (ω_wellOrder N) as [n0 [Hn0 H0]]... apply EmptyNI...
+  destruct (ω_well_ordered N) as [n0 [Hn0 H0]]... apply EmptyNI...
   apply Hsub in Hn0 as Hn0w.
   assert (Hsubn: ∀n ∈ ω, 𝒩xt N n ⊆ N). {
     intros n Hn x Hx. apply SepE in Hx as []...
@@ -520,7 +520,7 @@ Proof with eauto.
 Qed.
 
 (* 基数的序关系是反对称的 *)
-Lemma cardLeq_asym : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜅 → 𝜅 = 𝜆.
+Lemma cardLeq_antisym : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜅 → 𝜅 = 𝜆.
 Proof with auto.
   intros * [Hk [Hl H1]] [_ [_ H2]].
   rewrite (card_of_card 𝜅), (card_of_card 𝜆)...
@@ -530,13 +530,13 @@ Qed.
 Corollary cardLeq_lt_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 <𝐜 𝜇 → 𝜅 <𝐜 𝜇.
 Proof with eauto.
   intros * H1 [H2 Hnq]. split. eapply cardLeq_tran...
-  intros Heq. apply Hnq. rewrite Heq in H1. eapply cardLeq_asym...
+  intros Heq. apply Hnq. rewrite Heq in H1. eapply cardLeq_antisym...
 Qed.
 
 Corollary cardLt_leq_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 <𝐜 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 <𝐜 𝜇.
 Proof with eauto.
   intros * [H1 Hnq] H2. split. eapply cardLeq_tran...
-  intros Heq. apply Hnq. rewrite <- Heq in H2. eapply cardLeq_asym...
+  intros Heq. apply Hnq. rewrite <- Heq in H2. eapply cardLeq_antisym...
 Qed.
 
 (* 基数加法保持等势关系 *)
@@ -750,7 +750,7 @@ Corollary cardGeq_aleph0_is_infinite : ∀ 𝜅,
 Proof with auto.
   intros AC3 𝜅 Hcd Hfin.
   apply cardLt_aleph0_iff_finite in Hfin as [Hle Hnq]...
-  apply Hnq. apply cardLeq_asym...
+  apply Hnq. apply cardLeq_antisym...
 Qed.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
@@ -825,7 +825,7 @@ Qed.
 Fact cardMul_aleph0_expAleph0 :
   ∀ 𝜅, 2 ≤ 𝜅 → ℵ₀ ⋅ 𝜅 ^ ℵ₀ = 𝜅 ^ ℵ₀.
 Proof with auto.
-  intros. eapply cardLeq_asym.
+  intros. eapply cardLeq_antisym.
   - rewrite <- cardMul_expAleph0_expAleph0 at 2.
     apply cardMul_preserve_leq.
     eapply cardLeq_tran; revgoals.
@@ -865,7 +865,7 @@ Qed.
 (* 阿列夫零的自乘方等于2的幂 *)
 Theorem cardExp_aleph0_aleph0 : ℵ₀ ^ ℵ₀ = 2 ^ ℵ₀.
 Proof with nauto.
-  apply cardLeq_asym.
+  apply cardLeq_antisym.
   - rewrite <- cardMul_aleph0_aleph0 at 3.
     rewrite <- cardExp_id_3.
     apply cardExp_preserve_base_leq.
