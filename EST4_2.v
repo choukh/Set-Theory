@@ -117,7 +117,7 @@ Lemma preArith_correct : ∀ F a, F: ω ⇒ ω → a ∈ ω →
   h[0] = a ∧ ∀n ∈ ω, h[n⁺] = F[h[n]].
 Proof with eauto; try congruence.
   intros F a HF Ha.
-  pose proof (ω_recursion F ω a HF Ha) as [[h Hh] Hu].
+  pose proof (ω_recursion_uniqueness F ω a HF Ha) as [[h Hh] Hu].
   exists h. split. destruct Hh as []... split.
   apply ExtAx. intros f. split; intros Hf.
   - cut (f = h). intros. rewrite H... apply Hu...

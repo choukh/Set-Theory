@@ -1,5 +1,10 @@
 #!/bin/sh
 
+echo "building FuncFacts"
+coqc -R . ZFC lib/FuncFacts.v
+echo "building Natural"
+coqc -R . ZFC lib/Natural.v
+
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v
 echo "building NatIsomorphism"
@@ -8,6 +13,7 @@ echo "building NaturalSubsetMin"
 coqc -R . ZFC lib/NaturalSubsetMin.v
 echo "building IndexedFamilyUnion"
 coqc -R . ZFC lib/IndexedFamilyUnion.v
+
 echo "building EST6_1"
 coqc -R . ZFC EST6_1.v
 echo "building EST6_2"

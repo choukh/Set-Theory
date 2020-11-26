@@ -25,6 +25,8 @@ echo "building EX3_1"
 coqc -R . ZFC EX3_1.v
 echo "building EX3_2"
 coqc -R . ZFC EX3_2.v
+echo "building EST7_1"
+coqc -R . ZFC EST7_1.v
 echo "building Relation"
 coqc -R . ZFC lib/Relation.v
 echo "building FuncFacts"

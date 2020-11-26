@@ -41,7 +41,7 @@ Qed.
 Example ex4_6: ∀ a, ⋃a⁺ = a → trans a.
 Proof. apply trans_union_suc. Qed.
 
-(* ex4_7 see EST4_1.v Theorem ω_recursion *)
+(* ex4_7 see EST4_1.v Theorem ω_recursion_uniqueness *)
 
 Example ex4_8: ∀ f A h c, injective f → f: A ⇒ A →
   c ∈ A - ran f → h: ω ⇒ A →

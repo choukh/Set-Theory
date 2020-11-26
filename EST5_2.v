@@ -420,7 +420,7 @@ Qed.
 
 Lemma intLt_rel : is_binRel IntLt ℤ.
 Proof with auto.
-  intros x Hx. apply SepE in Hx as []...
+  intros x Hx. apply SepE1 in Hx...
 Qed.
 
 Lemma intLt_tranr : tranr IntLt.

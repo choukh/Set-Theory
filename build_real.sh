@@ -1,5 +1,10 @@
 #!/bin/sh
 
+echo "building FuncFacts"
+coqc -R . ZFC lib/FuncFacts.v
+echo "building Natural"
+coqc -R . ZFC lib/Natural.v
+
 echo "building EST5_1"
 coqc -R . ZFC EST5_1.v
 echo "building EST5_2"

@@ -241,7 +241,7 @@ Proof with eauto.
 Qed.
 
 (** ω递归定理 **)
-Lemma ω_recursion_0 : ∀ F A a, F: A ⇒ A → a ∈ A →
+Lemma ω_recursion : ∀ F A a, F: A ⇒ A → a ∈ A →
   ∃ h, h: ω ⇒ A ∧
   h[∅] = a ∧
   ∀n ∈ ω, h[n⁺] = F[h[n]].
@@ -447,12 +447,12 @@ Proof with eauto; try congruence.
     rewrite Hdheq. apply ω_inductive...
 Qed.
 
-Theorem ω_recursion : ∀ F A a, F: A ⇒ A → a ∈ A →
+Theorem ω_recursion_uniqueness : ∀ F A a, F: A ⇒ A → a ∈ A →
   ∃! h, h: ω ⇒ A ∧
   h[∅] = a ∧
   ∀n ∈ ω, h[n⁺] = F[h[n]].
 Proof with eauto; try congruence.
-  intros * HF Ha. split. apply ω_recursion_0...
+  intros * HF Ha. split. apply ω_recursion...
   intros h1 h2 [[H1f [H1d _]] [H10 H1]] [[H2f [H2d _]] [H20 H2]].
   apply func_ext_intro... intros n Hn. rewrite H1d in Hn.
   set {n ∊ ω | λ n, h1[n] = h2[n]} as S.
@@ -467,7 +467,7 @@ Theorem Peano_isomorphism : ∀ N S e, is_Peano N S e →
   h[∅] = e.
 Proof with eauto; try congruence.
   intros N S e [HS [He [Hi [Hii Hiii]]]].
-  pose proof (ω_recursion_0 S N e HS He) as [h [H1 [H2 H3]]].
+  pose proof (ω_recursion S N e HS He) as [h [H1 [H2 H3]]].
   destruct H1 as [Hf [Hd Hr]].
   exists h. split. split; split...
   - (* single_rooted h *)

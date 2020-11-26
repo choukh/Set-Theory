@@ -69,25 +69,7 @@ Proof.
 Qed.
 
 (* 自然数的小于关系 *)
-Definition ωLt := {p ∊ ω × ω | λ p, π1 p ∈ π2 p}.
-
-Lemma ωLtI : ∀ m n ∈ ω, m ∈ n → <m, n> ∈ ωLt.
-Proof with auto.
-  intros m Hm n Hn Hmn.
-  apply SepI. apply CProdI... zfcrewrite.
-Qed.
-
-Lemma ωLtE : ∀ m n, <m, n> ∈ ωLt → m ∈ ω ∧ n ∈ ω ∧ m ∈ n.
-Proof with auto.
-  intros. apply SepE in H as [H1 H2].
-  apply CProdE1 in H1 as [Hm Hn]. zfcrewrite. split...
-Qed.
-
-Lemma ωLt_iff : ∀ m n ∈ ω, m ∈ n ↔ <m, n> ∈ ωLt.
-Proof with auto.
-  intros m Hm n Hn. split; intros.
-  apply ωLtI... apply ωLtE...
-Qed.
+Definition ωLt := BinRel ω (λ x y, x ∈ y).
 
 Lemma ωLt_rel : is_binRel ωLt ω.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
@@ -95,8 +77,8 @@ Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 Lemma ωLt_tranr : tranr ωLt.
 Proof with eauto.
   intros m n p H1 H2.
-  apply ωLtE in H1 as [Hm [Hn Hmn]].
-  apply ωLtE in H2 as [_  [Hp Hnp]].
+  apply binRelE in H1 as [Hm [Hn Hmn]].
+  apply binRelE in H2 as [_  [Hp Hnp]].
   apply SepI. apply CProdI... zfcrewrite. eapply nat_trans...
 Qed.
 
@@ -121,10 +103,10 @@ Proof with nauto.
       apply ω_inductive... apply suc_has_0...
     * subst. assert (m ≠ n') by congruence.
       apply IH in H as []...
-      left. apply ωLtE in H as [_ [_ Hmn]].
+      left. apply binRelE in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
       rewrite <- (suc_preserve_lt m Hm n' Hn')...
-      right. apply ωLtE in H as [_ [_ Hmn]].
+      right. apply binRelE in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
       rewrite <- (suc_preserve_lt n' Hn' m Hm)...
 Qed.
@@ -315,21 +297,15 @@ Proof with eauto.
   - right. apply mul_cancel in H...
 Qed.
 
-(* 最小元 *)
-Definition minimum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, <m, x> ∈ R ∨ m = x.
-
-(* 良序关系 *)
-Definition well_ordered : set → set → Prop := λ A R,
+(* 良序 *)
+Definition wellOrder : set → set → Prop := λ R A,
   linearOrder R A ∧
-  ∀ B, B ≠ ∅ → B ⊆ A →
-  ∃ m, minimum m B R.
+  ∀ B, ⦿ B → B ⊆ A → ∃ m, minimum m B R.
 
-(* 自然数的小于关系是良序关系 *)
-Theorem ω_well_ordered_0 : well_ordered ω ωLt.
+(* 自然数的小于关系构成自然数上的良序 *)
+Theorem ωLt_wellOrder : wellOrder ωLt ω.
 Proof with eauto.
-  split. apply ωLt_linearOrder.
-  intros A Hnq0 Hsub. apply EmptyNE in Hnq0 as [a Ha].
+  split. apply ωLt_linearOrder. intros A [a Ha] Hsub.
   destruct (classic (∃ m, minimum m A ωLt))... exfalso.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
@@ -344,39 +320,39 @@ Proof with eauto.
   exists m. split... intros n Hn. apply Hsub in Hn as Hnω.
   destruct (classic (m = n))... left.
   apply lt_connected in H as []...
-  apply ωLtI... exfalso. eapply IH...
+  apply binRelI... exfalso. eapply IH...
 Qed.
 
 Theorem ω_well_ordered : ∀ A, A ≠ ∅ → A ⊆ ω → 
   ∃m ∈ A, ∀n ∈ A, m ≤ n.
 Proof with auto.
-  intros A Hnq0 Hsub. assert (Hsub' := Hsub).
-  apply ω_well_ordered_0 in Hsub' as [m [Hm Hlt]]...
-  exists m. split... intros n Hn. assert (Hn' := Hn).
-  apply Hlt in Hn' as []. left. apply ωLt_iff...
-  apply Hsub... apply Hsub... right...
+  intros A Hne Hsub.
+  apply EmptyNE in Hne. assert (H := Hsub).
+  apply ωLt_wellOrder in H as [m [Hm Hlt]]...
+  exists m. split... intros n Hn. assert (H := Hn).
+  apply Hlt in H as [].
+  left. apply binRelE in H as [_ []]... right...
 Qed.
 
-Corollary f_ran_well_ordered : ¬ ∃ f, f: ω ⇒ ω ∧
+(* 自然数集上不存在小于关系的无穷降链 *)
+Corollary ω_no_descending_chain : ¬ ∃ f, f: ω ⇒ ω ∧
   ∀n ∈ ω, f[n⁺] ∈ f[n].
 Proof with neauto.
-  intros [f [[Hff [Hfd Hfr]] H]].
-  assert (Hnq0: ran f ≠ 0). {
+  intros [f [[Hf [Hd Hr]] Hlt]].
+  assert (Hne: ran f ≠ 0). {
     apply EmptyNI. exists (f[0]). eapply ranI.
-    apply func_correct... rewrite Hfd...
+    apply func_correct... rewrite Hd...
   }
-  eapply ω_well_ordered in Hnq0 as [m [Hm Hmin]]...
-  apply Hfr in Hm as Hf0.
-  apply ranE in Hm as [x Hp].
+  eapply ω_well_ordered in Hne as [m [Hm Hmin]]...
+  apply Hr in Hm as Hmw. apply ranE in Hm as [x Hp].
+  apply domI in Hp as Hx. rewrite Hd in Hx.
   apply func_ap in Hp as Hap... subst m.
-  apply domI in Hp as Hx. rewrite Hfd in Hx.
-  apply H in Hx as Hlt.
-  assert (Hr: f[x⁺] ∈ ran f). {
+  assert (Hfx: f[x⁺] ∈ ran f). {
     eapply ap_ran. split... apply ω_inductive...
   }
-  apply Hmin in Hr as [].
-  - eapply lt_irrefl. apply Hf0. eapply nat_trans...
-  - eapply lt_irrefl. apply Hf0. congruence.
+  apply Hlt in Hx. apply Hmin in Hfx as [].
+  - eapply lt_irrefl. apply Hmw. eapply nat_trans...
+  - eapply lt_irrefl. apply Hmw. congruence.
 Qed.
 
 (* 强归纳原理 *)

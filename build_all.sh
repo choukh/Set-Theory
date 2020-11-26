@@ -25,6 +25,8 @@ echo "building EX3_1"
 coqc -R . ZFC EX3_1.v
 echo "building EX3_2"
 coqc -R . ZFC EX3_2.v
+echo "building EST7_1"
+coqc -R . ZFC EST7_1.v
 echo "building Relation"
 coqc -R . ZFC lib/Relation.v
 echo "building FuncFacts"
@@ -40,15 +42,6 @@ echo "building EX4"
 coqc -R . ZFC EX4.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v
-
-echo "building EST7_1"
-coqc -R . ZFC EST7_1.v
-echo "building PartialOrder"
-coqc -R . ZFC lib/PartialOrder.v
-echo "building EST7_2"
-coqc -R . ZFC EST7_2.v
-echo "building EX7_1"
-coqc -R . ZFC EX7_1.v
 
 echo "building EST5_1"
 coqc -R . ZFC EST5_1.v
@@ -68,6 +61,11 @@ echo "building EST5_7"
 coqc -R . ZFC EST5_7.v
 echo "building Real"
 coqc -R . ZFC lib/Real.v
+
+echo "building EST7_2"
+coqc -R . ZFC EST7_2.v
+echo "building EX7_1"
+coqc -R . ZFC EX7_1.v
 
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v

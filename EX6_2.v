@@ -33,7 +33,7 @@ Proof with neauto; try congruence.
   }
   exists F. apply meta_injective.
   - intros x Hx. apply SepI.
-    + apply PowerAx. intros f Hf. apply SepE in Hf as []...
+    + apply PowerAx. intros f Hf. apply SepE1 in Hf...
     + apply HF...
   - intros x1 H1 x2 H2 Heq.
     assert ((Func A 2 (ℱ x1))[x1] = (Func A 2 (ℱ x2))[x1]) by congruence.
@@ -57,7 +57,7 @@ Proof with neauto; try congruence.
   }
   assert (Hg: g ∈ A ⟶ 2). {
     apply SepI... apply PowerAx.
-    intros p Hp. apply SepE in Hp as []...
+    intros p Hp. apply SepE1 in Hp...
   }
   rewrite <- Hr in Hg. apply ranE in Hg as [x Hp].
   apply domI in Hp as Hx. apply func_ap in Hp...
@@ -111,7 +111,7 @@ Proof with eauto; try congruence.
     destruct HneI as [j Hj]. apply split_one_element in Hj as HeqI.
     rewrite HeqI in Hqn. apply finite_set_remove_one_element in Hqn...
     specialize IH with (I - ⎨j⎬) as [f Hf]... {
-      intros i Hi. apply HneX. apply SepE in Hi as []...
+      intros i Hi. apply HneX. apply SepE1 in Hi...
     }
     apply SepE in Hf as [Hf Hfi].
     apply arrow_iff in Hf as [Hf [Hd Hr]].
@@ -120,7 +120,7 @@ Proof with eauto; try congruence.
       apply bunion_is_func... apply single_pair_is_func.
       intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
       rewrite dom_of_single_pair in H2.
-      rewrite Hd in H1. apply SepE in H1 as []...
+      rewrite Hd in H1. apply SepE2 in H1...
     }
     assert (Hstar: ∀i ∈ I, (f ∪ ⎨<j, xⱼ>⎬)[i] ∈ ℱ i). {
       intros i Hi. destruct (classic (i = j)).
@@ -134,7 +134,7 @@ Proof with eauto; try congruence.
     apply arrow_iff. split; [|split]...
     + apply ExtAx. split; intros Hx.
       * apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
-        apply domI in H. rewrite Hd in H. apply SepE in H as []...
+        apply domI in H. rewrite Hd in H. apply SepE1 in H...
         apply SingE in H. apply op_iff in H as []; subst...
       * destruct (classic (x = j)).
         subst. eapply domI. apply BUnionI2...
@@ -145,35 +145,9 @@ Proof with eauto; try congruence.
     + exact Hstar.
 Qed.
 
-Example ex6_20 : ∀ A R, ⦿ A →
-  (∀y ∈ A, ∃x ∈ A, <x, y> ∈ R) →
-  ∃ f, f: ω ⇒ A ∧ ∀n ∈ ω, <f[n⁺], f[n]> ∈ R.
-Proof with eauto.
-  intros * [a Ha] Hpr.
-  set {p ∊ R | λ p, π1 p ∈ A ∧ π2 p ∈ A} as R'.
-  pose proof (inv_rel R') as Hrel'.
-  apply ac1 in Hrel' as [F [HfF [HsF HdF]]].
-  assert (HF: F: A ⇒ A). {
-    split; [|split]...
-    - rewrite HdF. rewrite inv_dom.
-      apply ExtAx. intros y. split; intros Hy.
-      + apply ranE in Hy as [x Hp].
-        apply SepE in Hp as [_ [_ Hy]]. zfcrewrite.
-      + pose proof (Hpr _ Hy) as [x [Hx Hp]].
-        eapply ranI. apply SepI. apply Hp. zfcrewrite...
-    - intros y Hy. apply ranE in Hy as [x Hp].
-      apply HsF in Hp. apply inv_op in Hp.
-      apply SepE in Hp as [_ [Hx _]]. zfcrewrite.
-  }
-  pose proof (ω_recursion_0 _ _ _ HF Ha) as [f [Hf [Hf0 Heq]]].
-  exists f. split... intros n Hn. rewrite Heq...
-  assert (HsR: R' ⊆ R). { intros p Hp. apply SepE in Hp as []... }
-  apply HsR. rewrite inv_op. apply HsF. apply func_correct...
-  destruct HF as [_ [Hd _]]. rewrite Hd. eapply ap_ran...
-Qed.
-
-(* ex6_21: see EST6_4_EXTEND_1 Theorem AC_VI_to_AC_VII *)
-(* ex6_22: see EST6_4 Theorem AC_I_iff_I' *)
+(* ex6_20 see EST7_2 Lemma ex_descending_chain *)
+(* ex6_21 see EST6_4_EXTEND_1 Theorem AC_VI_to_AC_VII *)
+(* ex6_22 see EST6_4 Theorem AC_I_iff_I' *)
 
 Example ex6_23 : ∀ A F g h,
   is_function g → dom g = ω →
@@ -250,7 +224,7 @@ Proof with neauto; try congruence.
   }
   assert (Hgn4: ∀ n, g n ∉ Q n). {
     intros. specialize Hgn1 with n.
-    apply SepE in Hgn1 as []...
+    apply SepE2 in Hgn1...
   }
   specialize Hinf with B as [n Hinf].
   - intros Hfin.
@@ -262,12 +236,12 @@ Proof with neauto; try congruence.
       specialize Hgn2 with n as [m Hgn].
       exists (Embed m). apply SepI.
       apply embed_ran. rewrite embed_proj_id...
-      intros x Hx. apply SepE in Hx as []...
+      intros x Hx. apply SepE1 in Hx...
     }
     apply (repl_finite f) in Hfin.
     apply finite_subset_of_ω_is_bounded in Hfin as [m [Hm Hmax]]; revgoals. {
       intros x Hx. apply ReplAx in Hx as [b [Hb Hfb]]. subst x.
-      apply Hmin in Hb as [Hfb _]. apply SepE in Hfb as []...
+      apply Hmin in Hb as [Hfb _]. apply SepE1 in Hfb...
     } {
       destruct Hneb as [b Hb]. exists (f b).
       apply ReplAx. exists b. split...
@@ -302,7 +276,7 @@ Proof with neauto; try congruence.
   - set {m ∊ ω | λ m, g m ∈ Q n} as M.
     set {λ m, g m | m ∊ M} as C.
     assert (Hsubm: M ⊆ ω). {
-      intros x Hx. apply SepE in Hx as []...
+      intros x Hx. apply SepE1 in Hx...
     }
     assert (Heq: B ∩ Q n = C). {
       apply ExtAx. split; intros Hx.
@@ -331,5 +305,5 @@ Proof with neauto; try congruence.
     apply le_isomorphic in Hnm.
     apply (incr_seq_index_leq_impl_sub Q Hinc) in Hnm.
     apply Hnm in Hgm. specialize Hgn1 with m.
-    apply SepE in Hgn1 as []...
+    apply SepE2 in Hgn1...
 Qed.

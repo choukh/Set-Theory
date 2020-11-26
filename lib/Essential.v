@@ -2,8 +2,11 @@
 
 Require Export ZFC.ZFC3.
 
-Global Opaque Pair.
+(* Global Opaque Pair. *)
 (* Global Opaque Singleton. *)
+Global Opaque Union.
+Global Opaque Power.
+Global Opaque Repl.
 Global Opaque BUnion.
 Global Opaque Sep.
 Global Opaque Inter.

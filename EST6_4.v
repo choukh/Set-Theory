@@ -255,7 +255,7 @@ Proof with eauto.
       apply Hr. apply Hne... apply ex2_3...
   - intros AC3' A.
     specialize AC3' with {x ∊ 𝒫 A | nonempty} as [f [Hf [Hd Hr]]]. {
-      intros x Hx. apply SepE in Hx as []...
+      intros x Hx. apply SepE2 in Hx...
     }
     exists f. split; [|split]...
     intros x Hne Hsub. apply Hr. apply SepI... apply PowerAx...
@@ -269,10 +269,10 @@ Proof with auto.
   set (Func (dom R) (ran R) (λ x, G[ℬ x])) as F.
   assert (Hstar: ∀x ∈ dom R, <x, G[ℬ x]> ∈ R). {
     intros x Hx. cut (G[ℬ x] ∈ ℬ x).
-    intros H. apply SepE in H as []...
+    intros H. apply SepE2 in H...
     apply domE in Hx as [y Hp].
     apply ranI in Hp as Hr. apply Hgr. exists y.
-    apply SepI... intros z Hz. apply SepE in Hz as []...
+    apply SepI... intros z Hz. apply SepE1 in Hz...
   }
   assert (Hf: F: dom R ⇒ ran R). {
     apply meta_maps_into. intros x Hx.
@@ -316,7 +316,7 @@ Proof with eauto.
     split... intros x Hx. apply domE in Hx as [y Hp].
     eapply domI. apply Hsub...
   }
-  apply comp_inhabited in Hps as [a Ha].
+  apply comp_nonempty in Hps as [a Ha].
   apply SepE in Ha as [Ha Hb]. apply domE in Ha as [b Hab].
   set (M ∪ ⎨<a, b>⎬) as M'. cut (M' ∈ 𝒜). {
     intros HM'. apply Hmax in HM' as [].
@@ -389,8 +389,8 @@ Proof with eauto; try congruence.
     split... intros y Hy. apply ranE in Hy as [x Hp].
     apply Hsub in Hp. apply CProdE1 in Hp as []; zfcrewrite.
   }
-  apply comp_inhabited in Hps1 as [a Ha].
-  apply comp_inhabited in Hps2 as [b Hb].
+  apply comp_nonempty in Hps1 as [a Ha].
+  apply comp_nonempty in Hps2 as [b Hb].
   apply SepE in Ha as [Ha Ha'].
   apply SepE in Hb as [Hb Hb'].
   set ((M ∪ ⎨<a, b>⎬)) as M'. cut (M' ∈ 𝒜). {
@@ -507,7 +507,7 @@ Proof with auto.
   - rewrite <- eqnum_cprod_single...
   - rewrite <- eqnum_cprod_single...
   - apply disjointI. intros [x [Hx1 Hx2]].
-    apply SepE in Hx2 as []...
+    apply SepE2 in Hx2...
   - apply disjoint_cprod_0_1.
 Qed.
 
@@ -558,7 +558,7 @@ Proof with eauto; try congruence.
     apply BUnionE in Hp as [].
     + apply ranI in H. apply Hr...
     + apply SingE in H. apply op_iff in H as [_ H].
-      subst y. apply SepE in Ha as []...
+      subst y. apply SepE1 in Ha...
 Qed.
 
 (* 无限基数 *)
@@ -591,7 +591,7 @@ Proof with neauto; try congruence.
       apply comp_of_finite_is_infinite...
     - apply finite_set_adding_one_still_finite...
   }
-  pose proof (ω_recursion_0 ℋ 𝒜 ∅) as [h [Hh [Hh0 Hhn]]]... {
+  pose proof (ω_recursion ℋ 𝒜 ∅) as [h [Hh [Hh0 Hhn]]]... {
     apply SepI... apply empty_in_all_power.
   }
   assert (Hne: ∀n ∈ ω, ⦿ (A - h[n])). {
@@ -603,7 +603,7 @@ Proof with neauto; try congruence.
         assert (ℋ[h[n']] ∈ 𝒜). { eapply ap_ran... eapply ap_ran... }
         apply SepE in H as [H _]. apply PowerAx in H. apply H...
     + assert (h[n] ∈ 𝒜) by (eapply ap_ran; eauto).
-      apply SepE in H as []...
+      apply SepE2 in H...
   }
   set (Func ω A (λ n, F[A - h[n]])) as g.
   exists g. apply meta_injective.
@@ -624,7 +624,7 @@ Proof with neauto; try congruence.
       apply Hch... apply Hne...
     }
     cut (h[m⁺] ⊆ h[n]). {
-      intros Hcut. apply Hcut in Hgm. apply SepE in Hgn as []...
+      intros Hcut. apply Hcut in Hgm. apply SepE2 in Hgn...
     }
     clear Heq Hgm Hgn g. generalize dependent m.
     set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ∈ n → h[m⁺] ⊆ h[n]} as N.

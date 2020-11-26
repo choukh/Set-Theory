@@ -1,7 +1,7 @@
 (** Based on "Elements of Set Theory" Chapter 7 Part 1 **)
 (** Coq coding by choukh, Nov 2020 **)
 
-Require Export ZFC.lib.Natural.
+Require Export ZFC.EST3_3.
 
 (*** EST第七章1：偏序结构，上下确界 ***)
 
@@ -97,9 +97,8 @@ Definition minimal : set → set → set → Prop := λ m A R,
   m ∈ A ∧ ¬∃x ∈ A, <x, m> ∈ R.
 
 (* 最小元 *)
-Print EST4_3.minimum.
-(* Definition minimum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, <m, x> ∈ R ∨ m = x. *)
+Definition minimum : set → set → set → Prop := λ m A R,
+  m ∈ A ∧ ∀x ∈ A, <m, x> ∈ R ∨ m = x.
 
 (* 最小元也是极小元 *)
 Fact minimum_is_minimal : ∀ m A R, partialOrder R →
@@ -220,7 +219,7 @@ Qed.
 
 (* 上界 *)
 Definition upperBound : set → set → set → set → Prop :=
-  λ x B A R, ⟨A, R⟩ₚₒ ∧ B ⊆ A ∧ x ∈ A ∧ ∀y ∈ B, <y, x> ∈ R ∨ y = x.
+  λ x B A R, x ∈ A ∧ ∀y ∈ B, <y, x> ∈ R ∨ y = x.
 
 (* 存在上界 *)
 Definition boundedAbove : set → set → set → Prop :=
@@ -233,7 +232,7 @@ Definition supremum : set → set → set → set → Prop :=
 
 (* 下界 *)
 Definition lowerBound : set → set → set → set → Prop :=
-  λ x B A R, ⟨A, R⟩ₚₒ ∧ B ⊆ A ∧ x ∈ A ∧ ∀y ∈ B, <x, y> ∈ R ∨ x = y.
+  λ x B A R, x ∈ A ∧ ∀y ∈ B, <x, y> ∈ R ∨ x = y.
 
 (* 存在下界 *)
 Definition boundedBelow : set → set → set → Prop :=
@@ -269,7 +268,7 @@ Proof.
   intros S x Hp. apply binRelE in Hp as [_ [_ [_ Heq]]]. auto.
 Qed.
 
-Lemma subRel_poset : ∀ S, ⟨S, SubRel S⟩ₚₒ.
+Fact subRel_poset : ∀ S, ⟨S, SubRel S⟩ₚₒ.
 Proof with auto.
   repeat split.
   - apply subRel_is_binRel.
@@ -288,9 +287,7 @@ Proof with auto.
     apply HAP... apply HBP...
   }
   split.
-  - split. apply subRel_poset.
-    split. intros x Hx. apply PairE in Hx as []; subst...
-    split... intros C HC.
+  - split... intros C HC.
     apply PairE in HC as []; subst.
     + destruct (classic (A = A ∪ B))... left.
       apply binRelI... split...
@@ -298,7 +295,7 @@ Proof with auto.
     + destruct (classic (B = A ∪ B))... left.
       apply binRelI... split...
       intros x Hx. apply BUnionI2...
-  - intros C [_ [_ [HC Hle]]].
+  - intros C [HC Hle].
     destruct (classic (A ∪ B = C))... left.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
@@ -329,9 +326,7 @@ Proof with auto.
     intros x Hx. apply BInterE in Hx as [Hx _]. apply HAP...
   }
   split.
-  - split. apply subRel_poset.
-    split. intros x Hx. apply PairE in Hx as []; subst...
-    split... intros C HC.
+  - split... intros C HC.
     apply PairE in HC as []; subst.
     + destruct (classic (A ∩ B = A))... left.
       apply binRelI... split...
@@ -339,7 +334,7 @@ Proof with auto.
     + destruct (classic (A ∩ B = B))... left.
       apply binRelI... split...
       intros x Hx. apply BInterE in Hx as []...
-  - intros C [_ [_ [HC Hle]]].
+  - intros C [HC Hle].
     destruct (classic (C = A ∩ B))... left.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
@@ -368,13 +363,11 @@ Proof with auto; try congruence.
     apply Hsub in HA. apply PowerAx in HA. apply HA...
   }
   split.
-  - split. apply subRel_poset.
-    split. intros x Hx. apply Hsub...
-    split... intros C HC.
+  - split... intros C HC.
     destruct (classic (C = ⋃ 𝒜))... left.
     apply binRelI... apply Hsub... split...
     intros x Hx. apply UnionAx. exists C. split...
-  - intros C [_ [_ [HC Hle]]].
+  - intros C [HC Hle].
     assert (Hsubu: ⋃ 𝒜 ⊆ C). {
       intros x Hx.
       apply UnionAx in Hx as [A [HA Hx]].
@@ -398,13 +391,11 @@ Proof with auto; try congruence.
     apply PowerAx in HA. apply HA...
   }
   split.
-  - split. apply subRel_poset.
-    split. intros x Hx. apply Hsub...
-    split... intros C HC.
+  - split... intros C HC.
     destruct (classic (⋂ 𝒜 = C))... left.
     apply binRelI... apply Hsub... split...
     intros x Hx. apply InterE in Hx as [_ Hx]. apply Hx...
-  - intros C [_ [_ [HC Hle]]].
+  - intros C [HC Hle].
     assert (HsubC: C ⊆ ⋂ 𝒜). {
       intros x Hx. apply InterI...
       intros y Hy. apply Hle in Hy as []; subst...

@@ -77,7 +77,7 @@ Proof with eauto; try congruence.
   intros AC2 𝒜 Hcnt HcntA.
   set {A ∊ 𝒜 | λ A, ⦿ A} as 𝒜'.
   assert (Hsub: 𝒜' ⊆ 𝒜). {
-    intros x Hx. apply SepE in Hx as []...
+    intros x Hx. apply SepE1 in Hx...
   }
   assert (Hequ: ⋃ 𝒜 = ⋃ 𝒜'). {
     apply ExtAx. split; intros Hx.
@@ -86,7 +86,7 @@ Proof with eauto; try congruence.
       apply EmptyNE in H. apply UnionAx.
       exists A. split... apply SepI...
     - apply UnionAx in Hx as [A [HA Hx]]. apply UnionAx.
-      exists A. split... apply SepE in HA as []...
+      exists A. split... apply SepE1 in HA...
   }
   apply (subset_of_countable _ 𝒜') in Hcnt...
   rewrite Hequ. clear Hequ.
@@ -103,7 +103,7 @@ Proof with eauto; try congruence.
   )) as h.
   assert (Hh: h: ω ⇒ 𝒫 (ω ⟶ ⋃ 𝒜')). {
     apply meta_maps_into. intros m Hm. apply PowerAx.
-    intros x Hx. apply SepE in Hx as []...
+    intros x Hx. apply SepE1 in Hx...
   }
   assert (Hneh: ∀m ∈ ω, ⦿ h[m]). {
     intros m Hm. apply Hgm in Hm as Hgma.
@@ -119,7 +119,7 @@ Proof with eauto; try congruence.
   apply AC2 in Hneh as [F HF]. apply SepE in HF as [_ HF].
   assert (HFm: ∀m ∈ ω, F[m]: ω ⟹ g[m]). {
     intros m Hm. apply HF in Hm as HFm. unfold h in HFm.
-    rewrite meta_func_ap in HFm... apply SepE in HFm as []...
+    rewrite meta_func_ap in HFm... apply SepE2 in HFm...
   }
   set (Func (ω × ω) ⋃ 𝒜' (λ p, F[π2 p][π1 p])) as f.
   assert (Hf: f: ω × ω ⟹ ⋃ 𝒜'). {
@@ -155,7 +155,7 @@ Proof with neauto.
     set (Func n ω (λ x, x)) as f.
     assert (Hf: f ∈ n ⟶ ω). {
       apply SepI. apply PowerAx.
-      intros p Hp. apply SepE in Hp as []...
+      intros p Hp. apply SepE1 in Hp...
       apply meta_maps_into. intros x Hx. eapply ω_trans...
     }
     apply arrow_iff in Hf as Hfn. destruct Hfn as [_ [Hdn _]].
@@ -276,7 +276,7 @@ Proof with auto; try congruence.
   intros AC1 * [K HK] Hle.
   set {A ∊ 𝒜 | λ A, ⦿ A} as 𝒜'.
   assert (Hle': |𝒜'| ≤ |𝒜|). {
-    apply cardLeq_sub. intros x Hx. apply SepE in Hx as []...
+    apply cardLeq_sub. intros x Hx. apply SepE1 in Hx...
   }
   assert (Hequ: ⋃ 𝒜 = ⋃ 𝒜'). {
     apply ExtAx. split; intros Hx.
@@ -285,7 +285,7 @@ Proof with auto; try congruence.
       apply EmptyNE in H. apply UnionAx.
       exists A. split... apply SepI...
     - apply UnionAx in Hx as [A [HA Hx]]. apply UnionAx.
-      exists A. split... apply SepE in HA as []...
+      exists A. split... apply SepE1 in HA...
   }
   rewrite HK, Hequ in *. clear HK 𝜅 Hequ.
   eapply cardLeq_tran; revgoals.
@@ -299,7 +299,7 @@ Proof with auto; try congruence.
   )) as h.
   assert (Hh: h: 𝒜' ⇒ 𝒫 (K ⟶ ⋃ 𝒜')). {
     apply meta_maps_into. intros m Hm. apply PowerAx.
-    intros x Hx. apply SepE in Hx as []...
+    intros x Hx. apply SepE1 in Hx...
   }
   assert (Hneh: ∀A ∈ 𝒜', ⦿ h[A]). {
     intros A HA. assert (HA' := HA).
@@ -316,7 +316,7 @@ Proof with auto; try congruence.
   apply AC2 in Hneh as [F HF]. apply SepE in HF as [_ HF].
   assert (HFA: ∀A ∈ 𝒜', F[A]: K ⟹ A). {
     intros A HA. apply HF in HA as HFA. unfold h in HFA.
-    rewrite meta_func_ap in HFA... apply SepE in HFA as []...
+    rewrite meta_func_ap in HFA... apply SepE2 in HFA...
   }
   set (Func (𝒜' × K) ⋃ 𝒜' (λ p, F[π1 p][π2 p])) as f.
   assert (Hf: f: 𝒜' × K ⟹ ⋃ 𝒜'). {
@@ -367,7 +367,7 @@ Proof with neauto; try congruence.
   set (Func (𝗦𝗾 A) (ω × (ω ⟶ A)) (λ f, <dom f, g[f]>)) as F.
   assert (HGp: ∀f ∈ 𝗦𝗾 A, G f ∈ 𝒫 (ω × A)). {
     intros f Hf. apply PowerAx. intros p Hp.
-    apply SepE in Hp as []...
+    apply SepE1 in Hp...
   }
   assert (HG: ∀f ∈ 𝗦𝗾 A, G f : ω ⇒ A). {
     intros f Hf.

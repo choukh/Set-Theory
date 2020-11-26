@@ -7,62 +7,51 @@ Require Export ZFC.ZFC1.
 (*** ZFC集合论2：集合建构式，任意交，二元交，有序对，笛卡尔积 ***)
 
 (** 集合建构式 **)
-Definition Sep : set → (set → Prop) → set := λ X P,
-  epsilon (inhabits ∅) (λ Z, ∀ x, x ∈ Z ↔ x ∈ X ∧ P x).
-Notation "{ x ∊ X | P }" := (Sep X (λ x, P x)).
+Definition Sep : set → (set → Prop) → set := λ A P,
+  let F := (λ x, match (ixm (P x)) with
+    | inl _ => ⎨x⎬
+    | inr _ => ∅
+  end) in ⋃{F | x ∊ A}.
+Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)).
 
-(* 用epsilon算子，从替代公理和空集公理导出Zermelo分类公理 *)
-Theorem sep_correct : ∀ X P x, x ∈ {x ∊ X | P} ↔ x ∈ X ∧ P x.
-Proof.
-  intros X P. unfold Sep. apply epsilon_spec.
-  destruct (classic (∃x ∈ X, P x)).
-  - destruct H as [x0 [H1 H2]].
-    set (F_spec := λ x y, (P x ∧ x = y) ∨ (~ P x ∧ x0 = y)).
-    set (F := λ x, epsilon (inhabits ∅) (F_spec x)).
-    assert (F_tauto: ∀ x, F_spec x (F x)). {
-      intros. unfold F. apply epsilon_spec.
-      unfold F_spec. destruct (classic (P x)).
-      - exists x. left. auto.
-      - exists x0. right. auto.
-    }
-    assert (A: ∀ x,   P x → x  = F x) by firstorder.
-    assert (B: ∀ x, ~ P x → x0 = F x) by firstorder.
-    exists {F | x ∊ X}. split; intros.
-    + apply ReplAx in H... destruct H as [x' [H3 H4]].
-      destruct (classic (P x')).
-      * apply A in H as H5. rewrite H4 in H5.
-        rewrite <- H5. auto.
-      * apply B in H as H5. rewrite H4 in H5.
-        rewrite <- H5. auto.
-    + apply ReplAx... destruct H as [H3 H4].
-      apply A in H4. exists x. split; auto.
-  - exists ∅. firstorder using EmptyE.
+(* 从替代公理和空集公理导出Zermelo分类公理 *)
+Theorem sep_correct : ∀ A P x, x ∈ {x ∊ A | P} ↔ x ∈ A ∧ P x.
+Proof with auto.
+  split.
+  - intros Hx. apply UnionAx in Hx as [y [Hy Hx]].
+    apply ReplAx in Hy as [a [Ha Heq]]. subst y.
+    destruct (ixm (P a)).
+    + apply SingE in Hx. subst x...
+    + exfalso0.
+  - intros [Hx HP]. apply UnionAx. exists ⎨x⎬. split...
+    apply ReplAx. exists x. split...
+    destruct (ixm (P x))... exfalso...
 Qed.
 
-Lemma SepI : ∀ X (P : set → Prop), ∀x ∈ X, P x → x ∈ {x ∊ X | P}.
-Proof. intros X P x Hx HP. apply sep_correct. auto. Qed.
+Lemma SepI : ∀ A (P : set → Prop), ∀x ∈ A, P x → x ∈ {x ∊ A | P}.
+Proof. intros A P x Hx HP. apply sep_correct. auto. Qed.
 
-Lemma SepE1 : ∀ X P, ∀x ∈ {x ∊ X | P}, x ∈ X.
-Proof. intros X P x Hx. apply sep_correct in Hx. firstorder. Qed.
+Lemma SepE1 : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A.
+Proof. intros A P x Hx. apply sep_correct in Hx. firstorder. Qed.
 
-Lemma SepE2 : ∀ X P, ∀x ∈ {x ∊ X | P}, P x.
-Proof. intros X P x Hx. apply sep_correct in Hx. firstorder. Qed.
+Lemma SepE2 : ∀ A P, ∀x ∈ {x ∊ A | P}, P x.
+Proof. intros A P x Hx. apply sep_correct in Hx. firstorder. Qed.
 
-Lemma SepE : ∀ X P, ∀x ∈ {x ∊ X | P}, x ∈ X ∧ P x.
-Proof. intros X P x Hx. apply sep_correct in Hx. apply Hx. Qed.
+Lemma SepE : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A ∧ P x.
+Proof. intros A P x Hx. apply sep_correct in Hx. apply Hx. Qed.
 
-Lemma sep_sub : ∀ X P, {x ∊ X | P} ⊆ X.
+Lemma sep_sub : ∀ A P, {x ∊ A | P} ⊆ A.
 Proof. unfold Sub. exact SepE1. Qed.
 
-Lemma sep_power : ∀ X P, {x ∊ X | P} ∈ 𝒫 X.
+Lemma sep_power : ∀ A P, {x ∊ A | P} ∈ 𝒫 A.
 Proof. intros. apply PowerAx. apply sep_sub. Qed.
 
 Lemma sep_0 : ∀ P, {x ∊ ∅ | P} = ∅.
 Proof. intros. apply sub_empty. apply sep_sub. Qed.
 
-Lemma sep_0_inv : ∀ X P, {x ∊ X | P} = ∅ -> ∀x ∈ X, ¬P x.
+Lemma sep_0_inv : ∀ A P, {x ∊ A | P} = ∅ -> ∀x ∈ A, ¬P x.
 Proof.
-  intros X P H x Hx HP.
+  intros A P H x Hx HP.
   cut (x ∈ ∅). intros. exfalso0.
   rewrite <- H. apply SepI; auto.
 Qed.

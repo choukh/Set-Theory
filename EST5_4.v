@@ -173,7 +173,7 @@ Qed.
 
 Lemma ratLt_rel : is_binRel RatLt ℚ.
 Proof with auto.
-  intros x Hx. apply SepE in Hx as []...
+  intros x Hx. apply SepE1 in Hx...
 Qed.
 
 Lemma ratLt_tranr : tranr RatLt.

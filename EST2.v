@@ -60,7 +60,7 @@ Hint Immediate comp_sub : core.
 Lemma comp_empty : ∀ A, A - ∅ = A.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
-  - apply SepE in Hx as []...
+  - apply SepE1 in Hx...
   - apply SepI... intros H. exfalso0.
 Qed.
 
@@ -75,13 +75,13 @@ Qed.
 (** 真子集 **)
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
 
-Lemma properSubI : ∀ A B, B ⊆ A → (∃ a, a ∈ A ∧ a ∉ B) → B ⊂ A.
+Lemma properSub_intro : ∀ A B, B ⊆ A → (∃ a, a ∈ A ∧ a ∉ B) → B ⊂ A.
 Proof with auto.
   intros A B Hsub [a [Ha Ha']]. split... intros Heq.
   rewrite ExtAx in Heq. apply Heq in Ha...
 Qed.
 
-Lemma comp_inhabited : ∀ a A, a ⊂ A → ⦿ (A - a).
+Lemma comp_nonempty : ∀ B A, B ⊂ A → ⦿ (A - B).
 Proof.
   intros * [Hsub Hnq]. apply EmptyNE.
   intros H0. apply sub_iff_no_comp in H0.

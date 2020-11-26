@@ -219,7 +219,7 @@ Proof with eauto.
     intros x Hx. apply ReplAx in Hx as [s [Hs Hx]]. subst x.
     pose proof (chosen_contained s (Hi s Hs)) as Hc.
     apply ReplAx in Hs as [a [_ Hs]]. rewrite <- Hs in Hc at 2.
-    apply SepE in Hc as []...
+    apply SepE1 in Hc...
   }
   exists {Choice | s ∊ S}. repeat split...
   - intros x Hx. apply ReplAx in Hx as [s [Hs Heq]].
@@ -342,7 +342,7 @@ Proof with auto.
   - rewrite <- H. apply restr_dom_included.
 Qed.
 
-Example restr_func : ∀ F A,
+Lemma restr_func : ∀ F A,
   is_function F → is_function (F ↾ A).
 Proof.
   unfold is_function, is_rel. intros F A [H1 H2]. split.
@@ -631,7 +631,7 @@ Proof with eauto.
         apply CProdE1 in Hp as [Hi _]. zfcrewrite.
       - eapply domI. apply SepI. apply CProdI...
         rewrite PowerAx. cut (ℱ i ⊆ ran R)...
-        intros x Hx. apply SepE in Hx as []... zfcrewrite.
+        intros x Hx. apply SepE1 in Hx... zfcrewrite.
     }
     assert (Hℱeq: ∀i ∈ I, X[i] = ℱ i). {
       intros i Hi. rewrite <- HXd in Hi. apply func_correct in Hi...
@@ -639,7 +639,7 @@ Proof with eauto.
     }
     assert (HXP: ∀i ∈ I, ∀y ∈ X[i], <i, y> ∈ R). {
       intros i Hi y Hy. apply Hℱeq in Hi. rewrite Hi in Hy.
-      apply SepE in Hy as []...
+      apply SepE2 in Hy...
     }
     assert (HXi: ∀i ∈ I, ⦿ X[i]). {
       intros i Hi. assert (Hi' := Hi).
