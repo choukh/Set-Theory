@@ -10,7 +10,7 @@ Lemma meta_dom : ∀ A B F, (∀x ∈ A, F x ∈ B) →
 Proof with eauto.
   intros. apply ExtAx. split; intros Hx.
   - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+    apply CProdE2 in Hp as [Hx _]...
   - eapply domI. apply SepI.
     apply CProdI... apply H... zfcrewrite.
 Qed.
@@ -23,7 +23,7 @@ Proof with auto.
   - apply meta_dom...
   - intros y Hy. eapply ranE in Hy as [x Hp].
     apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+    apply CProdE2 in Hp as [_ Hy]...
 Qed.
 
 (* 将集合论函数应用表达为类型论函数应用 *)
@@ -46,8 +46,8 @@ Proof with eauto.
   split... split... intros y Hy.
   split. apply ranE in Hy...
   intros x1 x2 H1 H2.
-  apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [Hx1 _].
-  apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as [Hx2 _].
+  apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [Hx1 _].
+  apply SepE in H2 as [H21 H22]. apply CProdE2 in H21 as [Hx2 _].
   zfcrewrite. subst y. apply Hinj...
 Qed.
 
@@ -647,7 +647,7 @@ Proof with eauto; try congruence.
     apply ExtAx. intros y. split; intros Hy.
     - apply ranE in Hy as [x Hp].
       apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+      apply CProdE2 in Hp as [_ Hy]...
     - assert (Hy' := Hy).
       apply ranE in Hy' as [x Hp].
       apply domI in Hp as Hx. apply func_ap in Hp...
@@ -704,13 +704,13 @@ Proof with eauto; try congruence.
       destruct (ixm (π1 p = a))...
       destruct (ixm (π1 p = b))...
   - apply SepE in Hp as [Hp Heq].
-    apply cprod_iff in Hp as [x [Hx [y [Hy Hp]]]].
+    apply CProdE1 in Hp as [x [Hx [y [Hy Hp]]]].
     subst p. zfcrewrite.
     destruct (ixm (x = a))... {
       rewrite <- Hd' in Hb. apply func_correct in Hb...
       rewrite <- Heq, HeqF' in Hb. clear Heq.
       apply SepE in Hb as [Hp Heq].
-      apply CProdE1 in Hp as [Hb Hyr]. zfcrewrite.
+      apply CProdE2 in Hp as [Hb Hyr]. zfcrewrite.
       destruct (ixm (b = a)). subst a b y. apply func_correct...
       destruct (ixm (b = b))... subst a y. apply func_correct...
     }
@@ -718,13 +718,13 @@ Proof with eauto; try congruence.
     + rewrite <- Hd' in Ha. apply func_correct in Ha...
       rewrite <- Heq, HeqF' in Ha. clear Heq.
       apply SepE in Ha as [Hp Heq].
-      apply CProdE1 in Hp as [Ha Hyr]. zfcrewrite.
+      apply CProdE2 in Hp as [Ha Hyr]. zfcrewrite.
       destruct (ixm (a = a)). subst b y. apply func_correct...
       destruct (ixm (a = b))...
     + apply func_correct in Hx...
       rewrite <- Heq, HeqF' in Hx. clear Heq.
       apply SepE in Hx as [Hp Heq].
-      apply CProdE1 in Hp as [Hx Hyr]. zfcrewrite.
+      apply CProdE2 in Hp as [Hx Hyr]. zfcrewrite.
       destruct (ixm (x = a))...
       destruct (ixm (x = b))... subst y. apply func_correct...
 Qed.
@@ -740,8 +740,8 @@ Proof with eauto; try congruence.
     as [[Hf' [Hd' Hr']] Hreq].
   split... split; split... split. apply ranE in H...
   intros x1 x2 H1 H2.
-  apply SepE in H1 as [H11 H12]. apply CProdE1 in H11 as [].
-  apply SepE in H2 as [H21 H22]. apply CProdE1 in H21 as []. zfcrewrite.
+  apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [].
+  apply SepE in H2 as [H21 H22]. apply CProdE2 in H21 as []. zfcrewrite.
   destruct (ixm (x1 = a)); destruct (ixm (x2 = a));
   destruct (ixm (x1 = b)); destruct (ixm (x2 = b)); try congruence;
     [..|eapply injectiveE; eauto; congruence]; exfalso.

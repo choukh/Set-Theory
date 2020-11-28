@@ -58,10 +58,10 @@ Proof with auto.
   destruct preIntMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply cprod_iff in Hx as [m [Hm [n [Hn Hxeq]]]].
-  apply cprod_iff in Hy as [p [Hp [q [Hq Hyeq]]]].
-  apply cprod_iff in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
-  apply cprod_iff in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
+  apply CProdE1 in Hx as [m [Hm [n [Hn Hxeq]]]].
+  apply CProdE1 in Hy as [p [Hp [q [Hq Hyeq]]]].
+  apply CProdE1 in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
+  apply CProdE1 in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntMul_m_n_p_q, preIntMul_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI;
@@ -387,7 +387,7 @@ Lemma intLtE : ∀ a b, a <𝐳 b → ∃ m n p q ∈ ω,
   a = [<m, n>]~ ∧ b = [<p, q>]~ ∧ m + q ∈ p + n.
 Proof with auto.
   intros a b Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE1 in H1 as [Ha Hb]; zfcrewrite.
+  apply CProdE2 in H1 as [Ha Hb]. zfcrewrite.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst.
   exists m. split... exists n. split...
@@ -403,7 +403,7 @@ Lemma intLt : ∀ m n p q ∈ ω,
 Proof.
   intros m Hm n Hn p Hp q Hq. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE1 in H1 as [Ha Hb]; zfcrewrite.
+    apply CProdE2 in H1 as [Ha Hb]. zfcrewrite.
     pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 H12]]]]].
     pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
     rewrite H11, H21 in H2. simpl in H2. zfcrewrite.
@@ -502,7 +502,7 @@ Qed.
 Lemma intPos_neg : ∀ a, intPos a → intNeg (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
-    apply SepE in H as [H _]. apply CProdE1 in H as [_ H]. zfcrewrite.
+    apply SepE in H as [H _]. apply CProdE2 in H as []...
   }
   apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.
@@ -510,7 +510,7 @@ Qed.
 Lemma intNeg_pos : ∀ a, intNeg a → intPos (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
-    apply SepE in H as [H _]. apply CProdE1 in H as [H _]. zfcrewrite.
+    apply SepE in H as [H _]. apply CProdE2 in H as []...
   }
   apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.

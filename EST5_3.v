@@ -153,10 +153,10 @@ Proof with eauto.
   destruct preRatAdd_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl. 
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply cprod_iff in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply cprod_iff in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply cprod_iff in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply cprod_iff in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply CProdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply CProdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatAdd_a_b_c_d, preRatAdd_a_b_c_d...
   apply SepI. apply CProdI; (apply CProdI; [amr;nz|nzmr]).
@@ -457,10 +457,10 @@ Proof with auto.
   destruct preRatMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply cprod_iff in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply cprod_iff in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply cprod_iff in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply cprod_iff in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply CProdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply CProdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatMul_a_b_c_d, preRatMul_a_b_c_d...
   apply SepI. apply CProdI; apply CProdI; try mr; try nzmr.

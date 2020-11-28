@@ -18,48 +18,43 @@ Proof.
   apply CProdI; auto. zfcrewrite.
 Qed.
 
-Lemma binRelE : ∀ A P a b,
+Lemma binRelE1 : ∀ A P p,
+  p ∈ BinRel A P → ∃a ∈ A, ∃b ∈ A, p = <a, b> ∧ P a b.
+Proof with auto.
+  intros. apply SepE in H as [Hp H].
+  apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  zfcrewrite. exists a. split... exists b. split...
+Qed.
+
+Lemma binRelE2 : ∀ A P a b,
   <a, b> ∈ BinRel A P → a ∈ A ∧ b ∈ A ∧ P a b.
 Proof.
   intros. apply SepE in H as [Hp H].
-  apply CProdE1 in Hp as [Ha Hb]. zfcrewrite. split; auto.
-Qed.
-
-Lemma binRel_iff : ∀ A P p,
-  p ∈ BinRel A P ↔ ∃a ∈ A, ∃b ∈ A, p = <a, b> ∧ P a b.
-Proof with auto.
-  split.
-  - intros Hp. apply SepE in Hp as [Hp H].
-    apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
-    zfcrewrite. exists a. split... exists b. split...
-  - intros [a [Ha [b [Hb [Hp H]]]]]. subst p. apply SepI.
-    apply CProdI... zfcrewrite.
+  apply CProdE2 in Hp as [Ha Hb]. zfcrewrite. split; auto.
 Qed.
 
 Lemma binRel_is_binRel : ∀ A P, is_binRel (BinRel A P) A.
 Proof.
   intros * p Hp.
-  apply binRel_iff in Hp as [a [Ha [b [Hb [Hp _]]]]].
+  apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
   subst p. apply CProdI; auto.
 Qed.
 
 Lemma binRel_is_rel : ∀ R A, is_binRel R A → is_rel R.
 Proof.
-  intros * H p Hp. apply H in Hp. apply CProdE2 in Hp. apply Hp.
+  intros * H p Hp. apply H in Hp. apply cprod_is_pairs in Hp. apply Hp.
 Qed.
 
 Lemma dom_binRel : ∀ R A, is_binRel R A → dom R ⊆ A.
 Proof.
   intros * Hr x Hx. apply domE in Hx as [y Hp].
-  apply Hr in Hp. apply CProdE1 in Hp as [Hx _].
-  rewrite π1_correct in Hx. apply Hx.
+  apply Hr in Hp. apply CProdE2 in Hp as [Hx _]. apply Hx.
 Qed.
 
 Lemma ran_binRel : ∀ R A, is_binRel R A → ran R ⊆ A.
 Proof.
   intros * Hr x Hx. apply ranE in Hx as [y Hp].
-  apply Hr in Hp. apply CProdE1 in Hp as [_ Hx].
-  rewrite π2_correct in Hx. apply Hx.
+  apply Hr in Hp. apply CProdE2 in Hp as [_ Hx]. apply Hx.
 Qed.
 
 (* 自反性 *)
@@ -145,7 +140,7 @@ Proof with eauto.
       exists a. apply eqvcI. apply Hrf...
     + intros x Hx. apply quotE in HB as [a [Ha Heq]].
       subst B. apply eqvcE in Hx. apply Hr in Hx.
-      apply CProdE1 in Hx as [_ Hx]. rewrite π2_correct in Hx... 
+      apply CProdE2 in Hx as [_ Hx]...
   - intros X HX Y HY Hnq. apply EmptyI.
     intros t Ht. apply Hnq. apply BInterE in Ht as [H1 H2].
     apply ReplAx in HX as [x [Hx Hxeq]].
@@ -246,7 +241,7 @@ Definition trich : set → set → Prop := λ R A, ∀ x y ∈ A,
   <x, y> ∉ R ∧ x = y ∧ <y, x> ∉ R ∨
   <x, y> ∉ R ∧ x ≠ y ∧ <y, x> ∈ R.
 
-(* 线序 *)
+(* 严格全序，线序 *)
 Definition linearOrder : set → set → Prop := λ R A,
   is_binRel R A ∧ tranr R ∧ trich R A.
 
@@ -262,7 +257,7 @@ Theorem linearOrder_irrefl : ∀ R A,
   linearOrder R A → irrefl R.
 Proof.
   intros * [Hrl [_ Htri]] x Hp. apply Hrl in Hp as Hx.
-  apply CProdE1 in Hx as [Hx _]. zfcrewrite. firstorder.
+  apply CProdE2 in Hx as [Hx _]. firstorder.
 Qed.
 
 Theorem linearOrder_connected : ∀ R A,

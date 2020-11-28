@@ -21,16 +21,16 @@ Definition Rel : set → set → (set → set → Prop) → set :=
 Lemma rel_is_rel : ∀ A B P, is_rel (Rel A B P).
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
-  apply CProdE2 in Hx. apply Hx.
+  apply cprod_is_pairs in Hx. apply Hx.
 Qed.
 
 Lemma cprod_is_rel : ∀ A B, is_rel (A × B).
-Proof. intros * x Hx. apply CProdE2 in Hx. apply Hx. Qed.
+Proof. intros * x Hx. apply cprod_is_pairs in Hx. apply Hx. Qed.
 
 Lemma sep_cp_is_rel : ∀ A B P, is_rel {p ∊ A × B | P}.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
-  apply CProdE2 in Hx. apply Hx.
+  apply cprod_is_pairs in Hx. apply Hx.
 Qed.
 
 (* 恒等关系 *)
@@ -60,7 +60,7 @@ Proof with auto.
   - apply ReplAx in H as [a [Ha Heq]]. subst x.
     apply SepI. apply CProdI... zfcrewrite.
   - apply SepE in H as [Hx Heq].
-    apply cprod_iff in Hx as [a [Ha [b [_ Hp]]]].
+    apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
     apply ReplAx. exists a. split...
     rewrite Hp. rewrite Hp in Heq. zfcrewrite.
 Qed.
@@ -110,7 +110,7 @@ Proof.
   intros * x Hx.
   apply domE in Hx as [y Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+  apply CProdE2 in Hp as [Hx _]. zfcrewrite.
 Qed.
 
 Lemma ran_rel : ∀ A B P, ran (Rel A B P) ⊆ B.
@@ -118,7 +118,7 @@ Proof.
   intros * y Hy.
   apply ranE in Hy as [x Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+  apply CProdE2 in Hp as [_ Hy]. zfcrewrite.
 Qed.
 
 Lemma dom_ident : ∀ X, dom (Ident X) = X.
@@ -201,7 +201,7 @@ intros. apply ExtAx. split; intros.
 - apply ReplAx in H as [a [Ha Heq]]. subst x.
   apply SepI. apply CProdI... zfcrewrite.
 - apply SepE in H as [Hx Heq].
-  apply cprod_iff in Hx as [a [Ha [b [_ Hp]]]].
+  apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
   apply ReplAx. exists a. split...
   rewrite Hp. rewrite Hp in Heq. zfcrewrite.
 Qed.

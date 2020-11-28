@@ -2,7 +2,7 @@
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Export ZFC.lib.Natural.
-Require Export ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.WosetMin.
 Require Export ZFC.lib.FuncFacts.
 Require Export Setoid.
 
@@ -94,7 +94,7 @@ Proof with auto.
   - intros x Hx. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply op_iff in Heq as []...
-  - intros y Hy. apply cprod_iff in Hy as [b [Hb [c [Hc Heq]]]].
+  - intros y Hy. apply CProdE1 in Hy as [b [Hb [c [Hc Heq]]]].
     apply SingE in Hc. subst. exists b. split...
 Qed.
 
@@ -104,15 +104,15 @@ Proof with auto.
   intros. set (Func (A × B) (B × A) (λ x, <π2 x, π1 x>)) as F.
   exists F. apply meta_bijective.
   - intros x Hx.
-    apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
+    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     subst. zfcrewrite. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply cprod_iff in Hx1 as [a [Ha [b [Hb Hx1]]]].
-    apply cprod_iff in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
     subst. zfcrewrite.
     apply op_iff in Heq as []. congruence.
   - intros y Hy.
-    apply cprod_iff in Hy as [a [Ha [c [Hc Hy]]]].
+    apply CProdE1 in Hy as [a [Ha [c [Hc Hy]]]].
     exists <c, a>. split. apply CProdI... zfcrewrite.
 Qed.
 
@@ -125,19 +125,19 @@ Proof with auto.
   )) as F.
   exists F. apply meta_bijective.
   - intros x Hx.
-    apply cprod_iff in Hx as [d [Hd [c [Hc H1]]]].
-    apply cprod_iff in Hd as [a [Ha [b [Hb H2]]]].
+    apply CProdE1 in Hx as [d [Hd [c [Hc H1]]]].
+    apply CProdE1 in Hd as [a [Ha [b [Hb H2]]]].
     subst. zfcrewrite. apply CProdI... apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply cprod_iff in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
-    apply cprod_iff in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
-    apply cprod_iff in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
-    apply cprod_iff in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
+    apply CProdE1 in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
+    apply CProdE1 in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
+    apply CProdE1 in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
+    apply CProdE1 in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
     apply op_iff in Heq as [H1 H2].
     apply op_iff in H2 as [H2 H3]. subst. zfcrewrite.
   - intros y Hy.
-    apply cprod_iff in Hy as [a [Ha [d [Hd H1]]]].
-    apply cprod_iff in Hd as [b [Hb [c [Hc H2]]]].
+    apply CProdE1 in Hy as [a [Ha [d [Hd H1]]]].
+    apply CProdE1 in Hd as [b [Hb [c [Hc H2]]]].
     exists <a, b, c>. split. apply CProdI... apply CProdI... zfcrewrite.
 Qed.
 
@@ -159,7 +159,7 @@ Proof with neauto.
     apply func_is_func. split.
     + apply ExtAx. intros x. split; intros Hx.
       * apply domE in Hx as [y Hp]. apply SepE1 in Hp.
-        apply CProdE1 in Hp as []. zfcrewrite.
+        apply CProdE2 in Hp as []...
       * destruct (classic (x ∈ B)). {
           eapply domI. apply SepI.
           - apply CProdI. apply Hx. apply H1_2.
@@ -198,7 +198,7 @@ Proof with neauto.
     apply SepE in Hy as [Hy [Hfy [Hdy Hry]]]. apply PowerAx in Hy.
     apply ExtAx. intros x. split; intros Hxy.
     + apply SepE in Hxy as [Hx Heq].
-      apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       subst x. zfcrewrite. rewrite <- Hdy in Ha.
       destruct (ixm (a ∈ B)) as [H|H]; subst b.
       * apply SepE in H as [].
@@ -212,7 +212,7 @@ Proof with neauto.
           rewrite <- Hdy... rewrite one...
         }
     + apply Hy in Hxy as Hxp. apply SepI...
-      apply cprod_iff in Hxp as [a [Ha [b [Hb Hx]]]].
+      apply CProdE1 in Hxp as [a [Ha [b [Hb Hx]]]].
       subst x. zfcrewrite. destruct (ixm (a ∈ B)) as [H|H].
       * apply SepE2 in H as Hap. rewrite <- Hap.
         symmetry. apply func_ap...
@@ -321,7 +321,7 @@ Lemma surjection_between_same_nat_injective :
 Proof with eauto; try congruence.
   intros n Hn f [Hf [Hd Hr]].
   set (λ y, {n ∊ ω | λ n, f[n] = y}) as 𝒩.
-  set (Func n n (λ y, min[𝒩 y])) as g.
+  set (Func n n (λ y, (Min Lt)[𝒩 y])) as g.
   assert (Hg: g: n ⇒ n). {
     apply meta_maps_into.
     intros y Hy. rewrite <- Hr in Hy.
@@ -329,19 +329,18 @@ Proof with eauto; try congruence.
     rewrite Hd in Hx. apply func_ap in Hp...
     assert (Hxw: x ∈ ω). { eapply ω_trans... }
     assert (Hxn: x ∈ 𝒩 y). { apply SepI... }
-    specialize (min_correct (𝒩 y)) as [Hm Hle].
+    specialize (ω_min (𝒩 y)) as [Hm Hle].
     + exists x...
     + intros w Hw. apply SepE1 in Hw...
     + apply SepE in Hm as [Hm _].
-      apply Hle in Hxn. apply lt_suc_iff_sub in Hxn...
-      apply BUnionE in Hxn as [].
+      apply Hle in Hxn as [].
       * apply (nat_trans n Hn _ x)...
-      * apply SingE in H...
+      * subst...
   }
   assert (Hfgy: ∀y ∈ n, f[g[y]] = y). {
     intros y Hy. unfold g.
     rewrite meta_func_ap...
-    specialize (min_correct (𝒩 y)) as [H _]...
+    specialize (ω_min (𝒩 y)) as [H _]...
     - rewrite <- Hr in Hy. apply ranE in Hy as [x Hp].
       apply domI in Hp as Hx. apply func_ap in Hp...
       exists x. apply SepI... eapply ω_trans...
@@ -662,8 +661,8 @@ Lemma disjoint_cprod_l : ∀ A B C D,
   disjoint A C → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
-  apply cprod_iff in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
-  apply CProdE1 in H2 as [Ha' _]. zfcrewrite.
+  apply CProdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CProdE2 in H2 as [Ha' _].
   eapply disjointE; eauto.
 Qed.
 
@@ -671,8 +670,8 @@ Lemma disjoint_cprod_r : ∀ A B C D,
   disjoint B D → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
-  apply cprod_iff in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
-  apply CProdE1 in H2 as [_ Hb']. zfcrewrite.
+  apply CProdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CProdE2 in H2 as [_ Hb'].
   eapply disjointE; eauto.
 Qed.
 
@@ -694,7 +693,7 @@ Qed.
 Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
 Proof.
   intros. rewrite one. apply ExtAx. split; intros Hx.
-  - apply cprod_iff in Hx as [a [Ha [b [Hb H0]]]].
+  - apply CProdE1 in Hx as [a [Ha [b [Hb H0]]]].
     apply SingE in Ha. apply SingE in Hb. subst. auto.
   - apply SingE in Hx. subst. apply CProdI; apply SingI.
 Qed.

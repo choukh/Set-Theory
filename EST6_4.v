@@ -65,7 +65,7 @@ Proof with eauto.
   assert (Hdeq2: dom f = I). {
     rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
     - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [Hi _]. zfcrewrite.
+      apply CProdE2 in Hp as [Hi _]...
     - apply Hxi in Hi as Hx. destruct Hx.
       eapply domI. apply SepI. apply CProdI...
       eapply FUnionI... zfcrewrite.
@@ -74,7 +74,7 @@ Proof with eauto.
   - split... split... intros y Hy.
     apply ranE in Hy as [i Hp].
     apply Hsub in Hp. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+    apply CProdE2 in Hp as [_ Hy]...
   - intros i Hi. rewrite <- Hdeq2 in Hi.
     apply func_correct in Hi... apply Hsub in Hi.
     apply SepE in Hi as [_ Hy]. zfcrewrite.
@@ -92,14 +92,14 @@ Proof with eauto; try congruence.
       rewrite Hdeq. apply ExtAx. split; intros Hx.
       - apply domE in Hx as [y Hp].
         apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+        apply CProdE2 in Hp as [Hx _]...
       - assert (Hu := Hx). apply UnionAx in Hx as [a [Ha Hx]].
         eapply domI. apply SepI. apply CProdI... zfcrewrite.
     }
     exists f. split; [split; [|split]|]...
     + intros y Hy. apply ranE in Hy as [x Hp].
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+      apply CProdE2 in Hp as [_ Hy]...
     + intros x Hx. apply domE in Hx as [y Hp].
       apply func_ap in Hp as Hap... rewrite Hap.
       apply Hsub in Hp. apply SepE in Hp as [_ H]. zfcrewrite.
@@ -125,7 +125,7 @@ Proof with eauto; try congruence.
     }
     exists g. split; [|split]...
     + intros p Hp. apply SepE in Hp as [Hp Heq].
-      apply cprod_iff in Hp as [x [Hx [y [_ Hp]]]].
+      apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
       subst p. zfcrewrite. subst y.
       apply Hdf in Hx as Hsx. apply Hin in Hsx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
@@ -135,7 +135,7 @@ Proof with eauto; try congruence.
       * apply single_eq_pair in H as [H1 H2]...
     + apply ExtAx. split; intros Hx.
       * apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+        apply CProdE2 in Hp as [Hx _]...
       * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
         apply ranI in Hp. eapply domI. apply SepI. apply CProdI...
         zfcrewrite. rewrite Hfx. zfcrewrite.
@@ -175,8 +175,8 @@ Proof with eauto.
     apply ReplAx in Hx as [B [_ Hx]].
     apply ReplAx in Hy as [C [_ Hy]].
     apply disjointI. intros [p [H1 H2]]. apply Hnq. subst.
-    apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
-    apply cprod_iff in H2 as [c [Hc [d [Hd H2]]]]. subst.
+    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+    apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]]. subst.
     apply SingE in Ha. apply SingE in Hc.
     apply op_iff in H2 as []. congruence.
   }
@@ -192,7 +192,7 @@ Proof with eauto.
     repeat split.
     - intros x Hx. apply BInterE in Hx as [_ Hx].
       apply Hstar in Hx as [B [_ Hp]].
-      apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       apply SingE in Ha. subst...
     - apply domE in H...
     - intros y1 y2 H1 H2.
@@ -200,8 +200,8 @@ Proof with eauto.
       apply BInterE in H2 as [Hc2 H2].
       apply Hstar in H1 as [B1 [_ H1]].
       apply Hstar in H2 as [B2 [HB2 H2]].
-      apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
-      apply cprod_iff in H2 as [c [Hc [d [Hd H2]]]].
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
       apply SingE in Ha. apply SingE in Hc.
       apply op_iff in H1 as []. apply op_iff in H2 as []. subst.
       apply Hcp in HB2 as H0.
@@ -218,13 +218,13 @@ Proof with eauto.
     + apply domE in Hx as [y Hp].
       apply BInterE in Hp as [_ Hp].
       apply Hstar in Hp as [B [HB Hp]].
-      apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+      apply CProdE2 in Hp as [Hx _].
       apply SingE in Hx. subst...
     + assert (H: ⎨x⎬ × x ∈ 𝒜). { apply ReplAx. exists x. split... }
       pose proof (Hsg _ H) as [p Heq].
       assert (Hp: p ∈ ⎨x⎬ × x ∩ C). { rewrite Heq... }
       apply BInterE in Hp as [H1 H2]. assert (H1' := H1).
-      apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
       apply SingE in Ha. subst. eapply domI. apply BInterI...
       apply UnionAx. exists (⎨x⎬ × x). split...
   - intros B Hi Hsub.
@@ -232,7 +232,7 @@ Proof with eauto.
     apply Hcp in HB. pose proof (Hsg _ HB) as [p Heq].
     assert (Hp: p ∈ ⎨B⎬ × B ∩ C). { rewrite Heq... }
     apply BInterE in Hp as [H1 H2].
-    apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
+    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
     apply SingE in Ha. subst. cut (F[B] = b). congruence.
     apply func_ap... apply BInterI... apply UnionAx.
     exists (⎨B⎬ × B). split... apply CProdI...
@@ -281,7 +281,7 @@ Proof with auto.
   destruct Hf as [Hff [Hfd _]].
   exists F. split; [|split]...
   intros p Hp. apply SepE in Hp as [H1 H2].
-  apply cprod_iff in H1 as [a [Ha [b [Hb Hp]]]].
+  apply CProdE1 in H1 as [a [Ha [b [Hb Hp]]]].
   subst. zfcrewrite. subst. apply Hstar...
 Qed.
 
@@ -346,7 +346,7 @@ Proof with eauto; try congruence.
       apply PowerAx in HC. apply HC...
     }
     apply SepI... apply PowerAx in Hu. split; [split|].
-    - intros x Hx. apply Hu in Hx. apply CProdE2 in Hx...
+    - intros x Hx. apply Hu in Hx. apply cprod_is_pairs in Hx...
     - split. apply domE in H...
       intros y1 y2 H1 H2.
       apply UnionAx in H1 as [g [Hg H1]].
@@ -374,20 +374,20 @@ Proof with eauto; try congruence.
   destruct (classic (dom M = A ∨ ran M = B)). {
     destruct H; [left; exists M|right; exists (M⁻¹)].
     - split... split... intros y Hy. apply ranE in Hy as [x Hp].
-      apply Hsub in Hp. apply CProdE1 in Hp as []; zfcrewrite.
+      apply Hsub in Hp. apply CProdE2 in Hp as []...
     - split. apply inv_injective... split.
       rewrite inv_dom... rewrite inv_ran.
       intros x Hx. apply domE in Hx as [y Hp].
-      apply Hsub in Hp. apply CProdE1 in Hp as []; zfcrewrite.
+      apply Hsub in Hp. apply CProdE2 in Hp as []...
   }
   exfalso. apply not_or_and in H as [Hnq1 Hnq2].
   assert (Hps1: dom M ⊂ A). {
     split... intros x Hx. apply domE in Hx as [y Hp].
-    apply Hsub in Hp. apply CProdE1 in Hp as []; zfcrewrite.
+    apply Hsub in Hp. apply CProdE2 in Hp as []...
   }
   assert (Hps2: ran M ⊂ B). {
     split... intros y Hy. apply ranE in Hy as [x Hp].
-    apply Hsub in Hp. apply CProdE1 in Hp as []; zfcrewrite.
+    apply Hsub in Hp. apply CProdE2 in Hp as []...
   }
   apply comp_nonempty in Hps1 as [a Ha].
   apply comp_nonempty in Hps2 as [b Hb].

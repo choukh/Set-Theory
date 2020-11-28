@@ -325,7 +325,7 @@ Qed.
 Lemma sub_mono_cprod : ∀ A B C, A ⊆ B → A × C ⊆ B × C.
 Proof with auto.
   intros * H x Hx.
-  apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]].
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
   subst x. apply CProdI... apply H...
 Qed.
 

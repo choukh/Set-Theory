@@ -571,7 +571,7 @@ Proof with neauto; try congruence.
       apply UnionAx in Hp as [C [HC Hp]].
       apply Hsub in HC. apply SepE in HC as [HC _].
       apply PowerAx in HC. apply HC in Hp.
-      apply CProdE1 in Hp as [_ Hx]. zfcrewrite.
+      apply CProdE2 in Hp as [_ Hx]...
     } {
       split; split; [| | |rewrite ex3_8_b]...
       - apply ex3_15.
@@ -604,7 +604,7 @@ Proof with neauto; try congruence.
           apply SepE in Hf as [_ []].
           - subst f. apply ExtAx. split; intros Hx.
             + apply domE in Hx as [y Hp]. exfalso0.
-            + apply cprod_iff in Hx as [a [Ha _]].
+            + apply CProdE1 in Hx as [a [Ha _]].
               apply ranE in Ha as [w Hp]. exfalso0.
           - destruct H as [C [_ [_ [_ [Hd Hr]]]]]...
         }
@@ -612,9 +612,9 @@ Proof with neauto; try congruence.
         + apply domE in Hx as [y Hp].
           apply UnionAx in Hp as [f [Hf Hx]].
           apply domI in Hx. rewrite Hdr in Hx...
-          apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+          apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
           apply CProdI; eapply Hsubr...
-        + apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
           apply HA in Ha as [f [Hf Ha]].
           apply HA in Hb as [g [Hg Hb]].
           rewrite ex3_8_a. apply UnionAx.
@@ -657,7 +657,7 @@ Proof with neauto; try congruence.
         remember (π1 p) as x. remember (π2 p) as y. clear Heqx Heqy.
         apply domI in Hp as Hx. rewrite Hd in Hx.
         apply ranI in Hp as Hy. rewrite Hr in Hy.
-        apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
         apply CProdI. apply CProdI; apply HsubA... apply HsubA...
       + right. exists A. split... 
     - destruct Hg as [[Hg _] [Hd _]].
@@ -749,8 +749,8 @@ Proof with neauto; try congruence.
         rewrite Hdg. apply BUnionI2. apply CProdI...
       }
       rewrite <- H in Hp. apply domI in Hp.
-      rewrite Hdf₀ in Hp. apply CProdE1 in Hp as [Hd' _].
-      zfcrewrite. apply HsubD in Hd. apply SepE2 in Hd...
+      rewrite Hdf₀ in Hp. apply CProdE2 in Hp as [Hd' _].
+      apply HsubD in Hd. apply SepE2 in Hd...
   }
   (* Goal: f₀ ∪ g ∈ ℋ *)
   assert (HsubD': D ⊆ B). {
@@ -765,13 +765,13 @@ Proof with neauto; try congruence.
       apply domI in H as Hx. rewrite Hdg in Hx.
       apply ranI in H as Hy. rewrite Hrg in Hy.
       apply BUnionE in Hx as [Hx|Hx]; [apply BUnionE in Hx as [Hx|Hx]|].
-      * apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
         apply CProdI; [apply CProdI|].
         apply HsubA₀... apply HsubD'... apply HsubD'...
-      * apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
         apply CProdI; [apply CProdI|].
         apply HsubD'... apply HsubA₀... apply HsubD'...
-      * apply cprod_iff in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
         apply CProdI; [apply CProdI|]; apply HsubD'...
   - right. exists (A₀ ∪ D). split; [|split].
     + intros Hfin. apply finite_bunion in Hfin as [Hfin _].

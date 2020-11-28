@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST6_4.
 Require Import ZFC.lib.NatIsomorphism.
-Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.IndexedFamilyUnion.
 
 (* 所有集合的支配集不能构成一个集合 *)
@@ -229,14 +229,14 @@ Proof with neauto; try congruence.
   specialize Hinf with B as [n Hinf].
   - intros Hfin.
     set (λ x, {n ∊ ω | λ n, x ∈ Q n}) as 𝒩.
-    set (λ x, min[𝒩 x]) as f.
-    assert (Hmin: ∀b ∈ B, f b ∈ 𝒩 b ∧ ∀n ∈ 𝒩 b, f b ⊆ n). {
-      intros b Hb. apply min_correct.
+    set (λ x, (Min Lt)[𝒩 x]) as f.
+    assert (Hmin: ∀b ∈ B, ω_minimum (f b) (𝒩 b)). {
+      intros b Hb. apply ω_min.
       apply ReplAx in Hb as [n [Hn Heqb]]. subst b.
       specialize Hgn2 with n as [m Hgn].
-      exists (Embed m). apply SepI.
-      apply embed_ran. rewrite embed_proj_id...
-      intros x Hx. apply SepE1 in Hx...
+      - exists (Embed m). apply SepI.
+        apply embed_ran. rewrite embed_proj_id...
+      - intros x Hx. apply SepE1 in Hx...
     }
     apply (repl_finite f) in Hfin.
     apply finite_subset_of_ω_is_bounded in Hfin as [m [Hm Hmax]]; revgoals. {

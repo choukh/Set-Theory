@@ -763,7 +763,7 @@ Lemma realq_lt : ∀ r s ∈ ℚ, Realq r <𝐫 Realq s ↔ r <𝐪 s.
 Proof with neauto.
   intros r Hr s Hs. split; intros Hlt.
   - assert (Hsr: Realq s ∈ ℝ) by (apply real_q; auto).
-    apply binRelE in Hlt as [H0 [_ [Hsub Hnq]]].
+    apply binRelE2 in Hlt as [H0 [_ [Hsub Hnq]]].
     destruct (classic (r = s)). exfalso. subst...
     apply ratLt_connected in H as []... exfalso.
     apply Hnq. apply ExtAx. intros q. split; intros Hq.

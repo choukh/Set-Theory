@@ -104,7 +104,7 @@ Proof with eauto.
   assert (HdF: dom F = C). {
     rewrite Hd. apply ExtAx. split; intros Hx.
     - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [Hx _]. zfcrewrite.
+      apply CProdE2 in Hp as [Hx _]...
     - apply Hs2 in Hx as Hxb.
       apply UnionAx in Hxb as [B [HB Hxb]].
       eapply domI. apply SepI. apply CProdI... zfcrewrite.
@@ -112,7 +112,7 @@ Proof with eauto.
   assert (Hsub: ran F ⊆ ℬ). {
     intros y Hy. apply ranE in Hy as [x Hp].
     apply HsF in Hp. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+    apply CProdE2 in Hp as [_ Hy]...
   }
   pose proof (finite_chain_has_max (ran F)) as [M [HM Hmax]].
   - apply EmptyNE in H as [c Hc].

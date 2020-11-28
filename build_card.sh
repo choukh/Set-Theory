@@ -9,8 +9,8 @@ echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v
 echo "building NatIsomorphism"
 coqc -R . ZFC lib/NatIsomorphism.v
-echo "building NaturalSubsetMin"
-coqc -R . ZFC lib/NaturalSubsetMin.v
+echo "building WosetMin"
+coqc -R . ZFC lib/WosetMin.v
 echo "building IndexedFamilyUnion"
 coqc -R . ZFC lib/IndexedFamilyUnion.v
 

@@ -135,7 +135,7 @@ Lemma ratLtE : ∀ r s, r <𝐪 s → ∃a ∈ ℤ, ∃b ∈ ℤ', ∃c ∈ ℤ,
   r = [<a, b>]~ ∧ s = [<c, d>]~ ∧ a ⋅ d <𝐳 c ⋅ b.
 Proof with eauto.
   intros r s Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE1 in H1 as [Hr Hs]; zfcrewrite.
+  apply CProdE2 in H1 as [Hr Hs]. zfcrewrite.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]]. subst.
   exists a. split... exists b. split...
@@ -154,7 +154,7 @@ Lemma ratLt : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
 Proof with eauto.
   intros a Ha b Hb c Hc d Hd Hpb Hpd. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE1 in H1 as [Hr Hs]; zfcrewrite.
+    apply CProdE2 in H1 as [Hr Hs]. zfcrewrite.
     pose proof (ratProj a Ha b Hb)
       as [a' [Ha' [b' [Hb' [H11 [H12 [_ Hpb']]]]]]].
     pose proof (ratProj c Hc d Hd)
@@ -286,13 +286,13 @@ Qed.
 Lemma ratPos_rat : ∀ r, ratPos r → r ∈ ℚ.
 Proof with auto.
   intros. apply SepE in H as [H _].
-  apply CProdE1 in H as [_ H]. zfcrewrite.
+  apply CProdE2 in H as []...
 Qed.
 
 Lemma ratNeg_rat : ∀ r, ratNeg r → r ∈ ℚ.
 Proof with auto.
   intros. apply SepE in H as [H _].
-  apply CProdE1 in H as [H _]. zfcrewrite.
+  apply CProdE2 in H as []...
 Qed.
 
 Lemma ratPos_neg : ∀ r, ratPos r → ratNeg (-r).

@@ -69,31 +69,40 @@ Proof.
 Qed.
 
 (* 自然数的小于关系 *)
-Definition ωLt := BinRel ω (λ x y, x ∈ y).
+Definition Lt := BinRel ω (λ x y, x ∈ y).
 
-Lemma ωLt_rel : is_binRel ωLt ω.
+Lemma fld_Lt : fld Lt = ω.
+Proof with neauto.
+  apply ExtAx. intros n. split; intros Hn.
+  - apply BUnionE in Hn as [].
+    + eapply dom_binRel in H... apply binRel_is_binRel.
+    + eapply ran_binRel in H... apply binRel_is_binRel.
+  - apply BUnionI1. eapply domI.
+    apply (binRelI _ _ _ Hn n⁺)... apply ω_inductive...
+Qed.
+
+Lemma Lt_rel : is_binRel Lt ω.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 
-Lemma ωLt_tranr : tranr ωLt.
+Lemma Lt_tranr : tranr Lt.
 Proof with eauto.
   intros m n p H1 H2.
-  apply binRelE in H1 as [Hm [Hn Hmn]].
-  apply binRelE in H2 as [_  [Hp Hnp]].
+  apply binRelE2 in H1 as [Hm [Hn Hmn]].
+  apply binRelE2 in H2 as [_  [Hp Hnp]].
   apply SepI. apply CProdI... zfcrewrite. eapply nat_trans...
 Qed.
 
-Lemma ωLt_irrefl : irrefl ωLt.
+Lemma Lt_irrefl : irrefl Lt.
 Proof with eauto.
   intros k Hp. apply SepE in Hp as [Hp Hlt].
-  apply CProdE1 in Hp as [Hk _].
-  zfcrewrite. eapply lt_irrefl...
+  apply CProdE2 in Hp as [Hk _]. zfcrewrite. eapply lt_irrefl...
 Qed.
 
-Lemma ωLt_connected : connected ωLt ω.
+Lemma Lt_connected : connected Lt ω.
 Proof with nauto.
   intros n Hn.
   set {n ∊ ω | λ n, ∀ m, m ∈ ω →
-    n ≠ m → < n, m > ∈ ωLt ∨ < m, n > ∈ ωLt} as N.
+    n ≠ m → < n, m > ∈ Lt ∨ < m, n > ∈ Lt} as N.
   ω_induction N Hn; intros k Hk Hnq.
   + assert (k ≠ ∅) by congruence.
     apply pred_exists in H as [p [Hp Heq]]... left. subst.
@@ -103,10 +112,10 @@ Proof with nauto.
       apply ω_inductive... apply suc_has_0...
     * subst. assert (m ≠ n') by congruence.
       apply IH in H as []...
-      left. apply binRelE in H as [_ [_ Hmn]].
+      left. apply binRelE2 in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
       rewrite <- (suc_preserve_lt m Hm n' Hn')...
-      right. apply binRelE in H as [_ [_ Hmn]].
+      right. apply binRelE2 in H as [_ [_ Hmn]].
       apply SepI; zfcrewrite. apply CProdI... apply ω_inductive...
       rewrite <- (suc_preserve_lt n' Hn' m Hm)...
 Qed.
@@ -114,20 +123,20 @@ Qed.
 Lemma lt_connected : ∀ m n ∈ ω, m ≠ n → m ∈ n ∨ n ∈ m.
 Proof with auto.
   intros m Hm n Hn Hnq0.
-  apply ωLt_connected in Hnq0 as []; auto; [left|right];
+  apply Lt_connected in Hnq0 as []; auto; [left|right];
     apply SepE in H as []; zfcrewrite.
 Qed.
 
-Lemma ωLt_trich : trich ωLt ω.
+Lemma Lt_trich : trich Lt ω.
 Proof with auto.
-  eapply trich_iff. apply ωLt_rel. apply ωLt_tranr. split.
-  apply ωLt_irrefl. apply ωLt_connected.
+  eapply trich_iff. apply Lt_rel. apply Lt_tranr. split.
+  apply Lt_irrefl. apply Lt_connected.
 Qed.
 
 (* 自然数的小于关系是线序关系 *)
-Theorem ωLt_linearOrder : linearOrder ωLt ω.
+Theorem Lt_linearOrder : linearOrder Lt ω.
 Proof.
-   split. apply ωLt_rel. split. apply ωLt_tranr. apply ωLt_trich.
+   split. apply Lt_rel. split. apply Lt_tranr. apply Lt_trich.
 Qed.
 
 Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
@@ -303,10 +312,10 @@ Definition wellOrder : set → set → Prop := λ R A,
   ∀ B, ⦿ B → B ⊆ A → ∃ m, minimum m B R.
 
 (* 自然数的小于关系构成自然数上的良序 *)
-Theorem ωLt_wellOrder : wellOrder ωLt ω.
+Theorem Lt_wellOrder : wellOrder Lt ω.
 Proof with eauto.
-  split. apply ωLt_linearOrder. intros A [a Ha] Hsub.
-  destruct (classic (∃ m, minimum m A ωLt))... exfalso.
+  split. apply Lt_linearOrder. intros A [a Ha] Hsub.
+  destruct (classic (∃ m, minimum m A Lt))... exfalso.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
     assert (a ∈ a⁺) by (apply BUnionI2; apply SingI).
@@ -323,15 +332,21 @@ Proof with eauto.
   apply binRelI... exfalso. eapply IH...
 Qed.
 
-Theorem ω_well_ordered : ∀ A, A ≠ ∅ → A ⊆ ω → 
-  ∃m ∈ A, ∀n ∈ A, m ≤ n.
+Definition ω_minimum : set → set → Prop := λ m N,
+  m ∈ N ∧ ∀n ∈ N, m ≤ n.
+
+Lemma ω_minimum_intro : ∀ m N, minimum m N Lt → ω_minimum m N.
+Proof with auto.
+  intros * [Hm Hle].
+  split... intros n Hn. assert (H := Hn). apply Hle in H as [].
+  left. apply binRelE2 in H as [_ []]... right...
+Qed.
+
+Theorem ω_well_ordered : ∀ N, ⦿ N → N ⊆ ω → ∃ m, ω_minimum m N.
 Proof with auto.
   intros A Hne Hsub.
-  apply EmptyNE in Hne. assert (H := Hsub).
-  apply ωLt_wellOrder in H as [m [Hm Hlt]]...
-  exists m. split... intros n Hn. assert (H := Hn).
-  apply Hlt in H as [].
-  left. apply binRelE in H as [_ []]... right...
+  apply Lt_wellOrder in Hsub as [m H]...
+  exists m. apply ω_minimum_intro...
 Qed.
 
 (* 自然数集上不存在小于关系的无穷降链 *)
@@ -339,8 +354,8 @@ Corollary ω_no_descending_chain : ¬ ∃ f, f: ω ⇒ ω ∧
   ∀n ∈ ω, f[n⁺] ∈ f[n].
 Proof with neauto.
   intros [f [[Hf [Hd Hr]] Hlt]].
-  assert (Hne: ran f ≠ 0). {
-    apply EmptyNI. exists (f[0]). eapply ranI.
+  assert (Hne: ⦿ ran f). {
+    exists (f[0]). eapply ranI.
     apply func_correct... rewrite Hd...
   }
   eapply ω_well_ordered in Hne as [m [Hm Hmin]]...
@@ -362,10 +377,9 @@ Theorem ω_ind_strong : ∀ A, A ⊆ ω →
 Proof with eauto.
   intros A HA Hind.
   destruct (classic (A = ω))... exfalso.
-  assert (Hnq0: ω - A ≠ 0). {
-    intros H0. apply H. apply sub_antisym... intros x Hx.
-    destruct (classic (x ∈ A))... exfalso.
-    eapply EmptyE in H0. apply H0. apply CompI...
+  assert (Hne: ⦿ (ω - A)). {
+    apply EmptyNE. intros H0. apply sub_iff_no_comp in H0.
+    apply H. apply sub_antisym...
   }
   assert (Hsub: ω - A ⊆ ω). {
     intros x Hx. apply CompE in Hx as []...
@@ -385,7 +399,8 @@ Theorem ω_ind_strong_0 : ∀ C, C ⊆ ω →
   C = 0.
 Proof with eauto.
   intros C HC Hincr.
-  destruct (classic (C = 0)) as [H0|H0]... exfalso.
+  destruct (classic (C = 0)) as [H0|H0]...
+  exfalso. apply EmptyNE in H0.
   pose proof (ω_well_ordered C H0 HC) as [m [Hm Hmin]]...
   pose proof (Hincr m Hm) as [n [Hnc Hnm]]. apply HC in Hnc as Hn.
   pose proof (Hmin n Hnc) as [].

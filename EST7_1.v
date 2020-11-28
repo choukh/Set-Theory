@@ -3,7 +3,7 @@
 
 Require Export ZFC.EST3_3.
 
-(*** EST第七章1：偏序结构，上下确界 ***)
+(*** EST第七章1：偏序，线序，上下确界 ***)
 
 (* 严格偏序，反自反偏序 *)
 Definition partialOrder : set → Prop := λ R,
@@ -47,49 +47,25 @@ Proof with auto.
   apply partialOrder_quasi_trich...
 Qed.
 
-(* 严格全序，线序 *)
-Print EST3_3.linearOrder.
-(* Definition linearOrder : set → set → Prop := λ R A,
-  is_binRel R A ∧ tranr R ∧ trich R A. *)
-
-(* 线序是连通的偏序 *)
-Fact linearOrder_is_connected_partialOrder : ∀ R A,
-  linearOrder R A → connected R A ∧ partialOrder R.
-Proof with eauto.
-  intros * [Hrl [Htr Hir]]. repeat split...
-  - eapply trich_iff...
-  - intros x Hx. apply Hrl in Hx. apply CProdE2 in Hx...
-  - eapply trich_iff...
-Qed.
-
-(* 结构 *)
-Definition structure : set → set → Prop := λ A R,
-  is_binRel R A.
-Notation "⟨ A , R ⟩" := (structure A R).
-
 (* 偏序结构 *)
-(* partially ordered structure *)
 Definition poset : set → set → Prop := λ A R,
   is_binRel R A ∧ partialOrder R.
-Notation "⟨ A , R ⟩ₚₒ" := (poset A R).
 
 (* 线序结构 *)
-(* linear ordered structure *)
 Definition loset : set → set → Prop := λ A R,
   linearOrder R A.
-Notation "⟨ A , R ⟩ₗₒ" := (loset A R).
 
-(* 线序结构等价于连通的偏序结构 *)
+(* 线序等价于连通的偏序 *)
 Fact loset_iff_connected_poset : ∀ A R,
-  ⟨A, R⟩ₗₒ ↔ connected R A ∧ ⟨A, R⟩ₚₒ.
+  loset A R ↔ connected R A ∧ poset A R.
 Proof with eauto.
   intros. split.
   - intros [Hrl [Htr Hir]]. repeat split...
+    + apply trich_iff...
+    + intros x Hx. apply Hrl in Hx. apply cprod_is_pairs in Hx...
     + eapply trich_iff...
-    + intros x Hx. apply Hrl in Hx. apply CProdE2 in Hx...
-    + eapply trich_iff...
-  - intros [Hcon [Hbr [_ [Htr Htri]]]].
-    split... split... apply trich_iff...
+  - intros [Hcon [Hbr [_ [Htr Hir]]]]. repeat split...
+    apply trich_iff...
 Qed.
 
 (* 极小元 *)
@@ -250,25 +226,25 @@ Definition SubRel : set → set := λ S,
 Lemma subRel_is_binRel : ∀ S, is_binRel (SubRel S) S.
 Proof.
   intros S p Hp.
-  apply binRel_iff in Hp as [a [Ha [b [Hb [Hp _]]]]].
+  apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
   subst. apply CProdI; auto.
 Qed.
 
 Lemma subRel_tranr : ∀ S, tranr (SubRel S).
 Proof with eauto.
   intros S a b c Hab Hbc.
-  apply binRelE in Hab as [Ha [Hb [Hab Hnq]]].
-  apply binRelE in Hbc as [_ [Hc [Hbc _]]].
+  apply binRelE2 in Hab as [Ha [Hb [Hab Hnq]]].
+  apply binRelE2 in Hbc as [_ [Hc [Hbc _]]].
   apply binRelI... split. eapply sub_tran...
   intros Heq. subst. apply Hnq. apply sub_antisym...
 Qed.
 
 Lemma subRel_irrefl : ∀ S, irrefl (SubRel S).
 Proof.
-  intros S x Hp. apply binRelE in Hp as [_ [_ [_ Heq]]]. auto.
+  intros S x Hp. apply binRelE2 in Hp as [_ [_ [_ Heq]]]. auto.
 Qed.
 
-Fact subRel_poset : ∀ S, ⟨S, SubRel S⟩ₚₒ.
+Lemma subRel_is_poset : ∀ S, poset S (SubRel S).
 Proof with auto.
   repeat split.
   - apply subRel_is_binRel.
@@ -300,16 +276,16 @@ Proof with auto.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
     apply Hle in HA as [HA|HA]; apply Hle in HB as [HB|HB].
-    + apply binRelE in HA as [_ [_ [HsubA HnqA]]].
-      apply binRelE in HB as [_ [_ [HsubB HnqB]]].
+    + apply binRelE2 in HA as [_ [_ [HsubA HnqA]]].
+      apply binRelE2 in HB as [_ [_ [HsubB HnqB]]].
       apply binRelI... split...
       intros x Hx. apply BUnionE in Hx as [].
       apply HsubA... apply HsubB...
-    + apply binRelE in HA as [_ [_ [HsubA HnqA]]].
+    + apply binRelE2 in HA as [_ [_ [HsubA HnqA]]].
       apply binRelI... split...
       intros x Hx. apply BUnionE in Hx as [].
       apply HsubA... subst...
-    + apply binRelE in HB as [_ [_ [HsubB HnqB]]].
+    + apply binRelE2 in HB as [_ [_ [HsubB HnqB]]].
       apply binRelI... split...
       intros x Hx. apply BUnionE in Hx as [].
       subst... apply HsubB...
@@ -339,14 +315,14 @@ Proof with auto.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
     apply Hle in HA as [HA|HA]; apply Hle in HB as [HB|HB].
-    + apply binRelE in HA as [_ [_ [HsubA HnqA]]].
-      apply binRelE in HB as [_ [_ [HsubB HnqB]]].
+    + apply binRelE2 in HA as [_ [_ [HsubA HnqA]]].
+      apply binRelE2 in HB as [_ [_ [HsubB HnqB]]].
       apply binRelI... split...
       intros x Hx. apply BInterI. apply HsubA... apply HsubB...
-    + apply binRelE in HA as [_ [_ [HsubA HnqA]]].
+    + apply binRelE2 in HA as [_ [_ [HsubA HnqA]]].
       apply binRelI... split...
       intros x Hx. apply BInterI. apply HsubA... subst...
-    + apply binRelE in HB as [_ [_ [HsubB HnqB]]].
+    + apply binRelE2 in HB as [_ [_ [HsubB HnqB]]].
       apply binRelI... split...
       intros x Hx. apply BInterI. subst... apply HsubB...
     + apply binRelI... subst... split...
@@ -372,7 +348,7 @@ Proof with auto; try congruence.
       intros x Hx.
       apply UnionAx in Hx as [A [HA Hx]].
       apply Hle in HA as [HA|]...
-      apply binRelE in HA as [_ [_ [HsubA _]]].
+      apply binRelE2 in HA as [_ [_ [HsubA _]]].
       apply HsubA...
     }
     destruct (classic (C ⊆ ⋃ 𝒜)).
@@ -399,7 +375,7 @@ Proof with auto; try congruence.
     assert (HsubC: C ⊆ ⋂ 𝒜). {
       intros x Hx. apply InterI...
       intros y Hy. apply Hle in Hy as []; subst...
-      apply binRelE in H as [_ [_ [HsubC _]]]... apply HsubC...
+      apply binRelE2 in H as [_ [_ [HsubC _]]]... apply HsubC...
     }
     destruct (classic (⋂ 𝒜 ⊆ C)).
     + right. apply sub_antisym...

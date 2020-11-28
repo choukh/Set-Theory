@@ -5,12 +5,9 @@ Require Export ZFC.lib.Natural.
 
 (*** EST第七章2：良序，超限归纳原理，超限递归定理 ***)
 
-(* 良序 *)
-Print EST4_3.wellOrder.
-(* Definition wellOrder : set → set → Prop := λ R A,
-  linearOrder R A ∧
-  ∀ B, B ≠ ∅ → B ⊆ A →
-  ∃ m, minimum m B R. *)
+(* 良序结构 *)
+Definition woset : set → set → Prop := λ A R,
+  wellOrder R A.
 
 (* 无穷降链 *)
 Definition descending_chain : set → set → set → Prop := λ f A R,
@@ -47,9 +44,9 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 全序是良序当且仅当其上不存在无穷降链 *)
-Theorem wellOrder_iff_no_descending_chain :
-  AC_I → ∀ A R, linearOrder R A →
-  wellOrder R A ↔ ¬ ∃ f, descending_chain f A R.
+Theorem woset_iff_no_descending_chain :
+  AC_I → ∀ A R, loset A R →
+  woset A R ↔ ¬ ∃ f, descending_chain f A R.
 Proof with neauto.
   intros AC1 * Hlo. split.
   - intros [_ Hwo] [f [[Hf [Hd Hr]] Hlt]].
@@ -95,7 +92,7 @@ Proof with eauto.
 Qed.
 
 (* 自然数的前节等于自身 *)
-Example seg_of_nat : ∀n ∈ ω, seg n ωLt = n.
+Example seg_of_nat : ∀n ∈ ω, seg n Lt = n.
 Proof with eauto.
   intros n Hn. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ Hp].
@@ -110,7 +107,7 @@ Definition inductive_subset : set → set → set → Prop := λ B A R,
   B ⊆ A ∧ ∀t ∈ A, seg t R ⊆ B → t ∈ B.
 
 (* 超限归纳原理：良序集的归纳子集与自身相等 *)
-Theorem transfinite_induction : ∀ A R, wellOrder R A →
+Theorem transfinite_induction : ∀ A R, woset A R →
   ∀ B, inductive_subset B A R → B = A.
 Proof with auto.
   intros A R [[Hbr [Htr Htri]] Hwo] B [Hsub Hind].
@@ -119,15 +116,15 @@ Proof with auto.
   apply Hwo in Hne as [m [Hm Hmin]]...
   apply SepE in Hm as [Hm Hm']. apply Hm'. apply Hind...
   intros x Hx. apply SepE in Hx as [_ Hp].
-  apply Hbr in Hp as Hx. apply CProdE1 in Hx as [Hx _]. zfcrewrite.
+  apply Hbr in Hp as Hx. apply CProdE2 in Hx as [Hx _].
   destruct (classic (x ∈ B)) as [|Hx']... exfalso.
   assert (x ∈ A - B) by (apply SepI; auto).
   apply Hmin in H as []; firstorder.
 Qed.
 
 (* 线序集良序当且仅当其归纳子集与自身相等 *)
-Theorem wellOrder_iff_inductive : ∀ A R, linearOrder R A →
-  wellOrder R A ↔ ∀ B, inductive_subset B A R → B = A.
+Theorem woset_iff_inductive : ∀ A R, loset A R →
+  woset A R ↔ ∀ B, inductive_subset B A R → B = A.
 Proof with eauto; try congruence.
   intros A R Hlo.
   split. { apply transfinite_induction. }
@@ -166,12 +163,12 @@ Definition SegFuncs : set → set → set → set := λ A R B,
 
 (* 超限递归定理初级表述 *)
 Definition transfinite_recursion_preliminary_form :=
-  ∀ A R B G, wellOrder R A → G: SegFuncs A R B ⇒ B →
+  ∀ A R B G, woset A R → G: SegFuncs A R B ⇒ B →
   ∃! F, F: A ⇒ B ∧ ∀t ∈ A, F[t] = G[F ↾ seg t R].
 
 (* 超限递归定理模式 *)
 Definition transfinite_recursion_schema :=
-  ∀ A R γ, wellOrder R A →
+  ∀ A R γ, woset A R →
   ∃! F, is_function F ∧ dom F = A ∧ ∀t ∈ A, F[t] = γ (F ↾ seg t R).
 
 (* 超限递归定理模式蕴含其初级表述 *)
@@ -209,6 +206,3 @@ Proof with eauto; try congruence.
         apply restrE2 in Hp as [Hp Hx]. apply func_ap in Hp...
         apply Hsub in Hx. apply SepE2 in Hx...
 Qed.
-
-
-

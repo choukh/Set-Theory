@@ -62,7 +62,7 @@ Proof with neauto.
     split... apply CardAx0.
   + intros x1 H1 x2 H2 Heq. apply op_iff in Heq as []...
   + intros p Hp. apply IFUnionE in Hp as [n [Hn Hp]].
-    apply cprod_iff in Hp as [B [HB [m [Hm Hp]]]]. subst p.
+    apply CProdE1 in Hp as [B [HB [m [Hm Hp]]]]. subst p.
     apply finCardSubSets_iff_finiteSubSets in HB as [HB Hqn]...
     apply SingE in Hm; subst. exists B. split...
     rewrite <- CardAx1, <- (card_of_nat n) in Hqn...
@@ -83,7 +83,7 @@ Proof with auto.
     intros F HF. apply ReplAx in HF as [B [HB HF]]. subst F.
     apply finCardSubSets_iff_finiteSubSets in HB as [_ Hqn]...
     symmetry in Hqn. destruct Hqn as [f Hf].
-    exists f. apply SepI. apply ArrowI.
+    exists f. apply SepI. apply arrowI.
     apply bijection_is_func...
     apply bijection_is_surjection...
   }
@@ -100,7 +100,7 @@ Proof with auto.
   }
   set (Func (𝗙𝗶𝗻𝗰 A n) (n ⟶ A) (λ B, F[G B])) as h.
   exists h. apply meta_injective.
-  - intros B HB. apply ArrowI.
+  - intros B HB. apply arrowI.
     destruct (Hg B) as [Hfg [Hdg Hrg]]...
     split... split... rewrite Hrg. apply Hsub...
   - intros B1 H1 B2 H2 Heq.
@@ -346,20 +346,20 @@ Proof with eauto; try congruence.
   assert (Hπ1: ∀x ∈ A, π1 f⁻¹[x] ∈ A). {
     intros x Hx. apply Hf'ap in Hx.
     apply BUnionE in Hx as [];
-    apply cprod_iff in H as [a [Ha [b [_ H]]]];
+    apply CProdE1 in H as [a [Ha [b [_ H]]]];
     rewrite H; zfcrewrite.
   }
   assert (Hpair: ∀x ∈ A, is_pair f⁻¹[x]). {
     intros x Hx. apply Hf'ap in Hx.
-    apply BUnionE in Hx as []; apply CProdE2 in H...
+    apply BUnionE in Hx as []; apply cprod_is_pairs in H...
   }
   assert (Hπ2: ∀x ∈ A, π2 f⁻¹[x] ≠ 0 → π2 f⁻¹[x] = 1). {
     intros x Hx H0. rewrite <- Hdf' in Hx.
     apply func_correct in Hx... apply ranI in Hx.
     rewrite Hrf' in Hx. apply BUnionE in Hx as [].
-    - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
+    - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
       apply SingE in Hb. rewrite H in H0. zfcrewrite.
-    - apply cprod_iff in H as [a [Ha [b [Hb H]]]].
+    - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
       apply SingE in Hb. rewrite H. zfcrewrite.
   }
   assert (Hg: g: A ⟺ A). {
@@ -400,7 +400,7 @@ Proof with eauto; try congruence.
       apply ranI in Hy as Hx. apply domI in Hy.
       rewrite Hrf' in Hx.
       apply BUnionE in Hx as [];
-      apply cprod_iff in H as [a [Ha [b [Hb H]]]];
+      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
       apply SingE in Hb; subst b. {
         exists (f[<a, 1>]). split.
         - eapply ap_ran... apply BUnionI2. apply CProdI...

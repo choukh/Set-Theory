@@ -131,7 +131,7 @@ Qed.
 Theorem realLt_linearOrder : linearOrder RealLt ℝ.
 Proof.
   apply loset_iff_connected_poset. split.
-  apply realLt_connected. apply subRel_poset.
+  apply realLt_connected. apply subRel_is_poset.
 Qed.
 
 Lemma realLt_irrefl : irrefl RealLt.
@@ -160,7 +160,7 @@ Qed.
 Lemma realLeqE : ∀ x y, x ≤ y → x ⊆ y.
 Proof with auto.
   intros x y [Hlt|Heq].
-  apply binRelE in Hlt as [_ [_ []]]...
+  apply binRelE2 in Hlt as [_ [_ []]]...
   subst. apply sub_refl.
 Qed.
 
@@ -265,9 +265,9 @@ Proof with auto.
     intros a Ha. apply Hsub in Ha as Haz. apply ω_embeddable.
     apply intAdd_ran... apply Hnn. apply HA'...
   }
-  assert (H0: N ≠ ∅). {
+  assert (H0: ⦿ N). {
     apply EmptyNE in Hne as [c Hc]. assert (Hc' := Hc).
-    apply Hemb in Hc' as [k [Hk Heqk]]... apply EmptyNI.
+    apply Hemb in Hc' as [k [Hk Heqk]]...
     exists k. apply SepI... rewrite <- Heqk... apply HA'...
   }
   assert (H1: N ⊆ ω). {
@@ -378,7 +378,7 @@ Lemma realAddE : ∀ x y ∈ ℝ, ∀q ∈ x + y,
 Proof with eauto.
   intros x Hx y Hy q Hq.
   apply ReplAx in Hq as [t [Ht Heq]].
-  apply cprod_iff in Ht as [r [Hr [s [Hs Ht]]]].
+  apply CProdE1 in Ht as [r [Hr [s [Hs Ht]]]].
   exists r. split. eapply real_sub_rat; revgoals...
   exists s. split. eapply real_sub_rat; revgoals...
   subst. zfcrewrite. split...
@@ -388,7 +388,7 @@ Lemma realAdd_sub_rat : ∀ x y ∈ ℝ, x + y ∈ 𝒫 ℚ.
 Proof with auto.
   intros x Hx y Hy. apply PowerAx. intros s Hs.
   apply ReplAx in Hs as [p [Hp Hs]].
-  apply cprod_iff in Hp as [q [Hq [r [Hr Hp]]]].
+  apply CProdE1 in Hp as [q [Hq [r [Hr Hp]]]].
   subst. zfcrewrite. apply ratAdd_ran.
   apply (real_sub_rat _ Hx)... apply (real_sub_rat _ Hy)...
 Qed.
@@ -723,7 +723,7 @@ Qed.
 Lemma realLt_addInv : ∀ x y ∈ ℝ, x <𝐫 y → -y <𝐫 -x.
 Proof with auto.
   intros x Hx y Hy Hlt.
-  apply binRelE in Hlt as [_ [_ [Hsub Hnq]]]. apply binRelI...
+  apply binRelE2 in Hlt as [_ [_ [Hsub Hnq]]]. apply binRelI...
   apply realAddInv_ran... apply realAddInv_ran... split.
   - intros q Hq. apply SepE in Hq as [Hq [s [Hs [Hlt Hout]]]].
     apply SepI... exists s. repeat split...
@@ -763,7 +763,7 @@ Qed.
 Lemma realLt_realq : ∀x ∈ ℝ, ∀q ∈ ℚ, Realq q <𝐫 x ↔ q ∈ x.
 Proof with neauto.
   intros x Hx q Hq. split; intros.
-  - apply binRelE in H as [H0 [_ [Hsub Hnq]]].
+  - apply binRelE2 in H as [H0 [_ [Hsub Hnq]]].
     destruct (classic (q ∈ x))... exfalso.
     apply Hnq. apply ExtAx. intros p. split; intros Hp.
     + apply Hsub in Hp as Hpx. apply SepE in Hp as [Hpq _].
@@ -812,13 +812,13 @@ Qed.
 Lemma realPos_neg : ∀ x, realPos x → realNeg (-x).
 Proof with neauto.
   intros. apply realLt_addInv in H... rewrite realAddInv_0 in H...
-  apply binRelE in H as [_ [Hx _]]...
+  apply binRelE2 in H as [_ [Hx _]]...
 Qed.
 
 Lemma realNeg_pos : ∀ x, realNeg x → realPos (-x).
 Proof with nauto.
   intros. apply realLt_addInv in H... rewrite realAddInv_0 in H...
-  apply binRelE in H as [Hx _]...
+  apply binRelE2 in H as [Hx _]...
 Qed.
 
 Lemma real_suc_neq_0 : ∀ n, Real (S n) ≠ Real 0.

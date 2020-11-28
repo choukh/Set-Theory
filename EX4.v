@@ -465,7 +465,7 @@ Proof with eauto; try congruence.
     intros y1 y2 H1 H2.
     apply SepE in H1 as [Hp [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [_  [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
-    apply CProdE1 in Hp as [Hxmn _]; zfcrewrite.
+    apply CProdE2 in Hp as [Hxmn _]; zfcrewrite.
     - rewrite H21 in Hxm1. exfalso.
       assert (Hbw: b2 ∈ ω) by (eapply ω_trans; eauto).
       eapply (leq_iff_neg_lt m Hm (m + b2))...
@@ -485,8 +485,8 @@ Proof with eauto; try congruence.
     intros x1 x2 H1 H2.
     apply SepE in H1 as [Hp1 [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [Hp2 [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
-    apply CProdE1 in Hp1 as [Hxmn1 _];
-    apply CProdE1 in Hp2 as [Hxmn2 _]; zfcrewrite.
+    apply CProdE2 in Hp1 as [Hxmn1 _];
+    apply CProdE2 in Hp2 as [Hxmn2 _]; zfcrewrite.
     + rewrite <- Hfd in Hxm1, Hxm2.
       eapply injectiveE; revgoals... split...
     + exfalso. rewrite <- Hfd in Hxm1. rewrite <- Hgd in Hb2.
@@ -504,7 +504,7 @@ Proof with eauto; try congruence.
   - apply ExtAx. intros x. split; intros Hx.
     (* dom h ⊆ m + n *)
     apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as []; zfcrewrite.
+    apply CProdE2 in Hp as []...
     (* dom h ⊇ m + n *)
     destruct (classic (x ∈ m)) as [Hxm|Hxm].
     + assert (Hxd := Hxm). rewrite <- Hfd in Hxd.
@@ -531,7 +531,7 @@ Proof with eauto; try congruence.
   - apply ExtAx. intros y. split; intros Hy.
     (* ran h ⊆ A ∪ B *)
     apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as []; zfcrewrite.
+    apply CProdE2 in Hp as []...
     (* ran h ⊇ A ∪ B *)
     assert (Hy' := Hy). apply BUnionE in Hy' as [].
     + rewrite <- Hfr in H. apply ranE in H as [x Hp].
@@ -672,10 +672,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].
     apply SepE in H2 as
       [Hp2 [i2 [Hi2 [j2 [Hj2 [Hf2 [Hg2 Heq2]]]]]]].
-    apply CProdE1 in Hp1 as [Hxmn Hy1].
-    apply CProdE1 in Hp2 as [_ Hy2].
-    apply cprod_iff in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
-    apply cprod_iff in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
+    apply CProdE2 in Hp1 as [Hxmn Hy1].
+    apply CProdE2 in Hp2 as [_ Hy2].
+    apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
+    apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
     zfcrewrite. rewrite Heq1 in Heq2.
     assert (Hi1w: i1 ∈ ω) by (eapply ω_trans; eauto).
@@ -695,10 +695,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].
     apply SepE in H2 as
       [Hp2 [i2 [Hi2 [j2 [Hj2 [Hf2 [Hg2 Heq2]]]]]]].
-    apply CProdE1 in Hp1 as [Hxmn1 Hy1].
-    apply CProdE1 in Hp2 as [Hxmn2 Hy2].
-    apply cprod_iff in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
-    apply cprod_iff in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
+    apply CProdE2 in Hp1 as [Hxmn1 Hy1].
+    apply CProdE2 in Hp2 as [Hxmn2 Hy2].
+    apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
+    apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
     zfcrewrite. rewrite Hy1 in Hy2.
     apply op_iff in Hy2 as [Hequ Heqv].
@@ -709,7 +709,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   - apply ExtAx. intros x. split; intros Hx.
     (* dom h ⊆ m ⋅ n *)
     apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as []; zfcrewrite.
+    apply CProdE2 in Hp as []...
     (* dom h ⊇ m ⋅ n *)
     assert (Hxmn := Hx).
     apply ex4_37_2 in Hx as [i [Hi [j [Hj Heq]]]]...
@@ -725,10 +725,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   - apply ExtAx. intros y. split; intros Hy.
     (* ran h ⊆ A ∪ B *)
     apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE1 in Hp as []; zfcrewrite.
+    apply CProdE2 in Hp as []...
     (* ran h ⊇ A ∪ B *)
     assert (Hy' := Hy).
-    apply cprod_iff in Hy' as [u [Hu [v [Hv H]]]]. subst y.
+    apply CProdE1 in Hy' as [u [Hu [v [Hv H]]]]. subst y.
     rewrite <- Hfr in Hu. apply ranE in Hu as [i Hpf].
     rewrite <- Hgr in Hv. apply ranE in Hv as [j Hpg].
     apply domI in Hpf as Hi. rewrite Hfd in Hi.

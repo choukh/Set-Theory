@@ -80,8 +80,8 @@ Proof with auto.
   - apply cprod_is_rel.
   - apply domE in H as [y H]. exists y...
   - intros y y' Hy Hy'.
-    apply CProdE1 in Hy  as [_ Hy ]. rewrite π2_correct in Hy.
-    apply CProdE1 in Hy' as [_ Hy']. rewrite π2_correct in Hy'.
+    apply CProdE2 in Hy  as [_ Hy ].
+    apply CProdE2 in Hy' as [_ Hy'].
     apply SingE in Hy. apply SingE in Hy'. subst...
 Qed.
 
@@ -135,16 +135,16 @@ Proof with eauto.
     + apply inv_func_iff_sr...
     + apply cprod_single_is_func.
     + apply EmptyI. intros x Hx.
-      apply BInterE in Hx as [H1 H2]. apply domE in H2 as [y H2].
-      apply CProdE1 in H2 as [H2 _]. rewrite π1_correct in H2.
+      apply BInterE in Hx as [H1 H2].
+      apply domE in H2 as [y H2].
+      apply CProdE2 in H2 as [H2 _].
       apply CompE in H2 as [_ H2]. rewrite inv_dom in H1...
   (* dom G = B ∧ ran G ⊆ A *)
   - split; [apply ExtAx; split; intros Hx|].
     (* dom G ⊆ B *)
     + apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
       * apply domI in H0. rewrite inv_dom in H0. apply Hrf in H0...
-      * apply CProdE1 in H0 as [H0 _]. rewrite π1_correct in H0.
-        apply CompE in H0 as []...
+      * apply CProdE2 in H0 as [H0 _]. apply CompE in H0 as []...
     (* dom G ⊇ B *)
     + destruct (classic (x ∈ ran F)); eapply domI.
       * apply BUnionI1. rewrite <- inv_dom in H0.
@@ -154,8 +154,7 @@ Proof with eauto.
     + intros x Hx. apply ranE in Hx as [y Hp].
       apply BUnionE in Hp as [].
       * apply ranI in H0. rewrite inv_ran in H0. subst A...
-      * apply CProdE1 in H0 as [_ H0]. rewrite π2_correct in H0.
-        apply SingE in H0. subst a...
+      * apply CProdE2 in H0 as [_ H0]. apply SingE in H0. subst a...
   (* G ∘ F = Ident A*)
   - apply ExtAx. split; intros Hx.
     + apply SepE in Hx as [_ [Hp [y [H1 H2]]]].
@@ -164,8 +163,9 @@ Proof with eauto.
         apply domI in H1 as Hd. subst A...
         apply op_η in Hp. rewrite Hp at 3. apply op_iff.
         split... rewrite <- inv_op in H2. eapply singrE...
-      * exfalso. apply ranI in H1. apply CProdE1 in H2 as [H2 _].
-        rewrite π1_correct in H2. apply CompE in H2 as []...
+      * exfalso. apply ranI in H1.
+        apply CProdE2 in H2 as [H2 _].
+        apply CompE in H2 as []...
     + apply ReplAx in Hx as [b [Hb Heq]]. subst x.
       rewrite <- Hdf in Hb. apply domE in Hb as [c Hb].
       eapply compoI... apply BUnionI1. rewrite <- inv_op...
@@ -518,14 +518,13 @@ Definition Arrow : set → set → set := λ A B,
   {F ∊ 𝒫(A × B) | λ F, F: A ⇒ B}.
 Notation "A ⟶ B" := (Arrow A B) (at level 60).
 
-Theorem ArrowI : ∀ F A B, F: A ⇒ B → F ∈ A ⟶ B.
+Theorem arrowI : ∀ F A B, F: A ⇒ B → F ∈ A ⟶ B.
 Proof with auto; try congruence.
   intros. apply SepI... apply PowerAx. intros p Hp.
   destruct H as [Hff [Hdf Hrf]].
   apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
   apply domI in Hp as Hd. apply ranI in Hp as Hr.
-  apply cprod_iff. exists (π1 p). split...
-  exists (π2 p). split... apply Hrf...
+  rewrite Heqp. apply CProdI... apply Hrf...
 Qed.
 
 Theorem arrow_iff : ∀ F A B,
@@ -559,7 +558,7 @@ Definition InfCProd : set → (set → set) → set := λ I ℱ,
 Lemma InfCProdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ | i ∊ I} →
   (∀i ∈ I, x[i] ∈ ℱ i) → x ∈ InfCProd I ℱ.
 Proof with auto.
-  intros * Hx Hxi. apply SepI. apply ArrowI...
+  intros * Hx Hxi. apply SepI. apply arrowI...
   intros i Hi. apply Hxi...
 Qed.
 
@@ -601,7 +600,7 @@ Proof with eauto.
     assert (Hdeq2: dom F = I). {
       rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
       - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hi _]. zfcrewrite.
+        apply CProdE2 in Hp as [Hi _]...
       - apply Hxi in Hi as Hx. destruct Hx.
         eapply domI. apply SepI. apply CProdI...
         eapply FUnionI... zfcrewrite.
@@ -610,7 +609,7 @@ Proof with eauto.
     + split... split... intros y Hy.
       apply ranE in Hy as [i Hp].
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [_ Hy]. zfcrewrite.
+      apply CProdE2 in Hp as [_ Hy]...
     + intros i Hi. rewrite <- Hdeq2 in Hi.
       apply func_correct in Hi... apply Hsub in Hi.
       apply SepE in Hi as [_ Hy]. zfcrewrite.
@@ -628,7 +627,7 @@ Proof with eauto.
     assert (HXd: dom X = I). {
       apply ExtAx. intros i. split; intros Hi.
       - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE1 in Hp as [Hi _]. zfcrewrite.
+        apply CProdE2 in Hp as [Hi _]...
       - eapply domI. apply SepI. apply CProdI...
         rewrite PowerAx. cut (ℱ i ⊆ ran R)...
         intros x Hx. apply SepE1 in Hx... zfcrewrite.

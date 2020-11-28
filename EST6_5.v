@@ -2,7 +2,7 @@
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Export ZFC.EX6_2.
-Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.IndexedFamilyUnion.
 
 (*** EST第六章5：可数集，可数多个可数集的并是可数集 ***)
@@ -125,7 +125,7 @@ Proof with eauto; try congruence.
   assert (Hf: f: ω × ω ⟹ ⋃ 𝒜'). {
     apply meta_surjective.
     - intros p Hp.
-      apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. zfcrewrite. apply UnionAx.
       exists (g[b]). split. apply Hgm... apply (ap_ran ω)...
       apply surjection_is_func. apply HFm...
@@ -194,7 +194,7 @@ Proof with neauto.
   exists f. apply meta_injective.
   + intros x Hx. apply SepI.
     * apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
-      apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. apply CProdI... eapply ω_trans...
     * exists 1. split... apply meta_maps_into. intros _ _...
   + intros x1 Hx1 x2 Hx2 Heq.
@@ -209,7 +209,7 @@ Lemma sq_sub_ifunion_arrow : ∀ A, 𝗦𝗾 A ⊆ ⋃ᵢ λ i, i ⟶ A.
 Proof with eauto.
   intros A f Hf.
   apply SepE in Hf as [_ [n [Hn Hf]]].
-  eapply IFUnionI... apply ArrowI...
+  eapply IFUnionI... apply arrowI...
 Qed.
 
 (* ω的有限序列集与自身等势 *)
@@ -235,7 +235,7 @@ Proof with eauto; try congruence.
     assert (Hf' := Hf). destruct Hf' as [_ [Hdf _]].
     apply SepI.
     + apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
-      apply cprod_iff in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. apply CProdI... eapply ω_trans...
     + exists n. split... rewrite Hdf.
       apply meta_maps_into. intros x Hx. eapply ap_ran.
@@ -322,7 +322,7 @@ Proof with auto; try congruence.
   assert (Hf: f: 𝒜' × K ⟹ ⋃ 𝒜'). {
     apply meta_surjective.
     - intros p Hp.
-      apply cprod_iff in Hp as [A [HA [k [Hk Hp]]]].
+      apply CProdE1 in Hp as [A [HA [k [Hk Hp]]]].
       subst p. zfcrewrite. apply UnionAx.
       exists A. split... apply (ap_ran K)...
       apply surjection_is_func. apply HFA...

@@ -3,7 +3,7 @@
 
 Require Export ZFC.EX6_1.
 Require Import ZFC.lib.IndexedFamilyUnion.
-Require Import ZFC.lib.NaturalSubsetMin.
+Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.NatIsomorphism.
 Require Import ZFC.lib.algebra.Inj_2n3m.
 
@@ -185,19 +185,19 @@ Proof with neauto; try congruence.
   intros N Hsub Hinf.
   apply Schröeder_Bernstein. apply dominate_sub...
   apply infinite_subset_of_ω_is_unbound in Hinf as [Hne Harc]...
-  destruct (ω_well_ordered N) as [n0 [Hn0 H0]]... apply EmptyNI...
+  destruct (ω_well_ordered N) as [n0 [Hn0 Hle]]...
   apply Hsub in Hn0 as Hn0w.
-  assert (Hsubn: ∀n ∈ ω, 𝒩xt N n ⊆ N). {
+  assert (Hsubn: ∀n ∈ ω, {x ∊ N | λ x, n ∈ x} ⊆ N). {
     intros n Hn x Hx. apply SepE1 in Hx...
   }
-  set (Func N N (λ n, Next N n)) as F.
+  set (Func N N (λ n, Next n N Lt)) as F.
   assert (HF: F: N ⇔ N). {
     apply meta_injective.
     - intros n Hn. apply Hsub in Hn as Hnw. apply (Hsubn n Hnw).
       pose proof (Harc n Hnw) as [m [Hm Hnm]].
-      apply min_correct. exists m. apply SepI...
-      eapply sub_tran. apply Hsubn... apply Hsub.
-    - apply next_injective...
+      apply ω_next... exists m. split...
+    - intros n1 H1 n2 H2.
+      apply ω_next_injective; auto; apply Harc; apply Hsub...
   }
   assert (Hn0': n0 ∈ N - ran F). {
     destruct HF as [[Hf _] [Hd Hr]].
@@ -206,9 +206,10 @@ Proof with neauto; try congruence.
     rewrite Hd in Hx. apply Hsub in Hx as Hxw.
     apply func_ap in Hp... unfold F in Hp.
     rewrite meta_func_ap in Hp; [|split|]...
-    pose proof (H0 x Hx) as Hn0x. apply leq_iff_sub in Hn0x...
-    apply min_next in Hx as [_ [Hx _]]...
-    rewrite Hp in Hx. apply Hn0x in Hx. apply (lt_irrefl x)...
+    pose proof (Hle x Hx) as Hn0x. apply leq_iff_sub in Hn0x...
+    apply ω_next in Hx as [Hx _]... { apply Harc... }
+    rewrite Hp in Hx. apply SepE in Hx as [_ Hx].
+    apply Hn0x in Hx. apply (lt_irrefl x)...
   }
   pose proof (injective_recursion _ _ _ HF Hn0') as [f [Hf _]].
   exists f...
@@ -232,10 +233,10 @@ Lemma dominated_by_ω_if_mapped_onto_by_ω :
 Proof with auto; try congruence.
   intros B f [Hf [Hd Hr]].
   set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
-  set (Func B ω (λ x, min[𝒩 x])) as g.
+  set (Func B ω (λ x, (Min Lt)[𝒩 x])) as g.
   exists g. apply meta_injective.
   + intros x Hx. eapply ap_ran.
-    apply min_maps_into. apply SepI.
+    apply ω_min_maps_into. apply SepI.
     * apply PowerAx. intros n Hn. apply SepE1 in Hn...
     * rewrite <- Hr in Hx. apply ranE in Hx as [n Hp].
       apply domI in Hp as Hn. apply func_ap in Hp...
@@ -244,12 +245,12 @@ Proof with auto; try congruence.
     assert (Hsub: ∀ b, 𝒩 b ⊆ ω). {
       intros b0 x Hx. apply SepE1 in Hx...
     }
-    specialize (min_correct (𝒩 b1)) as [H1 _]... {
+    specialize (ω_min (𝒩 b1)) as [H1 _]... {
       rewrite <- Hr in Hb1. apply ranE in Hb1 as [n1 H1].
       apply domI in H1 as Hn1. apply func_ap in H1...
       exists n1. apply SepI...
     }
-    specialize (min_correct (𝒩 b2)) as [H2 _]... {
+    specialize (ω_min (𝒩 b2)) as [H2 _]... {
       rewrite <- Hr in Hb2. apply ranE in Hb2 as [n2 H2].
       apply domI in H2 as Hn2. apply func_ap in H2...
       exists n2. apply SepI...
@@ -301,11 +302,11 @@ Proof with nauto.
   - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%n)) as f.
     exists f. apply meta_injective.
     + intros p Hp.
-      apply cprod_iff in Hp as [n [Hn [m [Hm Hp]]]].
+      apply CProdE1 in Hp as [n [Hn [m [Hm Hp]]]].
       subst p. zfcrewrite. apply mul_ran; apply exp_ran...
     + intros p1 H1 p2 H2 Heq.
-      apply cprod_iff in H1 as [n [Hn [m [Hm H1]]]].
-      apply cprod_iff in H2 as [p [Hp [q [Hq H2]]]].
+      apply CProdE1 in H1 as [n [Hn [m [Hm H1]]]].
+      apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]].
       subst p1 p2. zfcrewrite.
       do 4 rewrite pow_isomorphic_ω in Heq...
       do 2 rewrite mul_isomorphic_ω in Heq...
@@ -634,7 +635,7 @@ Proof with neauto.
     apply SepI. {
       apply PowerAx. intros x Hx. apply BUnionE in Hx as [].
       - apply PowerAx in Hf. apply Hf in H. eapply sub_mono_cprod...
-      - apply cprod_iff in H as [a [Ha [b [Hb H]]]]. subst x.
+      - apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst x.
         apply CProdI. apply SepE1 in Ha...
         apply SingE in Hb. subst b...
     }
@@ -644,8 +645,8 @@ Proof with neauto.
         - apply cprod_is_rel.
         - apply domE in H...
         - intros y1 y2 Hp1 Hp2.
-          apply cprod_iff in Hp1 as [a [Ha [b [Hb H1]]]].
-          apply cprod_iff in Hp2 as [c [Hc [d [Hd H2]]]].
+          apply CProdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
+          apply CProdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
           apply op_iff in H1 as []; subst x y1.
           apply op_iff in H2 as []; subst y2.
           apply SingE in Hb. apply SingE in Hd. congruence.
@@ -653,13 +654,13 @@ Proof with neauto.
       intros x Hx. exfalso.
       apply BInterE in Hx as [H1 H2].
       apply domE in H2 as [y H2].
-      apply cprod_iff in H2 as [a [Ha [b [_ H2]]]].
+      apply CProdE1 in H2 as [a [Ha [b [_ H2]]]].
       apply op_iff in H2 as [H _]; subst x.
       apply SepE in Ha as [_ H]. congruence.
     + apply ExtAx. split; intros Hx. {
         apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
         - apply Hsub. rewrite <- Hdf. eapply domI...
-        - apply cprod_iff in H as [a [Ha [b [_ H]]]].
+        - apply CProdE1 in H as [a [Ha [b [_ H]]]].
           apply op_iff in H as [H _]; subst x.
           apply SepE1 in Ha...
       } {
@@ -672,19 +673,19 @@ Proof with neauto.
     + intros y Hy. apply ranE in Hy as [x Hp].
       apply BUnionE in Hp as [].
       * apply ranI in H. apply Hrf...
-      * apply CProdE1 in H as [_ Hy]. zfcrewrite.
+      * apply CProdE2 in H as [_ Hy].
         apply SingE in Hy. subst y...
   - intros f1 Hf1 f2 Hf2 Heq. eapply ex2_20'...
     apply ExtAx. split; intros Hx.
     + apply BInterE in Hx as [H1 H2].
       apply SepE in Hf1 as [Hf1 _]. apply PowerAx in Hf1.
-      apply Hf1 in H1. apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
-      subst x. apply CProdE1 in H2 as [H _]. zfcrewrite.
+      apply Hf1 in H1. apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      subst x. apply CProdE2 in H2 as [H _].
       apply SepE in H as [_ H]. exfalso...
     + apply BInterE in Hx as [H1 H2].
       apply SepE in Hf2 as [Hf2 _]. apply PowerAx in Hf2.
-      apply Hf2 in H1. apply cprod_iff in H1 as [a [Ha [b [Hb H1]]]].
-      subst x. apply CProdE1 in H2 as [H _]. zfcrewrite.
+      apply Hf2 in H1. apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      subst x. apply CProdE2 in H2 as [H _].
       apply SepE in H as [_ H]. exfalso...
 Qed.
 
@@ -767,10 +768,10 @@ Proof with neauto; try congruence.
   end)) as f.
   exists f. apply meta_bijective.
   - intros x Hx. apply BUnionE in Hx as [].
-    + apply cprod_iff in H as [n [Hn [b [Hb H]]]].
+    + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
       subst x. zfcrewrite. apply SingE in Hb.
       destruct (ixm (b = 0))... apply mul_ran...
-    + apply cprod_iff in H as [n [Hn [b [Hb H]]]].
+    + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
       subst x. zfcrewrite. apply SingE in Hb.
       destruct (ixm (b = 0)).
       * subst b. exfalso. eapply suc_neq_0...
@@ -779,8 +780,8 @@ Proof with neauto; try congruence.
     assert (H20: Embed 2 ≠ Embed 0). { intros H. eapply suc_neq_0... }
     apply BUnionE in H1 as [H1|H1];
     apply BUnionE in H2 as [H2|H2];
-    apply cprod_iff in H1 as [m [Hm [n [Hn H1]]]];
-    apply cprod_iff in H2 as [p [Hp [q [Hq H2]]]];
+    apply CProdE1 in H1 as [m [Hm [n [Hn H1]]]];
+    apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]];
     apply SingE in Hn; apply SingE in Hq;
     subst x1 x2 n q; zfcrewrite; apply op_iff.
     + destruct (ixm (Embed 0 = Embed 0))...

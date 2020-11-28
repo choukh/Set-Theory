@@ -12,7 +12,7 @@ Notation "| r |" := (RealAbs r) : Real_scope.
 Lemma realAbs_nonNeg_id : ∀ x, realNonNeg x → |x| = x.
 Proof with neauto.
   intros x [Hpos|H0].
-  - assert (Hx: x ∈ ℝ) by (apply binRelE in Hpos as [_ []]; auto).
+  - assert (Hx: x ∈ ℝ) by (apply binRelE2 in Hpos as [_ []]; auto).
     apply realPos_rat0 in Hpos as H0...
     apply ExtAx. intros q. split; intros Hq; revgoals.
     apply BUnionI1... apply BUnionE in Hq as []...
@@ -39,7 +39,7 @@ Qed.
 Lemma realAbs_nonPos_flip : ∀ x, realNonPos x → |x| = -x.
 Proof with neauto.
   intros x [Hneg|Heq].
-  - assert (Hx: x ∈ ℝ) by (apply binRelE in Hneg as []; auto).
+  - assert (Hx: x ∈ ℝ) by (apply binRelE2 in Hneg as []; auto).
     apply realNeg_pos in Hneg as Hpos.
     apply realPos_rat0 in Hpos as H0; [|apply realAddInv_ran; auto].
     apply ExtAx. intros q. split; intros Hq; revgoals.
@@ -193,7 +193,7 @@ Proof with auto.
   apply BUnionE in Hs as []... right.
   apply ReplAx in H as [p [Hp Hs]].
   apply SepE in Hp as [Hp [H1 H2]].
-  apply cprod_iff in Hp as [q [Hq [r [Hr Hp]]]].
+  apply CProdE1 in Hp as [q [Hq [r [Hr Hp]]]].
   subst. zfcrewrite.
   exists q. split... apply (real_sub_rat _ Hx)...
   exists r. split... apply (real_sub_rat _ Hy)...
@@ -433,7 +433,7 @@ Lemma realAddE_nonNeg : ∀ x y ∈ ℝ, ∀q ∈ ℚ,
     (ratNonNeg r ∧ ratNonNeg s) ∧ (r + s)%q = q.
 Proof with neauto.
   intros x Hx y Hy q Hqq Hpx Hpy Hnnq Hq.
-  apply ReplAx in Hq as [t [Ht Heq]]. apply cprod_iff in Ht
+  apply ReplAx in Hq as [t [Ht Heq]]. apply CProdE1 in Ht
     as [r [Hr [s [Hs Ht]]]]. subst. zfcrewrite.
   assert (Hrq: r ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
   assert (Hsq: s ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
