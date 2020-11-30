@@ -1,5 +1,10 @@
 # Set-Theory
 
+本项目为集合论教材Elements of Set Theory - Herbert B. Enderton的Coq形式化。基本按教材顺序编写，而没有考虑模块化。仅适合作为集合论教学的辅助，而不适合作为一个通用的数学库。
+
+This project is a Coq formalization of the textboox Elements of Set Theory - Herbert B. Enderton. It is basically written in the order of the textbook, without considering modularity. It is only suitable as an aid to the teaching of set theory, not as a general mathematical library.
+
+
 ## 编译
 ```
 ./build_all.sh
@@ -145,6 +150,7 @@
 - 良序
 - 超限归纳原理
 - 超限递归定理
+- 传递闭包
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
