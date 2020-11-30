@@ -190,7 +190,7 @@ Proof with neauto; try congruence.
   assert (Hsubn: ∀n ∈ ω, {x ∊ N | λ x, n ∈ x} ⊆ N). {
     intros n Hn x Hx. apply SepE1 in Hx...
   }
-  set (Func N N (λ n, Next n N Lt)) as F.
+  set (Func N N (Next N Lt)) as F.
   assert (HF: F: N ⇔ N). {
     apply meta_injective.
     - intros n Hn. apply Hsub in Hn as Hnw. apply (Hsubn n Hnw).

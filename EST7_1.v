@@ -220,17 +220,17 @@ Definition infimum : set → set → set → set → Prop :=
     ∀ y, lowerBound y B A R → <y, x> ∈ R ∨ y = x.
 
 (* 真包含关系 *)
-Definition SubRel : set → set := λ S,
+Definition InclRel : set → set := λ S,
   BinRel S (λ A B, A ⊂ B).
 
-Lemma subRel_is_binRel : ∀ S, is_binRel (SubRel S) S.
+Lemma inclRel_is_binRel : ∀ S, is_binRel (InclRel S) S.
 Proof.
   intros S p Hp.
   apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
   subst. apply CProdI; auto.
 Qed.
 
-Lemma subRel_tranr : ∀ S, tranr (SubRel S).
+Lemma inclRel_tranr : ∀ S, tranr (InclRel S).
 Proof with eauto.
   intros S a b c Hab Hbc.
   apply binRelE2 in Hab as [Ha [Hb [Hab Hnq]]].
@@ -239,22 +239,22 @@ Proof with eauto.
   intros Heq. subst. apply Hnq. apply sub_antisym...
 Qed.
 
-Lemma subRel_irrefl : ∀ S, irrefl (SubRel S).
+Lemma inclRel_irrefl : ∀ S, irrefl (InclRel S).
 Proof.
   intros S x Hp. apply binRelE2 in Hp as [_ [_ [_ Heq]]]. auto.
 Qed.
 
-Lemma subRel_is_poset : ∀ S, poset S (SubRel S).
+Lemma inclRel_is_poset : ∀ S, poset S (InclRel S).
 Proof with auto.
   repeat split.
-  - apply subRel_is_binRel.
-  - eapply binRel_is_rel. apply subRel_is_binRel.
-  - apply subRel_tranr.
-  - apply subRel_irrefl.
+  - apply inclRel_is_binRel.
+  - eapply binRel_is_rel. apply inclRel_is_binRel.
+  - apply inclRel_tranr.
+  - apply inclRel_irrefl.
 Qed.
 
-Example subRel_bunion_supremum : ∀ S, ∀ A B ∈ 𝒫 S,
-  supremum (A ∪ B) {A, B} (𝒫 S) (SubRel (𝒫 S)).
+Example inclRel_bunion_supremum : ∀ S, ∀ A B ∈ 𝒫 S,
+  supremum (A ∪ B) {A, B} (𝒫 S) (InclRel (𝒫 S)).
 Proof with auto.
   intros S A HAP B HBP.
   assert (Hu: A ∪ B ∈ 𝒫 S). {
@@ -293,8 +293,8 @@ Proof with auto.
       intros x Hx. apply BUnionE in Hx as []; subst...
 Qed.
 
-Example subRel_binter_infimum : ∀ S, ∀ A B ∈ 𝒫 S,
-  infimum (A ∩ B) {A, B} (𝒫 S) (SubRel (𝒫 S)).
+Example inclRel_binter_infimum : ∀ S, ∀ A B ∈ 𝒫 S,
+  infimum (A ∩ B) {A, B} (𝒫 S) (InclRel (𝒫 S)).
 Proof with auto.
   intros S A HAP B HBP.
   assert (HiP: A ∩ B ∈ 𝒫 S). {
@@ -329,8 +329,8 @@ Proof with auto.
       intros x Hx. apply BInterI; subst...
 Qed.
 
-Example subRel_union_supremum : ∀ S 𝒜, 𝒜 ⊆ 𝒫 S →
-  supremum (⋃ 𝒜) 𝒜 (𝒫 S) (SubRel (𝒫 S)).
+Example inclRel_union_supremum : ∀ S 𝒜, 𝒜 ⊆ 𝒫 S →
+  supremum (⋃ 𝒜) 𝒜 (𝒫 S) (InclRel (𝒫 S)).
 Proof with auto; try congruence.
   intros S 𝒜 Hsub.
   assert (Hu: ⋃ 𝒜 ∈ 𝒫 S). {
@@ -356,8 +356,8 @@ Proof with auto; try congruence.
     + left. apply binRelI... split...
 Qed.
 
-Example subRel_inter_infimum : ∀ S 𝒜, ⦿ 𝒜 → 𝒜 ⊆ 𝒫 S →
-  infimum (⋂ 𝒜) 𝒜 (𝒫 S) (SubRel (𝒫 S)).
+Example inclRel_inter_infimum : ∀ S 𝒜, ⦿ 𝒜 → 𝒜 ⊆ 𝒫 S →
+  infimum (⋂ 𝒜) 𝒜 (𝒫 S) (InclRel (𝒫 S)).
 Proof with auto; try congruence.
   intros S 𝒜 Hne Hsub.
   assert (Hi: ⋂ 𝒜 ∈ 𝒫 S). {

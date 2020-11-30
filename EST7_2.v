@@ -13,6 +13,29 @@ Definition woset : set → set → Prop := λ A R,
 Definition descending_chain : set → set → set → Prop := λ f A R,
   f: ω ⇒ A ∧ ∀n ∈ ω, <f[n⁺], f[n]> ∈ R.
 
+(* 良序集不存在无穷降链 *)
+Theorem woset_no_descending_chain : ∀ A R,
+  woset A R → ¬ ∃ f, descending_chain f A R.
+Proof with neauto.
+  intros AC1 * [Hlo Hmin] [f [[Hf [Hd Hr]] Hlt]].
+    apply linearOrder_irrefl in Hlo as Hir.
+    destruct Hlo as [_ [Htr _]].
+    assert (Hne: ⦿ ran f). {
+      exists (f[0]). eapply ranI.
+      apply func_correct... rewrite Hd...
+    }
+    apply Hmin in Hne as [m [Hm Hle]]...
+    apply ranE in Hm as [x Hp].
+    apply domI in Hp as Hx. rewrite Hd in Hx.
+    apply func_ap in Hp as Hap... subst m.
+    assert (Hfx: f[x⁺] ∈ ran f). {
+      eapply ap_ran. split... apply ω_inductive...
+    }
+    apply Hlt in Hx. apply Hle in Hfx as [].
+    + eapply Hir. eapply Htr...
+    + eapply Hir. rewrite H in Hx...
+Qed.
+
 (* ==需要选择公理== *)
 (* 非良序的关系存在无穷降链 *)
 Lemma ex_descending_chain : AC_I → ∀ A R, ⦿ A →
@@ -49,23 +72,7 @@ Theorem woset_iff_no_descending_chain :
   woset A R ↔ ¬ ∃ f, descending_chain f A R.
 Proof with neauto.
   intros AC1 * Hlo. split.
-  - intros [_ Hwo] [f [[Hf [Hd Hr]] Hlt]].
-    apply linearOrder_irrefl in Hlo as Hir.
-    destruct Hlo as [_ [Htr _]].
-    assert (Hne: ⦿ ran f). {
-      exists (f[0]). eapply ranI.
-      apply func_correct... rewrite Hd...
-    }
-    apply Hwo in Hne as [m [Hm Hmin]]...
-    apply ranE in Hm as [x Hp].
-    apply domI in Hp as Hx. rewrite Hd in Hx.
-    apply func_ap in Hp as Hap... subst m.
-    assert (Hfx: f[x⁺] ∈ ran f). {
-      eapply ap_ran. split... apply ω_inductive...
-    }
-    apply Hlt in Hx. apply Hmin in Hfx as [].
-    + eapply Hir. eapply Htr...
-    + eapply Hir. rewrite H in Hx...
+  - intros Hwo. apply woset_no_descending_chain...
   - intros Hndc. split... intros B Hne Hsub.
     destruct (classic (∃ m, minimum m B R))...
     pose proof (ex_descending_chain AC1 B R Hne) as [f Hdc]. {
@@ -79,6 +86,43 @@ Proof with neauto.
     exfalso. apply Hndc. exists f.
     destruct Hdc as [[Hf [Hd Hr]] Hdc].
     split... split... split... eapply sub_tran...
+Qed.
+
+Definition SubRel : set → set → set := λ R B,
+  {p ∊ R | λ p, p ∈ B × B}.
+Notation "R ⥏ B" := (SubRel R B) (at level 60).
+
+Lemma subRel_loset : ∀ A R B, loset A R → B ⊆ A → loset B (R ⥏ B).
+Proof with eauto.
+  intros * [Hbr [Htr Htri]] Hsub. repeat split.
+  - intros p Hp. apply SepE2 in Hp...
+  - intros x y z Hxy Hyz.
+    apply SepE in Hxy as [Hxy Hx]. apply CProdE2 in Hx as [Hx _].
+    apply SepE in Hyz as [Hyz Hz]. apply CProdE2 in Hz as [_ Hz].
+    apply SepI. eapply Htr... apply CProdI...
+  - intros x Hx y Hy.
+    apply Hsub in Hx as Hxa. apply Hsub in Hy as Hya.
+    pose proof (Htri x Hxa y Hya) as [|[|]]; destruct H as [H1 [H2 H3]].
+    + left. repeat split...
+      * apply SepI... apply CProdI...
+      * intros Hyx. apply H3. apply SepE1 in Hyx...
+    + right. left. repeat split...
+      * intros Hxy. apply H1. apply SepE1 in Hxy...
+      * intros Hyx. apply H3. apply SepE1 in Hyx...
+    + right. right. repeat split...
+      * intros Hxy. apply H1. apply SepE1 in Hxy...
+      * apply SepI... apply CProdI...
+Qed.
+
+Lemma subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
+Proof with eauto.
+  intros * [Hlo Hmin] Hsub.
+  split. eapply subRel_loset...
+  intros C Hne HsubC.
+  pose proof (Hmin C Hne) as [m [Hm Hle]]. eapply sub_tran...
+  exists m. split... intros x Hx.
+  pose proof (Hle x Hx) as []...
+  left. apply SepI... apply CProdI; apply HsubC...
 Qed.
 
 (* 前节 *)

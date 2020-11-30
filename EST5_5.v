@@ -112,7 +112,7 @@ Close Scope Rat_scope.
 Open Scope Int_scope.
 
 (** 实数的序 **)
-Definition RealLt : set := SubRel ℝ.
+Definition RealLt : set := InclRel ℝ.
 Notation "x <𝐫 y" := (<x, y> ∈ RealLt) (at level 70).
 
 Lemma realLt_connected : connected RealLt ℝ.
@@ -131,7 +131,7 @@ Qed.
 Theorem realLt_linearOrder : linearOrder RealLt ℝ.
 Proof.
   apply loset_iff_connected_poset. split.
-  apply realLt_connected. apply subRel_is_poset.
+  apply realLt_connected. apply inclRel_is_poset.
 Qed.
 
 Lemma realLt_irrefl : irrefl RealLt.

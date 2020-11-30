@@ -56,16 +56,16 @@ Proof with eauto.
 Qed.
 
 (* 后节 *)
-Definition tail : set → set → set → set := λ a B R,
+Definition tail : set → set → set → set := λ B R a,
   {x ∊ B | λ x, <a, x> ∈ R}.
 
 (* 良序集上的后继函数 *)
-Definition Next : set → set → set → set := λ a B R,
-  (Min R)[tail a B R].
+Definition Next : set → set → set → set := λ B R a,
+  (Min R)[tail B R a].
 
 Lemma next_correct : ∀ A R B, woset A R → B ⊆ A →
   ∀a ∈ B, (∃b ∈ B, <a, b> ∈ R) →
-  minimum (Next a B R) (tail a B R) R.
+  minimum (Next B R a) (tail B R a) R.
 Proof with eauto.
   intros * Hwo Hsub a Ha [b [Hb Hab]].
   assert (Heq: (fld R) = A). {
@@ -86,7 +86,7 @@ Proof with eauto.
           * apply BUnionI1. eapply domI...
           * apply BUnionI2. eapply ranI...
   }
-  specialize (min_correct A R (tail a B R)) as [Hm Hmin]...
+  specialize (min_correct A R (tail B R a)) as [Hm Hmin]...
   - exists b. apply SepI...
   - destruct Hwo as [[Hbr _] _].
     intros x Hx. apply SepE in Hx as [_ Hp].
@@ -96,7 +96,7 @@ Qed.
 
 Lemma next_injective : ∀ A R B, woset A R → B ⊆ A →
   ∀ a b ∈ B, (∃c ∈ B, <a, c> ∈ R) → (∃d ∈ B, <b, d> ∈ R) →
-  Next a B R = Next b B R → a = b.
+  Next B R a = Next B R b → a = b.
 Proof with eauto; try congruence.
   intros A R B Hwo Hsub a Ha b Hb Hea Heb Heq.
   pose proof (next_correct A R B Hwo Hsub a Ha Hea) as [Hna H1].
@@ -136,7 +136,7 @@ Qed.
 Lemma ω_next : ∀ N, N ⊆ ω → ∀n ∈ N,
   (∃m ∈ N, n ∈ m) →
   let t := {x ∊ N | λ x, n ∈ x} in
-  let p := Next n N Lt in
+  let p := Next N Lt n in
   p ∈ t ∧ ∀m ∈ t, p ⊆ m.
 Proof with auto.
   intros N Hsub n Hn Hne t p.
@@ -149,7 +149,7 @@ Proof with auto.
   - split.
     + apply SepE in Hnxt as [Hnxt Hlt].
       apply SepI... apply binRelE2 in Hlt as [_ []]...
-    + intros m Hm. assert (m ∈ tail n N Lt). {
+    + intros m Hm. assert (m ∈ tail N Lt n). {
         apply SepE in Hm as [Hm Hnm].
         apply SepI... apply binRelI... apply Hsub...
       }
@@ -161,7 +161,7 @@ Qed.
 
 Lemma ω_next_injective : ∀ N, N ⊆ ω →
   ∀ n m ∈ N, (∃p ∈ N, n ∈ p) → (∃q ∈ N, m ∈ q) →
-  Next n N Lt = Next m N Lt → n = m.
+  Next N Lt n = Next N Lt m → n = m.
 Proof with eauto.
   intros N Hsub n Hn m Hm [p [Hp Hnp]] [q [Hq Hmq]].
   eapply next_injective...
@@ -170,7 +170,7 @@ Proof with eauto.
   - exists q. split... apply binRelI; auto; apply Hsub...
 Qed.
 
-Fact ω_next_eq_suc : ∀n ∈ ω, Next n ω Lt = Suc n.
+Fact ω_next_eq_suc : ∀n ∈ ω, Next ω Lt n = Suc n.
 Proof with neauto.
   intros n Hn.
   specialize (ω_next ω) as [Hm Hmin]... {
