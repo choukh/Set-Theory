@@ -306,6 +306,7 @@ Proof with auto.
   rewrite intMul_addInv_l, intMul_addInv_r; nz... congruence.
 Qed.
 
+(* ==使用了类型论上的选择函数== *)
 (* 有理数投射 *)
 Definition RatPosDenom : set → set := λ r,
   {p ∊ r | λ p, intPos (π2 p)}.
@@ -357,6 +358,7 @@ Qed.
 Close Scope Int_scope.
 Open Scope Rat_scope.
 
+(* ==使用了类型论上的选择函数== *)
 (** 有理数加法逆元 **)
 Definition RatAddInv : set → set := λ r,
   let p := (RatProj r) in [<(-π1 p)%z, π2 p>]~.
@@ -738,6 +740,7 @@ Proof with auto.
   pose proof (nzRatMul_ran r Hr' s Hs'). apply nzRatE0 in H...
 Qed.
 
+(* ==使用了类型论上的选择函数== *)
 (** 有理数乘法逆元 **)
 Definition RatMulInv : set → set := λ r,
   let p := (RatProj r) in [<π2 p, π1 p>]~.

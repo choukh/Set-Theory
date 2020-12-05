@@ -66,6 +66,7 @@ Proof with nauto.
         [apply intEqSymm; apply H22|apply H12|..]...
 Qed.
 
+(* ==使用了类型论上的选择函数== *)
 Lemma card_rat_eq_aleph0 : |ℚ| = ℵ₀.
 Proof with nauto.
   apply CardAx1. symmetry.
@@ -275,3 +276,7 @@ Proof with neauto.
 Qed.
 
 Close Scope Real_scope.
+
+(* ex7_7 see EST7_2 transitive closure *)
+(* ex7_8 see ZFC2 Definition Sep *)
+(* ex7_9 see ZFC1 Definition Pair *)

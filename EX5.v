@@ -97,20 +97,20 @@ Proof with neauto.
     apply intMul_pos_prod; nz... mr;nz.
     apply intMul_pos_prod; nz...
   }
-  split; (apply ratLt; auto; [amr;nz|nzmr; nzmr|]).
+  split; (apply ratLt; try timeout 1 auto; [amr;nz|nzmr; nzmr|]).
   rewrite
     <- (intMul_assoc a), <- (intMul_assoc a), (intMul_comm a),
     (intMul_assoc (Int 2)), (intMul_assoc (Int 2)),
     (intMul_assoc a), (intMul_comm b), <- (intMul_assoc a),
     (intAdd_comm (a⋅d)), intMul_distr', intMul_2_a;
-    nz; nauto; [|mr;nz..]; [|mr;nz].
+    nz; try timeout 1 nauto; [|mr;nz..]; [|mr;nz].
   apply intAdd_preserve_lt; revgoals; [|mr;[mr;nz|nz]..].
   apply intMul_preserve_lt; nz; auto; mr; nz.
   rewrite
     <- (intMul_assoc c), <- (intMul_assoc c),
-    (intMul_comm c Hc (Int 2)),
-    (intMul_assoc (Int 2)), (intMul_assoc (Int 2)),
-    intMul_distr', intMul_2_a; nz; nauto; [|mr;nz..]; [|mr;nz].
+    (intMul_comm c Hc (Int 2)), (intMul_assoc (Int 2)),
+    (intMul_assoc (Int 2)), intMul_distr', intMul_2_a;
+    nz; try timeout 1 nauto; [|mr;nz..]; [|mr;nz].
   apply intAdd_preserve_lt; revgoals; [|mr;[mr;nz|nz]..].
   apply intMul_preserve_lt; nz; auto; mr; nz.
 Qed.
@@ -245,7 +245,7 @@ Proof with neauto.
     apply ratPos_neg...
   - exists (-Int 1)%z. split...
     rewrite intEmbed_addInv, ratMul_addInv_r, ratMul_ident...
-    eapply ratLt_tranr... apply ratPos_neg...
+    eapply ratLt_tranr. apply ratPos_neg... auto.
   - apply ratNeg_pos in Hnr.
     assert (Hr': -r ∈ ℚ) by (apply ratAddInv_ran; auto).
     pose proof (ex5_18 p Hp (-r) Hr' Hpp) as [k [Hk Hlt]].

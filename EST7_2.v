@@ -2,8 +2,9 @@
 (** Coq coding by choukh, Nov 2020 **)
 
 Require Export ZFC.lib.Natural.
+Require Import ZFC.lib.FuncFacts.
 
-(*** EST第七章2：良序，超限归纳原理，超限递归定理 ***)
+(*** EST第七章2：良序，超限归纳原理，超限递归定理，传递闭包 ***)
 
 (* 良序结构 *)
 Definition woset : set → set → Prop := λ A R,
@@ -13,7 +14,7 @@ Definition woset : set → set → Prop := λ A R,
 Definition descending_chain : set → set → set → Prop := λ f A R,
   f: ω ⇒ A ∧ ∀n ∈ ω, <f[n⁺], f[n]> ∈ R.
 
-(* 良序集不存在无穷降链 *)
+(* 良序结构不存在无穷降链 *)
 Theorem woset_no_descending_chain : ∀ A R,
   woset A R → ¬ ∃ f, descending_chain f A R.
 Proof with neauto.
@@ -212,8 +213,8 @@ Definition transfinite_recursion_preliminary_form :=
 
 (* 超限递归定理模式 *)
 Definition transfinite_recursion_schema :=
-  ∀ A R γ, woset A R →
-  ∃! F, is_function F ∧ dom F = A ∧ ∀t ∈ A, F[t] = γ (F ↾ seg t R).
+  ∀ A R γ, woset A R → (∀ f, ∃! y, γ f y) →
+  ∃! F, is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
 
 (* 超限递归定理模式蕴含其初级表述 *)
 Fact transfinite_recursion_schema_to_preliminary_form :
@@ -221,7 +222,10 @@ Fact transfinite_recursion_schema_to_preliminary_form :
   transfinite_recursion_preliminary_form.
 Proof with eauto; try congruence.
   intros Schema A R B G Hwo HG.
-  pose proof (Schema A R (λ f, G[f]) Hwo) as [[F [HF [Hd Hrec]]] Hu].
+  set (λ f y, y = G[f]) as γ.
+  pose proof (Schema A R γ Hwo) as [[F [HF [Hd Hrec]]] Hu]. {
+    intros f. split. exists (G[f])... intros...
+  }
   set {x ∊ A | λ x, F[x] ∈ B} as A'.
   replace A with A' in *. {
     assert (Hr: ran F ⊆ B). {
@@ -249,4 +253,450 @@ Proof with eauto; try congruence.
       * intros y Hy. apply ranE in Hy as [x Hp].
         apply restrE2 in Hp as [Hp Hx]. apply func_ap in Hp...
         apply Hsub in Hx. apply SepE2 in Hx...
+Qed.
+
+(* 替代公理再考 *)
+Local Fact sometimes_replacement_is_simpler_than_separation : ∀ A,
+  {λ a, 𝒫 a | a ∊ A} = {x ∊ 𝒫 𝒫 ⋃A | λ x, ∃a ∈ A, x = 𝒫 a}.
+Proof with auto.
+  intro. apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [a [Ha Heq]]. subst x.
+    apply SepI. apply ex2_10... exists a. split...
+  - apply SepE in Hx as [_ [a [Ha Heq]]]. subst x.
+    apply ReplAx. exists a. split...
+Qed.
+
+Definition relLt := λ x y R, <x, y> ∈ R.
+Notation "x <ᵣ y" := (relLt x y) (at level 60).
+Definition relLe := λ x y R, <x, y> ∈ R ∨ x = y.
+Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
+
+Lemma relLe_tranr : ∀ x y z R, tranr R →
+  (x ≤ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
+Proof with eauto.
+  intros * Htr [Hxy|Hxy] [Hyz|Hyz].
+  - left. eapply Htr...
+  - subst. left...
+  - subst. left...
+  - subst. right...
+Qed.
+
+Lemma relLt_le_tranr : ∀ x y z R, tranr R →
+  (x <ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
+Proof with eauto.
+  intros * Htr Hxy [Hyz|Hyz].
+  - left. eapply Htr...
+  - subst. left...
+Qed.
+
+Definition head : set → set → set → set := λ t A R,
+  {x ∊ A | λ x, (x ≤ᵣ t) R}.
+
+Lemma seg_with_single_eq_head : ∀ t A R, t ∈ A → is_binRel R A →
+  seg t R ∪ ⎨t⎬ = head t A R.
+Proof with eauto.
+  intros * Ht Hbr. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply SepE in H as [Hx Hxt].
+      apply SepI. eapply dom_binRel... left...
+    + apply SingE in H; subst. apply SepI... right...
+  - apply SepE in Hx as [Hx [Hlt|Heq]].
+    + apply BUnionI1. apply segI...
+    + apply BUnionI2. subst...
+Qed.
+
+(* 超限递归定理模式的证明 *)
+Theorem transfinite_recursion : transfinite_recursion_schema.
+Proof with eauto; try congruence.
+  intros A R γ Hwo Hu.
+  assert (H := Hwo). destruct H as [Hlo Hmin].
+  assert (H := Hlo). destruct H as [Hbr [Htr _]].
+  set (λ t, seg t R) as 𝒔𝒆𝒈.
+  set (λ t, head t A R) as head.
+  set (λ t ν, dom ν = head t ∧ ∀x ∈ dom ν, γ (ν ↾ 𝒔𝒆𝒈 x) ν[x]) as γ_constr.
+  assert (HL1: ∀ ν₁ ν₂, ∀ t₁ t₂ ∈ A, (t₁ ≤ᵣ t₂) R →
+    is_function ν₁ → is_function ν₂ → γ_constr t₁ ν₁ → γ_constr t₂ ν₂ →
+    ∀x ∈ A, (x ≤ᵣ t₁) R → ν₁[x] = ν₂[x]
+  ). {
+    intros ν₁ ν₂ t₁ Ht₁ t₂ Ht₂ Htle Hf₁ Hf₂ [Hd₁ Hr₁] [Hd₂ Hr₂].
+    destruct (classic (∀x ∈ A, (x ≤ᵣ t₁) R → ν₁[x] = ν₂[x]))...
+    exfalso. apply set_not_all_ex_not in H as [s [Hs H]].
+    apply imply_to_and in H as [Hst1 Hnqt].
+    set {x ∊ A | λ x, ν₁ [x] ≠ ν₂ [x]} as B.
+    specialize Hmin with B as [m [Hm Hmin]].
+      { exists s. apply SepI... }
+      { intros x Hx. apply SepE1 in Hx... }
+    apply SepE in Hm as [Hm Hnqm]. apply Hnqm.
+    assert (Hms: (m ≤ᵣ s) R) by (apply Hmin; apply SepI; auto).
+    assert (Hmt₁: (m ≤ᵣ t₁) R) by (apply (relLe_tranr m s t₁ R); auto).
+    assert (Hmt₂: (m ≤ᵣ t₂) R) by (apply (relLe_tranr m t₁ t₂ R); auto).
+    assert (Hmd₁: m ∈ head t₁) by (apply SepI; auto).
+    assert (Hmd₂: m ∈ head t₂) by (apply SepI; auto).
+    eapply Hu. apply Hr₁...
+    replace (ν₁ ↾ 𝒔𝒆𝒈 m) with (ν₂ ↾ 𝒔𝒆𝒈 m). apply Hr₂...
+    apply ExtAx. split; intros Hx.
+    - apply restrE1 in Hx as [a [b [Ha [Hp Heqx]]]].
+      subst x. apply restrI...
+      apply SepE in Ha as [Ha Ham]. eapply dom_binRel in Ha...
+      apply func_ap in Hp... apply func_point...
+      rewrite Hd₁. apply SepI... apply (relLe_tranr a m t₁ R)... left...
+      destruct (classic (ν₁[a] = ν₂[a])) as [|Hnq]... exfalso.
+      assert (a ∈ B) by (apply SepI; auto).
+      apply Hmin in H as []; [|subst]; eapply linearOrder_irrefl...
+    - apply restrE1 in Hx as [a [b [Ha [Hp Heqx]]]].
+      subst x. apply restrI...
+      apply SepE in Ha as [Ha Ham]. eapply dom_binRel in Ha...
+      apply func_ap in Hp... apply func_point...
+      rewrite Hd₂. apply SepI... apply (relLe_tranr a m t₂ R)... left...
+      destruct (classic (ν₁[a] = ν₂[a])) as [|Hnq]... exfalso.
+      assert (a ∈ B) by (apply SepI; auto).
+      apply Hmin in H as []; [|subst]; eapply linearOrder_irrefl...
+  }
+  assert (HL1_1: ∀ ν₁ ν₂, ∀ t ∈ A, is_function ν₁ → is_function ν₂ →
+    γ_constr t ν₁ → γ_constr t ν₂ → ∀x ∈ A, (x ≤ᵣ t) R → ν₁[x] = ν₂[x]
+  ). {
+    intros ν₁ ν₂ t Ht Hf₁ Hf₂ Hγ₁ Hγ₂.
+    eapply HL1... right...
+  }
+  assert (HL1_2: ∀ ν₁ ν₂, ∀ t ∈ A, is_function ν₁ → is_function ν₂ →
+    γ_constr t ν₁ → γ_constr t ν₂ → ν₁ = ν₂
+  ). {
+    intros ν₁ ν₂ t Ht Hf₁ Hf₂ Hγ₁ Hγ₂.
+    assert (H := Hγ₁). destruct H as [Hd₁ _].
+    assert (H := Hγ₂). destruct H as [Hd₂ _].
+    apply func_ext_intro... intros x Hx. rewrite Hd₁ in Hx.
+    eapply HL1_1... apply SepE1 in Hx... apply SepE2 in Hx...
+  }
+  set (λ t ν, is_function ν ∧ γ_constr t ν) as ϕ.
+  set {t ∊ A | λ t, ∃ ν, ϕ t ν} as A'.
+  (* first time that ϕ_Repl is a must *)
+  set (ϕ_Repl ϕ A') as ℋ.
+  set (⋃ ℋ) as F.
+  assert (Hϕ: ∀t ∈ A', ∃! ν, ϕ t ν). {
+    intros t Ht. apply SepE in Ht as [Ht H]. split...
+    intros ν μ [] []. eapply HL1_2...
+  }
+  assert (Hrepl: ∀ ν, ν ∈ ℋ ↔ is_function ν ∧ ∃t ∈ A, γ_constr t ν). {
+    intros. split.
+    - intros Hν. apply ϕ_ReplAx in Hν as [t [Ht [Hfν Hγ]]]; [|apply Hϕ].
+      split... exists t. split... apply SepE1 in Ht...
+    - intros [Hfν [t [Ht Hγ]]]. apply ϕ_ReplAx. apply Hϕ.
+      exists t. split. apply SepI... exists ν. split... split...
+  }
+  assert (Hstar: ∀ x y, <x, y> ∈ F ↔ ∃ν ∈ ℋ, <x, y> ∈ ν). {
+    intros. split.
+    - intros Hp. apply UnionAx in Hp as [ν [Hν Hp]].
+      exists ν. split...
+    - intros [ν [Hν Hap]]. apply UnionAx.
+      exists ν. split...
+  }
+  assert (Hhd: ∀ ν t x y, γ_constr t ν → <x, y> ∈ ν → x ∈ A ∧ (x ≤ᵣ t) R). {
+    intros * [Hd _] Hp. apply domI in Hp as Hx.
+    rewrite Hd in Hx. apply SepE in Hx...
+  }
+  assert (HfF: is_function F). {
+    repeat split.
+    - intros p Hp. apply UnionAx in Hp as [ν [Hν Hp]].
+      apply Hrepl in Hν as [[Hrel _] _]. apply Hrel...
+    - apply domE in H...
+    - intros y₁ y₂ Hp₁ Hp₂.
+      apply Hstar in Hp₁ as [ν₁ [Hν₁ Hp₁]].
+      apply Hstar in Hp₂ as [ν₂ [Hν₂ Hp₂]].
+      apply Hrepl in Hν₁ as [Hf₁ [t₁ [Ht₁ Hγ₁]]].
+      apply Hrepl in Hν₂ as [Hf₂ [t₂ [Ht₂ Hγ₂]]].
+      apply func_ap in Hp₁ as Hν₁... eapply Hhd in Hp₁ as [Hx Hhd₁]...
+      apply func_ap in Hp₂ as Hν₂... eapply Hhd in Hp₂ as [_ Hhd₂]...
+      destruct (classic (t₁ = t₂)) as [Heq|Hnq].
+      + rewrite (HL1_1 ν₁ ν₂ t₁ Ht₁) in Hν₁...
+      + eapply linearOrder_connected in Hnq as []...
+        * rewrite (HL1 ν₁ ν₂ t₁ Ht₁ t₂ Ht₂) in Hν₁... left...
+        * rewrite (HL1 ν₂ ν₁ t₂ Ht₂ t₁ Ht₁) in Hν₂... left...
+  }
+  assert (HL2: ∀x ∈ dom F, γ (F ↾ 𝒔𝒆𝒈 x) F[x]). {
+    intros x Hx. apply domE in Hx as [y Hp].
+    apply Hstar in Hp as [ν [Hν Hpν]]. assert (Hν' := Hν).
+    apply Hrepl in Hν' as [Hfν [t [Ht Hγν]]].
+    apply domI in Hpν as Hx. apply Hγν in Hx as Hνx.
+    assert (Heq1: F[x] = ν[x]). {
+      apply func_ap... apply Hstar.
+      exists ν. split... apply func_correct...
+    }
+    assert (Heq2: ν ↾ 𝒔𝒆𝒈 x = F ↾ 𝒔𝒆𝒈 x). {
+      apply ExtAx. intros p. split; intros Hp.
+      - apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]]. subst p.
+        apply restrI... apply Hstar. exists ν. split...
+      - apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]]. subst p.
+        apply restrI... apply Hstar in Hp as [μ [Hμ Hp]].
+        apply Hrepl in Hμ as [Hfμ [s [Hs Hγμ]]].
+        assert (H := Hγμ). destruct H as [Hdμ _].
+        assert (H := Hγν). destruct H as [Hdν _].
+        apply domI in Hp as Hadμ. rewrite Hdμ in Hadμ.
+        apply SepE in Hadμ as [HaA Has].
+        assert (Hat: (a ≤ᵣ t) R). {
+          rewrite Hdν in Hx.
+          apply SepE in Hx as [Hx Hxt].
+          apply SepE in Ha as [_ Hax]. eapply relLt_le_tranr...
+        }
+        apply func_ap in Hp... apply func_point...
+        rewrite Hdν. apply SepI... subst b.
+        destruct (classic (t = s)).
+        + apply (HL1 ν μ t Ht s Hs)... right...
+        + eapply linearOrder_connected in H as []...
+          * apply (HL1 ν μ t Ht s Hs)... left...
+          * symmetry. apply (HL1 μ ν s Hs t Ht)... left...
+    }
+    congruence.
+  }
+  assert (HL3: dom F = A). {
+    destruct (classic (dom F = A)) as [|Hnq]... exfalso.
+    assert (Hps: dom F ⊂ A). {
+      split... intros x Hx. apply domE in Hx as [y Hp].
+      apply Hstar in Hp as [ν [Hν Hp]].
+      apply Hrepl in Hν as [_ [t [_ Hγ]]]. eapply Hhd...
+    }
+    set {x ∊ A | λ x, x ∉ dom F} as B.
+    specialize Hmin with B as [t [Ht Hmin]]. {
+      apply comp_nonempty in Hps as [a Ha].
+      apply SepE in Ha as [Ha Ha']. exists a. apply SepI...
+    } { 
+      intros x Hx. apply SepE1 in Hx...
+    }
+    apply SepE in Ht as [Ht Ht']. apply Ht'.
+    assert (Hseg: 𝒔𝒆𝒈 t = dom F). {
+      apply ExtAx. split; intros Hx.
+      - apply SepE in Hx as [Hx Hxt].
+        apply (dom_binRel R A) in Hx...
+        destruct (classic (x ∈ dom F))... exfalso.
+        assert (Hxb: x ∈ B) by (apply SepI; auto).
+        apply Hmin in Hxb as []; eapply linearOrder_irrefl; subst...
+      - apply Hps in Hx as Hxa. apply segI...
+        destruct (classic (x = t))...
+        eapply linearOrder_connected in H as []... exfalso.
+        apply domE in Hx as [y Hp]. apply Hstar in Hp as [ν [Hν Hp]].
+        apply Ht'. eapply domI. apply Hstar. exists ν. split...
+        apply Hrepl in Hν as [Hfν [s [Hs [Hdν Hγ]]]].
+        apply func_point... rewrite Hdν. apply SepI...
+        apply domI in Hp as Hx. rewrite Hdν in Hx.
+        apply SepE in Hx as [_ Hxs]. eapply relLt_le_tranr...
+    }
+    specialize Hu with F as [[y Hγ] _].
+    set (F ∪ ⎨<t, y>⎬) as ν.
+    assert (Hfs : is_function ⎨<t, y>⎬)
+      by apply single_pair_is_func.
+    assert (Hfν: is_function ν). {
+      apply bunion_is_func...
+      intros x Hx. apply BInterE in Hx as [H1 H2].
+      rewrite dom_of_single_pair in H2. apply SingE in H2; subst...
+    }
+    assert (Hdν: dom ν = head t). {
+      unfold ν. rewrite dom_of_bunion_func...
+      rewrite dom_of_single_pair, <- Hseg.
+      apply seg_with_single_eq_head...
+    }
+    eapply domI. apply Hstar. exists ν. split; revgoals.
+    apply func_point... rewrite Hdν. apply SepI... right...
+    apply Hrepl. split... exists t. split... split...
+    intros x Hx. rewrite Hdν in Hx.
+    apply SepE in Hx as [Hx [Hxt|Heqx]].
+    - assert (Hxs: x ∈ 𝒔𝒆𝒈 t) by (apply segI; auto).
+      rewrite Hseg in Hxs. apply HL2 in Hxs.
+      assert (Heq1: ν ↾ 𝒔𝒆𝒈 x = F ↾ 𝒔𝒆𝒈 x). {
+        apply ExtAx. intros p. split; intros Hp.
+        - apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]]. subst p.
+          apply restrI... apply BUnionE in Hp as []...
+          exfalso. apply SingE in H. apply op_iff in H as []; subst.
+          apply SepE in Ha as [_ Htx]. eapply linearOrder_irrefl...
+        - apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]]. subst p.
+          apply restrI... apply BUnionI1...
+      }
+      assert (Heq2: ν[x] = F[x]). {
+        apply func_ap... apply BUnionI1. apply func_correct...
+        rewrite <- Hseg. apply segI...
+      }
+      congruence.
+    - assert (Heq1: ν ↾ 𝒔𝒆𝒈 t = F). {
+        apply ExtAx. intros p. split; intros Hp.
+        - apply restrE1 in Hp as [a [b [Ha [Hp Heq]]]]. subst p.
+          apply BUnionE in Hp as []...
+          exfalso. apply SingE in H. apply op_iff in H as []; subst.
+          apply SepE in Ha as [_ Htx]. eapply linearOrder_irrefl...
+        - apply func_pair in Hp as Heqp... rewrite Heqp in *.
+          apply restrI. apply domI in Hp... apply BUnionI1...
+      }
+      assert (Heq2: ν[t] = y). {
+        apply func_ap... apply BUnionI2...
+      }
+      congruence.
+  }
+  rewrite HL3 in HL2.
+  split. exists F. split...
+  (* uniqueness *)
+  intros F₁ F₂ [HfF₁ [HdF₁ Hγ₁]] [HfF₂ [HdF₂ Hγ₂]].
+  apply func_ext_intro...
+  intros x Hx. rewrite HdF₁ in Hx.
+  set {t ∊ A | λ t, F₁[t] = F₂[t]} as B.
+  replace A with B in Hx. apply SepE2 in Hx...
+  eapply transfinite_induction...
+  split. intros t Ht. apply SepE1 in Ht...
+  intros t Ht Hsub. apply SepI...
+  apply Hγ₁ in Ht as H1. apply Hγ₂ in Ht as H2.
+  replace (F₂ ↾ seg t R) with (F₁ ↾ seg t R) in H2. eapply Hu...
+  apply ExtAx. intros w. split; intros Hw.
+  - apply restrE1 in Hw as [a [b [Ha [Hp Hw]]]]. subst w.
+    apply restrI... apply Hsub in Ha. apply SepE in Ha as [Ha Heq].
+    apply func_ap in Hp... apply func_point...
+  - apply restrE1 in Hw as [a [b [Ha [Hp Hw]]]]. subst w.
+    apply restrI... apply Hsub in Ha. apply SepE in Ha as [Ha Heq].
+    apply func_ap in Hp... apply func_point...
+Qed.
+
+Theorem transfinite_recursion_pre : transfinite_recursion_preliminary_form.
+Proof.
+  apply transfinite_recursion_schema_to_preliminary_form.
+  apply transfinite_recursion.
+Qed.
+
+Lemma seg_0_Lt : seg 0 Lt = ∅.
+Proof.
+  apply ExtAx; split; intros Hx.
+  apply SepE in Hx as [_ Hx0].
+  apply binRelE2 in Hx0 as [_ [_ Hx0]]. exfalso0. exfalso0.
+Qed.
+
+Lemma ran_of_empty : ran ∅ = ∅.
+Proof.
+  apply ExtAx; split; intros Hx.
+  apply ranE in Hx as [y Hp]. exfalso0. exfalso0.
+Qed.
+
+(** 传递闭包 **)
+
+Module TCHelper.
+
+Definition P := λ A R γ F,
+  is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
+
+Definition F := λ A, epsilon (inhabits ∅)
+  (λ F, let γ := λ x y, y = A ∪ ⋃ ⋃ (ran x) in P ω Lt γ F).
+
+Lemma f_correct : ∀ A,
+  let γ := λ x y, y = A ∪ ⋃ ⋃ (ran x) in P ω Lt γ (F A).
+Proof.
+  intros. apply (epsilon_spec (inhabits ∅) (λ f, P ω Lt γ f)).
+  apply transfinite_recursion. apply Lt_wellOrder.
+  intros f. split. exists (A ∪ ⋃ ⋃ (ran f)). congruence.
+  intros g h Hg Hh. congruence.
+Qed.
+
+Fact f_0 : ∀ A, (F A)[0] = A.
+Proof with nauto.
+  intros. pose proof (f_correct A) as [Hf [Hd Hγ]].
+  rewrite Hγ, seg_0_Lt, restr_to_empty, ran_of_empty,
+    union_empty, union_empty, bunion_empty...
+Qed.
+
+Fact f_1 : ∀ A, (F A)[1] = A ∪ ⋃ A.
+Proof with nauto.
+  intros. pose proof (f_correct A) as [Hf [Hd Hγ]].
+  rewrite Hγ... replace (ran (F A ↾ seg 1 Lt)) with ⎨A⎬.
+  rewrite union_single...
+  apply ExtAx; intros y; split; intros Hy.
+  - apply SingE in Hy; subst.
+    apply (ranI _ 0). apply restrI.
+    + apply segI. apply binRelI... apply suc_has_n.
+    + apply func_point... rewrite Hd... apply f_0.
+  - apply ranE in Hy as [].
+    apply restrE2 in H as [Hp Hx].
+    apply SepE in Hx as [_ Hx1].
+    apply binRelE2 in Hx1 as [_ [_ Hx1]].
+    apply BUnionE in Hx1 as []. exfalso0.
+    apply SingE in H; subst. apply func_ap in Hp...
+    rewrite f_0 in Hp; subst...
+Qed.
+
+Lemma f_ap_preserve_lt : ∀ A, ∀ n m ∈ ω,
+  n ∈ m → (F A)[n] ⊆ (F A)[m].
+Proof with auto.
+  intros A n Hn m Hm Hnm.
+  pose proof (f_correct A) as [Hf [Hd Hγ]].
+  rewrite Hγ, Hγ... intros y Hy.
+  apply BUnionE in Hy as [|Hy]; [apply BUnionI1|apply BUnionI2]...
+  apply UnionAx in Hy as [a [Ha Hy]].
+  apply UnionAx in Ha as [b [Hb Ha]].
+  apply UnionAx. exists a. split...
+  apply UnionAx. exists b. split...
+  apply ranE in Hb as [x Hp].
+  apply restrE2 in Hp as [Hp Hx].
+  apply (ranI _ x). apply restrI...
+  apply segI. apply SepE in Hx as [_ Hxn].
+  eapply Lt_tranr; eauto. apply binRelI...
+Qed.
+
+Lemma f_n : ∀ A, ∀n ∈ ω, (F A)[n⁺] = A ∪ ⋃ (F A)[n].
+Proof with auto; try congruence.
+  intros A n Hn.
+  pose proof (f_correct A) as [Hf [Hd Hγ]].
+  assert (Hnp: n⁺ ∈ ω) by (apply ω_inductive; auto).
+  rewrite Hγ...
+  apply ExtAx; intros y; split; intros Hy;
+  (apply BUnionE in Hy as [|Hy]; [apply BUnionI1|apply BUnionI2])...
+  - apply UnionAx in Hy as [a [Ha Hy]].
+    apply UnionAx in Ha as [b [Hb Ha]].
+    apply ranE in Hb as [c Hp].
+    apply restrE2 in Hp as [Hp Hc].
+    apply func_ap in Hp... subst.
+    apply SepE in Hc as [_ Hc].
+    apply binRelE2 in Hc as [Hc [_ Hcn]].
+    apply UnionAx. exists a. split...
+    apply leq_iff_lt_suc in Hcn as []...
+    apply (f_ap_preserve_lt _ c)...
+  - apply UnionAx in Hy as [a [Ha Hy]].
+    apply UnionAx. exists a. split...
+    apply UnionAx. exists ((F A)[n]). split...
+    apply (ranI _ n). apply restrI.
+    apply segI. apply binRelI... apply suc_has_n.
+    apply func_correct...
+Qed.
+
+Lemma f_inclusion : ∀ A, ∀n ∈ ω, ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺].
+Proof with neauto.
+  intros A n Hn.
+  set {n ∊ ω | λ n, ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺]} as N.
+  ω_induction N Hn; intros a Ha x Hx.
+  - rewrite f_0 in Ha. rewrite f_1.
+    apply BUnionI2. apply UnionAx. exists a. split...
+  - rewrite f_n in Ha...
+    rewrite f_n, f_n; [..|apply ω_inductive]...
+    apply BUnionE in Ha as []; apply BUnionI2.
+    + apply UnionAx. exists a. split... apply BUnionI1...
+    + apply UnionAx. exists a. split... apply BUnionI2...
+Qed.
+
+End TCHelper.
+
+Definition TransitiveClosure := λ A, ⋃ (ran (TCHelper.F A)).
+Notation "'𝗧𝗖' A" := (TransitiveClosure A) (at level 70).
+
+(* 传递闭包是传递集 *)
+Theorem tc_trans : ∀ A, trans (𝗧𝗖 A).
+Proof with auto; try congruence.
+  intros A x y Hxy Hy.
+  pose proof (TCHelper.f_correct A) as [Hf [Hd _]].
+  apply UnionAx in Hy as [a [Ha Hy]].
+  apply ranE in Ha as [n Hp]. apply domI in Hp as Hn.
+  apply func_ap in Hp... subst a.
+  apply TCHelper.f_inclusion in Hy... apply Hy in Hxy.
+  apply UnionAx. exists ((TCHelper.F A)[n⁺]). split...
+  eapply ranI. apply func_point...
+  rewrite Hd. apply ω_inductive...
+Qed.
+
+(* 传递闭包包含原集合 *)
+Theorem tc_contains : ∀ A, A ⊆ 𝗧𝗖 A.
+Proof with nauto.
+  intros A x Hx.
+  pose proof (TCHelper.f_correct A) as [Hf [Hd _]].
+  apply UnionAx. exists A. split...
+  apply (ranI _ 0). apply func_point...
+  rewrite Hd... apply TCHelper.f_0.
 Qed.

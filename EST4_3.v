@@ -69,7 +69,7 @@ Proof.
 Qed.
 
 (* 自然数的小于关系 *)
-Definition Lt := BinRel ω (λ x y, x ∈ y).
+Definition Lt := MemberRel ω.
 
 Lemma fld_Lt : fld Lt = ω.
 Proof with neauto.
@@ -80,9 +80,6 @@ Proof with neauto.
   - apply BUnionI1. eapply domI.
     apply (binRelI _ _ _ Hn n⁺)... apply ω_inductive...
 Qed.
-
-Lemma Lt_rel : is_binRel Lt ω.
-Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
 
 Lemma Lt_tranr : tranr Lt.
 Proof with eauto.
@@ -129,14 +126,15 @@ Qed.
 
 Lemma Lt_trich : trich Lt ω.
 Proof with auto.
-  eapply trich_iff. apply Lt_rel. apply Lt_tranr. split.
-  apply Lt_irrefl. apply Lt_connected.
+  eapply trich_iff. apply memberRel_is_binRel.
+  apply Lt_tranr. split. apply Lt_irrefl. apply Lt_connected.
 Qed.
 
 (* 自然数的小于关系是线序关系 *)
 Theorem Lt_linearOrder : linearOrder Lt ω.
 Proof.
-   split. apply Lt_rel. split. apply Lt_tranr. apply Lt_trich.
+   split. apply memberRel_is_binRel.
+   split. apply Lt_tranr. apply Lt_trich.
 Qed.
 
 Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.

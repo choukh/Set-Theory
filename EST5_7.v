@@ -93,12 +93,12 @@ Proof with auto.
     destruct (ixm (realNeg y)) as [Hny|Hnny];
     destruct (ixm (realNeg z)) as [Hnz|Hnnz].
   - destruct_realMul (|x| ⋅₊ |y|) (|y| ⋅₊ |z|);
-      assert_succeeds (exfalso; eapply realAbs_prod_nn; revgoals; eauto).
+      [exfalso; eapply realAbs_prod_nn; revgoals; eauto..|].
     repeat rewrite realAbs_prod_id...
     cut ((|x| ⋅₊ |y|) ⋅₊ |z| = |x| ⋅₊ (|y| ⋅₊ |z|)). congruence.
     rewrite realNonNegMul_assoc; abs.
   - destruct_realMul (|x| ⋅₊ |y|) (-(|y| ⋅₊ |z|));
-      assert_succeeds (exfalso; eapply realAbs_prod_nn; revgoals; eauto).
+      [exfalso; eapply realAbs_prod_nn; revgoals; eauto..| |].
     + apply realNonNeg_not_neg in Hnnz...
       rewrite realAbs_unsigned; [|mr;abs].
       rewrite realAbs_prod_id, (realAbs_nonNeg_id _ Hnnz)...
@@ -169,7 +169,8 @@ Proof with auto.
         apply realNeg_neq_0...
   - apply realNonNeg_not_neg in Hnnx...
     destruct_realMul (-(|x| ⋅₊ |y|)) (|y| ⋅₊ |z|);
-      assert_succeeds (exfalso; eapply realAbs_prod_nn; revgoals; eauto).
+      [exfalso; eapply realAbs_prod_nn; revgoals; eauto| |
+       exfalso; eapply realAbs_prod_nn; revgoals; eauto|].
     + rewrite realAbs_unsigned; [|mr;abs].
       rewrite <- (realAbs_nonNeg_id _ Hnnx) at 2.
       repeat rewrite realAbs_prod_id... rewrite realNonNegMul_assoc; abs.
@@ -609,9 +610,9 @@ Proof with nauto.
   }
   rewrite realMul_assoc, (realMul_comm x⁻¹),
   (realMul_assoc y), <- realMul_assoc in H;
-    auto; [|apply realMul_ran..]...
-  destruct (classic (x ⋅ y = Real 0))...
-  rewrite H0 in H. rewrite realMul_0_l in H; [|apply realMul_ran]...
+    try timeout 1 auto; [|apply realMul_ran; auto..].
+  destruct (classic (x ⋅ y = Real 0)); [|auto].
+  rewrite H0 in H. rewrite realMul_0_l in H; [|apply realMul_ran; auto].
   exfalso. eapply real_suc_neq_0. symmetry. apply H.
 Qed.
 

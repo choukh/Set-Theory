@@ -106,6 +106,7 @@ Proof.
   reflexivity.
 Qed.
 
+(* ==使用了类型论上的选择函数== *)
 (* 有理数的小于关系 *)
 Definition RatLt : set := BinRel ℚ (λ r s,
   let u := RatProj r in let v := RatProj s in
@@ -437,10 +438,10 @@ Proof with auto.
     (intMul_assoc b), <- (intMul_assoc c),
     (intMul_assoc e), (intMul_comm b),
     (intMul_assoc d), <- (intMul_assoc e), (intMul_comm b);
-      nz; auto; [|mr;nz..].
-  assert (Hz5: (a⋅d)⋅(f⋅f) ∈ ℤ) by (mr;mr;nz).
-  assert (Hz6: (c⋅b)⋅(f⋅f) ∈ ℤ) by (mr;mr;nz).
-  assert (Hz7: (e⋅d)⋅(f⋅b) ∈ ℤ) by (mr;mr;nz).
+      nz; [|try mr;nz;auto..].
+  assert (Hz5: (a⋅d)⋅(f⋅f) ∈ ℤ) by (apply intMul_ran; mr;nz).
+  assert (Hz6: (c⋅b)⋅(f⋅f) ∈ ℤ) by (apply intMul_ran; mr;nz).
+  assert (Hz7: (e⋅d)⋅(f⋅b) ∈ ℤ) by (apply intMul_ran; mr;nz).
   rewrite <- (intAdd_preserve_lt _ Hz5 _ Hz6 _ Hz7).
   apply intMul_preserve_lt; revgoals; [|mr;nz..].
   apply intMul_pos_prod...
@@ -726,9 +727,11 @@ Proof with auto.
   assert (H7: c ⋅ b ∈ ℤ) by (mr;nz).
   rewrite intMul_addInv_l, intMul_distr', intMul_distr',
     intAddInv_sum, (intMul_comm d), intAdd_comm, intMul_addInv_l,
-    intMul_addInv_l, intMul_addInv_l, intMul_addInv_l; nz...
-  apply intAddInv_ran; mr;nz.
-  apply intAddInv_ran; mr;nz. mr;nz. mr;nz.
+    intMul_addInv_l, intMul_addInv_l, intMul_addInv_l;
+    try timeout 1 nz; try timeout 1 auto.
+  apply intAddInv_ran; apply intMul_ran; nz...
+  apply intAddInv_ran; apply intMul_ran; nz...
+  apply intMul_ran; nz... apply intMul_ran; nz...
   rewrite intMul_addInv_l; nz... apply intAddInv_ran...
   rewrite intMul_addInv_l; nz... apply intAddInv_ran...
 Qed.

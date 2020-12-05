@@ -99,32 +99,32 @@ Notation "x ∉ y" := (¬In x y) (at level 70).
 
 (* 集合论中配合量词的惯例写法 *)
 
-Definition all_in `(X : set, P : set → Prop) : set → Prop :=
-  λ x, x ∈ X → P x.
+Definition all_in `(A : set, P : set → Prop) : set → Prop :=
+  λ x, x ∈ A → P x.
 
-Notation "∀ x .. y ∈ X , P" :=
-  ( all ( all_in X ( λ x, .. ( all ( all_in X ( λ y, P ))) .. )))
+Notation "∀ x .. y ∈ A , P" :=
+  ( all ( all_in A ( λ x, .. ( all ( all_in A ( λ y, P ))) .. )))
   (at level 200, x binder, y binder, right associativity).
 
-Definition ex_in `(X : set, P : set → Prop) : set → Prop :=
-  λ x, x ∈ X ∧ P x.
+Definition ex_in `(A : set, P : set → Prop) : set → Prop :=
+  λ x, x ∈ A ∧ P x.
 
-Notation "∃ x .. y ∈ X , P" :=
-  ( ex ( ex_in X ( λ x, .. ( ex ( ex_in X ( λ y, P ))) .. )))
+Notation "∃ x .. y ∈ A , P" :=
+  ( ex ( ex_in A ( λ x, .. ( ex ( ex_in A ( λ y, P ))) .. )))
   (at level 200, x binder, y binder, right associativity).
 
 (* 关于集合的经典逻辑引理 *)
 
-Lemma set_not_all_not_ex : ∀ X P, ¬(∀x ∈ X, ¬P x) ↔ (∃x ∈ X, P x).
+Lemma set_not_all_not_ex : ∀ A P, ¬(∀x ∈ A, ¬P x) ↔ (∃x ∈ A, P x).
 Proof.
   split; intros.
-  - destruct (classic (∃x ∈ X, P x)); firstorder.
+  - destruct (classic (∃x ∈ A, P x)); firstorder.
   - firstorder.
 Qed.
 
-Lemma set_not_all_ex_not : ∀ X P, ¬(∀x ∈ X, P x) ↔ (∃x ∈ X, ¬P x).
+Lemma set_not_all_ex_not : ∀ A P, ¬(∀x ∈ A, P x) ↔ (∃x ∈ A, ¬P x).
 Proof.
-  intros. pose proof (set_not_all_not_ex X (λ x, ¬P x)).
+  intros. pose proof (set_not_all_not_ex A (λ x, ¬P x)).
   simpl in H. rewrite <- H. clear H.
   split; intros.
   - intros H1. apply H. intros x Hx. apply H1 in Hx.
@@ -133,12 +133,12 @@ Proof.
 Qed.
 
 (** Sub是集合的子集关系。
-    我们用 X ⊆ Y 表示 "X是Y的子集"，用 X ⊈ Y 表示 "X不是Y的子集"。 *)
+    我们用 A ⊆ B 表示 "A是B的子集"，用 A ⊈ B 表示 "A不是B的子集"。 *)
 Definition Sub : set → set → Prop :=
-  λ X Y, ∀x ∈ X, x ∈ Y.
+  λ A B, ∀x ∈ A, x ∈ B.
   
-Notation "X ⊆ Y" := ( Sub X Y) (at level 70).
-Notation "X ⊈ Y" := (¬Sub X Y) (at level 70).
+Notation "A ⊆ B" := ( Sub A B) (at level 70).
+Notation "A ⊈ B" := (¬Sub A B) (at level 70).
 
 (* 子集关系是自反的 *)
 Lemma sub_refl : ∀ A, A ⊆ A.
@@ -193,34 +193,34 @@ Proof.
 Qed.
 
 (* Introduction rule of empty set (空集的导入) *)
-Lemma EmptyI : ∀ X, (∀ x, x ∉ X) → X = ∅.
+Lemma EmptyI : ∀ A, (∀ x, x ∉ A) → A = ∅.
 Proof.
-  intros X E. apply ExtAx.
+  intros A E. apply ExtAx.
   split; intros H.
   - exfalso. eapply E. apply H.
   - exfalso0.
 Qed.
 
 (* Elimination rule of empty set (空集的导出) *)
-Lemma EmptyE : ∀ X, X = ∅ → (∀ x, x ∉ X).
-Proof. intros. subst X. apply EmptyAx. Qed.
+Lemma EmptyE : ∀ A, A = ∅ → (∀ x, x ∉ A).
+Proof. intros. subst A. apply EmptyAx. Qed.
 
 (* 居留集不等于空集 *)
-Lemma EmptyNI : ∀ X, ⦿ X → X ≠ ∅.
+Lemma EmptyNI : ∀ A, ⦿ A → A ≠ ∅.
 Proof.
-  intros X Hi H0.
+  intros A Hi H0.
   destruct Hi as [x Hx].
   eapply EmptyAx. rewrite H0 in Hx. apply Hx.
 Qed.
 
 (* 不等于空集的集合是居留的 *)
-Lemma EmptyNE : ∀ X, X ≠ ∅ → ⦿ X.
+Lemma EmptyNE : ∀ A, A ≠ ∅ → ⦿ A.
 Proof.
-  intros. pose proof (classic (⦿ X)).
+  intros. pose proof (classic (⦿ A)).
   destruct H0.
   - apply H0.
   - unfold not in H0.
-    assert (∀ x, x ∉ X).
+    assert (∀ x, x ∉ A).
     + intros x H1. apply H0.
       exists x. apply H1.
     + apply EmptyI in H1.
@@ -228,7 +228,7 @@ Proof.
 Qed.
 
 (* 空集唯一 *)
-Fact emtpy_is_unique : ∀ X Y, (∀ x, x ∉ X) → (∀ y, y ∉ Y) → X = Y.
+Fact emtpy_is_unique : ∀ A Y, (∀ x, x ∉ A) → (∀ y, y ∉ Y) → A = Y.
 Proof.
   intros.
   apply EmptyI in H.
@@ -237,8 +237,8 @@ Proof.
 Qed.
 
 (* 空集是任意集合的子集 *)
-Lemma empty_sub_all : ∀ X, ∅ ⊆ X.
-Proof. intros X x Hx. exfalso0. Qed.
+Lemma empty_sub_all : ∀ A, ∅ ⊆ A.
+Proof. intros A x Hx. exfalso0. Qed.
 
 (* 集合是空集的子集当且仅当该集合是空集 *)
 Lemma sub_empty : ∀ A, A ⊆ ∅ ↔ A = ∅.
@@ -260,12 +260,12 @@ Qed.
 (**=== 公理3: 并集公理 ===**)
 (* 给定集合X，存在X的并集⋃X，它的成员都是X的某个成员的成员 *)
 Parameter Union : set → set.
-Notation "⋃ X" := (Union X) (at level 9, right associativity).
-Axiom UnionAx : ∀ a X, a ∈ ⋃X ↔ ∃x ∈ X, a ∈ x.
+Notation "⋃ A" := (Union A) (at level 9, right associativity).
+Axiom UnionAx : ∀ a A, a ∈ ⋃ A ↔ ∃x ∈ A, a ∈ x.
 
-Lemma UnionI : ∀ X, ∀x ∈ X, ∀a ∈ x, a ∈ ⋃X.
+Lemma UnionI : ∀ A, ∀x ∈ A, ∀a ∈ x, a ∈ ⋃ A.
 Proof.
-  intros X x Hx a Ha. apply UnionAx.
+  intros A x Hx a Ha. apply UnionAx.
   exists x. split; assumption.
 Qed.
 
@@ -280,15 +280,15 @@ Qed.
 (**=== 公理4: 幂集公理 ===**)
 (* 存在幂集，它是给定集合的所有子集组成的集合 *)
 Parameter Power : set → set.
-Notation "'𝒫' X" := (Power X) (at level 9, right associativity).
-Axiom PowerAx : ∀ X Y, Y ∈ 𝒫(X) ↔ Y ⊆ X.
+Notation "'𝒫' A" := (Power A) (at level 9, right associativity).
+Axiom PowerAx : ∀ A Y, Y ∈ 𝒫(A) ↔ Y ⊆ A.
 
 (* 空集是任意集合的幂集的成员 *)
-Lemma empty_in_all_power: ∀ X, ∅ ∈ 𝒫 X.
+Lemma empty_in_all_power: ∀ A, ∅ ∈ 𝒫 A.
 Proof. intros. apply PowerAx. apply empty_sub_all. Qed.
 
 (* 任意集合都是自身的幂集的成员 *)
-Lemma all_in_its_power: ∀ X, X ∈ 𝒫 X.
+Lemma all_in_its_power: ∀ A, A ∈ 𝒫 A.
 Proof. intros. apply PowerAx. apply sub_refl. Qed.
 
 (* 若集合是空集的幂集的成员，那么这个集合是空集 *)
@@ -302,15 +302,39 @@ Proof.
   - exfalso0.
 Qed.
 
-(**=== 公理5: 替代公理（模式） ===**)
-(* 给定任意集合X，和集合间的任意函数F，存在一个集合，它的成员都是对A的成员应用F得到的 *)
-Parameter Repl : (set → set) → set → set.
-Notation "{ F | x ∊ X }" := (Repl (λ x, F x) X).
-Axiom ReplAx : ∀ y F X, y ∈ {F | x ∊ X} ↔ ∃x ∈ X, F x = y.
+(* 存在唯一 *)
+Definition exu: (set → Prop) → Prop :=
+  λ P, (∃ x, P x) ∧ (∀ x y, P x → P y → x = y).
+Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x ident).
+Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
 
-Lemma ReplI : ∀ X F, ∀x ∈ X, F x ∈ {F | x ∊ X}.
+(**=== 公理5: 替代公理（模式） ===**)
+(* 给定二元谓词P，如果对任意集合x有唯一集合y使得P x y成立，
+  那么给定集合X，存在集合Y，对于Y的任意成员y都存在X中元素x使得P x y成立 *)
+Parameter ϕ_Repl : (set → set → Prop) → set → set.
+Axiom ϕ_ReplAx : ∀ (P : set → set → Prop) A,
+  (∀ x ∈ A, ∃! y, P x y) →
+  ∀ y, y ∈ ϕ_Repl P A ↔ ∃x ∈ A, P x y.
+
+Definition Repl : (set → set) → set → set := λ F A,
+  ϕ_Repl (λ x y, F x = y) A.
+Notation "{ F | x ∊ A }" := (Repl (λ x, F x) A).
+
+Theorem ReplAx : ∀ y F A, y ∈ {F | x ∊ A} ↔ ∃x ∈ A, F x = y.
+Proof with auto.
+  intros. split.
+  - intros Hy. apply ϕ_ReplAx in Hy...
+    intros x Hx. split. exists (F x)...
+    intros y1 y2 H1 H2. congruence.
+  - intros [x [Hx Heq]]. apply ϕ_ReplAx.
+    + intros a Ha. split. exists (F a)...
+      intros y1 y2 H1 H2. congruence.
+    + exists x. split...
+Qed.
+
+Lemma ReplI : ∀ A F, ∀x ∈ A, F x ∈ {F | x ∊ A}.
 Proof.
-  intros X F x Hx. apply ReplAx.
+  intros A F x Hx. apply ReplAx.
   exists x. split. apply Hx. reflexivity.
 Qed.
 
@@ -322,7 +346,7 @@ Proof.
 Qed.
 
 (* 若某集合的替代是空集，那么该集合是空集 *)
-Fact repl_eq_empty : ∀ F X, {F | x ∊ X} = ∅ → X = ∅.
+Fact repl_eq_empty : ∀ F A, {F | x ∊ A} = ∅ → A = ∅.
 Proof.
   intros. apply sub_empty. intros x Hx.
   eapply ReplI in Hx. rewrite H in Hx. exfalso0.

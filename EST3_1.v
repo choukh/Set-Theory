@@ -137,12 +137,6 @@ Proof.
     apply Hy. reflexivity.
 Qed.
 
-(* 存在唯一 *)
-Definition exu: (set → Prop) → Prop :=
-  λ P, (∃ x, P x) ∧ (∀ x y, P x → P y → x = y).
-Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x ident).
-Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
-
 (** 函数是单值关系 **)
 Definition is_function : set → Prop :=
   λ R, is_rel R ∧ ∀x ∈ dom R, ∃! y, <x, y> ∈ R.

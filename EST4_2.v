@@ -2,6 +2,7 @@
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST4_1.
+Global Set Warnings "-ambiguous-paths".
 
 (*** EST第四章2：nat的嵌入与投射，自然数算术：加法，乘法，运算律 ***)
 

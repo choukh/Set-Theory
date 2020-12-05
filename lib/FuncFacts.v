@@ -276,6 +276,14 @@ Proof with eauto; try congruence.
     apply inv_func_iff_sr... rewrite inv_dom... 
 Qed.
 
+(* 限制在空集上的函数等于空函数 *)
+Lemma restr_to_empty : ∀ F, F ↾ ∅ = ∅.
+Proof.
+  intros. apply ExtAx. split; intros Hx.
+  - apply restrE1 in Hx as [a [b [Ha _]]]. exfalso0.
+  - exfalso0.
+Qed.
+
 (* 限制在单集上的函数的值域是单集 *)
 Lemma ran_of_restr_to_single : ∀ F a, is_function F →
   a ∈ dom F → ran (F ↾ ⎨a⎬) = ⎨F[a]⎬.
@@ -381,6 +389,20 @@ Proof with eauto.
     apply inv_func_iff_sr... apply inv_func_iff_sr...
 Qed.
 
+(* 映射的并定义域等于映射的定义域的并 *)
+Lemma dom_of_bunion_func : ∀ F G, is_function F → is_function G →
+  dom (F ∪ G) = dom F ∪ dom G.
+Proof with auto.
+  intros * HfF HfG. apply ExtAx. split; intros Hx.
+  + apply domE in Hx as [y Hp].
+    apply BUnionE in Hp as [].
+    * apply BUnionI1. apply domI in H...
+    * apply BUnionI2. apply domI in H...
+  + apply BUnionE in Hx as []; eapply domI.
+    * apply BUnionI1. apply func_correct...
+    * apply BUnionI2. apply func_correct...
+Qed.
+
 (* 映射的并也是映射 *)
 Lemma bunion_maps_into : ∀ F G A B C D,
   F: A ⇒ B → G: C ⇒ D →
@@ -392,14 +414,7 @@ Proof with eauto; try congruence.
   split; [|split].
   - apply bunion_is_func...
     intros x Hx. rewrite HdF, HdG in Hx. apply Hreq...
-  - apply ExtAx. split; intros Hx.
-    + apply domE in Hx as [y Hp].
-      apply BUnionE in Hp as [].
-      * apply BUnionI1. apply domI in H...
-      * apply BUnionI2. apply domI in H...
-    + apply BUnionE in Hx as []; eapply domI.
-      * apply BUnionI1. apply func_correct...
-      * apply BUnionI2. apply func_correct...
+  - rewrite dom_of_bunion_func...
   - intros y Hy. apply ranE in Hy as [x Hp].
     apply BUnionE in Hp as [].
     + apply BUnionI1. apply ranI in H. apply HrF...
