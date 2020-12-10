@@ -5,17 +5,48 @@ Require Export ZFC.EST3_3.
 
 (*** EST第七章1：偏序，线序，上下确界 ***)
 
+Definition relLt := λ x y R, <x, y> ∈ R.
+Notation "x <ᵣ y" := (relLt x y) (at level 60).
+Definition relLe := λ x y R, <x, y> ∈ R ∨ x = y.
+Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
+
+Lemma relLe_tranr : ∀ x y z R, tranr R →
+  (x ≤ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
+Proof with eauto.
+  intros * Htr [Hxy|Hxy] [Hyz|Hyz].
+  - left. eapply Htr...
+  - subst. left...
+  - subst. left...
+  - subst. right...
+Qed.
+
+Lemma relLt_le_tranr : ∀ x y z R, tranr R →
+  (x <ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
+Proof with eauto.
+  intros * Htr Hxy [Hyz|Hyz].
+  - left. eapply Htr...
+  - subst. left...
+Qed.
+
+Lemma relLe_lt_tranr : ∀ x y z R, tranr R →
+  (x ≤ᵣ y) R → (y <ᵣ z) R → (x ≤ᵣ z) R.
+Proof with eauto.
+  intros * Htr [Hxy|Hyx] Hyz.
+  - left. eapply Htr...
+  - subst. left...
+Qed.
+
 (* 严格偏序，反自反偏序 *)
 Definition partialOrder : set → Prop := λ R,
   is_rel R ∧ tranr R ∧ irrefl R.
 
 (* 非对称性 *)
 Definition asym : set → Prop := λ R,
-  ∀ x y, <x, y> ∈ R → <y, x> ∉ R.
+  ∀ x y, (x <ᵣ y) R → ¬(y <ᵣ x) R.
 
 (* 反对称性 *)
 Definition antisym : set → Prop := λ R,
-  ∀ x y, <x, y> ∈ R → <y, x> ∈ R → x = y.
+  ∀ x y, (x <ᵣ y) R → (y <ᵣ x) R → x = y.
 
 (* 偏序具有非对称性 *)
 Fact partialOrder_asym : ∀ R, partialOrder R → asym R.
@@ -26,9 +57,9 @@ Qed.
 
 (* 偏序至多满足"<" "=" ">"之一 *)
 Fact partialOrder_quasi_trich : ∀ R x y, partialOrder R →
-  ¬(<x, y> ∈ R ∧ x = y) ∧
-  ¬(<y, x> ∈ R ∧ x = y) ∧
-  ¬(<x, y> ∈ R ∧ <y, x> ∈ R).
+  ¬((x <ᵣ y) R ∧ x = y) ∧
+  ¬((y <ᵣ x) R ∧ x = y) ∧
+  ¬((x <ᵣ y) R ∧ (y <ᵣ x) R).
 Proof with eauto.
   intros * [Hrl [Htr Hir]].
   repeat split; intros [H1 H2].
@@ -39,11 +70,11 @@ Qed.
 
 (* 偏序若满足"≤"且"≥"则满足"=" *)
 Fact partialOrder_semi_antisym : ∀ R x y, partialOrder R →
-  (<x, y> ∈ R ∨ x = y) ∧ (<y, x> ∈ R ∨ x = y) → x = y.
+  (x ≤ᵣ y) R ∧ (y ≤ᵣ x) R → x = y.
 Proof with auto.
   intros * Hpo [H1 H2].
   destruct (classic (x = y))... exfalso.
-  cut (¬(<x, y> ∈ R ∧ <y, x> ∈ R)). firstorder.
+  cut (¬((x <ᵣ y) R ∧ (y <ᵣ x) R)). firstorder.
   apply partialOrder_quasi_trich...
 Qed.
 
@@ -70,11 +101,11 @@ Qed.
 
 (* 极小元 *)
 Definition minimal : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ¬∃x ∈ A, <x, m> ∈ R.
+  m ∈ A ∧ ¬∃x ∈ A, (x <ᵣ m) R.
 
 (* 最小元 *)
 Definition minimum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, <m, x> ∈ R ∨ m = x.
+  m ∈ A ∧ ∀x ∈ A, (m ≤ᵣ x) R.
 
 (* 最小元也是极小元 *)
 Fact minimum_is_minimal : ∀ m A R, partialOrder R →
@@ -92,7 +123,7 @@ Fact linearOrder_minimal_iff_minimum : ∀ m A R, linearOrder R A →
 Proof with auto.
   intros * Hto. split; intros [Hm Hmin].
   - split... intros x Hx.
-    destruct (classic (<m, x> ∈ R ∨ m = x))...
+    destruct (classic ((m ≤ᵣ x) R))...
     exfalso. apply Hmin. apply not_or_and in H as [Hmx Hnq].
     exists x. split... apply linearOrder_connected in Hto. firstorder.
   - split... intros [x [Hx Hxm]].
@@ -110,11 +141,11 @@ Qed.
 
 (* 极大元 *)
 Definition maximal : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ¬∃x ∈ A, <m, x> ∈ R.
+  m ∈ A ∧ ¬∃x ∈ A, (m <ᵣ x) R.
 
 (* 最大元 *)
 Definition maximum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, <x, m> ∈ R ∨ m = x.
+  m ∈ A ∧ ∀x ∈ A, (x ≤ᵣ m) R.
 
 (* 最大元也是极大元 *)
 Fact maximum_is_maximal : ∀ m A R, partialOrder R →
@@ -132,7 +163,7 @@ Fact linearOrder_maximal_iff_maximum : ∀ m A R, linearOrder R A →
 Proof with auto.
   intros * Hto. split; intros [Hm Hmin].
   - split... intros x Hx.
-    destruct (classic (<x, m> ∈ R ∨ m = x))...
+    destruct (classic ((x ≤ᵣ m) R))...
     exfalso. apply Hmin. apply not_or_and in H as [Hmx Hnq].
     exists x. split... apply linearOrder_connected in Hto. firstorder.
   - split... intros [x [Hx Hxm]].
@@ -146,6 +177,16 @@ Proof with auto.
   intros * Hpo [Hm1 H1] [Hm2 H2].
   apply H1 in Hm2 as []; apply H2 in Hm1 as []...
   apply partialOrder_asym in Hpo. firstorder.
+Qed.
+
+(* 逆关系 *)
+Lemma inv_is_binRel : ∀ A R, is_binRel R A → is_binRel R⁻¹ A.
+Proof.
+  intros * Hbr p Hp.
+  apply SepE in Hp as [H [_ Hp]].
+  apply CProdE1 in H as [a [_ [b [_ Heq]]]].
+  subst p. zfcrewrite. apply Hbr in Hp.
+  apply CProdE2 in Hp as [Ha Hb]. apply CProdI; auto.
 Qed.
 
 (* 偏序的逆仍是偏序 *)
@@ -162,8 +203,8 @@ Fact minimal_iff_maximal_inv : ∀ m A R,
   minimal m A R ↔ maximal m A R⁻¹.
 Proof with auto.
   intros; split; intros [Hm H]; split; auto;
-  intros [x [Hx Hp]]; apply H; exists x; split...
-  rewrite inv_op... rewrite <- inv_op...
+  intros [x [Hx Hp]]; apply H; exists x; split; auto;
+  unfold relLt. rewrite inv_op... rewrite <- inv_op...
 Qed.
 
 (* 极大元在逆关系下是极小元 *)
@@ -171,8 +212,8 @@ Fact maximal_iff_minimal_inv : ∀ m A R,
   maximal m A R ↔ minimal m A R⁻¹.
 Proof with auto.
   intros; split; intros [Hm H]; split; auto;
-  intros [x [Hx Hp]]; apply H; exists x; split...
-  rewrite inv_op... rewrite <- inv_op...
+  intros [x [Hx Hp]]; apply H; exists x; split; auto;
+  unfold relLt. rewrite inv_op... rewrite <- inv_op...
 Qed.
 
 (* 最小元在逆关系下是最大元 *)
@@ -180,7 +221,7 @@ Fact minimum_iff_maximum_inv : ∀ m A R,
   minimum m A R ↔ maximum m A R⁻¹.
 Proof with auto.
   intros; split; intros [Hm H]; split; auto;
-  intros x Hx; apply H in Hx as []; auto; left.
+  intros x Hx; apply H in Hx as []; unfold relLe; auto; left...
   rewrite <- inv_op... rewrite inv_op...
 Qed.
 
@@ -189,13 +230,13 @@ Fact maximum_iff_minimum_inv : ∀ m A R,
   maximum m A R ↔ minimum m A R⁻¹.
 Proof with auto.
   intros; split; intros [Hm H]; split; auto;
-  intros x Hx; apply H in Hx as []; auto; left.
+  intros x Hx; apply H in Hx as []; unfold relLe; auto; left...
   rewrite <- inv_op... rewrite inv_op...
 Qed.
 
 (* 上界 *)
 Definition upperBound : set → set → set → set → Prop :=
-  λ x B A R, x ∈ A ∧ ∀y ∈ B, <y, x> ∈ R ∨ y = x.
+  λ x B A R, x ∈ A ∧ ∀y ∈ B, (y ≤ᵣ x) R.
 
 (* 存在上界 *)
 Definition boundedAbove : set → set → set → Prop :=
@@ -204,11 +245,11 @@ Definition boundedAbove : set → set → set → Prop :=
 (* 上确界 *)
 Definition supremum : set → set → set → set → Prop :=
   λ x B A R, upperBound x B A R ∧
-    ∀ y, upperBound y B A R → <x, y> ∈ R ∨ x = y.
+    ∀ y, upperBound y B A R → (x ≤ᵣ y) R.
 
 (* 下界 *)
 Definition lowerBound : set → set → set → set → Prop :=
-  λ x B A R, x ∈ A ∧ ∀y ∈ B, <x, y> ∈ R ∨ x = y.
+  λ x B A R, x ∈ A ∧ ∀y ∈ B, (x ≤ᵣ y) R.
 
 (* 存在下界 *)
 Definition boundedBelow : set → set → set → Prop :=
@@ -217,7 +258,7 @@ Definition boundedBelow : set → set → set → Prop :=
 (* 下确界 *)
 Definition infimum : set → set → set → set → Prop :=
   λ x B A R, lowerBound x B A R ∧
-    ∀ y, lowerBound y B A R → <y, x> ∈ R ∨ y = x.
+    ∀ y, lowerBound y B A R → (y ≤ᵣ x) R.
 
 (* 成员关系 *)
 Definition MemberRel : set → set := λ A,
@@ -276,14 +317,14 @@ Proof with auto.
   split.
   - split... intros C HC.
     apply PairE in HC as []; subst.
-    + destruct (classic (A = A ∪ B))... left.
+    + destruct (classic (A = A ∪ B)). right... left.
       apply binRelI... split...
       intros x Hx. apply BUnionI1...
-    + destruct (classic (B = A ∪ B))... left.
+    + destruct (classic (B = A ∪ B)). right... left.
       apply binRelI... split...
       intros x Hx. apply BUnionI2...
   - intros C [HC Hle].
-    destruct (classic (A ∪ B = C))... left.
+    destruct (classic (A ∪ B = C)). right... left.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
     apply Hle in HA as [HA|HA]; apply Hle in HB as [HB|HB].
@@ -315,14 +356,14 @@ Proof with auto.
   split.
   - split... intros C HC.
     apply PairE in HC as []; subst.
-    + destruct (classic (A ∩ B = A))... left.
+    + destruct (classic (A ∩ B = A)). right... left.
       apply binRelI... split...
       intros x Hx. apply BInterE in Hx as []...
-    + destruct (classic (A ∩ B = B))... left.
+    + destruct (classic (A ∩ B = B)). right... left.
       apply binRelI... split...
       intros x Hx. apply BInterE in Hx as []...
   - intros C [HC Hle].
-    destruct (classic (C = A ∩ B))... left.
+    destruct (classic (C = A ∩ B)). right... left.
     assert (HA: A ∈ {A, B}) by apply PairI1.
     assert (HB: B ∈ {A, B}) by apply PairI2.
     apply Hle in HA as [HA|HA]; apply Hle in HB as [HB|HB].
@@ -351,7 +392,7 @@ Proof with auto; try congruence.
   }
   split.
   - split... intros C HC.
-    destruct (classic (C = ⋃ 𝒜))... left.
+    destruct (classic (C = ⋃ 𝒜)). right... left.
     apply binRelI... apply Hsub... split...
     intros x Hx. apply UnionAx. exists C. split...
   - intros C [HC Hle].
@@ -379,7 +420,7 @@ Proof with auto; try congruence.
   }
   split.
   - split... intros C HC.
-    destruct (classic (⋂ 𝒜 = C))... left.
+    destruct (classic (⋂ 𝒜 = C)). right... left.
     apply binRelI... apply Hsub... split...
     intros x Hx. apply InterE in Hx as [_ Hx]. apply Hx...
   - intros C [HC Hle].
@@ -391,4 +432,71 @@ Proof with auto; try congruence.
     destruct (classic (⋂ 𝒜 ⊆ C)).
     + right. apply sub_antisym...
     + left. apply binRelI... split...
+Qed.
+
+(* 子关系 *)
+Definition SubRel : set → set → set := λ R B,
+  {p ∊ R | λ p, p ∈ B × B}.
+Notation "R ⥏ B" := (SubRel R B) (at level 60).
+
+Lemma subRel_is_binRel : ∀ R B, is_binRel (R ⥏ B) B.
+Proof with auto.
+  intros * p Hp. apply SepE2 in Hp...
+Qed.
+
+Lemma subRel_loset : ∀ A R B, loset A R → B ⊆ A → loset B (R ⥏ B).
+Proof with eauto.
+  intros * [Hbr [Htr Htri]] Hsub. repeat split.
+  - intros p Hp. apply SepE2 in Hp...
+  - intros x y z Hxy Hyz.
+    apply SepE in Hxy as [Hxy Hx]. apply CProdE2 in Hx as [Hx _].
+    apply SepE in Hyz as [Hyz Hz]. apply CProdE2 in Hz as [_ Hz].
+    apply SepI. eapply Htr... apply CProdI...
+  - intros x Hx y Hy.
+    apply Hsub in Hx as Hxa. apply Hsub in Hy as Hya.
+    pose proof (Htri x Hxa y Hya) as [|[|]]; destruct H as [H1 [H2 H3]].
+    + left. repeat split...
+      * apply SepI... apply CProdI...
+      * intros Hyx. apply H3. apply SepE1 in Hyx...
+    + right. left. repeat split...
+      * intros Hxy. apply H1. apply SepE1 in Hxy...
+      * intros Hyx. apply H3. apply SepE1 in Hyx...
+    + right. right. repeat split...
+      * intros Hxy. apply H1. apply SepE1 in Hxy...
+      * apply SepI... apply CProdI...
+Qed.
+
+Lemma subRel_absorption : ∀ R A B, B ⊆ A → (R ⥏ A) ⥏ B = R ⥏ B.
+Proof with auto.
+  intros * Hsub. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [Hx Hp]. apply SepE1 in Hx.
+    apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply SepI... apply CProdI...
+  - apply SepE in Hx as [Hx Hp].
+    apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply SepI; [|apply CProdI]...
+    apply SepI... apply CProdI; apply Hsub...
+Qed.
+
+Lemma subRel_empty : ∀ R, R ⥏ ∅ = ∅.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [_ Hx].
+    rewrite cprod_0_x in Hx. exfalso0.
+  - exfalso0.
+Qed.
+
+Lemma empty_is_binRel : is_binRel ∅ ∅.
+Proof. intros p Hp. exfalso0. Qed.
+
+Lemma empty_tranr : tranr ∅.
+Proof. intros x y z Hxy. exfalso0. Qed.
+
+Lemma empty_trich : trich ∅ ∅.
+Proof. intros x Hx. exfalso0. Qed.
+
+Lemma empty_loset : loset ∅ ∅.
+Proof with auto.
+  split; [|split]. apply empty_is_binRel.
+  apply empty_tranr. apply empty_trich.
 Qed.

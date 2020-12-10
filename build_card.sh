@@ -4,11 +4,11 @@ echo "building FuncFacts"
 coqc -R . ZFC lib/FuncFacts.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v
+echo "building NatIsomorphism"
+coqc -R . ZFC lib/NatIsomorphism.v
 
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v
-echo "building NatIsomorphism"
-coqc -R . ZFC lib/NatIsomorphism.v
 echo "building WosetMin"
 coqc -R . ZFC lib/WosetMin.v
 echo "building IndexedFamilyUnion"

@@ -418,11 +418,6 @@ Proof with auto.
   apply Hnq. apply int_ident...
 Qed.
 
-Lemma intLt_rel : is_binRel IntLt ℤ.
-Proof with auto.
-  intros x Hx. apply SepE1 in Hx...
-Qed.
-
 Lemma intLt_tranr : tranr IntLt.
 Proof with auto.
   intros x y z H1 H2.
@@ -463,15 +458,16 @@ Proof with auto.
 Qed.
 
 Lemma intLt_trich : trich IntLt ℤ.
-Proof with auto.
-  eapply trich_iff. apply intLt_rel. apply intLt_tranr. split.
+Proof.
+  eapply trich_iff. apply binRel_is_binRel.
+  apply intLt_tranr. split.
   apply intLt_irrefl. apply intLt_connected.
 Qed.
 
 Theorem intLt_linearOrder : linearOrder IntLt ℤ.
-Proof with auto.
-  split. apply intLt_rel. split. apply intLt_tranr.
-  apply intLt_trich.
+Proof.
+  split. apply binRel_is_binRel. split.
+  apply intLt_tranr. apply intLt_trich.
 Qed.
 
 Close Scope Nat_scope.
@@ -675,6 +671,26 @@ Proof with neauto.
       eapply nat_trans; revgoals... ar...
     + apply int_ident in H; auto; [|ar]...
       assert ((m + q)%n ∈ (m + q)%n⁺) by nauto. congruence.
+Qed.
+
+Lemma intNonNeg_iff : ∀a ∈ ℤ, ¬intNeg a ↔ Int 0 ≤ a.
+Proof with neauto.
+  intros a Ha. split; intros H.
+  - destruct (classic (Int 0 = a))...
+    apply intLt_connected in H0 as []... exfalso...
+  - intros Hneg. destruct H; eapply intLt_irrefl.
+    eapply intLt_tranr... subst...
+Qed.
+
+Lemma intNonNeg_ex_nat : ∀a ∈ ℤ, ¬intNeg a → ∃ n, a = Int n.
+Proof with nauto.
+  intros a Ha Hnn.
+  apply intNonNeg_iff in Hnn as [Hlt|H0]; [|exists 0|]...
+  apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
+  apply intLt in Hlt... rewrite add_ident, add_ident' in Hlt...
+  apply nat_subtr in Hlt as [d [Hd [Heq _]]]...
+  exists d. apply int_ident...
+  rewrite add_ident, add_comm, (proj_embed_id d)...
 Qed.
 
 (** 自然数嵌入 **)

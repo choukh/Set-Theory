@@ -123,6 +123,42 @@ Proof with auto.
   split. apply dom_ident. apply ran_ident.
 Qed.
 
+(* 空函数的定义域等于空集 *)
+Lemma dom_of_empty : dom ∅ = ∅.
+Proof.
+  apply ExtAx; intros y; split; intros Hy.
+  apply domE in Hy as [x Hp]. exfalso0. exfalso0.
+Qed.
+
+(* 定义域等于空集的函数是空函数 *)
+Lemma empty_dom : ∀ F, is_function F → dom F = ∅ → F = ∅.
+Proof with auto.
+  intros F Hf Hd.
+  apply ExtAx. intros p. split; intros Hp.
+  - apply func_pair in Hp as Heq...
+    rewrite Heq in Hp. apply domI in Hp.
+    rewrite Hd in Hp. exfalso0.
+  - exfalso0.
+Qed.
+
+(* 空函数的值域等于空集 *)
+Lemma ran_of_empty : ran ∅ = ∅.
+Proof.
+  apply ExtAx; split; intros Hx.
+  apply ranE in Hx as [y Hp]. exfalso0. exfalso0.
+Qed.
+
+(* 值域等于空集的函数是空函数 *)
+Lemma empty_ran : ∀ F, is_function F → ran F = ∅ → F = ∅.
+Proof with auto.
+  intros F Hf Hr.
+  apply ExtAx. intros p. split; intros Hp.
+  - apply func_pair in Hp as Heq...
+    rewrite Heq in Hp. apply ranI in Hp.
+    rewrite Hr in Hp. exfalso0.
+  - exfalso0.
+Qed.
+
 (* 空函数是空集到任意集合的单射 *)
 Lemma empty_injective : ∀ A, ∅: ∅ ⇔ A.
 Proof with auto.

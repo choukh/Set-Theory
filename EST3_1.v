@@ -148,9 +148,18 @@ Proof.
   apply domE. apply H. intros y1 y2 H1 H2. exfalso0.
 Qed.
 
-Lemma func_pair : ∀ F, is_function F → ∀p ∈ F, p = < π1 p, π2 p >.
+Lemma func_pair : ∀ F, is_function F →
+  ∀p ∈ F, p = < π1 p, π2 p >.
 Proof.
-  intros F Hf p Hp. destruct Hf as [Hr _]. exact (rel_pair F Hr p Hp).
+  intros F Hf p Hp. destruct Hf as [Hr _].
+  exact (rel_pair F Hr p Hp).
+Qed.
+
+Lemma func_pair' : ∀ F, is_function F →
+  ∀p ∈ F, ∃ x y, <x, y> ∈ F ∧ p = <x, y>.
+Proof with auto.
+  intros F Hf p Hp. apply func_pair in Hp as Heq...
+  exists (π1 p), (π2 p). split... rewrite Heq in Hp...
 Qed.
 
 Lemma func_sv : ∀ F a b c, is_function F →

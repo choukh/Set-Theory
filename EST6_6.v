@@ -653,8 +653,7 @@ Proof with neauto; try congruence.
     - apply SepI.
       + destruct Hg as [[Hg _] [Hd Hr]].
         apply PowerAx. intros p Hp.
-        rewrite func_pair... rewrite func_pair in Hp...
-        remember (π1 p) as x. remember (π2 p) as y. clear Heqx Heqy.
+        apply func_pair' in Hp as [x [y [Hp Heqp]]]... subst p.
         apply domI in Hp as Hx. rewrite Hd in Hx.
         apply ranI in Hp as Hy. rewrite Hr in Hy.
         apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
@@ -759,9 +758,7 @@ Proof with neauto; try congruence.
   apply SepI.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
     + apply PowerAx in Hsubf₀. apply Hsubf₀...
-    + apply func_pair in H as Heq...
-      remember (π1 p) as x. remember (π2 p) as y.
-      clear Heqx Heqy. subst p.
+    + apply func_pair' in H as [x [y [H Heqp]]]... subst p.
       apply domI in H as Hx. rewrite Hdg in Hx.
       apply ranI in H as Hy. rewrite Hrg in Hy.
       apply BUnionE in Hx as [Hx|Hx]; [apply BUnionE in Hx as [Hx|Hx]|].

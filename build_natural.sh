@@ -42,3 +42,5 @@ echo "building EX4"
 coqc -R . ZFC EX4.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v
+echo "building NatIsomorphism"
+coqc -R . ZFC lib/NatIsomorphism.v

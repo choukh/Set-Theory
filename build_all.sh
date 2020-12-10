@@ -42,6 +42,8 @@ echo "building EX4"
 coqc -R . ZFC EX4.v
 echo "building Natural"
 coqc -R . ZFC lib/Natural.v
+echo "building NatIsomorphism"
+coqc -R . ZFC lib/NatIsomorphism.v
 
 echo "building EST5_1"
 coqc -R . ZFC EST5_1.v
@@ -64,11 +66,13 @@ coqc -R . ZFC lib/Real.v
 
 echo "building EST7_2"
 coqc -R . ZFC EST7_2.v
+echo "building EST7_3"
+coqc -R . ZFC EST7_3.v
+echo "building EX7_2"
+coqc -R . ZFC EX7_2.v
 
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v
-echo "building NatIsomorphism"
-coqc -R . ZFC lib/NatIsomorphism.v
 echo "building WosetMin"
 coqc -R . ZFC lib/WosetMin.v
 echo "building IndexedFamilyUnion"

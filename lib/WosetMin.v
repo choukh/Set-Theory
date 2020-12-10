@@ -55,17 +55,13 @@ Proof with eauto.
   rewrite Hap. eapply minE...
 Qed.
 
-(* 后节 *)
-Definition tail : set → set → set → set := λ B R a,
-  {x ∊ B | λ x, <a, x> ∈ R}.
-
 (* 良序集上的后继函数 *)
 Definition Next : set → set → set → set := λ B R a,
-  (Min R)[tail B R a].
+  (Min R)[final a R B].
 
 Lemma next_correct : ∀ A R B, woset A R → B ⊆ A →
-  ∀a ∈ B, (∃b ∈ B, <a, b> ∈ R) →
-  minimum (Next B R a) (tail B R a) R.
+  ∀a ∈ B, (∃b ∈ B, (a <ᵣ b) R) →
+  minimum (Next B R a) (final a R B) R.
 Proof with eauto.
   intros * Hwo Hsub a Ha [b [Hb Hab]].
   assert (Heq: (fld R) = A). {
@@ -86,7 +82,7 @@ Proof with eauto.
           * apply BUnionI1. eapply domI...
           * apply BUnionI2. eapply ranI...
   }
-  specialize (min_correct A R (tail B R a)) as [Hm Hmin]...
+  specialize (min_correct A R (final a R B)) as [Hm Hmin]...
   - exists b. apply SepI...
   - destruct Hwo as [[Hbr _] _].
     intros x Hx. apply SepE in Hx as [_ Hp].
@@ -95,7 +91,7 @@ Proof with eauto.
 Qed.
 
 Lemma next_injective : ∀ A R B, woset A R → B ⊆ A →
-  ∀ a b ∈ B, (∃c ∈ B, <a, c> ∈ R) → (∃d ∈ B, <b, d> ∈ R) →
+  ∀ a b ∈ B, (∃c ∈ B, (a <ᵣ c) R) → (∃d ∈ B, (b <ᵣ d) R) →
   Next B R a = Next B R b → a = b.
 Proof with eauto; try congruence.
   intros A R B Hwo Hsub a Ha b Hb Hea Heb Heq.
@@ -149,7 +145,7 @@ Proof with auto.
   - split.
     + apply SepE in Hnxt as [Hnxt Hlt].
       apply SepI... apply binRelE2 in Hlt as [_ []]...
-    + intros m Hm. assert (m ∈ tail N Lt n). {
+    + intros m Hm. assert (m ∈ final n Lt N). {
         apply SepE in Hm as [Hm Hnm].
         apply SepI... apply binRelI... apply Hsub...
       }

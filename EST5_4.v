@@ -172,11 +172,6 @@ Proof with auto.
   apply Hnq. apply rat_ident...
 Qed.
 
-Lemma ratLt_rel : is_binRel RatLt ℚ.
-Proof with auto.
-  intros x Hx. apply SepE1 in Hx...
-Qed.
-
 Lemma ratLt_tranr : tranr RatLt.
 Proof with auto.
   intros x y z H1 H2.
@@ -221,15 +216,16 @@ Proof with auto.
 Qed.
 
 Lemma ratLt_trich : trich RatLt ℚ.
-Proof with auto.
-  eapply trich_iff. apply ratLt_rel. apply ratLt_tranr. split.
+Proof.
+  eapply trich_iff. apply binRel_is_binRel.
+  apply ratLt_tranr. split.
   apply ratLt_irrefl. apply ratLt_connected.
 Qed.
 
 Theorem ratLt_linearOrder : linearOrder RatLt ℚ.
-Proof with auto.
-  split. apply ratLt_rel. split. apply ratLt_tranr.
-  apply ratLt_trich.
+Proof.
+  split. apply binRel_is_binRel. split.
+  apply ratLt_tranr. apply ratLt_trich.
 Qed.
 
 Close Scope Int_scope.

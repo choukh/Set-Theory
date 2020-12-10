@@ -10,9 +10,32 @@ Require Import ZFC.lib.FuncFacts.
 Definition woset : set → set → Prop := λ A R,
   wellOrder R A.
 
+Lemma subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
+Proof with eauto.
+  intros * [Hlo Hmin] Hsub.
+  split. eapply subRel_loset...
+  intros C Hne HsubC.
+  pose proof (Hmin C Hne) as [m [Hm Hle]]. eapply sub_tran...
+  exists m. split... intros x Hx.
+  pose proof (Hle x Hx) as []; [left|right]...
+  apply SepI... apply CProdI; apply HsubC...
+Qed.
+
+Lemma nat_woset : ∀n ∈ ω, woset n (Lt ⥏ n).
+Proof with auto.
+  intros n Hn. eapply subRel_woset. apply Lt_wellOrder.
+  apply trans_sub... apply ω_trans.
+Qed.
+
+Lemma empty_woset : woset ∅ ∅.
+Proof with auto.
+  split. apply empty_loset.
+  intros B [b Hb] Hsub. apply Hsub in Hb. exfalso0.
+Qed.
+
 (* 无穷降链 *)
 Definition descending_chain : set → set → set → Prop := λ f A R,
-  f: ω ⇒ A ∧ ∀n ∈ ω, <f[n⁺], f[n]> ∈ R.
+  f: ω ⇒ A ∧ ∀n ∈ ω, (f[n⁺] <ᵣ f[n]) R.
 
 (* 良序结构不存在无穷降链 *)
 Theorem woset_no_descending_chain : ∀ A R,
@@ -40,7 +63,7 @@ Qed.
 (* ==需要选择公理== *)
 (* 非良序的关系存在无穷降链 *)
 Lemma ex_descending_chain : AC_I → ∀ A R, ⦿ A →
-  (∀y ∈ A, ∃x ∈ A, <x, y> ∈ R) →
+  (∀y ∈ A, ∃x ∈ A, (x <ᵣ y) R) →
   ∃ f, descending_chain f A R.
 Proof with eauto.
   intros AC1 * [a Ha] Hpr.
@@ -89,51 +112,39 @@ Proof with neauto.
     split... split... split... eapply sub_tran...
 Qed.
 
-Definition SubRel : set → set → set := λ R B,
-  {p ∊ R | λ p, p ∈ B × B}.
-Notation "R ⥏ B" := (SubRel R B) (at level 60).
-
-Lemma subRel_loset : ∀ A R B, loset A R → B ⊆ A → loset B (R ⥏ B).
-Proof with eauto.
-  intros * [Hbr [Htr Htri]] Hsub. repeat split.
-  - intros p Hp. apply SepE2 in Hp...
-  - intros x y z Hxy Hyz.
-    apply SepE in Hxy as [Hxy Hx]. apply CProdE2 in Hx as [Hx _].
-    apply SepE in Hyz as [Hyz Hz]. apply CProdE2 in Hz as [_ Hz].
-    apply SepI. eapply Htr... apply CProdI...
-  - intros x Hx y Hy.
-    apply Hsub in Hx as Hxa. apply Hsub in Hy as Hya.
-    pose proof (Htri x Hxa y Hya) as [|[|]]; destruct H as [H1 [H2 H3]].
-    + left. repeat split...
-      * apply SepI... apply CProdI...
-      * intros Hyx. apply H3. apply SepE1 in Hyx...
-    + right. left. repeat split...
-      * intros Hxy. apply H1. apply SepE1 in Hxy...
-      * intros Hyx. apply H3. apply SepE1 in Hyx...
-    + right. right. repeat split...
-      * intros Hxy. apply H1. apply SepE1 in Hxy...
-      * apply SepI... apply CProdI...
-Qed.
-
-Lemma subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
-Proof with eauto.
-  intros * [Hlo Hmin] Hsub.
-  split. eapply subRel_loset...
-  intros C Hne HsubC.
-  pose proof (Hmin C Hne) as [m [Hm Hle]]. eapply sub_tran...
-  exists m. split... intros x Hx.
-  pose proof (Hle x Hx) as []...
-  left. apply SepI... apply CProdI; apply HsubC...
-Qed.
-
 (* 前节 *)
 (* initial segment *)
-Definition seg : set → set → set := λ t R,
-  {x ∊ dom R | λ x, <x, t> ∈ R}.
+Definition seg := λ t R, {x ∊ dom R | λ x, (x <ᵣ t) R}.
+(* 后节 *)
+Definition final := λ t R B, {x ∊ B | λ x, (t <ᵣ x) R}.
 
-Lemma segI : ∀ x t R, <x, t> ∈ R → x ∈ seg t R.
+Definition head := λ t A R, {x ∊ A | λ x, (x ≤ᵣ t) R}.
+
+Definition tail := λ t A R, {x ∊ A | λ x, (t ≤ᵣ x) R}.
+
+Lemma segI : ∀ x t R, (x <ᵣ t) R → x ∈ seg t R.
 Proof with eauto.
   intros. apply SepI... eapply domI...
+Qed.
+
+Lemma seg_0_Lt : seg 0 Lt = ∅.
+Proof.
+  apply ExtAx; split; intros Hx.
+  apply SepE in Hx as [_ Hx0].
+  apply binRelE2 in Hx0 as [_ [_ Hx0]]. exfalso0. exfalso0.
+Qed.
+
+Lemma seg_with_single_eq_head : ∀ t A R, t ∈ A → is_binRel R A →
+  seg t R ∪ ⎨t⎬ = head t A R.
+Proof with eauto.
+  intros * Ht Hbr. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply SepE in H as [Hx Hxt].
+      apply SepI. eapply dom_binRel... left...
+    + apply SingE in H; subst. apply SepI... right...
+  - apply SepE in Hx as [Hx [Hlt|Heq]].
+    + apply BUnionI1. apply segI...
+    + apply BUnionI2. subst...
 Qed.
 
 (* 自然数的前节等于自身 *)
@@ -175,7 +186,7 @@ Proof with eauto; try congruence.
   split. { apply transfinite_induction. }
   intros Hind. split... intros C [c Hc] Hsub.
   (* strict lower bounds of C *)
-  set {t ∊ A | λ t, ∀x ∈ C, <t, x> ∈ R} as B.
+  set {t ∊ A | λ t, ∀x ∈ C, (t <ᵣ x) R} as B.
   destruct (classic (inductive_subset B A R)).
   - exfalso. apply Hsub in Hc as Hc'.
     apply Hind in H. rewrite <- H in Hc'.
@@ -186,15 +197,15 @@ Proof with eauto; try congruence.
     }
     apply set_not_all_ex_not in H as [t [Hta H]].
     apply imply_to_and in H as [Hseg Htb].
-    cut (∀x ∈ C, < t, x > ∈ R ∨ t = x). {
+    cut (∀x ∈ C, (t ≤ᵣ x) R). {
       intros H. exists t. split...
       destruct (classic (t ∈ C)) as [|Htc]...
       exfalso. apply Htb. apply SepI...
       intros x Hx. pose proof (H x Hx) as []...
     }
     intros x Hxc. apply Hsub in Hxc as Hxa.
-    destruct (classic (t = x))...
-    eapply linearOrder_connected in H as [|Hxt]...
+    destruct (classic (t = x)). right...
+    eapply linearOrder_connected in H as [|Hxt]... left...
     exfalso. assert (Hxb: x ∈ B). {
       apply Hseg. apply segI...
     }
@@ -264,45 +275,6 @@ Proof with auto.
     apply SepI. apply ex2_10... exists a. split...
   - apply SepE in Hx as [_ [a [Ha Heq]]]. subst x.
     apply ReplAx. exists a. split...
-Qed.
-
-Definition relLt := λ x y R, <x, y> ∈ R.
-Notation "x <ᵣ y" := (relLt x y) (at level 60).
-Definition relLe := λ x y R, <x, y> ∈ R ∨ x = y.
-Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
-
-Lemma relLe_tranr : ∀ x y z R, tranr R →
-  (x ≤ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
-Proof with eauto.
-  intros * Htr [Hxy|Hxy] [Hyz|Hyz].
-  - left. eapply Htr...
-  - subst. left...
-  - subst. left...
-  - subst. right...
-Qed.
-
-Lemma relLt_le_tranr : ∀ x y z R, tranr R →
-  (x <ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
-Proof with eauto.
-  intros * Htr Hxy [Hyz|Hyz].
-  - left. eapply Htr...
-  - subst. left...
-Qed.
-
-Definition head : set → set → set → set := λ t A R,
-  {x ∊ A | λ x, (x ≤ᵣ t) R}.
-
-Lemma seg_with_single_eq_head : ∀ t A R, t ∈ A → is_binRel R A →
-  seg t R ∪ ⎨t⎬ = head t A R.
-Proof with eauto.
-  intros * Ht Hbr. apply ExtAx. split; intros Hx.
-  - apply BUnionE in Hx as [].
-    + apply SepE in H as [Hx Hxt].
-      apply SepI. eapply dom_binRel... left...
-    + apply SingE in H; subst. apply SepI... right...
-  - apply SepE in Hx as [Hx [Hlt|Heq]].
-    + apply BUnionI1. apply segI...
-    + apply BUnionI2. subst...
 Qed.
 
 (* 超限递归定理模式的证明 *)
@@ -556,48 +528,47 @@ Proof.
   apply transfinite_recursion.
 Qed.
 
-Lemma seg_0_Lt : seg 0 Lt = ∅.
+Module TransfiniteRecursion.
+
+Definition spec := λ A R γ F,
+  is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
+
+Definition constr := λ A R γ,
+  epsilon (inhabits ∅) (λ F, spec A R γ F).
+
+Lemma spec_intro : ∀ A R γ, woset A R →
+  (∀ x, ∃! y, γ x y) → spec A R γ (constr A R γ).
 Proof.
-  apply ExtAx; split; intros Hx.
-  apply SepE in Hx as [_ Hx0].
-  apply binRelE2 in Hx0 as [_ [_ Hx0]]. exfalso0. exfalso0.
+  intros. apply (epsilon_spec (inhabits ∅) (λ F, spec A R γ F)).
+  apply transfinite_recursion; auto.
 Qed.
 
-Lemma ran_of_empty : ran ∅ = ∅.
-Proof.
-  apply ExtAx; split; intros Hx.
-  apply ranE in Hx as [y Hp]. exfalso0. exfalso0.
-Qed.
+End TransfiniteRecursion.
 
 (** 传递闭包 **)
 
-Module TCHelper.
+Module TransitiveClosureDef.
 
-Definition P := λ A R γ F,
-  is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
+Definition γ := λ A x y, y = A ∪ ⋃ ⋃ (ran x).
 
-Definition F := λ A, epsilon (inhabits ∅)
-  (λ F, let γ := λ x y, y = A ∪ ⋃ ⋃ (ran x) in P ω Lt γ F).
+Definition F := λ A, TransfiniteRecursion.constr ω Lt (γ A).
 
-Lemma f_correct : ∀ A,
-  let γ := λ x y, y = A ∪ ⋃ ⋃ (ran x) in P ω Lt γ (F A).
+Lemma f_spec : ∀ A, TransfiniteRecursion.spec ω Lt (γ A) (F A).
 Proof.
-  intros. apply (epsilon_spec (inhabits ∅) (λ f, P ω Lt γ f)).
-  apply transfinite_recursion. apply Lt_wellOrder.
-  intros f. split. exists (A ∪ ⋃ ⋃ (ran f)). congruence.
-  intros g h Hg Hh. congruence.
+  intros. apply TransfiniteRecursion.spec_intro. apply Lt_wellOrder.
+  intros f. split. exists (A ∪ ⋃ ⋃ (ran f)). congruence. congruence.
 Qed.
 
 Fact f_0 : ∀ A, (F A)[0] = A.
 Proof with nauto.
-  intros. pose proof (f_correct A) as [Hf [Hd Hγ]].
+  intros. destruct (f_spec A) as [Hf [Hd Hγ]].
   rewrite Hγ, seg_0_Lt, restr_to_empty, ran_of_empty,
     union_empty, union_empty, bunion_empty...
 Qed.
 
 Fact f_1 : ∀ A, (F A)[1] = A ∪ ⋃ A.
 Proof with nauto.
-  intros. pose proof (f_correct A) as [Hf [Hd Hγ]].
+  intros. destruct (f_spec A) as [Hf [Hd Hγ]].
   rewrite Hγ... replace (ran (F A ↾ seg 1 Lt)) with ⎨A⎬.
   rewrite union_single...
   apply ExtAx; intros y; split; intros Hy.
@@ -618,7 +589,7 @@ Lemma f_ap_preserve_lt : ∀ A, ∀ n m ∈ ω,
   n ∈ m → (F A)[n] ⊆ (F A)[m].
 Proof with auto.
   intros A n Hn m Hm Hnm.
-  pose proof (f_correct A) as [Hf [Hd Hγ]].
+  destruct (f_spec A) as [Hf [Hd Hγ]].
   rewrite Hγ, Hγ... intros y Hy.
   apply BUnionE in Hy as [|Hy]; [apply BUnionI1|apply BUnionI2]...
   apply UnionAx in Hy as [a [Ha Hy]].
@@ -635,7 +606,7 @@ Qed.
 Lemma f_n : ∀ A, ∀n ∈ ω, (F A)[n⁺] = A ∪ ⋃ (F A)[n].
 Proof with auto; try congruence.
   intros A n Hn.
-  pose proof (f_correct A) as [Hf [Hd Hγ]].
+  destruct (f_spec A) as [Hf [Hd Hγ]].
   assert (Hnp: n⁺ ∈ ω) by (apply ω_inductive; auto).
   rewrite Hγ...
   apply ExtAx; intros y; split; intros Hy;
@@ -672,21 +643,21 @@ Proof with neauto.
     + apply UnionAx. exists a. split... apply BUnionI2...
 Qed.
 
-End TCHelper.
+End TransitiveClosureDef.
 
-Definition TransitiveClosure := λ A, ⋃ (ran (TCHelper.F A)).
+Definition TransitiveClosure := λ A, ⋃ (ran (TransitiveClosureDef.F A)).
 Notation "'𝗧𝗖' A" := (TransitiveClosure A) (at level 70).
 
 (* 传递闭包是传递集 *)
 Theorem tc_trans : ∀ A, trans (𝗧𝗖 A).
 Proof with auto; try congruence.
   intros A x y Hxy Hy.
-  pose proof (TCHelper.f_correct A) as [Hf [Hd _]].
+  destruct (TransitiveClosureDef.f_spec A) as [Hf [Hd _]].
   apply UnionAx in Hy as [a [Ha Hy]].
   apply ranE in Ha as [n Hp]. apply domI in Hp as Hn.
   apply func_ap in Hp... subst a.
-  apply TCHelper.f_inclusion in Hy... apply Hy in Hxy.
-  apply UnionAx. exists ((TCHelper.F A)[n⁺]). split...
+  apply TransitiveClosureDef.f_inclusion in Hy... apply Hy in Hxy.
+  apply UnionAx. exists ((TransitiveClosureDef.F A)[n⁺]). split...
   eapply ranI. apply func_point...
   rewrite Hd. apply ω_inductive...
 Qed.
@@ -695,8 +666,8 @@ Qed.
 Theorem tc_contains : ∀ A, A ⊆ 𝗧𝗖 A.
 Proof with nauto.
   intros A x Hx.
-  pose proof (TCHelper.f_correct A) as [Hf [Hd _]].
+  destruct (TransitiveClosureDef.f_spec A) as [Hf [Hd _]].
   apply UnionAx. exists A. split...
   apply (ranI _ 0). apply func_point...
-  rewrite Hd... apply TCHelper.f_0.
+  rewrite Hd... apply TransitiveClosureDef.f_0.
 Qed.

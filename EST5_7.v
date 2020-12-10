@@ -1089,7 +1089,7 @@ Proof with neauto.
   } {
     exists y. split; [|repeat split]...
     intros w Hw. apply ReplAx in Hw as [a [Ha Heq]].
-    apply Hleq in Ha. congruence.
+    apply Hleq in Ha. unfold relLe. congruence.
   }
   assert (Hub' := Hub). destruct Hub' as [Hs Hle].
   exfalso. clear H Hleq.

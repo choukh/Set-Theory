@@ -316,8 +316,7 @@ Proof with eauto.
   destruct (classic (∃ m, minimum m A Lt))... exfalso.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
-    assert (a ∈ a⁺) by (apply BUnionI2; apply SingI).
-    eapply (H0 a⁺)... apply ω_inductive...
+    eapply (H0 a⁺)... apply ω_inductive... apply BUnionI2...
   }
   intros n Hn. clear a Ha.
   set {n ∊ ω | λ n, ∀m ∈ ω, m ∈ n → m ∉ A} as N.
@@ -325,7 +324,7 @@ Proof with eauto.
   apply leq_iff_lt_suc in H0 as []... apply IH...
   subst k. intros Hma. apply H. clear H n Hn N Hk. 
   exists m. split... intros n Hn. apply Hsub in Hn as Hnω.
-  destruct (classic (m = n))... left.
+  destruct (classic (m = n)). right... left.
   apply lt_connected in H as []...
   apply binRelI... exfalso. eapply IH...
 Qed.
