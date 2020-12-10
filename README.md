@@ -153,7 +153,7 @@ This project is a Coq formalization of the textboox Elements of Set Theory - Her
 - 传递闭包（集合）
 
 ## EST7_3.v (TODO)
-- 序数的定义
+- 序同构，序数的定义
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
