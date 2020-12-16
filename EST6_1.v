@@ -1,10 +1,11 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 1 **)
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export ZFC.lib.Natural.
-Require Import ZFC.lib.WosetMin.
-Require Export ZFC.lib.FuncFacts.
 Require Export Setoid.
+Require Export ZFC.lib.Natural.
+Require Export ZFC.lib.FuncFacts.
+Require Import ZFC.lib.WosetMin.
+Import WosetMin.SimpleVer.
 
 (*** EST第六章1：等势，康托定理，鸽笼原理，有限基数 ***)
 

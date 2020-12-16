@@ -286,6 +286,18 @@ Proof with auto.
   intros * Hf Hx Hap. apply func_correct in Hx... subst y...
 Qed.
 
+Lemma ran_eq_repl_by_ap : ∀ f, is_function f →
+  ran f = {ap f | x ∊ dom f}.
+Proof with auto.
+  intros f Hf.
+  apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply domI in Hp as Hx. apply func_ap in Hp...
+    apply ReplAx. exists x. split...
+  - apply ReplAx in Hy as [x [Hx Hap]].
+    subst y. eapply ranI. apply func_correct...
+Qed.
+
 Lemma func_ext_intro : ∀ F G, is_function F → is_function G →
   dom F = dom G → (∀x ∈ dom F, F[x] = G[x]) → F = G.
 Proof with auto.

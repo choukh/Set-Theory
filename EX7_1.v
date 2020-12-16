@@ -5,6 +5,7 @@ Require Export ZFC.EST7_2.
 Require Import ZFC.lib.Real.
 Require Import ZFC.lib.Cardinal.
 Require Import ZFC.lib.WosetMin.
+Import WosetMin.SimpleVer.
 
 (* ex7_1
   (a) No (b) No

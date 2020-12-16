@@ -1,7 +1,7 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 2 **)
 (** Coq coding by choukh, Dec 2020 **)
 
-Require Export ZFC.EST7_3.
+Require Export ZFC.EST7_4.
 Require Import ZFC.lib.FuncFacts.
 Require Import ZFC.lib.Real.
 Require Import ZFC.lib.NatIsomorphism.
@@ -9,6 +9,7 @@ Require Import ZFC.lib.NatIsomorphism.
 (* ex7_10 see EST7_3 Example α_nat, α_ω *)
 
 Module EX7_11.
+Import OrderedStruct.
 Close Scope Real_scope.
 Open Scope Int_scope.
 
@@ -91,14 +92,14 @@ Definition NegInt := {a ∊ ℤ | intNeg}.
 Notation "ℤ⁻" := NegInt.
 
 Definition LtStruct :=
-  OrderedStructure.constr ω Lt (memberRel_is_binRel _).
+  constr ω Lt (memberRel_is_binRel _).
 Definition NonNegIntLtStruct := 
-  OrderedStructure.constr ℤ⁰⁺ (IntLt ⥏ ℤ⁰⁺) (subRel_is_binRel _ _).
+  constr ℤ⁰⁺ (IntLt ⥏ ℤ⁰⁺) (subRel_is_binRel _ _).
 
 Definition PosIntLtStruct := 
-  OrderedStructure.constr ℤ⁺ (IntLt ⥏ ℤ⁺) (subRel_is_binRel _ _).
+  constr ℤ⁺ (IntLt ⥏ ℤ⁺) (subRel_is_binRel _ _).
 Definition NegIntLtStruct := 
-  OrderedStructure.constr ℤ⁻ (IntLt ⥏ ℤ⁻)⁻¹ (inv_is_binRel _ _ (subRel_is_binRel _ _)).
+  constr ℤ⁻ (IntLt ⥏ ℤ⁻)⁻¹ (inv_is_binRel _ _ (subRel_is_binRel _ _)).
 
 Lemma ω_embed_ran_nn : ∀n ∈ ω, ω_Embed[n] ∈ ℤ⁰⁺.
 Proof with eauto.
@@ -150,8 +151,8 @@ Qed.
 
 Lemma nonNegInt_woset : woset ℤ⁰⁺ (IntLt ⥏ ℤ⁰⁺).
 Proof.
-  cut (OrderedStructure.wo NonNegIntLtStruct). auto.
-  eapply OrderedStructure.iso_wo. apply iso_Lt_nonNegIntLt.
+  cut (wo NonNegIntLtStruct). auto.
+  eapply iso_wo. apply iso_Lt_nonNegIntLt.
   apply Lt_wellOrder.
 Qed.
 
@@ -205,8 +206,8 @@ Qed.
 
 Lemma negInt_woset : woset ℤ⁻ (IntLt ⥏ ℤ⁻)⁻¹.
 Proof with auto.
-  cut (OrderedStructure.wo NegIntLtStruct)...
-  eapply OrderedStructure.iso_wo. apply iso_posIntLt_negIntLt.
+  cut (wo NegIntLtStruct)...
+  eapply iso_wo. apply iso_posIntLt_negIntLt.
   apply posInt_woset.
 Qed.
 

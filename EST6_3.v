@@ -3,9 +3,10 @@
 
 Require Export ZFC.EX6_1.
 Require Import ZFC.lib.IndexedFamilyUnion.
-Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.NatIsomorphism.
 Require Import ZFC.lib.algebra.Inj_2n3m.
+Require Import ZFC.lib.WosetMin.
+Import WosetMin.SimpleVer.
 
 (*** EST第六章3：支配关系，施罗德-伯恩斯坦定理，基数的序，阿列夫零 ***)
 

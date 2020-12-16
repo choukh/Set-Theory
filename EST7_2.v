@@ -10,7 +10,8 @@ Require Import ZFC.lib.FuncFacts.
 Definition woset : set → set → Prop := λ A R,
   wellOrder R A.
 
-Lemma subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
+(* Theorem 7J *)
+Theorem subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
 Proof with eauto.
   intros * [Hlo Hmin] Hsub.
   split. eapply subRel_loset...
@@ -528,7 +529,7 @@ Proof.
   apply transfinite_recursion.
 Qed.
 
-Module TransfiniteRecursion.
+Module Import TransfiniteRecursion.
 
 Definition spec := λ A R γ F,
   is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
@@ -547,15 +548,15 @@ End TransfiniteRecursion.
 
 (** 传递闭包 **)
 
-Module TransitiveClosureDef.
+Module Import TransitiveClosureDef.
 
 Definition γ := λ A x y, y = A ∪ ⋃ ⋃ (ran x).
 
-Definition F := λ A, TransfiniteRecursion.constr ω Lt (γ A).
+Definition F := λ A, constr ω Lt (γ A).
 
-Lemma f_spec : ∀ A, TransfiniteRecursion.spec ω Lt (γ A) (F A).
+Lemma f_spec : ∀ A, spec ω Lt (γ A) (F A).
 Proof.
-  intros. apply TransfiniteRecursion.spec_intro. apply Lt_wellOrder.
+  intros. apply spec_intro. apply Lt_wellOrder.
   intros f. split. exists (A ∪ ⋃ ⋃ (ran f)). congruence. congruence.
 Qed.
 
@@ -645,19 +646,19 @@ Qed.
 
 End TransitiveClosureDef.
 
-Definition TransitiveClosure := λ A, ⋃ (ran (TransitiveClosureDef.F A)).
+Definition TransitiveClosure := λ A, ⋃ (ran (F A)).
 Notation "'𝗧𝗖' A" := (TransitiveClosure A) (at level 70).
 
 (* 传递闭包是传递集 *)
 Theorem tc_trans : ∀ A, trans (𝗧𝗖 A).
 Proof with auto; try congruence.
   intros A x y Hxy Hy.
-  destruct (TransitiveClosureDef.f_spec A) as [Hf [Hd _]].
+  destruct (f_spec A) as [Hf [Hd _]].
   apply UnionAx in Hy as [a [Ha Hy]].
   apply ranE in Ha as [n Hp]. apply domI in Hp as Hn.
   apply func_ap in Hp... subst a.
-  apply TransitiveClosureDef.f_inclusion in Hy... apply Hy in Hxy.
-  apply UnionAx. exists ((TransitiveClosureDef.F A)[n⁺]). split...
+  apply f_inclusion in Hy... apply Hy in Hxy.
+  apply UnionAx. exists ((F A)[n⁺]). split...
   eapply ranI. apply func_point...
   rewrite Hd. apply ω_inductive...
 Qed.
@@ -666,8 +667,8 @@ Qed.
 Theorem tc_contains : ∀ A, A ⊆ 𝗧𝗖 A.
 Proof with nauto.
   intros A x Hx.
-  destruct (TransitiveClosureDef.f_spec A) as [Hf [Hd _]].
+  destruct (f_spec A) as [Hf [Hd _]].
   apply UnionAx. exists A. split...
   apply (ranI _ 0). apply func_point...
-  rewrite Hd... apply TransitiveClosureDef.f_0.
+  rewrite Hd... apply f_0.
 Qed.

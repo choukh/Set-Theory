@@ -3,8 +3,9 @@
 
 Require Export ZFC.EST6_4.
 Require Import ZFC.lib.NatIsomorphism.
-Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Import ZFC.lib.WosetMin.
+Import WosetMin.SimpleVer.
 
 (* 所有集合的支配集不能构成一个集合 *)
 Example ex6_15 : ¬∃ 𝒜, ∀ B, ∃A ∈ 𝒜, B ≼ A.

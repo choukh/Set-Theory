@@ -2,10 +2,12 @@
 
 Require Import ZFC.EST7_2.
 
+Module SimpleVer.
+
 (* 良序集上的最小元函数 *)
 Definition Min : set → set := λ R,
   let P := λ p, minimum (π2 p) (π1 p) R in
-  {p ∊ (𝒫 (fld R) - ⎨∅⎬) × (fld R) | P}.
+  {p ∊ (𝒫 (fld R) - ⎨∅⎬) × fld R | P}.
 
 Lemma minE : ∀ R B m, <B, m> ∈ Min R →
   B ∈ 𝒫 (fld R) - ⎨∅⎬ ∧ minimum m B R.
@@ -59,28 +61,37 @@ Qed.
 Definition Next : set → set → set → set := λ B R a,
   (Min R)[final a R B].
 
+Lemma fld_woset : ∀ A R, woset A R →
+  (∃ a b ∈ A, (a <ᵣ b) R) → fld R = A.
+Proof with eauto.
+  intros A R Hwo [a [Ha [b [Hb Hab]]]].
+  apply ExtAx. split; intros Hx.
+  - destruct Hwo as [[Hbr _] _]. apply BUnionE in Hx as [].
+    + apply domE in H as [y Hp]. apply Hbr in Hp.
+      apply CProdE2 in Hp as []...
+    + apply ranE in H as [w Hp]. apply Hbr in Hp.
+      apply CProdE2 in Hp as []...
+  - destruct Hwo as [Hlo _].
+    destruct (classic (x = a)).
+      + destruct (classic (x = b)).
+        * exfalso. subst. eapply linearOrder_irrefl...
+        * eapply linearOrder_connected in H0 as []...
+          apply BUnionI1. eapply domI...
+          apply BUnionI2. eapply ranI...
+      + eapply linearOrder_connected in H as []...
+        * apply BUnionI1. eapply domI...
+        * apply BUnionI2. eapply ranI...
+Qed.
+
 Lemma next_correct : ∀ A R B, woset A R → B ⊆ A →
   ∀a ∈ B, (∃b ∈ B, (a <ᵣ b) R) →
   minimum (Next B R a) (final a R B) R.
 Proof with eauto.
   intros * Hwo Hsub a Ha [b [Hb Hab]].
-  assert (Heq: (fld R) = A). {
-    apply ExtAx. split; intros Hx.
-    - destruct Hwo as [[Hbr _] _]. apply BUnionE in Hx as [].
-      + apply domE in H as [y Hp]. apply Hbr in Hp.
-        apply CProdE2 in Hp as []...
-      + apply ranE in H as [w Hp]. apply Hbr in Hp.
-        apply CProdE2 in Hp as []...
-    - destruct Hwo as [Hlo _]. apply Hsub in Ha. apply Hsub in Hb.
-      destruct (classic (x = a)).
-        + destruct (classic (x = b)).
-          * exfalso. subst. eapply linearOrder_irrefl...
-          * eapply linearOrder_connected in H0 as []...
-            apply BUnionI1. eapply domI...
-            apply BUnionI2. eapply ranI...
-        + eapply linearOrder_connected in H as []...
-          * apply BUnionI1. eapply domI...
-          * apply BUnionI2. eapply ranI...
+  assert (Heq: fld R = A). {
+    apply fld_woset...
+    exists a. split. apply Hsub...
+    exists b. split. apply Hsub... auto.
   }
   specialize (min_correct A R (final a R B)) as [Hm Hmin]...
   - exists b. apply SepI...
@@ -183,3 +194,60 @@ Proof with neauto.
     + eapply nat_trans...
     + apply SingE in H. subst...
 Qed.
+
+End SimpleVer.
+
+Module FullVer.
+
+Definition Min : set → set → set := λ A R,
+  let P := λ p, minimum (π2 p) (π1 p) R in
+  {p ∊ (𝒫 A - ⎨∅⎬) × A | P}.
+
+Lemma minE : ∀ A R B m, <B, m> ∈ Min A R →
+  B ∈ 𝒫 A - ⎨∅⎬ ∧ minimum m B R.
+Proof.
+  intros. apply SepE in H as [Hp [Hn Hle]].
+  apply CProdE2 in Hp as [HN _].
+  zfcrewrite. repeat split; auto.
+Qed.
+
+Lemma min_maps_into : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
+Proof with eauto.
+  intros * [Hlo Hmin]. split; split.
+  - intros p Hp. apply SepE in Hp as [Hp _].
+    apply cprod_is_pairs in Hp...
+  - intros B HB. split. apply domE in HB...
+    intros a b H1 H2.
+    apply minE in H1 as [_ [Ha H1]].
+    apply minE in H2 as [_ [Hb H2]].
+    apply H1 in Hb as []; apply H2 in Ha as []...
+    exfalso. eapply linearOrder_irrefl...
+    destruct Hlo as [_ [Htr _]]. eapply Htr...
+  - apply ExtAx. intros B. split; intros HB.
+    + apply domE in HB as [a Hp].
+      apply minE in Hp as []...
+    + apply SepE in HB as [HB HB']. apply PowerAx in HB as Hsub.
+      apply SingNE in HB' as Hne. apply EmptyNE in Hne.
+      pose proof (Hmin B Hne Hsub) as [a [Ha Hle]].
+      apply (domI _ _ a). apply SepI.
+      * apply CProdI. apply SepI... apply Hsub...
+      * split. zfcrewrite. intros m Hm. zfcrewrite. apply Hle...
+  - intros a Ha. apply ranE in Ha as [B Hp].
+    apply minE in Hp as [HB [Ha _]]. apply SepE in HB as [HB _].
+    apply PowerAx in HB. apply HB...
+Qed.
+
+Lemma min_correct : ∀ A R B, woset A R →
+  ⦿ B → B ⊆ A → minimum (Min A R)[B] B R.
+Proof with eauto.
+  intros * Hwo Hne Hsub.
+  pose proof (min_maps_into A R Hwo) as [Hfm [Hdm _]]...
+  assert (HB: B ∈ dom (Min A R)). {
+    rewrite Hdm. apply SepI. apply PowerAx...
+    apply SingNI. apply EmptyNI...
+  }
+  apply domE in HB as [m Hp]. apply func_ap in Hp as Hap...
+  rewrite Hap. eapply minE...
+Qed.
+
+End FullVer.
