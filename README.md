@@ -142,9 +142,8 @@ This project is a Coq formalization of the textboox Elements of Set Theory - Her
   - 加法和乘法的吸收律
   
 ## EST7_1.v
-- 偏序
-- 线序
-- 上下确界
+- 偏序，线序
+- 极值，最值，确界
 
 ## EST7_2.v
 - 良序
@@ -152,8 +151,14 @@ This project is a Coq formalization of the textboox Elements of Set Theory - Her
 - 超限递归定理
 - 传递闭包（集合）
 
-## EST7_3.v (TODO)
-- 序同构，序数的定义
+## EST7_3.v
+- 伊普西隆像
+- 序同构
+- 良序结构
+
+## EST7_4.v (TODO)
+- 序数的定义
+- 序数的序
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
