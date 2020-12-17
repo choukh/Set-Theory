@@ -68,14 +68,21 @@ Proof with auto.
     apply (SepE2 ⎨x⎬). rewrite H...
 Qed.
 
+Definition Extraneous := λ A, {x ∊ A | λ x, x ∉ x}.
+
+Lemma extraneous : ∀ A, Extraneous A ∉ A.
+Proof with auto.
+  intros A.
+  destruct (classic (Extraneous A ∈ Extraneous A)).
+  - apply SepE in H as [Ha H]. exfalso. apply H. apply SepI...
+  - intros Ha. apply H. apply SepI...
+Qed.
+
 Theorem no_set_of_all_set : ¬ ∃ A, ∀ x, x ∈ A.
 Proof.
-  intros [A Ha].
-  set {x ∊ A | λ x, x ∉ x} as B.
-  destruct (classic (B ∈ B)) as [Hb|Hb].
-  - apply SepE in Hb as H. destruct H as [_ H].
-    apply H. apply Hb.
-  - apply Hb. apply SepI. apply Ha. apply Hb.
+  intros [A H].
+  specialize H with (Extraneous A).
+  eapply extraneous. apply H.
 Qed.
 
 (** 任意交 **)

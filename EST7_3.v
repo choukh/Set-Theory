@@ -465,7 +465,6 @@ End OrderedStruct.
 
 (* 良序结构 *)
 Module WOStruct.
-Import EpsilonImage.
 
 Record WOStruct : Type := constr {
   A : set;
@@ -520,24 +519,6 @@ Add Relation WOStruct isomorphic
   symmetry proved by iso_symm
   transitivity proved by iso_tran
   as iso_rel.
-
-  Definition E := λ S, E (A S) (R S).
-  Definition α := λ S, α (A S) (R S).
-  Definition ε := λ S, ε (A S) (R S).
-  Definition Epsilon := λ S,
-    constr (α S) (ε S) (OrderedStruct.epsilon_wo (parent S) (parent_wo S)).
-
-(* 任意良序结构与其伊普西隆结构同构 *)
-Fact iso_epsilon : ∀ S, S ≅ Epsilon S.
-Proof with auto.
-  intros S. exists (E S). split.
-  - apply e_bijective...
-  - apply e_preserve_order...
-Qed.
-
-(* 任意良序结构的伊普西隆像是传递集 *)
-Corollary α_trans : ∀ S, trans (α S).
-Proof. intros. apply α_trans. auto. Qed.
 
 (* 良序结构间的态射唯一 *)
 Theorem wo_iso_unique : ∀ S T, S ≅ T →
@@ -603,6 +584,67 @@ Proof with eauto; try congruence.
     eapply (linearOrder_irrefl R A)... apply Hwor.
 Qed.
 
+Import EpsilonImage.
+
+Definition E := λ S, E (A S) (R S).
+Definition α := λ S, α (A S) (R S).
+Definition ε := λ S, ε (A S) (R S).
+Definition Epsilon := λ S,
+  constr (α S) (ε S) (OrderedStruct.epsilon_wo (parent S) (parent_wo S)).
+
+(* 任意良序结构与其伊普西隆结构同构 *)
+Fact iso_epsilon : ∀ S, S ≅ Epsilon S.
+Proof with auto.
+  intros S. exists (E S). split.
+  - apply e_bijective...
+  - apply e_preserve_order...
+Qed.
+
+(* 任意良序结构的伊普西隆像是传递集 *)
+Corollary α_trans : ∀ S, trans (α S).
+Proof. intros. apply α_trans. auto. Qed.
+
+Lemma e_spec : ∀ S, TransfiniteRecursion.spec (A S) (R S) γ (E S).
+Proof. intros. apply e_spec. apply wo. Qed.
+
+Lemma e_ap : ∀ S,
+  ∀t ∈ A S, (E S)[t] = {λ x, (E S)[x] | x ∊ seg t (R S)}.
+Proof. intros S t Ht. unfold E. rewrite e_ap; auto. Qed.
+
+Lemma e_ap_order : ∀ S,
+  ∀ s t ∈ A S, (s <ᵣ t) (R S) → (E S)[s] ∈ (E S)[t].
+Proof. intros S s Hs t Ht Hst. apply e_ap_order; auto. Qed.
+
+Lemma e_intro : ∀ S x, ∀ s t ∈ A S,
+  (s <ᵣ t) (R S) → x = (E S)[s] → x ∈ (E S)[t].
+Proof.
+  intros S x s Hs t Ht Hst Heqx.
+  eapply e_intro; revgoals; eauto.
+Qed.
+
+Lemma e_elim : ∀ S,
+  ∀t ∈ A S, ∀x ∈ (E S)[t],
+  ∃s ∈ A S, (s <ᵣ t) (R S) ∧ x = (E S)[s] ∧ x ∈ (E S)[t].
+Proof.
+  intros S t Ht x Hx.
+  apply (e_elim (A S) (R S) (wo S)) in Hx; auto.
+Qed.
+
+Lemma α_intro : ∀ S t, ∀s ∈ A S, (E S)[s] = t → t ∈ α S.
+Proof with auto.
+  intros S t s Hs Heqt.
+  pose proof (EpsilonImage.e_spec (A S) (R S) (wo S)) as [Hf [Hd _]].
+  apply (ranI _ s). apply func_point... rewrite Hd...
+Qed.
+
+Lemma α_elim : ∀ S, ∀t ∈ α S, ∃s ∈ A S, (E S)[s] = t.
+Proof with auto.
+  intros S t Ht.
+  pose proof (EpsilonImage.e_spec (A S) (R S) (wo S)) as [Hf [Hd _]].
+  apply ranE in Ht as [s Hp]. apply domI in Hp as Hs.
+  apply func_ap in Hp... exists s. split. congruence. unfold E...
+Qed.
+
 Section Seg.
 
 Let seg := λ t A R, {x ∊ A | λ x, (x <ᵣ t) R}.
@@ -620,24 +662,80 @@ Definition Seg := λ t S,
 
 End Seg.
 
-Lemma seg_eq : ∀ S, ∀a ∈ A S, seg a (R S) = A (Seg a S).
+Lemma seg_a_eq : ∀ S, ∀t ∈ A S, A (Seg t S) = seg t (R S).
 Proof with eauto.
-  intros S a Ha.
+  intros S t Ha.
   apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hx Hxa].
-    apply SepI... eapply dom_binRel... apply wo.
-  - apply SepE in Hx as [Hx Hxa].
     apply SepI... eapply domI...
+  - apply SepE in Hx as [Hx Hxa].
+    apply SepI... eapply dom_binRel... apply wo.
 Qed.
 
-Definition Extraneous := λ A, {x ∊ A | λ x, x ∉ x}.
+Lemma seg_r_eq : ∀ S r s t, (s <ᵣ t) (R S) →
+  (r <ᵣ s) (R (Seg t S)) ↔ (r <ᵣ s) (R S).
+Proof with eauto.
+  intros S r s t Hst. split; intros Hlt.
+  - apply SepE1 in Hlt...
+  - apply SepI... apply CProdI; apply SepI...
+    eapply dom_binRel. apply wo. eapply domI...
+    destruct (wo S) as [[_ [Htr _]] _]. eapply Htr...
+    eapply dom_binRel. apply wo. eapply domI...
+Qed.
 
-Lemma extraneous : ∀ A, Extraneous A ∉ A.
+Lemma seg_seg_eq : ∀ S r s t, (s <ᵣ t) (R S) →
+  r ∈ seg s (R (Seg t S)) ↔ r ∈ seg s (R S).
 Proof with auto.
-  intros A.
-  destruct (classic (Extraneous A ∈ Extraneous A)).
-  - apply SepE in H as [Ha H]. exfalso. apply H. apply SepI...
-  - intros Ha. apply H. apply SepI...
+  intros S r s t Hst. split; intros Hlt.
+  - apply SepE2 in Hlt. apply seg_r_eq in Hlt... apply segI...
+  - apply segI. apply seg_r_eq... apply SepE2 in Hlt...
+Qed.
+
+Lemma seg_e_ap : ∀ S, ∀t ∈ A S, ∀ s, (s <ᵣ t) (R S) → 
+  (E (Seg t S))[s] = (E S)[s].
+Proof with eauto.
+  intros S t Ht s Hst.
+  destruct (wo S) as [[_ [Htr _]] _].
+  assert (Hs: s ∈ A S). {
+    eapply dom_binRel. apply wo. eapply domI...
+  }
+  generalize dependent Hst.
+  set {x ∊ A S | λ x, (x <ᵣ t) (R S) → (E (Seg t S))[x] = (E S)[x]} as AS'.
+  replace (A S) with AS' in Hs. apply SepE2 in Hs... clear Hs s.
+  eapply transfinite_induction... split.
+  intros s Hs. apply SepE1 in Hs...
+  intros s Hs Hsub. apply SepI... intros Hst.
+  rewrite e_ap; revgoals... {
+    rewrite seg_a_eq... apply segI...
+  }
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [r [Hr Heqx]]. subst x.
+    assert (Hrs: (r <ᵣ s) (R S)). {
+      apply SepE in Hr as [_ Hrs]. apply seg_r_eq in Hrs...
+    }
+    assert (Hrt: (r <ᵣ t) (R S)). eapply Htr...
+    apply seg_seg_eq in Hr... apply Hsub in Hr.
+    apply SepE in Hr as [Hr IH]. apply IH in Hrt.
+    eapply e_intro; revgoals...
+  - apply e_elim in Hx as [r [Hr [Hrs [Heqx _]]]]...
+    assert (Hr': r ∈ seg s (R S)) by (apply segI; auto).
+    assert (Hrt: (r <ᵣ t) (R S)). eapply Htr...
+    apply ReplAx. exists r. split. apply seg_seg_eq...
+    apply Hsub in Hr'. apply SepE in Hr' as [_ IH].
+    apply IH in Hrt. congruence.
+Qed.
+
+Lemma seg_α : ∀ S, ∀t ∈ A S, α (Seg t S) = (E S)[t].
+Proof with eauto.
+  intros S t Ht.
+  pose proof (e_spec (Seg t S)) as [Hf [Hd _]].
+  apply ExtAx. split; intros Hx.
+  - apply α_elim in Hx as [s [Hs Hp]].
+    apply SepE2 in Hs. subst x. rewrite seg_e_ap...
+    apply e_ap_order... eapply dom_binRel. apply wo. eapply domI...
+  - apply e_elim in Hx as [s [Hs [Hst [Heqx Hx]]]]...
+    apply (α_intro _ _ s). rewrite seg_a_eq...
+    apply segI... rewrite seg_e_ap...
 Qed.
 
 Import TransfiniteRecursion.
@@ -731,7 +829,7 @@ Proof with eauto; try congruence.
       (eapply linearOrder_irrefl; [apply (wo T)|]).
       + apply (HL2 _ Hx _ Hy) in Hya... rewrite Hpx, Hpy in Hya...
       + apply (HL2 _ Hy _ Hx) in Hxa... rewrite Hpx, Hpy in Hxa...
-    - unfold Fᵒ. rewrite seg_eq... apply restr_dom...
+    - unfold Fᵒ. rewrite <- seg_a_eq... apply restr_dom...
       intros x Hx. apply SepE1 in Hx...
     - apply sub_antisym.
       + intros y Hy. apply ranE in Hy as [x Hp].

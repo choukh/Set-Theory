@@ -92,6 +92,7 @@ Import WOStruct.Inheritance.
 
 (* 序数 *)
 Definition ord := λ S, α S.
+Definition is_ord := λ α, ∃ S, α = ord S.
 
 (* 序数良定义 *)
 Lemma ord_well_defined : ∀ S T, S ≅ T → ord S = ord T.
@@ -101,11 +102,60 @@ Proof.
   apply parent_wo. apply parent_wo. apply H.
 Qed.
 
-Definition is_ord := λ α, ∃ S, α = ord S.
+Lemma ordI : ∀ S t, ∀s ∈ A S, (E S)[s] = t → t ∈ ord S.
+Proof. exact α_intro. Qed.
+
+Lemma ordE : ∀ S, ∀t ∈ ord S, ∃s ∈ A S, (E S)[s] = t.
+Proof. exact α_elim. Qed.
 
 (* 可以以成员关系良序排列的传递集是序数 *)
 Theorem transtive_set_well_ordered_by_epsilon_is_ord :
   ∀ α, trans α → woset α (MemberRel α) → is_ord α.
-Admitted.
+Proof with eauto.
+  intros α Htr Hwo.
+  set (constr α (MemberRel α) Hwo) as S.
+  cut (∀x ∈ α, (E S)[x] = x). {
+    intros H. exists S.
+    pose proof (EpsilonImage.e_bijective (A S) (R S)) as [[Hf _] [Hd _]]...
+    apply ExtAx. split; intros Hx.
+    - apply (ranI _ x). apply func_point...
+      rewrite Hd. apply Hx. apply H...
+    - apply ranE in Hx as [w Hp].
+      apply domI in Hp as Hw. rewrite Hd in Hw.
+      apply func_ap in Hp... rewrite H in Hp... subst... 
+  }
+  intros x Hx.
+  set {x ∊ α | λ x, (E S)[x] = x} as B.
+  replace α with B in Hx. apply SepE2 in Hx... clear Hx x.
+  eapply transfinite_induction. apply (wo S). split.
+  intros x Hx. apply SepE1 in Hx...
+  intros t Ht Hsub. apply SepI...
+  unfold E. rewrite EpsilonImage.e_ap...
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [s [Hs H1]]. apply Hsub in Hs as Hsb.
+    apply SepE in Hsb as [_ H2]. apply SepE in Hs as [_ H].
+    unfold E in H2. rewrite <- H2, H1 in H.
+    apply binRelE2 in H as [_ [_ H]]...
+  - assert (x ∈ seg t (R S)). {
+      apply segI. apply binRelI...
+    }
+    apply ReplAx. exists x. split...
+    apply Hsub in H. apply SepE2 in H...
+Qed.
+
+(* 序数类是传递类 *)
+Theorem ord_tranc : ∀ α, is_ord α → ∀x ∈ α, is_ord x.
+Proof.
+  intros α [S H] x Hx. subst.
+  apply ordE in Hx as [t [Ht Heqx]]. subst x.
+  set (Seg t S) as T. exists T.
+  symmetry. apply seg_α. apply Ht.
+Qed.
+
+(* 序数是传递集 *)
+Theorem ord_trans : ∀ α, is_ord α → trans α.
+Proof.
+  intros α [S H]. subst. apply α_trans.
+Qed.
 
 End OrdinalNumber.
