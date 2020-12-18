@@ -231,7 +231,7 @@ Proof with neauto; try congruence.
   - intros Hfin.
     set (λ x, {n ∊ ω | λ n, x ∈ Q n}) as 𝒩.
     set (λ x, (Min Lt)[𝒩 x]) as f.
-    assert (Hmin: ∀b ∈ B, ω_minimum (f b) (𝒩 b)). {
+    assert (Hmin: ∀b ∈ B, ε_minimum (f b) (𝒩 b)). {
       intros b Hb. apply ω_min.
       apply ReplAx in Hb as [n [Hn Heqb]]. subst b.
       specialize Hgn2 with n as [m Hgn].

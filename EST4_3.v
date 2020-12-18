@@ -329,21 +329,25 @@ Proof with eauto.
   apply binRelI... exfalso. eapply IH...
 Qed.
 
-Definition ω_minimum : set → set → Prop := λ m N,
+Definition ε_minimum : set → set → Prop := λ m N,
   m ∈ N ∧ ∀n ∈ N, m ≤ n.
 
-Lemma ω_minimum_intro : ∀ m N, minimum m N Lt → ω_minimum m N.
+Lemma ε_minimum_iff : ∀ m N M, N ⊆ M → minimum m N (MemberRel M) ↔ ε_minimum m N.
 Proof with auto.
-  intros * [Hm Hle].
-  split... intros n Hn. assert (H := Hn). apply Hle in H as [].
-  left. apply binRelE2 in H as [_ []]... right...
+  intros * Hsub. split.
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelE2 in H as [_ []]...
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelI... apply Hsub... apply Hsub... right...
 Qed.
 
-Theorem ω_well_ordered : ∀ N, ⦿ N → N ⊆ ω → ∃ m, ω_minimum m N.
-Proof with auto.
-  intros A Hne Hsub.
-  apply Lt_wellOrder in Hsub as [m H]...
-  exists m. apply ω_minimum_intro...
+Theorem ω_well_ordered : ∀ N, ⦿ N → N ⊆ ω → ∃ m, ε_minimum m N.
+Proof with eauto.
+  intros A Hne Hsub. assert (Hsub' := Hsub).
+  apply Lt_wellOrder in Hsub' as [m H]...
+  exists m. eapply ε_minimum_iff...
 Qed.
 
 (* 自然数集上不存在小于关系的无穷降链 *)

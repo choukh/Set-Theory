@@ -70,10 +70,12 @@ echo "building WosetMin"
 coqc -R . ZFC lib/WosetMin.v
 echo "building EST7_3"
 coqc -R . ZFC EST7_3.v
-echo "building EST7_4"
-coqc -R . ZFC EST7_4.v
 echo "building EX7_2"
 coqc -R . ZFC EX7_2.v
+echo "building EST7_4"
+coqc -R . ZFC EST7_4.v
+echo "building EX7_3"
+coqc -R . ZFC EX7_3.v
 
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v

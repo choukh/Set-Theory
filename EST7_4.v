@@ -3,8 +3,10 @@
 
 Require Export ZFC.EST7_3.
 Require Import ZFC.lib.FuncFacts.
+Require Import ZFC.lib.WosetMin.
+Import WosetMin.FullVer.
 
-(*** EST第七章4：序数的定义，序数的序 ***)
+(*** EST第七章4：序数的定义，序数的序，布拉利-福尔蒂悖论 ***)
 
 Module Export OrdinalNumber.
 
@@ -87,6 +89,7 @@ Qed.
 
 End EpsilonImageWellDefined.
 
+Section OrdDef.
 Import WOStruct.
 Import WOStruct.Inheritance.
 
@@ -108,8 +111,12 @@ Proof. exact α_intro. Qed.
 Lemma ordE : ∀ S, ∀t ∈ ord S, ∃s ∈ A S, (E S)[s] = t.
 Proof. exact α_elim. Qed.
 
+(* 序数是良序集 *)
+Lemma ord_woset : ∀ α, is_ord α → woset α (MemberRel α).
+Proof. intros α [S H]. subst. apply (wo (Epsilon S)). Qed.
+
 (* 可以以成员关系良序排列的传递集是序数 *)
-Theorem transtive_set_well_ordered_by_epsilon_is_ord :
+Theorem transitive_set_well_ordered_by_epsilon_is_ord :
   ∀ α, trans α → woset α (MemberRel α) → is_ord α.
 Proof with eauto.
   intros α Htr Hwo.
@@ -143,8 +150,11 @@ Proof with eauto.
     apply Hsub in H. apply SepE2 in H...
 Qed.
 
-(* 序数类是传递类 *)
-Theorem ord_tranc : ∀ α, is_ord α → ∀x ∈ α, is_ord x.
+(* 序数集 *)
+Definition is_ords := λ S, ∀α ∈ S, is_ord α.
+
+(* 序数里都是序数 *)
+Theorem ord_is_ords : ∀ α, is_ord α → is_ords α.
 Proof.
   intros α [S H] x Hx. subst.
   apply ordE in Hx as [t [Ht Heqx]]. subst x.
@@ -156,6 +166,211 @@ Qed.
 Theorem ord_trans : ∀ α, is_ord α → trans α.
 Proof.
   intros α [S H]. subst. apply α_trans.
+Qed.
+
+Theorem ord_irrefl : ∀ α, is_ord α → α ∉ α.
+Proof.
+  intros α [S H]. subst. intros H.
+  pose proof (ordE _ _ H) as [s [Hs Heq]].
+  rewrite <- Heq in H. eapply e_irrefl; eauto.
+Qed.
+
+Theorem ord_trich : ∀ α β, is_ord α → is_ord β →
+  α ∈ β ∧ α ≠ β ∧ β ∉ α ∨
+  α ∉ β ∧ α = β ∧ β ∉ α ∨
+  α ∉ β ∧ α ≠ β ∧ β ∈ α.
+Proof with eauto.
+  intros α β Hα Hβ.
+  cut (α ∈ β ∨ α = β ∨ β ∈ α). {
+    intros [Hab|[Hnq|Hba]].
+    - left. split... split; intros H; subst;
+      eapply ord_irrefl... eapply ord_trans...
+    - right; left. repeat split; auto; intros H; subst;
+      eapply ord_irrefl...
+    - right; right. repeat split; auto; intros H; subst;
+      eapply ord_irrefl... eapply ord_trans...
+  }
+  destruct Hα as [S Heqα].
+  destruct Hβ as [T Heqβ]. subst.
+  destruct (wo_iso_trich S T) as [H|[[t [Ht H]]|[t [Ht H]]]].
+  - right; left. apply ord_well_defined...
+  - left. apply (ordI _ _ t)...
+    rewrite (ord_well_defined _ (Seg t T)), <- seg_α...
+  - right; right. apply (ordI _ _ t)...
+    rewrite (ord_well_defined _ (Seg t S)), seg_α... symmetry...
+Qed.
+
+End OrdDef.
+
+Corollary ord_connected : ∀ α β, is_ord α → is_ord β →
+  α ≠ β → α ∈ β ∨ β ∈ α.
+Proof.
+  intros α β Hα Hβ Hnq.
+  destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]]; tauto.
+Qed.
+
+Corollary ordLeq_iff_sub : ∀ α β, is_ord α → is_ord β → α ≤ β ↔ α ⊆ β.
+Proof with eauto.
+  intros α β Hα Hβ. split.
+  - intros [].
+    + intros x Hx. eapply ord_trans...
+    + subst. apply sub_refl.
+  - intros H. destruct (classic (α = β)). right...
+    left. apply ord_connected in H0 as []...
+    apply H in H0. exfalso. eapply ord_irrefl...
+Qed.
+
+(* 序数的非空集合一定有最小序数 *)
+Theorem ords_has_minimum : ∀ A, is_ords A → ⦿ A → 
+  ∃μ ∈ A, ∀α ∈ A, μ ≤ α.
+Proof with eauto.
+  intros A Hord [β Hβ].
+  destruct (classic (β ∩ A = ∅)) as [H0|Hne].
+  - exists β. split... intros α Hα.
+    destruct (classic (α = β))...
+    apply ord_connected in H as []; [| |apply Hord..]...
+    eapply EmptyE in H0. exfalso. apply H0. apply BInterI...
+  - set (β ∩ A) as B. fold B in Hne.
+    pose proof (min_correct β (MemberRel β) B) as [Hm Hmin]...
+    + apply ord_woset. apply Hord...
+    + apply EmptyNE in Hne...
+    + intros b Hb. apply BInterE in Hb as []...
+    + set ((Min β (MemberRel β))[B]) as μ. fold μ in Hm, Hmin.
+      apply BInterE in Hm as [Hμβ Hμs]...
+      exists μ. split... intros α Hαs.
+      destruct (classic (α ∈ β)) as [Hαβ|Hαβ].
+      * assert (α ∈ B) by (apply BInterI; auto).
+        apply Hmin in H as []... apply binRelE2 in H as [_ [_ H]]...
+      * apply Hord in Hαs. apply Hord in Hβ.
+        assert (β ≤ α). {
+          destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]];
+          auto; tauto.
+        }
+        apply ordLeq_iff_sub in H... apply H in Hμβ...
+Qed.
+
+(* 序数集是良序集 *)
+Theorem ords_woset : ∀ A, is_ords A → woset A (MemberRel A).
+Proof with eauto.
+  intros S Hord. repeat split.
+  - apply memberRel_is_binRel.
+  - intros α β γ Hαβ Hβγ.
+    apply binRelE2 in Hαβ as [Hα [Hβ Hαβ]].
+    apply binRelE2 in Hβγ as [_  [Hγ Hβγ]].
+    apply binRelI... eapply ord_trans... apply Hord...
+  - intros α Hα β Hβ.
+    destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]].
+    apply Hord... apply Hord...
+    + left. repeat split... apply binRelI...
+      intros H2. apply H1. apply binRelE2 in H2 as [_ [_ H2]]...
+    + right; left. repeat split...
+      intros H2. apply H. apply binRelE2 in H2 as [_ [_ H2]]...
+      intros H2. apply H1. apply binRelE2 in H2 as [_ [_ H2]]...
+    + right; right. repeat split...
+      intros H2. apply H. apply binRelE2 in H2 as [_ [_ H2]]...
+      apply binRelI...
+  - intros B Hne Hsub.
+    pose proof (ords_has_minimum B) as [μ Hmin]...
+      { intros α Hα. apply Hord. apply Hsub... }
+    exists μ. eapply ε_minimum_iff...
+Qed.
+
+(* 由序数组成的传递集是序数 *)
+Corollary transitive_set_of_ords_is_ord :
+  ∀ A, is_ords A → trans A → is_ord A.
+Proof with auto.
+  intros A Hord Htr.
+  apply transitive_set_well_ordered_by_epsilon_is_ord...
+  apply ords_woset...
+Qed.
+
+(* 零是序数 *)
+Corollary empty_is_ord : is_ord ∅.
+Proof.
+  apply transitive_set_of_ords_is_ord.
+  intros x Hx. exfalso0. intros x y _ Hy. exfalso0.
+Qed.
+
+(* 序数的后继是序数 *)
+Corollary suc_is_ord : ∀ α, is_ord α → is_ord α⁺.
+Proof with eauto.
+  intros α Hprd.
+  apply transitive_set_of_ords_is_ord.
+  - intros x Hx. apply BUnionE in Hx as [].
+    + eapply ord_is_ords...
+    + apply SingE in H. subst...
+  - apply ex4_2. apply ord_trans...
+Qed.
+
+(* 并集是包含关系的上界 *)
+Lemma union_is_ub : ∀A, ∀a ∈ A, a ⊆ ⋃A.
+Proof. exact ex2_3. Qed.
+
+(* 并集是包含关系的上确界 *)
+Lemma union_is_sup: ∀ A B, (∀a ∈ A, a ⊆ B) → ⋃A ⊆ B.
+Proof. exact ex2_5. Qed.
+
+(* 序数集的并是序数 *)
+Corollary union_of_ords_is_ord : ∀ A, is_ords A → is_ord (⋃ A).
+Proof with eauto.
+  intros A Hord.
+  apply transitive_set_of_ords_is_ord.
+  - intros x Hx. apply UnionAx in Hx as [y [Hy Hx]].
+    apply Hord in Hy. eapply ord_is_ords...
+  - apply trans_sub. intros δ Hδ.
+    apply UnionAx in Hδ as [α [Hα Hδ]].
+    eapply sub_tran; revgoals. apply union_is_ub...
+    apply ordLeq_iff_sub... eapply ord_is_ords...
+    apply Hord... apply Hord...
+Qed.
+
+(* 序数上界 *)
+Definition ordUb : set → set → Prop :=
+  λ μ A, is_ord μ ∧ ∀α ∈ A, α ≤ μ.
+
+(* 序数上确界 *)
+Definition ordSup : set → set → Prop :=
+  λ μ A, ordUb μ A ∧ ∀ α, ordUb α A → μ ≤ α.
+
+(* 序数集的并是其上确界 *)
+Fact sup_of_ords : ∀ A, is_ords A → ordSup (⋃ A) A.
+Proof with auto.
+  intros A Hord.
+  apply union_of_ords_is_ord in Hord as Hu.
+  repeat split...
+  - intros α Hα. apply ordLeq_iff_sub...
+    apply Hord... apply union_is_ub...
+  - intros α [H1 H2]. apply ordLeq_iff_sub...
+    apply union_is_sup. intros a Ha.
+    apply ordLeq_iff_sub... apply Hord... apply H2...
+Qed.
+
+(* 序数的后继是大于该序数的最小序数 *)
+Fact ord_suc_correct : ∀ α β, is_ord α → is_ord β → α ∈ β → α⁺ ≤ β.
+Proof with eauto.
+  intros α β H1 H2 Hα. apply ordLeq_iff_sub...
+  apply suc_is_ord... intros x Hx.
+  apply BUnionE in Hx as [].
+  - eapply ord_trans...
+  - apply SingE in H. subst...
+Qed.
+
+(* 布拉利-福尔蒂悖论 *)
+Theorem Burali_Forti : ¬ ∃ A, ∀ α, is_ord α → α ∈ A.
+Proof with eauto.
+  intros [A HA].
+  set {x ∊ A | λ x, is_ord x} as Ω.
+  assert (HΩ: ∀ α, is_ord α ↔ α ∈ Ω). {
+    split; intros H. apply SepI... apply SepE2 in H...
+  }
+  cut (is_ord Ω). {
+    intros Hord. apply HΩ in Hord as Hrefl.
+    eapply ord_irrefl...
+  }
+  apply transitive_set_well_ordered_by_epsilon_is_ord.
+  - intros x y Hxy Hy. apply HΩ.
+    eapply ord_is_ords... apply SepE2 in Hy...
+  - apply ords_woset. intros α Hα. apply SepE2 in Hα...
 Qed.
 
 End OrdinalNumber.

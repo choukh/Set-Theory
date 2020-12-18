@@ -630,6 +630,9 @@ Proof.
   apply (e_elim (A S) (R S) (wo S)) in Hx; auto.
 Qed.
 
+Lemma e_irrefl : ∀ S, ∀t ∈ A S, (E S)[t] ∉ (E S)[t].
+Proof. intros S t Ht. apply e_irrefl; auto. Qed. 
+
 Lemma α_intro : ∀ S t, ∀s ∈ A S, (E S)[s] = t → t ∈ α S.
 Proof with auto.
   intros S t s Hs Heqt.
