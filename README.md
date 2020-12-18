@@ -156,9 +156,10 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 序同构
 - 良序结构
 
-## EST7_4.v (TODO)
+## EST7_4.v
 - 序数的定义
 - 序数的序
+- 布拉利-福尔蒂悖论
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
