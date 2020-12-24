@@ -772,7 +772,7 @@ Proof with neauto.
       apply realLt_connected in H0 as []...
       apply realLt_realn in H0 as H1x...
       pose proof (realE1 _ Hx) as [q [Hqq Hqx]].
-      pose proof (ratArchimedean _ Hqq) as [r [Hrq Hqr]].
+      pose proof (rat_archimedean _ Hqq) as [r [Hrq Hqr]].
       assert (H1q: Rat 1 <𝐪 q) by (eapply realE2_1; neauto).
       assert (H1r: Rat 1 <𝐪 r) by (eapply ratLt_tranr; eauto).
       assert (Hpr: ratPos r). {
@@ -968,7 +968,7 @@ Proof with neauto.
   - intros p Hp. apply SepE in Hp as [Hpq Hnp].
     apply SepI... exists q. repeat split... eapply ratLt_tranr.
     rewrite ratMul_comm... apply ratMul_neg_prod... apply ratPos_sn.
-  - pose proof (ratArchimedean _ Hqq) as [r [Hrq Hqr]].
+  - pose proof (rat_archimedean _ Hqq) as [r [Hrq Hqr]].
     assert (Hposr: ratPos r) by (eapply ratLt_tranr; eauto).
     assert (Hr': r ∈ ℚ'). { apply nzRatI0... apply rat_neq_0... }
     assert (Hrr: r⁻¹ ∈ ℚ). { apply nzRatE1. apply ratMulInv_ran... }

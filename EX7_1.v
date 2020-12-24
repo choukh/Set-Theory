@@ -17,23 +17,52 @@ Import WosetMin.SimpleVer.
 (* ex7_3 Combination (n, 2) = n! / 2!(n - 2)! = (1/2)n(n-1) *)
 (* ex7_4 skip *)
 
-(* ==需要选择公理== *)
-Example ex7_5 : AC_I → ∀ A R f, wellOrder R A → f: A ⇒ A →
-  (∀ x y ∈ A, <x, y> ∈ R → <f[x], f[y]> ∈ R) →
-  ∀x ∈ A, <x, f[x]> ∈ R ∨ x = f[x].
+(* ex7_5 良序集到自身的保序映射的值不可能比输入小 *)
+Lemma self_order_preserving_func_progressive :
+  ∀ f A R, woset A R → f: A ⇒ A →
+  (∀ x y ∈ A, (x <ᵣ y) R → (f[x] <ᵣ f[y]) R) →
+  ∀x ∈ A, (x ≤ᵣ f[x]) R.
 Proof with eauto; try congruence.
-  intros AC1 * Hwo Hf Hord x Hxa.
-  assert (H := Hwo). destruct H as [Hlo _].
+  intros * Hwo Hf Hopf x Hxa.
+  assert (H := Hwo). destruct H as [Hlo Hmin].
   assert (Hfx: f[x] ∈ A) by (eapply ap_ran; eauto).
-  destruct (classic (x = f[x])) as [|Hnq]...
-  eapply linearOrder_connected in Hnq as [|Hfxx]... exfalso.
-  eapply woset_iff_no_descending_chain...
+  destruct (classic (x = f[x])) as [|Hnq]. right...
+  eapply linearOrder_connected in Hnq as [|Hfxx]... left... exfalso.
+  set {x ∊ A | λ x, (f[x] <ᵣ x) R} as B.
+  pose proof (Hmin B) as [m [Hm Hlt]].
+  - exists x. apply SepI...
+  - intros b Hb. apply SepE1 in Hb...
+  - apply SepE in Hm as [Hm Hltm].
+    assert (Hfm: f[m] ∈ B). {
+      apply SepI. eapply ap_ran...
+      apply Hopf... eapply ap_ran...
+    }
+    assert (H := Hlo). destruct H as [_ [Htr _]].
+    apply Hlt in Hfm as []; eapply linearOrder_irrefl...
+    rewrite H in Hltm at 2...
+Qed.
+
+Module EX7_15_AlternativeProof.
+
+Lemma self_order_preserving_func_progressive :
+  ∀ f A R, woset A R → f: A ⇒ A →
+  (∀ x y ∈ A, (x <ᵣ y) R → (f[x] <ᵣ f[y]) R) →
+  ∀x ∈ A, (x ≤ᵣ f[x]) R.
+Proof with eauto; try congruence.
+  intros * Hwo Hf Hopf x Hxa.
+  assert (H := Hwo). destruct H as [Hlo Hmin].
+  assert (Hfx: f[x] ∈ A) by (eapply ap_ran; eauto).
+  destruct (classic (x = f[x])) as [|Hnq]. right...
+  eapply linearOrder_connected in Hnq as [|Hfxx]... left... exfalso.
+  eapply woset_no_descending_chain...
   pose proof (ω_recursion f A x Hf Hxa) as [h [Hh [Hh0 Hhn]]].
   exists h. split... intros n Hn. rewrite Hhn...
   set {n ∊ ω | λ n, <f[h[n]], h[n]> ∈ R} as N.
-  ω_induction N Hn... rewrite Hhn... apply Hord...
+  ω_induction N Hn... rewrite Hhn... apply Hopf...
   eapply ap_ran... eapply ap_ran... eapply ap_ran...
 Qed.
+
+End EX7_15_AlternativeProof.
 
 (** ex7_6 **)
 
@@ -136,7 +165,7 @@ Proof with neauto.
         apply realDense... apply Hsub...
         apply Hsub... apply SepE1 in Hlt...
       - intros y Hy Hxy.
-        assert (Hyt: y ∈ final x (RealLt ⥏ A) A). {
+        assert (Hyt: y ∈ tail x A (RealLt ⥏ A)). {
           apply SepI... apply SepI... apply CProdI...
         }
         apply H2 in Hyt as []... left. apply SepE1 in H...
@@ -203,7 +232,7 @@ Proof with neauto.
       - apply realDense... apply Hsub... apply SepE1 in Hx...
         apply Hsub... apply SepE1 in Hlt...
       - intros y Hy Hxy.
-        assert (Hyt: y ∈ final x (RealLt ⥏ A) A). {
+        assert (Hyt: y ∈ tail x A (RealLt ⥏ A)). {
           apply SepI... apply SepI... apply CProdI...
           apply SepE1 in Hx...
         }

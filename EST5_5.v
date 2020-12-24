@@ -238,7 +238,7 @@ Proof with nauto.
     + exists 0. split... rewrite ω_embed_n...
   - intros [n [Hn Heq]]. subst a. rewrite ω_embed_n...
     destruct (classic (n = ∅)). right. subst...
-    apply lt_connected in H as []... exfalso0.
+    apply nat_connected in H as []... exfalso0.
     left. apply intLt... rewrite add_ident, add_ident...
 Qed.
 
@@ -468,7 +468,7 @@ Proof with neauto.
     intros r Hr. apply SepE1 in Hr...
   }
   apply SepI. apply PowerAx... repeat split.
-  - pose proof (ratArchimedean' _ Hq) as [r [Hr Hlt]].
+  - pose proof (rat_archimedean' _ Hq) as [r [Hr Hlt]].
     apply EmptyNI. exists r. apply SepI...
   - apply ExtNI. exists q. split...
     intros H. apply SepE in H as [_ H].
@@ -525,7 +525,7 @@ Proof with neauto.
   apply realAddInv_sub_rat... repeat split.
   - pose proof (realE1 _ Hx) as [t [Htq Htx]].
     assert (Hntq : (-t)%q ∈ ℚ) by (apply ratAddInv_ran; auto).
-    pose proof (ratArchimedean' _ Hntq) as [s [Hsq Hsnt]].
+    pose proof (rat_archimedean' _ Hntq) as [s [Hsq Hsnt]].
     apply EmptyNI. exists s. apply SepI... exists (-t)%q.
     repeat split... rewrite ratAddInv_double...
   - pose proof (realE0 _ Hx) as [p [Hp Hpx]]. apply ExtNI.

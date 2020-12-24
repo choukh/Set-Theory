@@ -59,7 +59,7 @@ Qed.
 
 (* 良序集上的后继函数 *)
 Definition Next : set → set → set → set := λ B R a,
-  (Min R)[final a R B].
+  (Min R)[tail a B R].
 
 Lemma fld_woset : ∀ A R, woset A R →
   (∃ a b ∈ A, (a <ᵣ b) R) → fld R = A.
@@ -85,7 +85,7 @@ Qed.
 
 Lemma next_correct : ∀ A R B, woset A R → B ⊆ A →
   ∀a ∈ B, (∃b ∈ B, (a <ᵣ b) R) →
-  minimum (Next B R a) (final a R B) R.
+  minimum (Next B R a) (tail a B R) R.
 Proof with eauto.
   intros * Hwo Hsub a Ha [b [Hb Hab]].
   assert (Heq: fld R = A). {
@@ -93,7 +93,7 @@ Proof with eauto.
     exists a. split. apply Hsub...
     exists b. split. apply Hsub... auto.
   }
-  specialize (min_correct A R (final a R B)) as [Hm Hmin]...
+  specialize (min_correct A R (tail a B R)) as [Hm Hmin]...
   - exists b. apply SepI...
   - destruct Hwo as [[Hbr _] _].
     intros x Hx. apply SepE in Hx as [_ Hp].
@@ -132,11 +132,10 @@ Proof.
   apply Lt_wellOrder. apply fld_Lt.
 Qed.
 
-Lemma ω_min : ∀ N, ⦿ N → N ⊆ ω → ω_minimum (Min Lt)[N] N.
-Proof with auto.
+Lemma ω_min : ∀ N, ⦿ N → N ⊆ ω → ε_minimum (Min Lt)[N] N.
+Proof with eauto.
   intros N Hne Hsub.
-  apply ω_minimum_intro.
-  apply (min_correct ω)...
+  eapply ε_minimum_iff... apply (min_correct ω)...
   apply Lt_wellOrder. apply fld_Lt.
 Qed.
 
@@ -156,7 +155,7 @@ Proof with auto.
   - split.
     + apply SepE in Hnxt as [Hnxt Hlt].
       apply SepI... apply binRelE2 in Hlt as [_ []]...
-    + intros m Hm. assert (m ∈ final n Lt N). {
+    + intros m Hm. assert (m ∈ tail n N Lt). {
         apply SepE in Hm as [Hm Hnm].
         apply SepI... apply binRelI... apply Hsub...
       }

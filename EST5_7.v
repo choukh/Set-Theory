@@ -1061,7 +1061,7 @@ Proof with eauto.
   - subst. exfalso. eapply realLt_irrefl...
 Qed.
 
-Lemma realArchimedean : ∀ x y ∈ ℝ, realPos x →
+Lemma real_archimedean : ∀ x y ∈ ℝ, realPos x →
   ∃a ∈ ℤ₊, y <𝐫 x ⋅ EE a.
 Proof with neauto.
   intros x Hx y Hy Hpx.
@@ -1133,7 +1133,7 @@ Proof with neauto.
     unfold realPos. rewrite <- (realAddInv_annih x)...
     apply realAdd_preserve_lt...
   }
-  pose proof (realArchimedean _ Hyx _ (real_n 1) Hpyx) as [a [Ha H1]].
+  pose proof (real_archimedean _ Hyx _ (real_n 1) Hpyx) as [a [Ha H1]].
   apply SepE in Ha as [Ha Hpa].
   assert (Heea: EE a ∈ ℝ) by (apply ee_ran; auto).
   assert (Hxa: x ⋅ EE a ∈ ℝ) by (apply realMul_ran; auto).
@@ -1145,13 +1145,13 @@ Proof with neauto.
     [|apply realAdd_ran|apply realMul_ran]...
   clear Hxy Hnx Hyx Hpyx Hnxa.
   (* b c *)
-  pose proof (realArchimedean _ (real_n 1) _ Hxa (realPos_sn 0)) as [b [Hb H2]].
+  pose proof (real_archimedean _ (real_n 1) _ Hxa (realPos_sn 0)) as [b [Hb H2]].
   apply SepE in Hb as [Hb Hpb].
   assert (Heeb: EE b ∈ ℝ) by (apply ee_ran; auto).
   rewrite realMul_ident' in H2...
   assert (Hneea: -EE a ∈ ℝ) by (apply realAddInv_ran; auto).
   assert (Hxna: x ⋅ -EE a ∈ ℝ) by (apply realMul_ran; auto).
-  pose proof (realArchimedean _ (real_n 1) _ Hxna (realPos_sn 0)) as [c [Hc H3]].
+  pose proof (real_archimedean _ (real_n 1) _ Hxna (realPos_sn 0)) as [c [Hc H3]].
   apply SepE in Hc as [Hc Hpc].
   assert (Heec: EE c ∈ ℝ) by (apply ee_ran; auto).
   rewrite realMul_ident', realMul_addInv_r in H3...

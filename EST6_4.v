@@ -538,7 +538,7 @@ Proof with eauto; try congruence.
       apply BInterE in Hx as [H1 H2].
       apply domE in H2 as [y H2].
       apply SingE in H2. apply op_iff in H2 as [H2 _].
-      rewrite H2, Hd in H1. eapply lt_irrefl...
+      rewrite H2, Hd in H1. eapply nat_irrefl...
     + intros y Hy. exfalso.
       apply BInterE in Hy as [H1 H2].
       apply ranE in H2 as [x H2].
@@ -612,7 +612,7 @@ Proof with neauto; try congruence.
   - cut (∀ m n ∈ ω, m ∈ n → F [A - h[m]] ≠ F [A - h[n]]). {
       intros Hcut. intros m Hm n Hn Heq.
       destruct (classic (m = n))... exfalso.
-      apply lt_connected in H as []; auto;
+      apply nat_connected in H as []; auto;
       [|symmetry in Heq]; eapply Hcut; revgoals...
     }
     intros m Hm n Hn Hmn Heq.

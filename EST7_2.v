@@ -116,12 +116,8 @@ Qed.
 (* 前节 *)
 (* initial segment *)
 Definition seg := λ t R, {x ∊ dom R | λ x, (x <ᵣ t) R}.
-(* 后节 *)
-Definition final := λ t R B, {x ∊ B | λ x, (t <ᵣ x) R}.
-
 Definition head := λ t A R, {x ∊ A | λ x, (x ≤ᵣ t) R}.
-
-Definition tail := λ t A R, {x ∊ A | λ x, (t ≤ᵣ x) R}.
+Definition tail := λ t A R, {x ∊ A | λ x, (t <ᵣ x) R}.
 
 Lemma segI : ∀ x t R, (x <ᵣ t) R → x ∈ seg t R.
 Proof with eauto.

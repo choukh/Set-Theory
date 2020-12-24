@@ -703,7 +703,7 @@ Theorem cardAdd_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 + 𝜆) + 𝜇 = 𝜅 + (𝜆 
 Proof with neauto; try congruence.
   intros. apply CardAx1.
   assert (Hnq: Embed 1 = Embed 2 → ⊥). {
-    intros. apply (lt_irrefl 2)...
+    intros. apply (nat_irrefl 2)...
     rewrite <- H at 1. apply suc_has_n.
   }
   eapply eqnum_tran. {

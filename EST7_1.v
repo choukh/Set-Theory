@@ -37,16 +37,12 @@ Proof with eauto.
 Qed.
 
 (* 严格偏序，反自反偏序 *)
-Definition partialOrder : set → Prop := λ R,
-  is_rel R ∧ tranr R ∧ irrefl R.
+Definition partialOrder := λ R, is_rel R ∧ tranr R ∧ irrefl R.
 
 (* 非对称性 *)
-Definition asym : set → Prop := λ R,
-  ∀ x y, (x <ᵣ y) R → ¬(y <ᵣ x) R.
-
+Definition asym := λ R, ∀ x y, (x <ᵣ y) R → ¬(y <ᵣ x) R.
 (* 反对称性 *)
-Definition antisym : set → Prop := λ R,
-  ∀ x y, (x <ᵣ y) R → (y <ᵣ x) R → x = y.
+Definition antisym := λ R, ∀ x y, (x <ᵣ y) R → (y <ᵣ x) R → x = y.
 
 (* 偏序具有非对称性 *)
 Fact partialOrder_asym : ∀ R, partialOrder R → asym R.
@@ -55,11 +51,12 @@ Proof.
   eapply Hir. eapply Htr; eauto.
 Qed.
 
+Definition at_most_trich := λ P Q R,
+  ¬(P ∧ Q) ∧ ¬(R ∧ Q) ∧ ¬(P ∧ R).
+
 (* 偏序至多满足"<" "=" ">"之一 *)
-Fact partialOrder_quasi_trich : ∀ R x y, partialOrder R →
-  ¬((x <ᵣ y) R ∧ x = y) ∧
-  ¬((y <ᵣ x) R ∧ x = y) ∧
-  ¬((x <ᵣ y) R ∧ (y <ᵣ x) R).
+Fact partialOrder_at_most_trich : ∀ R x y, partialOrder R →
+  at_most_trich ((x <ᵣ y) R) (x = y) ((y <ᵣ x) R).
 Proof with eauto.
   intros * [Hrl [Htr Hir]].
   repeat split; intros [H1 H2].
@@ -75,16 +72,13 @@ Proof with auto.
   intros * Hpo [H1 H2].
   destruct (classic (x = y))... exfalso.
   cut (¬((x <ᵣ y) R ∧ (y <ᵣ x) R)). firstorder.
-  apply partialOrder_quasi_trich...
+  apply partialOrder_at_most_trich...
 Qed.
 
 (* 偏序结构 *)
-Definition poset : set → set → Prop := λ A R,
-  is_binRel R A ∧ partialOrder R.
-
+Definition poset := λ A R, is_binRel R A ∧ partialOrder R.
 (* 线序结构 *)
-Definition loset : set → set → Prop := λ A R,
-  linearOrder R A.
+Definition loset := λ A R, linearOrder R A.
 
 (* 线序等价于连通的偏序 *)
 Fact loset_iff_connected_poset : ∀ A R,
@@ -100,12 +94,9 @@ Proof with eauto.
 Qed.
 
 (* 极小元 *)
-Definition minimal : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ¬∃x ∈ A, (x <ᵣ m) R.
-
+Definition minimal := λ m A R, m ∈ A ∧ ¬∃x ∈ A, (x <ᵣ m) R.
 (* 最小元 *)
-Definition minimum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, (m ≤ᵣ x) R.
+Definition minimum := λ m A R, m ∈ A ∧ ∀x ∈ A, (m ≤ᵣ x) R.
 
 (* 最小元也是极小元 *)
 Fact minimum_is_minimal : ∀ m A R, partialOrder R →
@@ -140,12 +131,9 @@ Proof with auto.
 Qed.
 
 (* 极大元 *)
-Definition maximal : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ¬∃x ∈ A, (m <ᵣ x) R.
-
+Definition maximal := λ m A R, m ∈ A ∧ ¬∃x ∈ A, (m <ᵣ x) R.
 (* 最大元 *)
-Definition maximum : set → set → set → Prop := λ m A R,
-  m ∈ A ∧ ∀x ∈ A, (x ≤ᵣ m) R.
+Definition maximum := λ m A R, m ∈ A ∧ ∀x ∈ A, (x ≤ᵣ m) R.
 
 (* 最大元也是极大元 *)
 Fact maximum_is_maximal : ∀ m A R, partialOrder R →
@@ -235,34 +223,23 @@ Proof with auto.
 Qed.
 
 (* 上界 *)
-Definition upperBound : set → set → set → set → Prop :=
-  λ x B A R, x ∈ A ∧ ∀y ∈ B, (y ≤ᵣ x) R.
-
+Definition upperBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (y ≤ᵣ x) R.
 (* 存在上界 *)
-Definition boundedAbove : set → set → set → Prop :=
-  λ B A R, ∃ x, upperBound x B A R.
-
+Definition boundedAbove := λ B A R, ∃ x, upperBound x B A R.
 (* 上确界 *)
-Definition supremum : set → set → set → set → Prop :=
-  λ x B A R, upperBound x B A R ∧
-    ∀ y, upperBound y B A R → (x ≤ᵣ y) R.
+Definition supremum := λ x B A R, upperBound x B A R ∧
+  ∀ y, upperBound y B A R → (x ≤ᵣ y) R.
 
 (* 下界 *)
-Definition lowerBound : set → set → set → set → Prop :=
-  λ x B A R, x ∈ A ∧ ∀y ∈ B, (x ≤ᵣ y) R.
-
+Definition lowerBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (x ≤ᵣ y) R.
 (* 存在下界 *)
-Definition boundedBelow : set → set → set → Prop :=
-  λ B A R, ∃ x, lowerBound x B A R.
-
+Definition boundedBelow := λ B A R, ∃ x, lowerBound x B A R.
 (* 下确界 *)
-Definition infimum : set → set → set → set → Prop :=
-  λ x B A R, lowerBound x B A R ∧
-    ∀ y, lowerBound y B A R → (y ≤ᵣ x) R.
+Definition infimum := λ x B A R, lowerBound x B A R ∧
+  ∀ y, lowerBound y B A R → (y ≤ᵣ x) R.
 
 (* 成员关系 *)
-Definition MemberRel : set → set := λ A,
-  BinRel A (λ x y, x ∈ y).
+Definition MemberRel := λ A, BinRel A (λ x y, x ∈ y).
 
 Lemma memberRel_is_binRel : ∀ A, is_binRel (MemberRel A) A.
 Proof.
@@ -271,9 +248,37 @@ Proof.
   subst. apply CProdI; auto.
 Qed.
 
+Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : ZFC_scope.
+
+Definition ε_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ≤ b.
+Definition ε_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ≤ a.
+
+Lemma ε_minimum_iff : ∀ a A B, B ⊆ A →
+  minimum a B (MemberRel A) ↔ ε_minimum a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelE2 in H as [_ []]...
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelI... apply Hsub... apply Hsub... right...
+Qed.
+
+Lemma ε_maximum_iff : ∀ a A B, B ⊆ A →
+  maximum a B (MemberRel A) ↔ ε_maximum a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelE2 in H as [_ []]...
+  - intros [Hm Hle]. split... intros n Hn.
+    assert (H := Hn). apply Hle in H as []...
+    left. apply binRelI... apply Hsub... apply Hsub... right...
+Qed.
+
 (* 真子集关系 *)
-Definition SubsetRel : set → set := λ S,
-  BinRel S (λ A B, A ⊂ B).
+Definition SubsetRel := λ S, BinRel S (λ A B, A ⊂ B).
 
 Lemma subsetRel_is_binRel : ∀ S, is_binRel (SubsetRel S) S.
 Proof.
@@ -434,9 +439,37 @@ Proof with auto; try congruence.
     + left. apply binRelI... split...
 Qed.
 
+Definition sub_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ⊆ b.
+Definition sub_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ⊆ a.
+
+Lemma sub_minimum_iff : ∀ a A B, B ⊆ A →
+  minimum a B (SubsetRel A) ↔ sub_minimum a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Hm Hle]. split...
+    intros n Hn. apply Hle in Hn as []...
+    apply binRelE2 in H as [_ [_ []]]... subst...
+  - intros [Hm Hle]. split...
+    intros n Hn. apply Hle in Hn as Han.
+    destruct (classic (a = n)). right...
+    left. apply binRelI... apply Hsub... apply Hsub...
+Qed.
+
+Lemma sub_maximum_iff : ∀ a A B, B ⊆ A →
+  maximum a B (SubsetRel A) ↔ sub_maximum a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Hm Hle]. split...
+    intros n Hn. apply Hle in Hn as []...
+    apply binRelE2 in H as [_ [_ []]]... subst...
+  - intros [Hm Hle]. split...
+    intros n Hn. apply Hle in Hn as Han.
+    destruct (classic (a = n)). right...
+    left. apply binRelI... apply Hsub... apply Hsub...
+Qed.
+
 (* 子关系 *)
-Definition SubRel : set → set → set := λ R B,
-  {p ∊ R | λ p, p ∈ B × B}.
+Definition SubRel := λ R B, {p ∊ R | λ p, p ∈ B × B}.
 Notation "R ⥏ B" := (SubRel R B) (at level 60).
 
 Lemma subRel_is_binRel : ∀ R B, is_binRel (R ⥏ B) B.

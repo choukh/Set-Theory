@@ -266,9 +266,9 @@ Proof with nauto.
   }
   clear H1 H2.
   assert (Hw: m⋅q + n⋅p ∈ ω) by (amr; auto).
-  apply lt_connected in Hmn as [H1|H1];
-  apply lt_connected in Hpq as [H2|H2]; auto;
-  intros Heq; eapply lt_irrefl; revgoals;
+  apply nat_connected in Hmn as [H1|H1];
+  apply nat_connected in Hpq as [H2|H2]; auto;
+  intros Heq; eapply nat_irrefl; revgoals;
   (eapply ex4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
   try apply Hw; [|
     |rewrite add_comm, (add_comm (n⋅p)) in H2; [|mr;auto..]
@@ -443,7 +443,7 @@ Proof with auto.
   intros a Hlt. assert (H := Hlt). apply intLtE in H
     as [m [Hm [n [Hn [_ [_ [_ [_ [Ha _]]]]]]]]].
   subst a. apply intLt in Hlt...
-  eapply lt_irrefl; revgoals. apply Hlt. ar...
+  eapply nat_irrefl; revgoals. apply Hlt. ar...
 Qed.
 
 Lemma intLt_connected : connected IntLt ℤ.
@@ -452,7 +452,7 @@ Proof with auto.
   apply pQuotE in Hx as [m [Hm [n [Hn Hx]]]].
   apply pQuotE in Hy as [p [Hp [q [Hq Hy]]]].
   subst x y. apply intNeqE in Hnq...
-  apply lt_connected in Hnq as []; [| |ar;auto..].
+  apply nat_connected in Hnq as []; [| |ar;auto..].
   + left. apply intLtI...
   + right. apply intLtI...
 Qed.
@@ -663,7 +663,7 @@ Proof with neauto.
     destruct (classic (m + 1 + q = p + n)%n).
     + right. apply int_ident; auto; ar...
     + left. apply intLt; auto; [ar|]...
-      apply lt_connected in H0 as []; [| |ar;ar|ar]...
+      apply nat_connected in H0 as []; [| |ar;ar|ar]...
       exfalso. eapply (ω_not_dense (m + q)%n); [ar|]...
       exists (p + n)%n. split. ar... split... rewrite Heq...
   - apply intLt... destruct H.

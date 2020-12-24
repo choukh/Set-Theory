@@ -353,7 +353,7 @@ Proof with neauto; try congruence.
     apply EmptyNE. intros H. apply card_eq_0 in H.
     rewrite H in Hle. apply fin_cardLeq_iff_leq in Hle...
     apply leq_iff_sub in Hle... apply sub_empty in Hle.
-    eapply (lt_irrefl 2)... rewrite Hle at 1.
+    eapply (nat_irrefl 2)... rewrite Hle at 1.
     apply suc_has_0. apply ω_inductive...
   }
   destruct Hne as [a Ha].

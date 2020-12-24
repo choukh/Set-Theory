@@ -266,80 +266,18 @@ Qed.
 
 (** properties about finite / infinite subset of ω **)
 
-(* 自然数集子集里存在极大元 *)
-Definition max_number : set → set → Prop := λ m N,
-  m ∈ N ∧ ∀n ∈ N, n ⊆ m.
-
-(* 自然数集子集的阿基米德性 *)
-Definition archimedean : set → Prop := λ N,
-  ∀n ∈ ω, ∃m ∈ N, n ∈ m.
-
-(* 具有阿基米德性的自然数集子集没有极大元 *)
-Lemma archimedean_impl_no_max_number : ∀ N, N ⊆ ω →
-  archimedean N → ¬∃m, max_number m N.
-Proof.
-  intros N Hsub Hnmax [m [Hm Hmax]].
-  apply Hsub in Hm.
-  pose proof (Hnmax _ Hm) as [p [Hp Hpm]]. apply Hmax in Hp.
-  apply Hp in Hpm. apply (lt_irrefl m); auto.
-Qed.
-
-(* m < p < q → m + 1 < q *)
-Lemma lt_lt_impl_suc_lt : ∀ m p q ∈ ω, m ∈ p → p ∈ q → m⁺ ∈ q.
-Proof with auto.
-  intros m Hm p Hp q Hq Hmp Hpq.
-  ω_destruct q. subst q. exfalso0. subst q.
-  apply (suc_preserve_lt _ Hm _ Hn').
-  apply leq_iff_lt_suc in Hpq...
-  apply leq_iff_sub in Hpq... apply Hpq...
-Qed.
-
-(* 没有极大元的自然数集子集具有阿基米德性 *)
-Lemma archimedean_if_no_max_number : ∀ N, ⦿ N → N ⊆ ω →
-  (¬∃m, max_number m N) → archimedean N.
-Proof with neauto.
-  intros N [k Hk] Hsub Hnmax.
-  assert (Larger: ∀n ∈ N, ∃m ∈ N, n ∈ m). {
-    intros n Hn. eapply not_ex_all_not in Hnmax.
-    apply not_and_or in Hnmax as []. exfalso...
-    apply set_not_all_ex_not in H as [m [Hm Hnm]].
-    apply lt_iff_not_sub in Hnm; [|apply Hsub..]...
-    exists m. split...
-  }
-  clear Hnmax. apply Hsub in Hk as Hkw.
-  intros n Hn. destruct (classic (n ∈ N)). apply Larger...
-  set {n ∊ ω | λ n, ∃m ∈ N, n ∈ m} as M.
-  ω_induction M Hn.
-  - apply Larger in Hk as [m [Hm Hkm]].
-    exists m. split... apply nq_0_gt_0.
-    apply Hsub... intros H0. subst m. exfalso0.
-  - destruct IH as [p [Hp Hmp]].
-    pose proof (Larger _ Hp) as [q [Hq Hpq]].
-    apply Hsub in Hp. apply Hsub in Hq as Hqw.
-    exists q. split... apply (lt_lt_impl_suc_lt _ Hm _ Hp _ Hqw)...
-Qed.
-
-(* 自然数集非空子集具有阿基米德性当且仅当它没有极大元 *)
-Theorem archimedean_iff_no_max_number : ∀ N, ⦿ N → N ⊆ ω →
-  archimedean N ↔ ¬∃m, max_number m N.
-Proof with auto.
-  intros N Hne Hsub. split; intros H.
-  - apply archimedean_impl_no_max_number...
-  - apply archimedean_if_no_max_number...
-Qed.
-
 (* 自然数集的非空有限子集有极大元 *)
 Lemma finite_subset_of_ω_is_bounded : ∀ N, ⦿ N → N ⊆ ω →
-  finite N → ∃ m, max_number m N.
+  finite N → ∃ m, sub_maximum m N.
 Proof with auto; try congruence.
   intros N Hne Hsub [n [Hn Hqn]].
   generalize dependent N.
-  set {n ∊ ω | λ n, ∀ N, ⦿ N → N ⊆ ω → N ≈ n → ∃ m, max_number m N} as M.
+  set {n ∊ ω | λ n, ∀ N, ⦿ N → N ⊆ ω → N ≈ n → ∃ m, sub_maximum m N} as M.
   ω_induction M Hn; intros N Hne Hsub Hcd. {
     apply eqnum_empty in Hcd. apply EmptyNI in Hne. exfalso...
   }
   clear M Hn n. destruct Hne as [k Hk].
-  destruct (classic (max_number k N)). exists k...
+  destruct (classic (sub_maximum k N)). exists k...
   apply not_and_or in H as []. exfalso...
   apply set_not_all_ex_not in H as [p [Hp Hkp]].
   apply Hsub in Hk as Hkw. apply Hsub in Hp as Hpw.
@@ -348,7 +286,7 @@ Proof with auto; try congruence.
   apply finite_set_remove_one_element in Hcd...
   specialize IH with (N - ⎨k⎬) as [q [Hq Hmax]]...
   { exists p. apply SepI... apply SingNI...
-    intros Heq. apply (lt_irrefl k)...
+    intros Heq. apply (nat_irrefl k)...
   } {
     eapply sub_tran...
   }
@@ -369,16 +307,16 @@ Qed.
 
 (* 自然数集的没有极大元的非空子集是无限集 *)
 Corollary unbound_subset_of_ω_is_infinite : ∀ N, ⦿ N → N ⊆ ω →
-  archimedean N → infinite N.
+  nat_archimedean N → infinite N.
 Proof with eauto.
   intros N Hne Hsub Harc Hfin.
-  eapply archimedean_iff_no_max_number...
+  eapply nat_archimedean_iff_no_maximum...
   apply finite_subset_of_ω_is_bounded...
 Qed.
 
 (* 自然数集的有极大元的子集是非空有限集 *)
 Lemma bounded_subset_of_ω_is_finite : ∀ N, N ⊆ ω →
-  (∃ m, max_number m N) → ⦿ N ∧ finite N.
+  (∃ m, sub_maximum m N) → ⦿ N ∧ finite N.
 Proof with nauto.
   intros N Hsub [n [Hn Hmax]]. split. exists n...
   apply Hsub in Hn as Hnw. generalize dependent N.
@@ -390,12 +328,12 @@ Proof with nauto.
     apply ExtAx. split; intros Hx.
     + apply Hmax in Hx. apply sub_empty in Hx. subst x...
     + apply SingE in Hx. subst x...
-  - pose proof (suc_neq_n m Hm) as Hnq.
+  - pose proof (nat_neq_suc m Hm) as Hnq.
     assert (Hstar: ∀k ∈ N, k ∉ ⎨m⁺⎬ → k ⊆ m). {
       intros k Hk Hk'. apply Hsub in Hk as Hkw. apply SingNE in Hk'.
       destruct (classic (k ⊆ m)) as [|Hmk]... exfalso.
       apply lt_iff_not_sub in Hmk; [|auto|apply Hsub]...
-      apply lt_iff_leq_suc in Hmk...
+      apply lt_iff_suc_leq in Hmk...
       apply leq_iff_sub in Hmk; [|apply ω_inductive|]...
       apply Hk'. apply sub_antisym... apply Hmax...
     }
@@ -428,18 +366,18 @@ Qed.
 
 (* 自然数集的无限子集没有极大元 *)
 Corollary infinite_subset_of_ω_is_unbound : ∀ N, N ⊆ ω →
-  infinite N → (⦿ N ∧ archimedean N).
+  infinite N → (⦿ N ∧ nat_archimedean N).
 Proof with auto.
   intros N Hsub Hinf.
   apply infinite_set_nonempty in Hinf as Hne. split...
-  apply archimedean_iff_no_max_number...
+  apply nat_archimedean_iff_no_maximum...
   intros Hmax. apply Hinf.
   apply bounded_subset_of_ω_is_finite...
 Qed.
 
 (* 自然数集的子集是非空有限集当且仅当其有极大元 *)
 Theorem subset_of_ω_is_finite_iff_bounded : ∀ N, N ⊆ ω →
-  (⦿ N ∧ finite N) ↔ ∃ m, max_number m N.
+  (⦿ N ∧ finite N) ↔ ∃ m, sub_maximum m N.
 Proof with auto.
   intros N Hsub. split.
   - intros [Hne Hfin].
@@ -449,7 +387,7 @@ Qed.
 
 (* 自然数集的子集是无限集当且仅当其非空且没有极大元 *)
 Theorem subset_of_ω_is_infinite_iff_unbound : ∀ N, N ⊆ ω →
-  infinite N ↔ (⦿ N ∧ archimedean N).
+  infinite N ↔ (⦿ N ∧ nat_archimedean N).
 Proof with auto.
   intros N Hsub. split.
   - apply infinite_subset_of_ω_is_unbound...

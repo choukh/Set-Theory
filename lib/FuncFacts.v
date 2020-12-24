@@ -376,6 +376,24 @@ Proof with auto.
     + apply restrE1 in H as [a [b [Ha [Hp Heq]]]]. subst p...
 Qed.
 
+(* 映射的限制 *)
+Lemma restr_maps_into : ∀ f A B C, C ⊆ A → f: A ⇒ B → f ↾ C: C ⇒ B.
+Proof with auto.
+  intros * Hsub [Hf [Hd Hr]].
+  split. apply restr_func...
+  split. apply restr_dom... rewrite Hd...
+  eapply sub_tran. apply restr_ran_included. apply Hr.
+Qed.
+
+(* 单射的限制 *)
+Lemma restr_injection : ∀ f A B C, C ⊆ A → f: A ⇔ B → f ↾ C: C ⇔ B.
+Proof with eauto.
+  intros * Hsub Hf.
+  apply injection_is_func in Hf as [Hf Hinj].
+  apply injection_is_func. split.
+  eapply restr_maps_into... apply restr_injective...
+Qed.
+
 (** bunion **)
 
 (* 若两个函数在定义域的交集上的值相等，则这两个函数的并也是函数 *)
