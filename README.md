@@ -152,14 +152,13 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 传递闭包（集合）
 
 ## EST7_3.v
-- 伊普西隆像
-- 序同构
-- 良序结构
+- 序结构，序同构
+- 良序结构，伊普西隆像
 
 ## EST7_4.v
-- 序数的定义
-- 序数的序
+- 序数的定义，序数的序
 - 布拉利-福尔蒂悖论
+- 后继序数，极限序数
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
