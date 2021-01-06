@@ -160,5 +160,9 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 布拉利-福尔蒂悖论
 - 后继序数，极限序数
 
+## EST7_5.v (TODO)
+- 哈托格斯定理，良序定理
+- TODO
+
 ## EX*.v
 - Elements of Set Theory 第*章习题
