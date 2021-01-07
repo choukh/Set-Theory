@@ -6,16 +6,16 @@ Require Import ZFC.lib.FuncFacts.
 
 (*** EST第七章4：序数的定义，序数的序，布拉利-福尔蒂悖论，后继序数，极限序数 ***)
 
-Module Export OrdinalNumber.
+Module Export Ordinals.
 Import WOStruct.
 
 Section EpsilonImageWellDefined.
 Import WOStruct.EpsilonImage.
 
-Local Lemma eq_α : ∀ f S T, f:ₛ S ⟺ T →
+Local Lemma eq_α : ∀ f S T, f:ₒₑ S ⟺ T →
   (∀x ∈ A S, (E S)[x] = (E T)[f[x]]) → α S = α T.
 Proof with eauto; try congruence.
-  intros * [Hf Hopf] Heq.
+  intros * [Hf Hoe] Heq.
   destruct (e_bijective S) as [[Hf1 _] [Hd1 _]].
   destruct (e_bijective T) as [[Hf2 _] [Hd2 _]].
   apply inv_bijection in Hf as Hf'.
@@ -42,7 +42,7 @@ Proof with eauto; try congruence.
     intros Heq. rewrite wo_iso_epsilon, wo_iso_epsilon.
     unfold ε. rewrite Heq. reflexivity.
   }
-  intros [f [Hf Hopf]].
+  intros [f [Hf Hoe]].
   eapply eq_α. split... intros x Hx.
   set {x ∊ WOStruct.A S | λ x, (E S)[x] = (E T)[f[x]]} as B.
   replace (WOStruct.A S) with B in Hx.
@@ -59,7 +59,7 @@ Proof with eauto; try congruence.
     apply ReplAx. exists (f[s]). split.
     + apply SepE in Hs as [Hs Hlt].
       eapply dom_binRel in Hs; [|apply (WOStruct.wo S)].
-      apply segI. apply Hopf...
+      apply segI. apply Hoe...
     + apply Hsub in Hs. apply SepE2 in Hs...
   - apply inv_bijection in Hf as Hf'.
     apply bijection_is_func in Hf as [_ [Hi Hr]].
@@ -69,11 +69,11 @@ Proof with eauto; try congruence.
     eapply dom_binRel in Hs; [|apply (WOStruct.wo T)].
     assert (Hsr: s ∈ ran f) by (rewrite Hr; apply Hs).
     apply ReplAx. exists (f⁻¹[s]). split.
-    + apply segI. apply Hopf...
+    + apply segI. apply Hoe...
       * eapply ap_ran...
       * rewrite inv_ran_reduction... 
     + rewrite <- (inv_ran_reduction f) in Hlt...
-      apply Hopf in Hlt; [|eapply ap_ran|]...
+      apply Hoe in Hlt; [|eapply ap_ran|]...
       assert (f⁻¹[s] ∈ seg t (WOStruct.R S)). {
         apply SepI... eapply domI...
       }
@@ -122,10 +122,6 @@ Proof with eauto.
   apply ord_well_defined. rewrite seg_α...
 Qed.
 
-(* 序数是良序集 *)
-Lemma ord_woset : ∀ α, is_ord α → woset α (MemberRel α).
-Proof. intros α [S H]. subst. apply (wo (Epsilon S)). Qed.
-
 (* 序数的序数等于自身 *)
 Lemma ord_of_ord : ∀ S, ord S = ord (Epsilon S).
 Proof.
@@ -138,6 +134,10 @@ Proof.
   intros. apply e_empty in H.
   unfold ord, α. rewrite H. apply ran_of_empty.
 Qed.
+
+(* 序数是良序集 *)
+Lemma ord_woset : ∀ α, is_ord α → woset α (MemberRel α).
+Proof. intros α [S H]. subst. apply (wo (Epsilon S)). Qed.
 
 (* 可以以成员关系良序排列的传递集是序数 *)
 Theorem transitive_set_well_ordered_by_epsilon_is_ord :
@@ -245,6 +245,15 @@ Proof with eauto.
     apply H in H0. exfalso. eapply ord_irrefl...
 Qed.
 
+(* 序数的任意前节也是序数 *)
+Fact seg_of_ord : ∀ α, is_ord α → ∀β ∈ α, seg β (MemberRel α) = β.
+Proof with eauto.
+  intros α Hα β Hlt.
+  apply ExtAx. split; intros Hx.
+  - apply SepE2 in Hx. apply binRelE2 in Hx as [_ []]...
+  - apply segI. apply binRelI... eapply ord_trans...
+Qed.
+
 (* 序数的非空集合一定有最小序数 *)
 Theorem ords_has_minimum : ∀ A, is_ords A → ⦿ A → 
   ∃μ ∈ A, ∀α ∈ A, μ ≤ α.
@@ -327,14 +336,6 @@ Proof with eauto.
     + apply SingE in H. subst...
   - apply ex4_2. apply ord_trans...
 Qed.
-
-(* 并集是包含关系的上界 *)
-Lemma union_is_ub : ∀A, ∀a ∈ A, a ⊆ ⋃A.
-Proof. exact ex2_3. Qed.
-
-(* 并集是包含关系的上确界 *)
-Lemma union_is_sup: ∀ A B, (∀a ∈ A, a ⊆ B) → ⋃A ⊆ B.
-Proof. exact ex2_5. Qed.
 
 (* 序数集的并是序数 *)
 Corollary union_of_ords_is_ord : ∀ A, is_ords A → is_ord (⋃ A).
@@ -727,4 +728,4 @@ Proof with auto.
   right. apply ord_is_limit_iff_not_suc...
 Qed.
 
-End OrdinalNumber.
+End Ordinals.

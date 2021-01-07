@@ -1,15 +1,15 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 2 **)
 (** Coq coding by choukh, Dec 2020 **)
 
-Require Export ZFC.EST7_3.
+Require Export ZFC.EST7_4.
 Require Import ZFC.lib.FuncFacts.
 Require Import ZFC.lib.Real.
 Require Import ZFC.lib.NatIsomorphism.
+Close Scope Real_scope.
 
 (* ex7_10 see EST7_3 Example α_nat, α_ω *)
 
 Module EX7_11.
-Close Scope Real_scope.
 Open Scope Int_scope.
 
 Definition IntLtWo := BinRel ℤ (λ a b,
@@ -469,7 +469,7 @@ Let head := λ x S, head x (A S) (R S).
 Example ex7_14 : ∀ S, po S →
   let F := Func (A S) (𝒫 (A S)) (λ x, head x S) in
   let T := constr (ran F) (SubsetRel (ran F)) (subsetRel_is_binRel _) in
-  F:ₛ S ⟺ T.
+  F:ₒₑ S ⟺ T.
 Proof with eauto.
   intros * [_ [_ [Htr Hir]]] F T.
   assert (HfP: F: A S ⇔ (𝒫 (A S))). {
@@ -497,7 +497,7 @@ Proof with eauto.
         apply func_correct in Hx... apply ranI in Hx.
         apply Hr in Hx. apply PowerAx in Hx. apply Hx...
       * unfold F in Ha. rewrite meta_func_ap in Ha...
-        apply SepE2 in Ha. eapply relLe_lt_tranr...
+        apply SepE2 in Ha. left. eapply relLe_lt_tranr...
     + unfold F. rewrite meta_func_ap, meta_func_ap... intros Heq.
       assert (y ∈ head y S). { apply SepI... right... }
       rewrite <- Heq in H. apply SepE2 in H as []...
@@ -514,3 +514,74 @@ Proof with eauto.
 Qed.
 
 End EX7_14.
+
+Import WOStruct.
+Import WOStruct.EpsilonImage.
+Hint Immediate ord_is_ord : core.
+
+(* ex7_15_a 良序结构不与自身的任意前节同构 *)
+Lemma wo_not_iso_seg : ∀ S, ∀t ∈ A S, S ≇ Seg t S.
+Proof with eauto.
+  intros S t Ht Hiso.
+  apply ord_well_defined in Hiso.
+  apply (ord_irrefl (ord S))...
+  rewrite Hiso at 1. eapply ordI...
+  symmetry. apply seg_α...
+Qed.
+
+(* ex7_15_b 良序结构的同构关系具有至多三歧性 *)
+Theorem wo_iso_at_most_trich : ∀ S T,
+  at_most_trich (∃t ∈ A S, Seg t S ≅ T) (S ≅ T) (∃t ∈ A T, S ≅ Seg t T).
+Proof with eauto.
+  repeat split.
+  - intros [[t [Ht H1]] H2].
+    eapply wo_not_iso_seg... rewrite H1...
+  - intros [[t [Ht H1]] H2].
+    eapply wo_not_iso_seg... rewrite <- H1. symmetry...
+  - intros [[s [Hs H1]] [t [Ht H2]]].
+    apply ord_well_defined in H1.
+    apply ord_well_defined in H2.
+    rewrite seg_α in H1, H2...
+    apply ordI in H1... symmetry in H2.
+    apply ordI in H2...
+    apply (ord_irrefl (ord S))... eapply ord_trans...
+Qed.
+
+(* ex7_16_1 see EST7_4 Lemma ord_suc_preserve_lt *)
+(* ex7_16_2 see EST7_4 Lemma ord_suc_injective *)
+
+(* ex7_17 子结构的序数小于等于原结构的序数 *)
+Theorem ord_of_sub_struct_leq : ∀ S T, S ⊑ T → ord S ≤ ord T.
+Proof with eauto.
+  intros * [Has Hrs].
+  destruct (classic (ord S = ord T))...
+  apply ord_connected in H as []... exfalso.
+  apply ord_lt_elim in H as [t [Ht [f [Hf Hoe]]]].
+  apply bijection_is_func in Hf as [Hf _].
+  destruct (wo S) as [Hlo Hmin].
+  set {x ∊ A S | λ x, (f[x] <ᵣ x) (R S)} as B.
+  pose proof (Hmin B) as [m [Hm Hle]].
+  - exists t. apply SepI...
+    assert (Hft: f[t] ∈ A (Seg t S)). {
+      eapply ap_ran... apply Has...
+    }
+    apply SepE2 in Hft...
+  - intros x Hx. apply SepE1 in Hx...
+  - apply SepE in Hm as [Hm Hlt]. apply Has in Hm.
+    assert (Hsub: A (Seg t S) ⊆ A S). {
+      intros x Hx. apply SepE1 in Hx...
+    }
+    assert (Hfm: f[m] ∈ A S). {
+      apply Hsub. eapply ap_ran...
+    }
+    assert (Hfmb: f[m] ∈ B). {
+      apply SepI... rewrite Hrs in Hlt. apply SepE1 in Hlt.
+      apply Hoe in Hlt... apply SepE1 in Hlt... apply Has...
+    }
+    apply Hle in Hfmb. eapply lo_not_leq_gt...
+Qed.
+
+(* ex7_18 see EST7_4 limit ordinal *)
+(* ex7_19 see EX7_1 Section EX7_19 *)
+(* ex7_20 see EX7_1 Section EX7_20 *)
+(* ex7_21 see lib/ZornsLemma *)

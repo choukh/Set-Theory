@@ -70,25 +70,27 @@ echo "building WosetMin"
 coqc -R . ZFC lib/WosetMin.v
 echo "building EST7_3"
 coqc -R . ZFC EST7_3.v
-echo "building EX7_2"
-coqc -R . ZFC EX7_2.v
 echo "building EST7_4"
 coqc -R . ZFC EST7_4.v
-echo "building EX7_3"
-coqc -R . ZFC EX7_3.v
 
+echo "building EST6_1"
+coqc -R . ZFC EST6_1.v
 echo "building Inj_2n3m"
 coqc -R . ZFC lib/algebra/Inj_2n3m.v
 echo "building IndexedFamilyUnion"
 coqc -R . ZFC lib/IndexedFamilyUnion.v
-echo "building EST6_1"
-coqc -R . ZFC EST6_1.v
+echo "building Dominate"
+coqc -R . ZFC lib/Dominate.v
+
+echo "building EST7_5"
+coqc -R . ZFC EST7_5.v
 echo "building EST6_2"
 coqc -R . ZFC EST6_2.v
-echo "building FiniteFacts"
-coqc -R . ZFC lib/FiniteFacts.v
 echo "building EX6_1"
 coqc -R . ZFC EX6_1.v
+echo "building NaturalFacts"
+coqc -R . ZFC lib/NaturalFacts.v
+
 echo "building EST6_3"
 coqc -R . ZFC EST6_3.v
 echo "building EST6_4"
@@ -110,3 +112,12 @@ coqc -R . ZFC lib/Cardinal.v
 
 echo "building EX7_1"
 coqc -R . ZFC EX7_1.v
+echo "building EX7_2"
+coqc -R . ZFC EX7_2.v
+echo "building EX7_3"
+coqc -R . ZFC EX7_3.v
+
+echo "building OrdinalAsType"
+coqc -R . ZFC lib/OrdinalAsType.v
+echo "building ZornsLemma"
+coqc -R . ZFC lib/ZornsLemma.v

@@ -10,6 +10,7 @@ Require Import ZFC.lib.WosetMin.
 (* 序结构 *)
 Module OrderedStruct.
 Declare Scope OrderedStruct_scope.
+Delimit Scope OrderedStruct_scope with os.
 Open Scope OrderedStruct_scope.
 
 Record OrderedStruct : Type := constr {
@@ -22,14 +23,14 @@ Definition po := λ S, poset (A S) (R S).
 Definition lo := λ S, loset (A S) (R S).
 Definition wo := λ S, woset (A S) (R S).
 
-(* 保序双射 *)
-Definition order_preserving_bijection := λ f S T, f: A S ⟺ A T ∧
+(* 序嵌入双射 *)
+Definition order_embedding_bijection := λ f S T, f: A S ⟺ A T ∧
   ∀ x y ∈ A S, (x <ᵣ y) (R S) ↔ (f[x] <ᵣ f[y]) (R T).
-Notation "f :ₛ S ⟺ T" := (order_preserving_bijection f S T)
+Notation "f :ₒₑ S ⟺ T" := (order_embedding_bijection f S T)
   (at level 70) : OrderedStruct_scope.
 
 (* 序同构 *)
-Definition isomorphic := λ S T, ∃ f, f :ₛ S ⟺ T.
+Definition isomorphic := λ S T, ∃ f, f :ₒₑ S ⟺ T.
 
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : OrderedStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : OrderedStruct_scope.
@@ -206,6 +207,7 @@ End OrderedStruct.
 (* 良序结构 *)
 Module WOStruct.
 Declare Scope WOStruct_scope.
+Delimit Scope WOStruct_scope with wo.
 Open Scope WOStruct_scope.
 
 Record WOStruct : Type := constr {
@@ -215,13 +217,13 @@ Record WOStruct : Type := constr {
 }.
 Hint Immediate wo : core.
 
-(* 保序双射 *)
-Definition order_preserving_bijection := λ f S T, f: A S ⟺ A T ∧
+(* 序嵌入双射 *)
+Definition order_embedding_bijection := λ f S T, f: A S ⟺ A T ∧
   ∀ x y ∈ A S, (x <ᵣ y) (R S) ↔ (f[x] <ᵣ f[y]) (R T).
-Notation "f :ₛ S ⟺ T" := (order_preserving_bijection f S T)
+Notation "f :ₒₑ S ⟺ T" := (order_embedding_bijection f S T)
   (at level 70) : WOStruct_scope.
 
-Definition isomorphic := λ S T, ∃ f, f :ₛ S ⟺ T.
+Definition isomorphic := λ S T, ∃ f, f :ₒₑ S ⟺ T.
 
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : WOStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : WOStruct_scope.
@@ -238,7 +240,7 @@ Definition parent := λ S, OrderedStruct.constr (A S) (R S) (br S).
 Lemma parent_iso : ∀ S T,
   S ≅ T ↔ OrderedStruct.isomorphic (parent S) (parent T).
 Proof.
-  split; intros [f [Hf Hopf]]; exists f; split; auto.
+  split; intros [f [Hf Hoe]]; exists f; split; auto.
 Qed.
 
 Lemma parent_wo : ∀ S, OrderedStruct.wo (parent S).
@@ -268,15 +270,15 @@ Add Relation WOStruct isomorphic
   as iso_rel.
 
 (* 良序结构间的态射唯一 *)
-Theorem wo_iso_unique : ∀ S T, S ≅ T → ∃! f, f :ₛ S ⟺ T.
+Theorem wo_iso_unique : ∀ S T, S ≅ T → ∃! f, f :ₒₑ S ⟺ T.
 Proof with eauto; try congruence.
   intros S T Hiso. split...
   intros f g [Hf H1] [Hg H2].
-  cut (∀ f g S T, f :ₛ S ⟺ T → g :ₛ S ⟺ T → f ⊆ g). {
+  cut (∀ f g S T, f :ₒₑ S ⟺ T → g :ₒₑ S ⟺ T → f ⊆ g). {
     intros H. apply sub_antisym; eapply H; split...
   }
   clear Hiso Hf H1 Hg H2 f g S T.
-  intros f g S T [Hf Hopf] [Hg Hopg] p Hp.
+  intros f g S T [Hf Hoe] [Hg Hopg] p Hp.
   destruct (wo S) as [Hlo Hmin].
   apply inv_bijection in Hf as Hf'.
   apply bijection_is_func in Hf' as [Hf' _].
@@ -297,20 +299,20 @@ Proof with eauto; try congruence.
   split. intros a Ha. apply SepE1 in Ha...
   intros t Ht Hsub. apply SepI...
   destruct (classic (f[t] = g[t]))... exfalso.
-  apply (linearOrder_connected (R T) (A T)) in H as []; revgoals...
+  apply (lo_connected (R T) (A T)) in H as []; revgoals...
   eapply ap_ran... eapply ap_ran... apply (wo T).
   - assert (Hgt: g[t] ∈ ran f). {
       rewrite Hrf, <- Hrg. eapply ranI. apply func_correct...
     }
     rewrite <- (inv_ran_reduction f Hif (g[t])) in H...
-    apply Hopf in H; revgoals... { eapply ap_ran... }
+    apply Hoe in H; revgoals... { eapply ap_ran... }
     remember (f⁻¹[g[t]]) as t'.
     assert (Ht': t' ∈ seg t (R S)) by (apply segI; auto).
     apply Hsub in Ht'. apply SepE in Ht' as [Ht' Heq].
     rewrite Heqt' in Heq at 1.
     rewrite inv_ran_reduction in Heq...
     eapply injectiveE in Heq... rewrite Heq in H.
-    eapply (linearOrder_irrefl (R S) (A S))...
+    eapply (lo_irrefl (R S) (A S))...
   - assert (Hft: f[t] ∈ ran g). {
       rewrite Hrg, <- Hrf. eapply ranI. apply func_correct...
     }
@@ -322,7 +324,7 @@ Proof with eauto; try congruence.
     rewrite Heqt' in Heq at 2.
     rewrite inv_ran_reduction in Heq...
     eapply injectiveE in Heq... rewrite Heq in H.
-    eapply (linearOrder_irrefl (R S) (A S))...
+    eapply (lo_irrefl (R S) (A S))...
 Qed.
 
 Section Seg.
@@ -374,12 +376,13 @@ Qed.
 Section Recursion.
 Import TransfiniteRecursion.
 
-Definition Recursion := λ S γ, constr (A S) (R S) γ.
-Definition spec := λ S γ F,
+Definition RecurFunc := λ S γ, constr (A S) (R S) γ.
+
+Definition recrusion_spec := λ S γ F,
   is_function F ∧ dom F = A S ∧ ∀t ∈ A S, γ (F ↾ seg t (R S)) F[t].
 
-Lemma spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
-  spec S γ (Recursion S γ).
+Lemma recrusion_spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
+  recrusion_spec S γ (RecurFunc S γ).
 Proof. intros. apply spec_intro; auto. Qed.
 
 End Recursion.
@@ -388,13 +391,13 @@ End Recursion.
 Module Import EpsilonImage.
 
 Definition γ := λ x y, y = ran x.
-Definition E := λ S, Recursion S γ.
+Definition E := λ S, RecurFunc S γ.
 Definition α := λ S, ran (E S).
 Definition ε := λ S, MemberRel (α S).
 
-Lemma e_spec : ∀ S, spec S γ (E S).
+Lemma e_spec : ∀ S, recrusion_spec S γ (E S).
 Proof.
-  intros. apply spec_intro. intros f. split.
+  intros. apply recrusion_spec_intro. intros f. split.
   exists (ran f). congruence. congruence.
 Qed.
 
@@ -447,7 +450,6 @@ Theorem e_irrefl : ∀ S, ∀t ∈ A S, (E S)[t] ∉ (E S)[t].
 Proof with eauto.
   intros S t Ht Hin.
   destruct (wo S) as [Hlo Hmin].
-  assert (H := Hlo). destruct H as [Hbr [Htr _]].
   set {t ∊ A S | λ t, (E S)[t] ∈ (E S)[t]} as B.
   specialize Hmin with B as [t₀ [Ht₀ Hmin]].
   - exists t. apply SepI...
@@ -455,8 +457,7 @@ Proof with eauto.
   - apply SepE in Ht₀ as [Ht₀ Hin₀]. assert (H := Hin₀).
     apply e_elim in H as [s [Hs [Hst₀ [Heq H]]]]...
     assert (Hsb: s ∈ B). { apply SepI... rewrite Heq in H... }
-    apply Hmin in Hsb as []. eapply linearOrder_irrefl...
-    subst. eapply linearOrder_irrefl...
+    apply Hmin in Hsb. eapply lo_not_leq_gt...
 Qed.
 
 Lemma e_injective : ∀ S, injective (E S).
@@ -469,7 +470,7 @@ Proof with eauto; try congruence.
   apply func_ap in Ht as H2... apply domI in Ht.
   rewrite <- H2 in H1.
   destruct (classic (s = t))... exfalso.
-  eapply linearOrder_connected in H as []...
+  eapply lo_connected in H as []...
   - apply e_ap_order in H...
     rewrite H1 in H. eapply e_irrefl...
   - apply e_ap_order in H...
@@ -743,8 +744,8 @@ Proof with eauto; try congruence.
     | inl _ => (Min T)[A T - ran f]
     | inr _ => e
   end) as γ.
-  set (Recursion S γ) as F.
-  pose proof (spec_intro S γ) as [HfF [HdF Hγ]]. {
+  set (RecurFunc S γ) as F.
+  pose proof (recrusion_spec_intro S γ) as [HfF [HdF Hγ]]. {
     intros f. split... unfold γ.
     destruct (ixm (⦿ (A T - ran f))).
     - exists ((Min T)[A T - ran f])...
@@ -790,11 +791,11 @@ Proof with eauto; try congruence.
         apply Hmd. eapply ranI. apply restrI.
         apply segI... apply func_correct...
       + exfalso. assert (y ∈ B). apply SepI...
-        apply HminS in H as []; subst; eapply linearOrder_irrefl...
+        apply HminS in H. eapply lo_not_leq_gt...
       + exfalso. assert (x ∈ B). apply SepI...
-        apply HminS in H as []; subst; eapply linearOrder_irrefl...
+        apply HminS in H as []; subst; eapply lo_irrefl...
       + exfalso. assert (x ∈ B). apply SepI...
-        apply HminS in H as []; subst; eapply linearOrder_irrefl...
+        apply HminS in H as []; subst; eapply lo_irrefl...
     }
     set (F ↾ seg a (R S)) as Fᵒ.
     apply SepE1 in Ha as Haa.
@@ -809,8 +810,8 @@ Proof with eauto; try congruence.
       eapply dom_binRel in Hx; [|apply wo].
       eapply dom_binRel in Hy; [|apply wo].
       destruct (classic (x = y))... exfalso.
-      eapply linearOrder_connected in H as []; eauto;
-      (eapply linearOrder_irrefl; [apply (wo T)|]).
+      eapply lo_connected in H as []; eauto;
+      (eapply lo_irrefl; [apply (wo T)|]).
       + apply (HL2 _ Hx _ Hy) in Hya... rewrite Hpx, Hpy in Hya...
       + apply (HL2 _ Hy _ Hx) in Hxa... rewrite Hpx, Hpy in Hxa...
     - unfold Fᵒ. rewrite <- seg_a_eq... apply restr_dom...
@@ -827,7 +828,7 @@ Proof with eauto; try congruence.
         * pose proof (min_correct T C) as [Hm _]...
           intros c Hc. apply SepE1 in Hc... apply SepE1 in Hm...
         * exfalso. assert (x ∈ B). apply SepI...
-          apply HminS in H as []; subst; eapply linearOrder_irrefl...
+          apply HminS in H. eapply lo_not_leq_gt...
       + apply sub_iff_no_comp.
         destruct (classic (A T - ran Fᵒ = ∅))...
         exfalso. apply EmptyNE in H.
@@ -845,10 +846,10 @@ Proof with eauto; try congruence.
         apply HL2... apply SepE1 in Hxy...
         destruct (classic (x = y)).
         * exfalso. subst. 
-          eapply linearOrder_irrefl. apply (wo T). apply Hxy.
+          eapply lo_irrefl. apply (wo T). apply Hxy.
         * apply SepI; [|apply CProdI; apply SepI]...
-          eapply linearOrder_connected in H as []... exfalso.
-          eapply linearOrder_irrefl. apply (wo T).
+          eapply lo_connected in H as []... exfalso.
+          eapply lo_irrefl. apply (wo T).
           eapply Htr'... apply HL2...
       + symmetry. apply func_ap. apply restr_func...
         apply restrI. apply segI... apply func_correct...
@@ -892,16 +893,16 @@ Proof with eauto; try congruence.
       apply domI in Hpy as Hy. apply func_ap in Hpy...
       rewrite HdF in Hx, Hy.
       destruct (classic (x = y))... exfalso.
-      eapply linearOrder_connected in H as []; eauto;
-      (eapply linearOrder_irrefl; [apply (wo T)|]).
+      eapply lo_connected in H as []; eauto;
+      (eapply lo_irrefl; [apply (wo T)|]).
       + apply (HL2 _ Hx _ Hy) in H... rewrite Hpx, Hpy in H...
       + apply (HL2 _ Hy _ Hx) in H... rewrite Hpx, Hpy in H...
     - intros x Hx y Hy. split; intros Hxy. apply HL2...
       destruct (classic (x = y)).
       + exfalso. subst. 
-        eapply linearOrder_irrefl. apply (wo T). apply Hxy.
-      + eapply linearOrder_connected in H as []... exfalso.
-        eapply linearOrder_irrefl. apply (wo T).
+        eapply lo_irrefl. apply (wo T). apply Hxy.
+      + eapply lo_connected in H as []... exfalso.
+        eapply lo_irrefl. apply (wo T).
         eapply Htr'... apply HL2...
   }
   (* Case III *)
@@ -929,7 +930,7 @@ Proof with eauto; try congruence.
     - destruct (wo T) as [Hlo' _].
       apply SepE in Hm as [Hb1 Hb2]. apply Hsub in Hy as Hyt.
       apply SepI... destruct (classic (y = b)). subst...
-      apply (linearOrder_connected (R T) (A T)) in H as []...
+      apply (lo_connected (R T) (A T)) in H as []...
       exfalso. apply ranE in Hy as [x Hp]. apply domI in Hp as Hx.
       apply func_ap in Hp... rewrite Hγ in Hp...
       set (A T - ran (F ↾ seg x (R S))) as C. fold C in Hp.
@@ -940,7 +941,7 @@ Proof with eauto; try congruence.
           apply SepI... intros Hb'. apply restr_ran_included in Hb'...
         }
         apply Hminc in Hb as [];
-        (eapply linearOrder_irrefl; [apply (wo T)|])...
+        (eapply lo_irrefl; [apply (wo T)|])...
         rewrite H0 in H...
       + assert (e ∈ A S ∪ A T) by (apply BUnionI2; auto).
         eapply extraneous...
@@ -948,7 +949,7 @@ Proof with eauto; try congruence.
       destruct (classic (y ∈ ran F)) as [|Hy']... exfalso.
       assert (y ∈ A T - ran F) by (apply SepI; auto).
       apply Hminb in H as []; subst;
-      (eapply linearOrder_irrefl; [apply (wo T)|])...
+      (eapply lo_irrefl; [apply (wo T)|])...
   }
   exists b. split. apply SepE1 in Hm...
   exists F. split; [split; split|]...
@@ -958,8 +959,8 @@ Proof with eauto; try congruence.
     apply domI in Hpy as Hy. apply func_ap in Hpy...
     rewrite HdF in Hx, Hy.
     destruct (classic (x = y))... exfalso.
-    eapply linearOrder_connected in H as []; eauto;
-    (eapply linearOrder_irrefl; [apply (wo T)|]).
+    eapply lo_connected in H as []; eauto;
+    (eapply lo_irrefl; [apply (wo T)|]).
     + apply (HL2 _ Hx _ Hy) in H... rewrite Hpx, Hpy in H...
     + apply (HL2 _ Hy _ Hx) in H... rewrite Hpx, Hpy in H...
   - intros x Hx y Hy. split; intros Hxy.
@@ -973,9 +974,9 @@ Proof with eauto; try congruence.
     + apply SepE1 in Hxy.
       destruct (classic (x = y)).
       * exfalso. subst.
-        eapply linearOrder_irrefl. apply (wo T). apply Hxy.
-      * eapply linearOrder_connected in H as []... exfalso.
-        eapply linearOrder_irrefl. apply (wo T).
+        eapply lo_irrefl. apply (wo T). apply Hxy.
+      * eapply lo_connected in H as []... exfalso.
+        eapply lo_irrefl. apply (wo T).
         eapply Htr'... apply HL2...
 Qed.
 

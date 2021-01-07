@@ -253,14 +253,14 @@ Definition irrefl : set → Prop := λ R,
 Definition connected : set → set → Prop := λ R A,
   ∀ x y ∈ A, x ≠ y → <x, y> ∈ R ∨ <y, x> ∈ R.
 
-Theorem linearOrder_irrefl : ∀ R A,
+Theorem lo_irrefl : ∀ R A,
   linearOrder R A → irrefl R.
 Proof.
   intros * [Hrl [_ Htri]] x Hp. apply Hrl in Hp as Hx.
   apply CProdE2 in Hx as [Hx _]. firstorder.
 Qed.
 
-Theorem linearOrder_connected : ∀ R A,
+Theorem lo_connected : ∀ R A,
   linearOrder R A → connected R A.
 Proof. intros * [_ [_ Htri]] x Hx y Hy Hnq. firstorder. Qed.
 
@@ -268,8 +268,8 @@ Theorem trich_iff : ∀ R A, is_binRel R A → tranr R →
   trich R A ↔ irrefl R ∧ connected R A.
 Proof with eauto; try congruence.
   intros * Hrl Htr. split; intros.
-  - split. eapply linearOrder_irrefl. split...
-    apply linearOrder_connected. split...
+  - split. eapply lo_irrefl. split...
+    apply lo_connected. split...
   - intros x Hx y Hy. destruct H as [Hir Hco].
     destruct (classic (x = y)).
     + right. left. subst. repeat split...

@@ -119,7 +119,7 @@ Proof with eauto; try congruence.
     pose proof (HneX _ Hj) as [xⱼ Hxj].
     assert (Hf': is_function (f ∪ ⎨<j, xⱼ>⎬)). {
       apply bunion_is_func... apply single_pair_is_func.
-      intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+      apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
       rewrite dom_of_single_pair in H2.
       rewrite Hd in H1. apply SepE2 in H1...
     }

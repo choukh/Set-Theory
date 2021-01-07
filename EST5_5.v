@@ -135,7 +135,7 @@ Proof.
 Qed.
 
 Lemma realLt_irrefl : irrefl RealLt.
-Proof. eapply linearOrder_irrefl. apply realLt_linearOrder. Qed.
+Proof. eapply lo_irrefl. apply realLt_linearOrder. Qed.
 
 Lemma realLt_tranr : tranr RealLt.
 Proof. destruct realLt_linearOrder as [_ [H _]]. apply H. Qed.

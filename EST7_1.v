@@ -10,6 +10,13 @@ Notation "x <ᵣ y" := (relLt x y) (at level 60).
 Definition relLe := λ x y R, <x, y> ∈ R ∨ x = y.
 Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
 
+Lemma relLt_irrefl : ∀ x R, irrefl R → (x <ᵣ x) R → ⊥.
+Proof. intros. eapply H. apply H0. Qed.
+
+Lemma relLt_tranr : ∀ x y z R, tranr R →
+  (x <ᵣ y) R → (y <ᵣ z) R → (x <ᵣ z) R.
+Proof. intros; eapply H; eauto. Qed.
+
 Lemma relLe_tranr : ∀ x y z R, tranr R →
   (x ≤ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
 Proof with eauto.
@@ -21,19 +28,27 @@ Proof with eauto.
 Qed.
 
 Lemma relLt_le_tranr : ∀ x y z R, tranr R →
-  (x <ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
+  (x <ᵣ y) R → (y ≤ᵣ z) R → (x <ᵣ z) R.
 Proof with eauto.
-  intros * Htr Hxy [Hyz|Hyz].
-  - left. eapply Htr...
-  - subst. left...
+  intros * Htr Hxy [Hyz|Hyz]. eapply Htr... subst...
 Qed.
 
 Lemma relLe_lt_tranr : ∀ x y z R, tranr R →
-  (x ≤ᵣ y) R → (y <ᵣ z) R → (x ≤ᵣ z) R.
+  (x ≤ᵣ y) R → (y <ᵣ z) R → (x <ᵣ z) R.
 Proof with eauto.
-  intros * Htr [Hxy|Hyx] Hyz.
-  - left. eapply Htr...
-  - subst. left...
+  intros * Htr [Hxy|Hyx] Hyz. eapply Htr... subst...
+Qed.
+
+Lemma inv_relLt : ∀ x y R, (x <ᵣ y) R⁻¹ ↔ (y <ᵣ x) R.
+Proof with auto.
+  unfold relLt. split; intros.
+  rewrite inv_op... rewrite <- inv_op...
+Qed.
+
+Lemma inv_relLe : ∀ x y R, (x ≤ᵣ y) R⁻¹ ↔ (y ≤ᵣ x) R.
+Proof with auto.
+  split; (intros []; [left|right])...
+  rewrite inv_op... rewrite <- inv_op...
 Qed.
 
 (* 严格偏序，反自反偏序 *)
@@ -45,7 +60,7 @@ Definition asym := λ R, ∀ x y, (x <ᵣ y) R → ¬(y <ᵣ x) R.
 Definition antisym := λ R, ∀ x y, (x <ᵣ y) R → (y <ᵣ x) R → x = y.
 
 (* 偏序具有非对称性 *)
-Fact partialOrder_asym : ∀ R, partialOrder R → asym R.
+Fact po_asym : ∀ R, partialOrder R → asym R.
 Proof.
   intros R [Hrl [Htr Hir]] x y Hxy Hyx.
   eapply Hir. eapply Htr; eauto.
@@ -55,7 +70,7 @@ Definition at_most_trich := λ P Q R,
   ¬(P ∧ Q) ∧ ¬(R ∧ Q) ∧ ¬(P ∧ R).
 
 (* 偏序至多满足"<" "=" ">"之一 *)
-Fact partialOrder_at_most_trich : ∀ R x y, partialOrder R →
+Fact po_at_most_trich : ∀ R x y, partialOrder R →
   at_most_trich ((x <ᵣ y) R) (x = y) ((y <ᵣ x) R).
 Proof with eauto.
   intros * [Hrl [Htr Hir]].
@@ -66,19 +81,28 @@ Proof with eauto.
 Qed.
 
 (* 偏序若满足"≤"且"≥"则满足"=" *)
-Fact partialOrder_semi_antisym : ∀ R x y, partialOrder R →
+Fact po_semi_antisym : ∀ R x y, partialOrder R →
   (x ≤ᵣ y) R ∧ (y ≤ᵣ x) R → x = y.
 Proof with auto.
   intros * Hpo [H1 H2].
   destruct (classic (x = y))... exfalso.
   cut (¬((x <ᵣ y) R ∧ (y <ᵣ x) R)). firstorder.
-  apply partialOrder_at_most_trich...
+  apply po_at_most_trich...
 Qed.
 
 (* 偏序结构 *)
 Definition poset := λ A R, is_binRel R A ∧ partialOrder R.
 (* 线序结构 *)
 Definition loset := λ A R, linearOrder R A.
+
+Lemma lo_not_leq_gt : ∀ A R, loset A R →
+  ∀ x y, (x ≤ᵣ y) R → (y <ᵣ x) R → ⊥.
+Proof.
+  intros A R Hlo x y Hle Hgt.
+  apply lo_irrefl in Hlo as Hir.
+  destruct Hlo as [_ [Htr _]].
+  destruct Hle; subst; eapply Hir; eapply Htr; eauto.
+Qed.
 
 (* 线序等价于连通的偏序 *)
 Fact loset_iff_connected_poset : ∀ A R,
@@ -94,7 +118,7 @@ Proof with eauto.
 Qed.
 
 (* 极小元 *)
-Definition minimal := λ m A R, m ∈ A ∧ ¬∃x ∈ A, (x <ᵣ m) R.
+Definition minimal := λ m A R, m ∈ A ∧ ∀x ∈ A, ¬(x <ᵣ m) R ∨ x = m.
 (* 最小元 *)
 Definition minimum := λ m A R, m ∈ A ∧ ∀x ∈ A, (m ≤ᵣ x) R.
 
@@ -102,8 +126,8 @@ Definition minimum := λ m A R, m ∈ A ∧ ∀x ∈ A, (m ≤ᵣ x) R.
 Fact minimum_is_minimal : ∀ m A R, partialOrder R →
   minimum m A R → minimal m A R.
 Proof with auto.
-  intros * Hpo [Hm H]. split... intros [x [Hx Hp]].
-  apply partialOrder_asym in Hpo as Hasym.
+  intros * Hpo [Hm H]. split... intros x Hx.
+  apply po_asym in Hpo as Hasym.
   destruct Hpo as [_ [_ Hir]].
   apply H in Hx as []. firstorder. subst. firstorder.
 Qed.
@@ -111,13 +135,14 @@ Qed.
 (* 线序上的极小元等价与最小元 *)
 Fact linearOrder_minimal_iff_minimum : ∀ m A R, linearOrder R A →
   minimal m A R ↔ minimum m A R.
-Proof with auto.
+Proof with eauto.
   intros * Hto. split; intros [Hm Hmin].
   - split... intros x Hx.
-    destruct (classic ((m ≤ᵣ x) R))...
-    exfalso. apply Hmin. apply not_or_and in H as [Hmx Hnq].
-    exists x. split... apply linearOrder_connected in Hto. firstorder.
-  - split... intros [x [Hx Hxm]].
+    destruct (classic (m = x)). right... left.
+    eapply lo_connected in H as []...
+    apply Hmin in Hx as []. exfalso... subst...
+  - split... intros x Hx. assert (H := Hx).
+    apply Hmin in H as []...
     destruct Hto as [_ [_ Htri]]. firstorder.
 Qed.
 
@@ -127,11 +152,11 @@ Fact minimum_unique : ∀ m₁ m₂ A R, partialOrder R →
 Proof with auto.
   intros * Hpo [Hm1 H1] [Hm2 H2].
   apply H1 in Hm2 as []; apply H2 in Hm1 as []...
-  apply partialOrder_asym in Hpo. firstorder.
+  apply po_asym in Hpo. firstorder.
 Qed.
 
 (* 极大元 *)
-Definition maximal := λ m A R, m ∈ A ∧ ¬∃x ∈ A, (m <ᵣ x) R.
+Definition maximal := λ m A R, m ∈ A ∧ ∀x ∈ A, ¬(m <ᵣ x) R ∨ x = m.
 (* 最大元 *)
 Definition maximum := λ m A R, m ∈ A ∧ ∀x ∈ A, (x ≤ᵣ m) R.
 
@@ -139,8 +164,8 @@ Definition maximum := λ m A R, m ∈ A ∧ ∀x ∈ A, (x ≤ᵣ m) R.
 Fact maximum_is_maximal : ∀ m A R, partialOrder R →
   maximum m A R → maximal m A R.
 Proof with auto.
-  intros * Hpo [Hm H]. split... intros [x [Hx Hp]].
-  apply partialOrder_asym in Hpo as Hasym.
+  intros * Hpo [Hm H]. split... intros x Hx.
+  apply po_asym in Hpo as Hasym.
   destruct Hpo as [_ [_ Hir]].
   apply H in Hx as []. firstorder. subst. firstorder.
 Qed.
@@ -148,13 +173,14 @@ Qed.
 (* 线序上的极大元等价与最大元 *)
 Fact linearOrder_maximal_iff_maximum : ∀ m A R, linearOrder R A →
   maximal m A R ↔ maximum m A R.
-Proof with auto.
-  intros * Hto. split; intros [Hm Hmin].
+Proof with eauto.
+  intros * Hto. split; intros [Hm Hmax].
   - split... intros x Hx.
-    destruct (classic ((x ≤ᵣ m) R))...
-    exfalso. apply Hmin. apply not_or_and in H as [Hmx Hnq].
-    exists x. split... apply linearOrder_connected in Hto. firstorder.
-  - split... intros [x [Hx Hxm]].
+    destruct (classic (m = x)). right... left.
+    eapply lo_connected in H as []...
+    apply Hmax in Hx as []. exfalso... subst...
+  - split... intros x Hx. assert (H := Hx).
+    apply Hmax in H as []...
     destruct Hto as [_ [_ Htri]]. firstorder.
 Qed.
 
@@ -164,7 +190,7 @@ Fact maximum_unique : ∀ m₁ m₂ A R, partialOrder R →
 Proof with auto.
   intros * Hpo [Hm1 H1] [Hm2 H2].
   apply H1 in Hm2 as []; apply H2 in Hm1 as []...
-  apply partialOrder_asym in Hpo. firstorder.
+  apply po_asym in Hpo. firstorder.
 Qed.
 
 (* 逆关系 *)
@@ -190,18 +216,18 @@ Qed.
 Fact minimal_iff_maximal_inv : ∀ m A R,
   minimal m A R ↔ maximal m A R⁻¹.
 Proof with auto.
-  intros; split; intros [Hm H]; split; auto;
-  intros [x [Hx Hp]]; apply H; exists x; split; auto;
-  unfold relLt. rewrite inv_op... rewrite <- inv_op...
+  intros; split; intros [Hm H]; split; auto; 
+  intros x Hx; apply H in Hx as []; auto; left.
+  rewrite inv_relLt... rewrite inv_relLt in H0...
 Qed.
 
 (* 极大元在逆关系下是极小元 *)
 Fact maximal_iff_minimal_inv : ∀ m A R,
   maximal m A R ↔ minimal m A R⁻¹.
-Proof with auto.
-  intros; split; intros [Hm H]; split; auto;
-  intros [x [Hx Hp]]; apply H; exists x; split; auto;
-  unfold relLt. rewrite inv_op... rewrite <- inv_op...
+  Proof with auto.
+  intros; split; intros [Hm H]; split; auto; 
+  intros x Hx; apply H in Hx as []; auto; left.
+  rewrite inv_relLt... rewrite inv_relLt in H0...
 Qed.
 
 (* 最小元在逆关系下是最大元 *)
@@ -224,6 +250,8 @@ Qed.
 
 (* 上界 *)
 Definition upperBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (y ≤ᵣ x) R.
+(* 严格上界 *)
+Definition strictUpperBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (y <ᵣ x) R.
 (* 存在上界 *)
 Definition boundedAbove := λ B A R, ∃ x, upperBound x B A R.
 (* 上确界 *)
@@ -232,6 +260,8 @@ Definition supremum := λ x B A R, upperBound x B A R ∧
 
 (* 下界 *)
 Definition lowerBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (x ≤ᵣ y) R.
+(* 严格下界 *)
+Definition strictLowerBound := λ x B A R, x ∈ A ∧ ∀y ∈ B, (x <ᵣ y) R.
 (* 存在下界 *)
 Definition boundedBelow := λ B A R, ∃ x, lowerBound x B A R.
 (* 下确界 *)
@@ -250,31 +280,57 @@ Qed.
 
 Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : ZFC_scope.
 
+Definition ε_minimal := λ a A, a ∈ A ∧ ∀b ∈ A, b ∉ a ∨ a = b.
+Definition ε_maximal := λ a A, a ∈ A ∧ ∀b ∈ A, a ∉ b ∨ a = b.
 Definition ε_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ≤ b.
 Definition ε_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ≤ a.
+
+Lemma ε_minimal_iff : ∀ a A B, B ⊆ A →
+  minimal a B (MemberRel A) ↔ ε_minimal a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Ha Hmin]. split... intros b Hb.
+    assert (H := Hb). apply Hmin in H as []...
+    left. intros H'. apply H. apply binRelI; [apply Hsub..|]...
+  - intros [Ha Hmin]. split... intros b Hb.
+    assert (H := Hb). apply Hmin in H as []...
+    left. intros H'. apply H. apply binRelE2 in H' as [_ []]...
+Qed.
+
+Lemma ε_maximal_iff : ∀ a A B, B ⊆ A →
+  maximal a B (MemberRel A) ↔ ε_maximal a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Ha Hmax]. split... intros b Hb.
+    assert (H := Hb). apply Hmax in H as []...
+    left. intros H'. apply H. apply binRelI; [apply Hsub..|]...
+  - intros [Ha Hmax]. split... intros b Hb.
+    assert (H := Hb). apply Hmax in H as []...
+    left. intros H'. apply H. apply binRelE2 in H' as [_ []]...
+Qed.
 
 Lemma ε_minimum_iff : ∀ a A B, B ⊆ A →
   minimum a B (MemberRel A) ↔ ε_minimum a B.
 Proof with auto.
   intros * Hsub. split.
-  - intros [Hm Hle]. split... intros n Hn.
-    assert (H := Hn). apply Hle in H as []...
+  - intros [Ha Hle]. split... intros b Hb.
+    assert (H := Hb). apply Hle in H as []...
     left. apply binRelE2 in H as [_ []]...
-  - intros [Hm Hle]. split... intros n Hn.
-    assert (H := Hn). apply Hle in H as []...
-    left. apply binRelI... apply Hsub... apply Hsub... right...
+  - intros [Ha Hle]. split... intros b Hb.
+    assert (H := Hb). apply Hle in H as []...
+    left. apply binRelI; [apply Hsub..|]... right...
 Qed.
 
 Lemma ε_maximum_iff : ∀ a A B, B ⊆ A →
   maximum a B (MemberRel A) ↔ ε_maximum a B.
 Proof with auto.
   intros * Hsub. split.
-  - intros [Hm Hle]. split... intros n Hn.
-    assert (H := Hn). apply Hle in H as []...
+  - intros [Ha Hle]. split... intros b Hb.
+    assert (H := Hb). apply Hle in H as []...
     left. apply binRelE2 in H as [_ []]...
-  - intros [Hm Hle]. split... intros n Hn.
-    assert (H := Hn). apply Hle in H as []...
-    left. apply binRelI... apply Hsub... apply Hsub... right...
+  - intros [Ha Hle]. split... intros b Hb.
+    assert (H := Hb). apply Hle in H as []...
+    left. apply binRelI; [apply Hsub..|]... right...
 Qed.
 
 (* 真子集关系 *)
@@ -386,31 +442,45 @@ Proof with auto.
       intros x Hx. apply BInterI; subst...
 Qed.
 
+(* 并集是包含关系的上界 *)
+Lemma union_is_ub : ∀A, ∀a ∈ A, a ⊆ ⋃A.
+Proof. exact ex2_3. Qed.
+
+(* 并集是包含关系的上确界 *)
+Lemma union_is_sup: ∀ A B, (∀a ∈ A, a ⊆ B) → ⋃A ⊆ B.
+Proof. exact ex2_5. Qed.
+
 Example subsetRel_union_supremum : ∀ S 𝒜, 𝒜 ⊆ 𝒫 S →
   supremum (⋃ 𝒜) 𝒜 (𝒫 S) (SubsetRel (𝒫 S)).
 Proof with auto; try congruence.
   intros S 𝒜 Hsub.
   assert (Hu: ⋃ 𝒜 ∈ 𝒫 S). {
-    apply PowerAx. intros x Hx.
-    apply UnionAx in Hx as [A [HA Hx]].
-    apply Hsub in HA. apply PowerAx in HA. apply HA...
+    apply PowerAx. apply union_is_sup.
+    intros x Hx. apply Hsub in Hx. apply PowerAx...
   }
   split.
   - split... intros C HC.
     destruct (classic (C = ⋃ 𝒜)). right... left.
-    apply binRelI... apply Hsub... split...
-    intros x Hx. apply UnionAx. exists C. split...
+    apply binRelI... apply Hsub... split... apply union_is_ub...
   - intros C [HC Hle].
-    assert (Hsubu: ⋃ 𝒜 ⊆ C). {
-      intros x Hx.
-      apply UnionAx in Hx as [A [HA Hx]].
-      apply Hle in HA as [HA|]...
-      apply binRelE2 in HA as [_ [_ [HsubA _]]].
-      apply HsubA...
-    }
-    destruct (classic (C ⊆ ⋃ 𝒜)).
-    + right. apply sub_antisym...
-    + left. apply binRelI... split...
+    destruct (classic (⋃ 𝒜 = C)) as [|Hnq]. right... left.
+    apply binRelI... split... apply union_is_sup.
+    intros x Hx. apply Hle in Hx as []...
+    apply binRelE2 in H as [_ [_ []]]...
+Qed.
+
+(* 交集是包含关系的下界 *)
+Lemma inter_is_lb : ∀A, ∀a ∈ A, ⋂A ⊆ a.
+Proof.
+  intros A a Ha x Hx.
+  apply InterE in Hx as [_ H]. apply H. apply Ha.
+Qed.
+
+(* 交集是包含关系的下确界 *)
+Lemma inter_is_inf: ∀ A B, ⦿ A → (∀a ∈ A, B ⊆ a) → B ⊆ ⋂A.
+Proof with auto.
+  intros A B Hne Hlb x Hx. apply InterI... 
+  intros y Hy. apply Hlb in Hy. apply Hy...
 Qed.
 
 Example subsetRel_inter_infimum : ∀ S 𝒜, ⦿ 𝒜 → 𝒜 ⊆ 𝒫 S →
@@ -426,32 +496,55 @@ Proof with auto; try congruence.
   split.
   - split... intros C HC.
     destruct (classic (⋂ 𝒜 = C)). right... left.
-    apply binRelI... apply Hsub... split...
-    intros x Hx. apply InterE in Hx as [_ Hx]. apply Hx...
+    apply binRelI... apply Hsub... split... apply inter_is_lb...
   - intros C [HC Hle].
-    assert (HsubC: C ⊆ ⋂ 𝒜). {
-      intros x Hx. apply InterI...
-      intros y Hy. apply Hle in Hy as []; subst...
-      apply binRelE2 in H as [_ [_ [HsubC _]]]... apply HsubC...
-    }
-    destruct (classic (⋂ 𝒜 ⊆ C)).
-    + right. apply sub_antisym...
-    + left. apply binRelI... split...
+    destruct (classic (C = ⋂ 𝒜)) as [|Hnq]. right... left.
+    apply binRelI... split... apply inter_is_inf...
+    intros x Hx. apply Hle in Hx as []...
+    apply binRelE2 in H as [_ [_ []]]...
 Qed.
 
+Definition sub_minimal := λ a A, a ∈ A ∧ ∀b ∈ A, b ⊈ a ∨ a = b.
+Definition sub_maximal := λ a A, a ∈ A ∧ ∀b ∈ A, a ⊈ b ∨ a = b.
 Definition sub_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ⊆ b.
 Definition sub_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ⊆ a.
+
+Lemma sub_minimal_iff : ∀ a A B, B ⊆ A →
+  minimal a B (SubsetRel A) ↔ sub_minimal a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Ha Hmin]. split... intros b Hb.
+    destruct (classic (a = b)) as [|Hnq]. right...
+    assert (H := Hb). apply Hmin in H as []...
+    left. intros H'. apply H. apply binRelI; [apply Hsub..|]...
+  - intros [Ha Hmin]. split... intros b Hb.
+    assert (H := Hb). apply Hmin in H as []...
+    left. intros H'. apply H. apply binRelE2 in H' as [_ [_ []]]...
+Qed.
+
+Lemma sub_maximal_iff : ∀ a A B, B ⊆ A →
+  maximal a B (SubsetRel A) ↔ sub_maximal a B.
+Proof with auto.
+  intros * Hsub. split.
+  - intros [Ha Hmax]. split... intros b Hb.
+    destruct (classic (a = b)) as [|Hnq]. right...
+    assert (H := Hb). apply Hmax in H as []...
+    left. intros H'. apply H. apply binRelI; [apply Hsub..|]...
+  - intros [Ha Hmax]. split... intros b Hb.
+    assert (H := Hb). apply Hmax in H as []...
+    left. intros H'. apply H. apply binRelE2 in H' as [_ [_ []]]...
+Qed.
 
 Lemma sub_minimum_iff : ∀ a A B, B ⊆ A →
   minimum a B (SubsetRel A) ↔ sub_minimum a B.
 Proof with auto.
   intros * Hsub. split.
-  - intros [Hm Hle]. split...
-    intros n Hn. apply Hle in Hn as []...
+  - intros [Ha Hle]. split...
+    intros b Hb. apply Hle in Hb as []...
     apply binRelE2 in H as [_ [_ []]]... subst...
-  - intros [Hm Hle]. split...
-    intros n Hn. apply Hle in Hn as Han.
-    destruct (classic (a = n)). right...
+  - intros [Ha Hle]. split...
+    intros b Hb. apply Hle in Hb as Han.
+    destruct (classic (a = b)). right...
     left. apply binRelI... apply Hsub... apply Hsub...
 Qed.
 
@@ -459,13 +552,33 @@ Lemma sub_maximum_iff : ∀ a A B, B ⊆ A →
   maximum a B (SubsetRel A) ↔ sub_maximum a B.
 Proof with auto.
   intros * Hsub. split.
-  - intros [Hm Hle]. split...
-    intros n Hn. apply Hle in Hn as []...
+  - intros [Ha Hle]. split...
+    intros b Hb. apply Hle in Hb as []...
     apply binRelE2 in H as [_ [_ []]]... subst...
-  - intros [Hm Hle]. split...
-    intros n Hn. apply Hle in Hn as Han.
-    destruct (classic (a = n)). right...
+  - intros [Ha Hle]. split...
+    intros b Hb. apply Hle in Hb as Han.
+    destruct (classic (a = b)). right...
     left. apply binRelI... apply Hsub... apply Hsub...
+Qed.
+
+(* 偏序集的阿基米德性 *)
+Definition po_archimedean := λ A R, ∀x ∈ A, ∃y ∈ A, (x <ᵣ y) R.
+
+(* 偏序集合具有阿基米德性当且仅当它没有极大元 *)
+Lemma po_archimedean_iff_no_maximal : ∀ A R, poset A R →
+  po_archimedean A R ↔ ¬ ∃ m, maximal m A R.
+Proof with eauto; try congruence.
+  intros A R [_ [_ [_ Hir]]]. split.
+  - intros Harc [m [Hm Hmax]].
+    apply Harc in Hm as [y [Hy Hmy]].
+    apply Hmax in Hy as []... subst. eapply Hir...
+  - intros Hnex x Hx.
+    pose proof (not_ex_all_not set (λ x, maximal x A R) Hnex).
+    specialize H with x.
+    apply not_and_or in H as []...
+    apply set_not_all_ex_not in H as [y [Hy H]].
+    apply not_or_and in H as [H _].
+    exists y. split... apply NNPP in H...
 Qed.
 
 (* 子关系 *)

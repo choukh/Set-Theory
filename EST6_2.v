@@ -2,6 +2,7 @@
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Export ZFC.EST6_1.
+Require Export ZFC.EST7_5.
 
 (*** EST第六章2：无限基数，基数算术：加法，乘法，乘方 ***)
 

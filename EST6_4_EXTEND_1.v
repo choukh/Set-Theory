@@ -10,33 +10,32 @@ Definition finite_character_property : (set → Prop) → Prop := λ P,
   ∀ B, P B ↔ ∀ C, finite C → C ⊆ B → P C.
 
 (* 有限特征集：集合是其成员当且仅当该集合的每个有限子集都是其成员 *)
-Definition finite_character_set : set → Prop := λ 𝒜,
+Definition finite_character_set := λ 𝒜,
   finite_character_property (λ x, x ∈ 𝒜).
 Notation "'𝗙𝗖' 𝒜" := (finite_character_set 𝒜) (at level 70).
 
 (* 选择公理等效表述7：图基引理（第二极大原理） *)
 (* 具有有限特征的非空集合必有子集关系下的极大元 *)
-Definition AC_VII : Prop := ∀ 𝒜, ⦿ 𝒜 →
-  𝗙𝗖 𝒜 → ∃ M, max_member M 𝒜.
+Definition AC_VII := ∀ 𝒜, ⦿ 𝒜 →
+  𝗙𝗖 𝒜 → ∃ M, sub_maximal M 𝒜.
 
 (* 链集：集合的所有全序子集所组成的集合 *)
-Definition Chains : set → set := λ A, {ℬ ∊ 𝒫 A | is_chain}.
+Definition Chains := λ A, {B ∊ 𝒫 A | is_chain}.
 
 (* 极大链：链集的极大元 *)
-Definition max_chain : set → set → Prop := λ ℳ 𝒜,
-  max_member ℳ (Chains 𝒜).
+Definition max_chain := λ ℳ 𝒜, sub_maximal ℳ (Chains 𝒜).
 
 (* 选择公理等效表述8：豪斯多夫极大原理 *)
 (* 对于偏序集中任意全序子集(链)，都存在极大全序子集(极大链)包含它 *)
-Definition AC_VIII : Prop := ∀ 𝒜 ℬ, ℬ ⊆ 𝒜 → is_chain ℬ →
+Definition AC_VIII := ∀ 𝒜 ℬ, ℬ ⊆ 𝒜 → is_chain ℬ →
   ∃ ℳ, max_chain ℳ 𝒜 ∧ ℬ ⊆ ℳ.
 
 (* 选择公理等效表述8'：极大原理 *)
 (* 偏序集有极大元，如果对于该偏序集中的任意链，
   都存在该偏序集中的一个成员，包含链中的所有成员 *)
-Definition AC_VIII' : Prop := ∀ 𝒜,
+Definition AC_VIII' := ∀ 𝒜,
   (∀ ℬ, ℬ ⊆ 𝒜 → is_chain ℬ → ∃N ∈ 𝒜, ∀B ∈ ℬ, B ⊆ N) →
-  ∃ M, max_member M 𝒜.
+  ∃ M, sub_maximal M 𝒜.
 
 (* 空集是链 *)
 Lemma emptyset_is_chain : is_chain ∅.
@@ -50,11 +49,11 @@ Qed.
 
 (* 非空有限链必有极大元 *)
 Lemma finite_chain_has_max : ∀ ℬ, ⦿ ℬ →
-  finite ℬ → is_chain ℬ → ∃ M, max_member M ℬ.
+  finite ℬ → is_chain ℬ → ∃ M, sub_maximal M ℬ.
 Proof with eauto; try congruence.
   intros ℬ Hne [n [Hn Hqn]]. generalize dependent ℬ.
   set {n ∊ ω | λ n, ∀ ℬ,
-    ⦿ ℬ → ℬ ≈ n → is_chain ℬ → ∃ M, max_member M ℬ } as N.
+    ⦿ ℬ → ℬ ≈ n → is_chain ℬ → ∃ M, sub_maximal M ℬ } as N.
   ω_induction N Hn; intros ℬ Hne Hqn Hchn. {
     exfalso. apply EmptyNI in Hne. apply eqnum_empty in Hqn...
   }
@@ -160,7 +159,7 @@ Qed.
 (* ==需要选择公理== *)
 (* 对于有限特征集的任意成员都存在极大元包含它 *)
 Lemma for_all_in_fc_set_ex_max_contains_it : AC_VII → ∀ 𝒜, 𝗙𝗖 𝒜 →
-  ∀A ∈ 𝒜, ∃ M, max_member M 𝒜 ∧ A ⊆ M.
+  ∀A ∈ 𝒜, ∃ M, sub_maximal M 𝒜 ∧ A ⊆ M.
 Proof with eauto; try congruence.
   intros AC7 𝒜 Hfc A HA.
   set {B ∊ 𝒜 | λ B, A ∪ B ∈ 𝒜} as 𝒜'.

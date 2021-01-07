@@ -7,47 +7,43 @@ Require Export ZFC.EST6_3.
   阿列夫零是最小的无限基数，戴德金无穷 ***)
 
 (* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
-Definition AC_I : Prop := ∀ R, is_rel R →
+Definition AC_I := ∀ R, is_rel R →
   ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
 
 (* 选择公理等效表述1'：存在从并集到原集合的函数使得参数是值的成员 *)
-Definition AC_I' : Prop := ∀ A,
+Definition AC_I' := ∀ A,
   ∃ F, F: ⋃A ⇒ A ∧ ∀x ∈ dom F, x ∈ F[x].
 
 (* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
-Definition AC_II : Prop :=
+Definition AC_II :=
   ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 
 (* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
-Definition AC_III : Prop := ∀ A,
+Definition AC_III := ∀ A,
   ∃ F, is_function F ∧ dom F = {x ∊ 𝒫 A | nonempty} ∧ 
   ∀ B, ⦿ B → B ⊆ A → F[B] ∈ B.
 
 (* 选择公理等效表述3'：非空集合所组成的集合上存在选择函数 *)
-Definition AC_III' : Prop := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
+Definition AC_III' := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
   ∃ F, is_function F ∧ dom F = 𝒜 ∧ ∀A ∈ 𝒜, F[A] ∈ A.
 
 (* 选择公理等效表述4：策梅洛公设 (Zermelo’s Postulate) *)
-Definition AC_IV : Prop := ∀ 𝒜,
+Definition AC_IV := ∀ 𝒜,
   (* a 子集非空 *) (∀A ∈ 𝒜, ⦿ A) →
   (* b 子集不交 *) (∀ A B ∈ 𝒜, A ≠ B → disjoint A B) →
   ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = ⎨x⎬.
 
 (* 选择公理等效表述5：势具有可比较性 *)
-Definition AC_V : Prop := ∀ A B, A ≼ B ∨ B ≼ A.
+Definition AC_V := ∀ A B, A ≼ B ∨ B ≼ A.
 
 (* 链：子集关系下的全序集 *)
-Definition is_chain : set → Prop := λ ℬ,
-  ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
+Definition is_chain := λ ℬ, ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
 
-(* 子集关系下的极大元 *)
-Definition max_member : set → set → Prop := λ M 𝒜,
-  M ∈ 𝒜 ∧ ∀A ∈ 𝒜, M ⊈ A ∨ M = A.
-
+(* Zorn's Lemma (set theory form) *)
 (* 选择公理等效表述6：佐恩引理（第一极大原理） *)
 (* 若偏序集中任意全序子集(链)均有上界，则该偏序集存在极大元 *)
-Definition AC_VI : Prop := ∀ 𝒜,
-  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → ∃ M, max_member M 𝒜.
+Definition AC_VI := ∀ 𝒜,
+  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → ∃ M, sub_maximal M 𝒜.
 
 (* AC cycle
     (1 ↔ 1') → 2 → (3 ↔ 3') → 4 → 1
@@ -327,7 +323,7 @@ Proof with eauto.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
     apply Hsub... apply SingE in H. subst...
   - apply bunion_is_func... apply single_pair_is_func.
-    intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+    apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
     rewrite dom_of_single_pair in H2. apply SingE in H2.
     subst. apply Hb. eapply domI...
@@ -403,7 +399,7 @@ Proof with eauto; try congruence.
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
     apply Hsub... apply SingE in H. subst. apply CProdI...
   - apply bunion_is_func... apply single_pair_is_func.
-    intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+    apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
     rewrite dom_of_single_pair in H2. apply SingE in H2.
     subst. apply Ha'. eapply domI...
