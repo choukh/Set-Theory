@@ -30,7 +30,7 @@ Definition IntLtWo := BinRel ℤ (λ a b,
 Lemma intLtWo_irrefl : irrefl IntLtWo.
 Proof.
   intros a Haa.
-  apply binRelE2 in Haa as [_ [_ Haa]].
+  apply binRelE3 in Haa.
   destruct (ixm (intNeg a));
   eapply intLt_irrefl; eauto.
 Qed.
@@ -144,7 +144,7 @@ Lemma iso_Lt_nonNegIntLt : LtStruct ≅ NonNegIntLtStruct.
 Proof with auto.
   exists ω_Embed. simpl. split. apply ω_embed_bijective.
   intros n Hn m Hm. split; intros Hlt.
-  - apply SepI. apply binRelE2 in Hlt as [_ [_ Hlt]].
+  - apply SepI. apply binRelE3 in Hlt.
     apply ω_embed_lt in Hlt...
     apply CProdI; apply ω_embed_ran_nn...
   - apply binRelI... apply ω_embed_lt...
@@ -281,7 +281,7 @@ Qed.
 Lemma int_0_minimum : ∀a ∈ ℤ, ¬ (a <ᵣ Int 0) IntLtWo.
 Proof.
   intros a Ha Hlt.
-  apply binRelE2 in Hlt as [_ [_ Hlt]].
+  apply binRelE3 in Hlt.
   destruct (ixm (intNeg a)); destruct (ixm (intNeg (Int 0)));
   auto; apply int_0_not_neg; auto.
 Qed.
@@ -339,7 +339,7 @@ Proof with neauto; try congruence; try tauto.
   apply ExtAx. split; intros Hx.
   - apply e_elim in Hx...
     destruct Hx as [s [Hs [Hlt [Heq _]]]]. subst x. fold E.
-    apply binRelE2 in Hlt as [_ [_ Hlt]].
+    apply binRelE3 in Hlt.
     destruct (ixm (intNeg s));
     destruct (ixm (intNeg (Int (S n))))...
     destruct ω_embed_bijective as [[Hf _] [Hd Hr]].
@@ -372,7 +372,7 @@ Proof with neauto; try congruence; try tauto.
       apply e_elim in H...
       destruct H as [s [Hs [Hlt [Heq _]]]].
       eapply e_intro...
-      apply binRelE2 in Hlt as [_ [_ Hlt]].
+      apply binRelE3 in Hlt.
       apply binRelI...
       destruct (ixm (intNeg s));
       destruct (ixm (intNeg (Int n)));
@@ -390,7 +390,7 @@ Proof with neauto.
   apply ExtAx. split; intros Hx.
   - apply e_elim in Hx...
     destruct Hx as [s [Hs [Hlt [Heq _]]]]. fold E in Heq.
-    apply binRelE2 in Hlt as [_ [_ Hlt]].
+    apply binRelE3 in Hlt.
     destruct (ixm (intNeg s)) as [Hns|Hnns];
     destruct (ixm (intNeg (-Int 1))) as [Hnn1|Hnnn1].
     + apply intLt_iff_leq_suc in Hlt...
@@ -425,7 +425,7 @@ Proof with neauto; try congruence.
   apply ExtAx. split; intros Hx.
   - apply e_elim in Hx...
     destruct Hx as [s [Hs [Hlt [Heq _]]]]. fold E in Heq.
-    apply binRelE2 in Hlt as [_ [_ Hlt]].
+    apply binRelE3 in Hlt.
     destruct (ixm (intNeg s)) as [Hns|Hnns];
     destruct (ixm (intNeg (-Int 2))) as [Hnn2|Hnnn2].
     + apply intLt_iff_leq_suc in Hlt as []; nauto;
@@ -503,7 +503,7 @@ Proof with eauto.
       rewrite <- Heq in H. apply SepE2 in H as []...
       * eapply Hir. eapply Htr...
       * eapply Hir. subst...
-  - apply binRelE2 in Hxy as [_ [_ [Hsub Hnq]]].
+  - apply binRelE3 in Hxy as [Hsub Hnq].
     assert (x ∈ F[x]). {
       unfold F. rewrite meta_func_ap...
       apply SepI... right...
@@ -517,7 +517,6 @@ End EX7_14.
 
 Import WOStruct.
 Import WOStruct.EpsilonImage.
-Hint Immediate ord_is_ord : core.
 
 (* ex7_15_a 良序结构不与自身的任意前节同构 *)
 Lemma wo_not_iso_seg : ∀ S, ∀t ∈ A S, S ≇ Seg t S.

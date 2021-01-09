@@ -4,6 +4,7 @@
 Require Export ZFC.EX6_2.
 Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Import ZFC.lib.Choice.
 
 (*** EST第六章5：可数集，可数多个可数集的并是可数集 ***)
 

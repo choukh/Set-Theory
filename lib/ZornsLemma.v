@@ -1,13 +1,14 @@
 (** Coq coding by choukh, Jan 2021 **)
 
 Require Import ZFC.EST7_4.
+Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.Cardinal.
 Require Import ZFC.lib.OrdinalAsType.
 Require Import ZFC.lib.WosetMin.
 Import WosetMin.FullVer.
 
 (* set-theoretic form *)
-Definition set_theoretic_Zorn := EST6_4.AC_VI.
+Definition set_theoretic_Zorn := Choice.AC_VI.
 
 (* general form *)
 Definition general_Zorn := ∀ A R, poset A R →
@@ -30,8 +31,8 @@ Proof with eauto; try congruence.
   - intros Hlo x Hx y Hy.
     destruct (classic (x = y)) as [|Hnq]. left...
     eapply lo_connected in Hnq as H... destruct H.
-    * apply binRelE2 in H as [_ [_ []]]...
-    * apply binRelE2 in H as [_ [_ []]]...
+    * apply binRelE3 in H as []...
+    * apply binRelE3 in H as []...
 Qed.
 
 (* 集合的包含关系在子集上的限制等于子集的包含关系 *)
@@ -42,7 +43,7 @@ Proof with auto.
   apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hx Hp].
     apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst x.
-    apply binRelE2 in Hx as [_ [_ H]]. apply binRelI...
+    apply binRelE3 in Hx. apply binRelI...
   - apply binRelE1 in Hx as [a [Ha [b [Hb [Hx H]]]]]. subst x.
     apply SepI. apply binRelI; [apply Hsub..|]... apply CProdI...
 Qed.
@@ -222,7 +223,7 @@ Proof with eauto; try congruence.
       apply SepE in Hc as [Hc Hc'].
       apply SepE in Hd as [Hd Hd'].
       assert (Heq: d = c). {
-        rewrite (HiB d), HiC... cut (seg d B = seg c C)... 
+        rewrite (HiB d), HiC... f_equal.
         apply ExtAx. split; intros Hx.
         - destruct (classic (x ∈ seg c C))... exfalso.
           apply SepE in Hx as [Hx Hxk].
@@ -333,8 +334,7 @@ Proof with eauto; try congruence.
     intros t Ht. apply UnionAx in Ht as [B [HB Ht]].
     apply SepE2 in HB as HgB. assert (H := HgB).
     destruct H as [_ [_ Hap]].
-    apply Hap in Ht as Heqt. rewrite Heqt at 1.
-    cut (seg t B = seg t ⋃ 𝒞)...
+    apply Hap in Ht as Heqt. rewrite Heqt at 1. f_equal.
     apply ExtAx. split; intros Hx.
     - apply SepE in Hx as [Hx Hxt]. apply SepI...
       apply UnionAx. exists B. split...
@@ -402,8 +402,8 @@ Proof with eauto; try congruence.
   assert (suc_good: good S). {
     split... split... intros t Ht.
     apply BUnionE in Ht as [Ht|Ht].
-    - apply union_ind in Ht as Heqt. rewrite Heqt at 1.
-      cut (seg t ⋃ 𝒞 = seg t S)...
+    - apply union_ind in Ht as Heqt.
+      rewrite Heqt at 1. f_equal.
       apply ExtAx. split; intros Hx.
       + apply SepE in Hx as [Hx Hxt].
         apply SepI... apply BUnionI1...
@@ -412,8 +412,7 @@ Proof with eauto; try congruence.
         apply SingE in H. subst. rewrite Heqt in Hxt.
         exfalso. eapply relLt_irrefl...
         eapply relLt_tranr... apply f_strict...
-    - apply SingE in Ht. rewrite Ht at 1.
-      cut (⋃ 𝒞 = seg t S)...
+    - apply SingE in Ht. rewrite Ht at 1. f_equal.
       apply ExtAx. split; intros Hx.
       + apply SepI. apply BUnionI1...
         rewrite Ht. apply f_strict...

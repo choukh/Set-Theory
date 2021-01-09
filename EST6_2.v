@@ -1174,3 +1174,154 @@ Proof with auto.
   unfold CardExp. rewrite <- CardAx0.
   apply cardExp_well_defined...
 Qed.
+
+(* 有限集里的补集是有限集 *)
+Lemma comp_finite : ∀ A B, finite A → finite (A - B).
+Proof with auto.
+  intros * [n [Hn Hqn]]. generalize dependent A.
+  set {n ∊ ω | λ n, ∀ A, A ≈ n → finite (A -B)} as N.
+  ω_induction N Hn; intros A Hqn.
+  - apply eqnum_empty in Hqn. subst A.
+    rewrite empty_comp. apply empty_finite.
+  - apply set_eqnum_suc_nonempty in Hqn as Hne...
+    destruct Hne as [a Ha].
+    apply split_one_element in Ha. rewrite Ha in *.
+    apply finite_set_remove_one_element in Hqn... rewrite union_comp.
+    apply bunion_finite. apply IH...
+    destruct (classic (a ∈ B)).
+    + replace (⎨a⎬ - B) with ∅. apply empty_finite.
+      apply ExtAx. split; intros Hx. exfalso0. exfalso.
+      apply SepE in Hx as [Hx Hx']. apply SingE in Hx; subst...
+    + replace (⎨a⎬ - B) with (⎨a⎬)...
+      apply ExtAx. split; intros Hx.
+      * apply SingE in Hx; subst. apply SepI...
+      * apply SepE1 in Hx...
+Qed.
+
+(* 有限集加上一个元素仍是有限集 *)
+Lemma add_one_still_finite_1 :
+  ∀ a A, finite (A - ⎨a⎬) → finite A.
+Proof with auto.
+  intros * Hfin.
+  destruct (classic (a ∈ A)).
+  - rewrite <- (remove_one_member_then_return A a)...
+    apply bunion_finite...
+  - rewrite remove_no_member in Hfin...
+Qed.
+
+(* 有限集加上一个元素仍是有限集 *)
+Lemma add_one_still_finite_2 : ∀ A a,
+  finite A → finite (A ∪ ⎨a⎬).
+Proof with auto.
+  intros * Hfa.
+  destruct (classic (disjoint A ⎨a⎬)).
+  - destruct Hfa as [m [Hm HA]].
+    exists m⁺. split. apply ω_inductive...
+    apply cardAdd_well_defined... apply disjoint_nat_single...
+  - apply EmptyNE in H as [a' Ha].
+    apply BInterE in Ha as [Ha Heq].
+    apply SingE in Heq. subst a'.
+    replace (A ∪ ⎨ a ⎬) with A...
+    apply ExtAx. split; intros Hx.
+    + apply BUnionI1...
+    + apply BUnionE in Hx as []... apply SingE in H. subst x...
+Qed.
+
+(* 无限集除去一个元素仍是无限集 *)
+Lemma remove_one_member_from_infinite :
+  ∀ a A, infinite A → infinite (A - ⎨a⎬).
+Proof.
+  intros * Hinf Hfin. apply Hinf.
+  eapply add_one_still_finite_1; eauto.
+Qed.
+
+(* 二元并的替代等于替代的二元并 *)
+Lemma bunion_of_repl_eq_repl_of_bunion : ∀ F A B,
+  {F | x ∊ A ∪ B} = {F | x ∊ A} ∪ {F | x ∊ B}.
+Proof with auto.
+  intros; apply ExtAx; intros y; split; intros Hy.
+  - apply ReplAx in Hy as [x [Hx Heq]];
+    apply BUnionE in Hx as [];
+    [apply BUnionI1|apply BUnionI2];
+    apply ReplAx; exists x; split...
+  - apply BUnionE in Hy as [];
+    apply ReplAx in H as [x [Hx Heq]];
+    apply ReplAx; exists x; split; auto;
+    [apply BUnionI1|apply BUnionI2]...
+Qed.
+
+(* 任意集合与其一对一的替代等势 *)
+Lemma eqnum_repl : ∀ F A, (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
+  A ≈ {F | x ∊ A}.
+Proof with auto.
+  intros. set (Func A {F | x ∊ A} (λ x, F x)) as f.
+  exists f. apply meta_bijective.
+  - intros x Hx. apply ReplAx. exists x. split...
+  - intros x1 H1 x2 H2 Heq. apply H...
+  - intros y Hy. apply ReplAx in Hy...
+Qed.
+
+(* 任意单集与其任意替代等势 *)
+Lemma eqnum_repl_single : ∀ F a, ⎨a⎬ ≈ {F | x ∊ ⎨a⎬}.
+Proof with auto.
+  intros. set (Func ⎨a⎬ {F | x ∊ ⎨a⎬} (λ x, F x)) as f.
+  exists f. apply meta_bijective.
+  - intros x Hx. apply ReplAx. exists x. split...
+  - intros x1 H1 x2 H2 _.
+    apply SingE in H1. apply SingE in H2. congruence.
+  - intros y Hy. apply ReplAx in Hy...
+Qed.
+
+(* 任意单集的任意替代是有限集 *)
+Lemma repl_single_finite : ∀ F a, finite {F | x ∊ ⎨a⎬}.
+Proof with auto.
+  intros. exists 1. split. nauto.
+  rewrite <- eqnum_repl_single. apply eqnum_single_one.
+Qed.
+
+(* 有限集的替代仍是有限集 *)
+Lemma repl_finite : ∀ F A, finite A → finite {F | x ∊ A}.
+Proof with auto.
+  intros * [n [Hn Hqn]].
+  generalize dependent A.
+  set {n ∊ ω | λ n, ∀ A, A ≈ n → finite {F | x ∊ A}} as N.
+  ω_induction N Hn; intros A Hqn.
+  - apply eqnum_empty in Hqn. subst A.
+    rewrite repl_empty. apply empty_finite.
+  - apply set_eqnum_suc_nonempty in Hqn as Hne...
+    destruct Hne as [a Ha].
+    apply split_one_element in Ha. rewrite Ha in *.
+    apply finite_set_remove_one_element in Hqn...
+    rewrite bunion_of_repl_eq_repl_of_bunion.
+    apply bunion_finite. apply IH... apply repl_single_finite.
+Qed.
+
+(* 有限集与任意集合的交是有限集 *)
+Lemma binter_finite_r : ∀ A B, finite B → finite (A ∩ B).
+Proof with auto.
+  intros * [n [Hn Hqn]].
+  generalize dependent B.
+  set {n ∊ ω | λ n, ∀ B, B ≈ n → finite (A ∩ B)} as N.
+  ω_induction N Hn; intros B Hqn.
+  - apply eqnum_empty in Hqn. subst B.
+    rewrite binter_empty. apply empty_finite.
+  - apply set_eqnum_suc_nonempty in Hqn as Hne...
+    destruct Hne as [a Ha].
+    apply split_one_element in Ha. rewrite Ha in *.
+    apply finite_set_remove_one_element in Hqn...
+    rewrite binter_bunion_distr.
+    apply bunion_finite. apply IH...
+    destruct (classic (a ∈ A)).
+    + replace (A ∩ ⎨a⎬) with ⎨a⎬. apply single_finite.
+      apply ExtAx. split; intros Hx.
+      * apply SingE in Hx; subst. apply BInterI...
+      * apply BInterE in Hx as []...
+    + replace (A ∩ ⎨a⎬) with ∅. apply empty_finite.
+      apply ExtAx. split; intros Hx. exfalso0. exfalso.
+      apply BInterE in Hx as []. apply SingE in H1; subst...
+Qed.
+
+Corollary binter_finite_l : ∀ A B, finite A → finite (A ∩ B).
+Proof.
+  intros. rewrite binter_comm. apply binter_finite_r. apply H.
+Qed.

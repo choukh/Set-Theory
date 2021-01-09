@@ -125,7 +125,7 @@ Lemma seg_0_Lt : seg 0 Lt = ∅.
 Proof.
   apply ExtAx; split; intros Hx.
   apply SepE in Hx as [_ Hx0].
-  apply binRelE2 in Hx0 as [_ [_ Hx0]]. exfalso0. exfalso0.
+  apply binRelE3 in Hx0. exfalso0. exfalso0.
 Qed.
 
 Lemma seg_with_single_eq_head : ∀ t A R, t ∈ A → is_binRel R A →
@@ -572,7 +572,7 @@ Proof with nauto.
   - apply ranE in Hy as [].
     apply restrE2 in H as [Hp Hx].
     apply SepE in Hx as [_ Hx1].
-    apply binRelE2 in Hx1 as [_ [_ Hx1]].
+    apply binRelE3 in Hx1.
     apply BUnionE in Hx1 as []. exfalso0.
     apply SingE in H; subst. apply func_ap in Hp...
     rewrite f_0 in Hp; subst...

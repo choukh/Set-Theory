@@ -33,6 +33,12 @@ Proof.
   apply CProdE2 in Hp as [Ha Hb]. zfcrewrite. split; auto.
 Qed.
 
+Lemma binRelE3 : ∀ A P a b,
+  <a, b> ∈ BinRel A P → P a b.
+Proof.
+  intros. apply binRelE2 in H as [_ [_ H]]. apply H.
+Qed.
+
 Lemma binRel_is_binRel : ∀ A P, is_binRel (BinRel A P) A.
 Proof.
   intros * p Hp.

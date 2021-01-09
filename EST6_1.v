@@ -698,3 +698,114 @@ Proof.
     apply SingE in Ha. apply SingE in Hb. subst. auto.
   - apply SingE in Hx. subst. apply CProdI; apply SingI.
 Qed.
+
+(* 集合除去非自身的元素，集合不变 *)
+Lemma remove_no_member : ∀ a A, a ∉ A → A - ⎨a⎬ = A.
+Proof with auto.
+  intros * Ha. apply ExtAx. split; intros Hx.
+  - apply SepE1 in Hx...
+  - apply SepI... apply SingNI. intros Heq.
+    apply Ha. subst...
+Qed.
+
+(* 集合除去自身的一个元素再放回去，集合不变 *)
+Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply SepE1 in H0...
+    + apply SingE in H0. subst...
+  - destruct (classic (x = a)).
+    + subst. apply BUnionI2...
+    + apply BUnionI1. apply SepI... apply SingNI...
+Qed.
+
+(* 集合加入一个不是自身的元素再去掉，集合不变 *)
+Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [].
+    apply BUnionE in H0 as []... exfalso...
+  - apply SepI. apply BUnionI1...
+    apply SingNI. intros Heq. congruence.
+Qed.
+
+(* 等势的集合分别除去一个元素仍然等势 *)
+Lemma eqnum_sets_removing_one_element_still_eqnum :
+  ∀ A B a b, A ∪ ⎨a⎬ ≈ B ∪ ⎨b⎬ →
+  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ → A ≈ B.
+Proof with eauto; try congruence.
+  intros * [f Hf] Hdja Hdjb. assert (Hf' := Hf).
+  destruct Hf' as [Hi [Hd Hr]].
+  set (FuncSwapValue f a f⁻¹[b]) as g.
+  assert (Ha: a ∈ A ∪ ⎨a⎬) by (apply BUnionI2; auto).
+  assert (Hbr: b ∈ ran f). { rewrite Hr. apply BUnionI2... }
+  assert (Hb: f⁻¹[b] ∈ A ∪ ⎨a⎬). {
+    destruct Hi as [Hff Hs].
+    rewrite <- Hd, <- inv_ran. eapply ap_ran. split...
+    apply inv_func_iff_sr... rewrite inv_dom...
+  }
+  apply (bijection_swap_value _ _ _ _ Ha _ Hb) in Hf as Hg.
+  assert (Hga: g[a] = b). {
+    apply func_ap... destruct Hg as [[Hg _] _]...
+    apply SepI. apply CProdI... zfcrewrite.
+    destruct (ixm (a = a))... rewrite inv_ran_reduction... 
+  }
+  clear Hf Hi Hd Hr Ha Hbr Hb.
+  destruct Hg as [Hi [Hd Hr]]. assert (Hi' := Hi).
+  destruct Hi as [Hg Hs].
+  exists (g ↾ A). split; [|split].
+  - apply restr_injective...
+  - apply restr_dom... intros x Hx. subst g.
+    rewrite Hd. apply BUnionI1...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply restrE2 in Hp as [Hp Hx].
+      apply ranI in Hp as Hy. subst g. rewrite Hr in Hy.
+      apply BUnionE in Hy as []...
+      apply SingE in H. subst y. apply func_ap in Hp...
+      rewrite <- Hp in Hga. cut (a = x).
+      * intros H. subst x. exfalso. eapply disjointE.
+        apply Hdja. apply Hx. apply SingI.
+      * eapply injectiveE...
+        rewrite Hd. apply BUnionI2...
+        rewrite Hd. apply BUnionI1...
+    + assert (y ∈ ran g). { subst g. rewrite Hr. apply BUnionI1... }
+      apply ranE in H as [x Hp]. apply domI in Hp as Hx.
+      subst g. rewrite Hd in Hx. apply BUnionE in Hx as [].
+      * eapply ranI. apply restrI...
+      * apply SingE in H. subst x. apply func_ap in Hp...
+        rewrite <- Hp, Hga in Hy. exfalso. eapply disjointE.
+        apply Hdjb. apply Hy. apply SingI.
+Qed.
+
+(* 与后继数等势的集合非空 *)
+Lemma set_eqnum_suc_nonempty : ∀ A, ∀n ∈ ω, A ≈ n⁺ → ⦿ A.
+Proof with eauto.
+  intros A n Hn HA. apply EmptyNE.
+  destruct (classic (A = ∅))... exfalso. subst A.
+  symmetry in HA. apply eqnum_empty in HA. eapply suc_neq_0...
+Qed.
+
+(* 从集合中取出一个元素组成单集，它与取完元素后的集合的并等于原集合 *)
+Lemma split_one_element : ∀ A a, a ∈ A → A = (A - ⎨a⎬) ∪ ⎨a⎬.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - destruct (classic (x = a)).
+    + subst x. apply BUnionI2...
+    + apply BUnionI1. apply SepI...
+      intros contra. apply SingE in contra...
+  - apply BUnionE in Hx as [].
+    + apply SepE1 in H0...
+    + apply SingE in H0. subst x...
+Qed.
+
+(* 从有限集中取出一个元素则基数减1 *)
+Lemma finite_set_remove_one_element : ∀ A a, ∀n ∈ ω,
+  (A - ⎨a⎬) ∪ ⎨a⎬ ≈ n⁺ → A - ⎨a⎬ ≈ n.
+Proof with eauto.
+  intros * n Hn Hqn.
+  eapply eqnum_sets_removing_one_element_still_eqnum...
+  apply disjointI. intros [x [H1 H2]]. apply SepE2 in H1...
+  apply disjoint_nat_single...
+Qed.

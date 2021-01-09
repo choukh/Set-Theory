@@ -1,15 +1,15 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 3 **)
 (** Coq coding by choukh, Sep 2020 **)
 
-Require Export ZFC.EX6_1.
-Require Export ZFC.lib.Dominate.
 Require Export ZFC.lib.NaturalFacts.
+Require Export ZFC.lib.Dominate.
+Require Export ZFC.EX6_1.
 
 (*** EST第六章3：支配关系，施罗德-伯恩斯坦定理，基数的序，阿列夫零 ***)
 
 (* dominate and Schröeder-Bernstein theorem see lib/Dominate *)
 
-(* 基数的序关系 *)
+(* 基数的序 *)
 Definition CardLeq : set → set → Prop := λ 𝜅 𝜆,
   is_card 𝜅 ∧ is_card 𝜆 ∧ 𝜅 ≼ 𝜆.
 Notation "𝜅 ≤ 𝜆" := (CardLeq 𝜅 𝜆) : Card_scope.

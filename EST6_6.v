@@ -2,6 +2,7 @@
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Export ZFC.EST6_5.
+Require Import ZFC.lib.Choice.
 
 (*** EST第六章6：无限基数的运算律：自乘等于自身，加法和乘法的吸收律 ***)
 
@@ -34,8 +35,8 @@ Proof with auto.
       apply ReplAx. exists X. split...
   - replace ({λ X, X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
     with {λ X, X - ⎨a⎬ | X ∊ 𝒜 - ⎨A⎬ - ⎨A ∪ ⎨a⎬⎬} in Hqn. {
-      apply IH in Hqn. eapply add_one_member_to_finite.
-      eapply add_one_member_to_finite. apply Hqn.
+      apply IH in Hqn. eapply add_one_still_finite_1.
+      eapply add_one_still_finite_1. apply Hqn.
     }
     apply ExtAx. split; intros Hx.
     + apply ReplAx in Hx as [X [HX Hx]].

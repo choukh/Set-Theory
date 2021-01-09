@@ -2,8 +2,8 @@
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Export ZFC.EST6_6.
-Require Import ZFC.EST6_4_EXTEND_2.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Import ZFC.lib.Choice.
 
 (* ex6_26 see EST6_5 Theorem cardLeq_union_cardMul *)
 (* ex6_28 see https://math.stackexchange.com/questions/201410/open-measurable-sets-containing-all-rational-numbers *)

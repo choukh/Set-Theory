@@ -160,7 +160,7 @@ Qed.
 Lemma realLeqE : ∀ x y, x ≤ y → x ⊆ y.
 Proof with auto.
   intros x y [Hlt|Heq].
-  apply binRelE2 in Hlt as [_ [_ []]]...
+  apply binRelE3 in Hlt as []...
   subst. apply sub_refl.
 Qed.
 
@@ -723,7 +723,7 @@ Qed.
 Lemma realLt_addInv : ∀ x y ∈ ℝ, x <𝐫 y → -y <𝐫 -x.
 Proof with auto.
   intros x Hx y Hy Hlt.
-  apply binRelE2 in Hlt as [_ [_ [Hsub Hnq]]]. apply binRelI...
+  apply binRelE3 in Hlt as [Hsub Hnq]. apply binRelI...
   apply realAddInv_ran... apply realAddInv_ran... split.
   - intros q Hq. apply SepE in Hq as [Hq [s [Hs [Hlt Hout]]]].
     apply SepI... exists s. repeat split...

@@ -5,6 +5,7 @@ Require Export ZFC.EST6_4.
 Require Import ZFC.lib.NatIsomorphism.
 Require Import ZFC.lib.IndexedFamilyUnion.
 Require Import ZFC.lib.WosetMin.
+Require Import ZFC.lib.Choice.
 Import WosetMin.SimpleVer.
 
 (* 所有集合的支配集不能构成一个集合 *)
@@ -94,7 +95,7 @@ Proof with nauto.
   apply suc_neq_0. apply suc_neq_0.
 Qed.
 
-(* ex6_18: see EST6_4 Theorem AC_III_iff_III' *)
+(* ex6_18: see lib/Choice Theorem AC_III_iff_III' *)
 
 (* ==不需要选择公理== *)
 (* 有限个非空集合的笛卡尔积非空 *)
@@ -147,8 +148,8 @@ Proof with eauto; try congruence.
 Qed.
 
 (* ex6_20 see EST7_2 Lemma ex_descending_chain *)
-(* ex6_21 see EST6_4_EXTEND_1 Theorem AC_VI_to_AC_VII *)
-(* ex6_22 see EST6_4 Theorem AC_I_iff_I' *)
+(* ex6_21 see lib/Choice Theorem AC_VI_to_AC_VII *)
+(* ex6_22 see lib/Choice Theorem AC_I_iff_I' *)
 
 Example ex6_23 : ∀ A F g h,
   is_function g → dom g = ω →
@@ -175,7 +176,7 @@ Proof with eauto; try congruence.
         eapply imgI. apply BUnionI2... apply func_correct...
 Qed.
 
-(* ex6_24 see EST6_4_EXTEND_2 *)
+(* ex6_24 see EST6_4 CardInfSum CardInfProd *)
 
 (** ex6_25 **)
 

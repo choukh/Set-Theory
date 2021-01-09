@@ -2,445 +2,16 @@
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.EST6_3.
+Require Import ZFC.lib.Choice.
+Require Import ZFC.lib.IndexedFamilyUnion.
 
-(*** EST第六章4：选择公理的系统考察：单值化原则，选择函数，势的可比较性，佐恩引理，
-  阿列夫零是最小的无限基数，戴德金无穷 ***)
+(*** EST第六章4
+  - 选择公理的系统考察
+    + 单值化原则，选择函数，势的可比较性，佐恩引理，
+  - 阿列夫零是最小的无限基数，戴德金无穷，
+  - 基数的无限累加和，基数的无限累乘积 ***)
 
-(* 选择公理的等效表述1：单值化原则：存在函数包含于给定关系 *)
-Definition AC_I := ∀ R, is_rel R →
-  ∃ F, is_function F ∧ F ⊆ R ∧ dom F = dom R.
-
-(* 选择公理等效表述1'：存在从并集到原集合的函数使得参数是值的成员 *)
-Definition AC_I' := ∀ A,
-  ∃ F, F: ⋃A ⇒ A ∧ ∀x ∈ dom F, x ∈ F[x].
-
-(* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
-Definition AC_II :=
-  ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
-
-(* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
-Definition AC_III := ∀ A,
-  ∃ F, is_function F ∧ dom F = {x ∊ 𝒫 A | nonempty} ∧ 
-  ∀ B, ⦿ B → B ⊆ A → F[B] ∈ B.
-
-(* 选择公理等效表述3'：非空集合所组成的集合上存在选择函数 *)
-Definition AC_III' := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
-  ∃ F, is_function F ∧ dom F = 𝒜 ∧ ∀A ∈ 𝒜, F[A] ∈ A.
-
-(* 选择公理等效表述4：策梅洛公设 (Zermelo’s Postulate) *)
-Definition AC_IV := ∀ 𝒜,
-  (* a 子集非空 *) (∀A ∈ 𝒜, ⦿ A) →
-  (* b 子集不交 *) (∀ A B ∈ 𝒜, A ≠ B → disjoint A B) →
-  ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = ⎨x⎬.
-
-(* 选择公理等效表述5：势具有可比较性 *)
-Definition AC_V := ∀ A B, A ≼ B ∨ B ≼ A.
-
-(* 链：子集关系下的全序集 *)
-Definition is_chain := λ ℬ, ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
-
-(* Zorn's Lemma (set theory form) *)
-(* 选择公理等效表述6：佐恩引理（第一极大原理） *)
-(* 若偏序集中任意全序子集(链)均有上界，则该偏序集存在极大元 *)
-Definition AC_VI := ∀ 𝒜,
-  (∀ ℬ, is_chain ℬ → ℬ ⊆ 𝒜 → ⋃ℬ ∈ 𝒜) → ∃ M, sub_maximal M 𝒜.
-
-(* AC cycle
-    (1 ↔ 1') → 2 → (3 ↔ 3') → 4 → 1
-    6 → [1, 5] (to be continued at ch7)
-*)
-
-Theorem AC_I_to_II : AC_I → AC_II.
-Proof with eauto.
-  unfold AC_I, AC_II. intros * AC1 I ℱ Hxi.
-  set (I × ⋃{ℱ | i ∊ I}) as P.
-  set {p ∊ P | λ p, π2 p ∈ ℱ (π1 p)} as R.
-  specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
-    apply sep_cp_is_rel.
-  }
-  assert (Hdeq2: dom f = I). {
-    rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
-    - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [Hi _]...
-    - apply Hxi in Hi as Hx. destruct Hx.
-      eapply domI. apply SepI. apply CProdI...
-      eapply FUnionI... zfcrewrite.
-  }
-  exists f. apply InfCProdI.
-  - split... split... intros y Hy.
-    apply ranE in Hy as [i Hp].
-    apply Hsub in Hp. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as [_ Hy]...
-  - intros i Hi. rewrite <- Hdeq2 in Hi.
-    apply func_correct in Hi... apply Hsub in Hi.
-    apply SepE in Hi as [_ Hy]. zfcrewrite.
-Qed.
-
-Theorem AC_I_iff_I' : AC_I ↔ AC_I'.
-Proof with eauto; try congruence.
-  unfold AC_I, AC_I'. split.
-  - intros AC1 A.
-    set {p ∊ ⋃A × A | λ p, π1 p ∈ π2 p} as R.
-    specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
-      apply sep_cp_is_rel.
-    }
-    assert (Hd: dom f = ⋃ A). {
-      rewrite Hdeq. apply ExtAx. split; intros Hx.
-      - apply domE in Hx as [y Hp].
-        apply SepE in Hp as [Hp _].
-        apply CProdE2 in Hp as [Hx _]...
-      - assert (Hu := Hx). apply UnionAx in Hx as [a [Ha Hx]].
-        eapply domI. apply SepI. apply CProdI... zfcrewrite.
-    }
-    exists f. split; [split; [|split]|]...
-    + intros y Hy. apply ranE in Hy as [x Hp].
-      apply Hsub in Hp. apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [_ Hy]...
-    + intros x Hx. apply domE in Hx as [y Hp].
-      apply func_ap in Hp as Hap... rewrite Hap.
-      apply Hsub in Hp. apply SepE in Hp as [_ H]. zfcrewrite.
-  - intros AC1' R Hrel.
-    specialize AC1' with R as [f [[Hf [Hd Hr]] Hin]].
-    assert (Hdf: ∀x ∈ dom R, ⎨x⎬ ∈ dom f). {
-      intros x Hx. rewrite Hd. apply UnionAx.
-      eapply domE in Hx as [y Hp].
-      exists <x, y>. split... apply PairI1.
-    }
-    assert (Hrf: ∀x ∈ dom R, ∃ a b, <a, b> ∈ R ∧ f[⎨x⎬] = <a, b>). {
-      intros x Hx. apply Hdf in Hx.
-      apply domE in Hx as [y Hp]. apply ranI in Hp as Hy.
-      apply func_ap in Hp... subst y. apply Hr in Hy.
-      apply rel_pair in Hy as Heqy...
-      exists (π1 f[⎨x⎬]), (π2 f[⎨x⎬]). split...
-    }
-    set (Func (dom R) (ran R) (λ x, π2 f[⎨x⎬])) as g.
-    assert (Hg: is_function g). {
-      apply meta_maps_into. intros x Hx.
-      apply Hrf in Hx as [a [b [Hp Hfx]]].
-      rewrite Hfx. zfcrewrite. eapply ranI...
-    }
-    exists g. split; [|split]...
-    + intros p Hp. apply SepE in Hp as [Hp Heq].
-      apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
-      subst p. zfcrewrite. subst y.
-      apply Hdf in Hx as Hsx. apply Hin in Hsx.
-      apply Hrf in Hx as [a [b [Hp Hfx]]].
-      rewrite Hfx in *. zfcrewrite.
-      apply PairE in Hsx as [].
-      * apply single_injective in H...
-      * apply single_eq_pair in H as [H1 H2]...
-    + apply ExtAx. split; intros Hx.
-      * apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE2 in Hp as [Hx _]...
-      * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
-        apply ranI in Hp. eapply domI. apply SepI. apply CProdI...
-        zfcrewrite. rewrite Hfx. zfcrewrite.
-Qed.
-
-Theorem AC_II_to_IV : AC_II → AC_IV.
-Proof with eauto.
-  unfold AC_II, AC_IV. intros AC2 𝒜 Hi Hdj.
-  destruct (AC2 𝒜 (λ x, x)) as [f Hf]. {
-    intros A HA. apply Hi...
-  }
-  apply SepE in Hf as [Hf Hin].
-  apply arrow_iff in Hf as [Hf [Hd _]].
-  exists (ran f). intros A HA. exists (f[A]). apply sub_antisym.
-  - intros y Hy. apply BInterE in Hy as [H1 H2].
-    apply ranE in H2 as [x Hp]. apply domI in Hp as Hx.
-    rewrite Hd in Hx. apply Hin in Hx as Hfx.
-    apply func_ap in Hp... subst y. 
-    destruct (classic (A = x)). subst x...
-    exfalso. apply Hdj in H... eapply disjointE...
-  - apply single_of_member_is_subset. apply BInterI.
-    + apply Hin...
-    + eapply ap_ran... split...
-Qed.
-
-Theorem AC_IV_to_III : AC_IV → AC_III.
-Proof with eauto.
-  unfold AC_IV, AC_III. intros AC4 A.
-  set {x ∊ 𝒫 A | nonempty} as A'.
-  set {λ B, ⎨B⎬ × B | B ∊ A'} as 𝒜.
-  destruct AC4 with 𝒜 as [C Hsg]. {
-    intros x Hx. apply ReplAx in Hx as [B [HB Hx]].
-    apply SepE in HB as [_ [b Hb]]. subst x.
-    exists <B, b>. apply CProdI...
-  } {
-    intros x Hx y Hy Hnq.
-    apply ReplAx in Hx as [B [_ Hx]].
-    apply ReplAx in Hy as [C [_ Hy]].
-    apply disjointI. intros [p [H1 H2]]. apply Hnq. subst.
-    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-    apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]]. subst.
-    apply SingE in Ha. apply SingE in Hc.
-    apply op_iff in H2 as []. congruence.
-  }
-  assert (Hstar: ∀x ∈ ⋃ 𝒜, ∃ B, B ∈ A' ∧ x ∈ ⎨B⎬ × B). {
-    intros x Hx. apply UnionAx in Hx as [p [Hp Hx]].
-    apply ReplAx in Hp as [B [HB Hp]]. subst. exists B. split...
-  }
-  assert (Hcp: ∀B ∈ A', ⎨B⎬ × B ∈ 𝒜). {
-    intros B HB. apply ReplAx. exists B. split...
-  }
-  set (C ∩ ⋃𝒜) as F.
-  assert (Hf: is_function F). {
-    repeat split.
-    - intros x Hx. apply BInterE in Hx as [_ Hx].
-      apply Hstar in Hx as [B [_ Hp]].
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-      apply SingE in Ha. subst...
-    - apply domE in H...
-    - intros y1 y2 H1 H2.
-      apply BInterE in H1 as [Hc1 H1].
-      apply BInterE in H2 as [Hc2 H2].
-      apply Hstar in H1 as [B1 [_ H1]].
-      apply Hstar in H2 as [B2 [HB2 H2]].
-      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
-      apply SingE in Ha. apply SingE in Hc.
-      apply op_iff in H1 as []. apply op_iff in H2 as []. subst.
-      apply Hcp in HB2 as H0.
-      assert (H1: <B2, b> ∈ ⎨B2⎬ × B2 ∩ C).
-        { apply BInterI... apply CProdI... }
-      assert (H2: <B2, d> ∈ ⎨B2⎬ × B2 ∩ C).
-        { apply BInterI... apply CProdI... }
-      apply Hsg in H0 as [x Hx]. rewrite Hx in H1, H2.
-      apply SingE in H1. apply SingE in H2. subst.
-      apply op_iff in H2 as []...
-  }
-  exists F. split... split.
-  - apply ExtAx. split; intros Hx.
-    + apply domE in Hx as [y Hp].
-      apply BInterE in Hp as [_ Hp].
-      apply Hstar in Hp as [B [HB Hp]].
-      apply CProdE2 in Hp as [Hx _].
-      apply SingE in Hx. subst...
-    + assert (H: ⎨x⎬ × x ∈ 𝒜). { apply ReplAx. exists x. split... }
-      pose proof (Hsg _ H) as [p Heq].
-      assert (Hp: p ∈ ⎨x⎬ × x ∩ C). { rewrite Heq... }
-      apply BInterE in Hp as [H1 H2]. assert (H1' := H1).
-      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-      apply SingE in Ha. subst. eapply domI. apply BInterI...
-      apply UnionAx. exists (⎨x⎬ × x). split...
-  - intros B Hi Hsub.
-    assert (HB: B ∈ A'). { apply SepI... apply PowerAx... }
-    apply Hcp in HB. pose proof (Hsg _ HB) as [p Heq].
-    assert (Hp: p ∈ ⎨B⎬ × B ∩ C). { rewrite Heq... }
-    apply BInterE in Hp as [H1 H2].
-    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-    apply SingE in Ha. subst. cut (F[B] = b). congruence.
-    apply func_ap... apply BInterI... apply UnionAx.
-    exists (⎨B⎬ × B). split... apply CProdI...
-Qed.
-
-Theorem AC_III_iff_III' : AC_III ↔ AC_III'.
-Proof with eauto.
-  unfold AC_III, AC_III'. split.
-  - intros AC3 𝒜 Hne.
-    specialize AC3 with (⋃ 𝒜) as [f [Hf [Hd Hr]]].
-    assert (Hsub: 𝒜 ⊆ dom f). {
-      intros x Hx. rewrite Hd. apply SepI. apply ex2_6_b... apply Hne...
-    }
-    exists (f ↾ 𝒜). split; [|split].
-    + apply restr_func...
-    + apply ExtAx. split; intros Hx.
-      * apply domE in Hx as [y Hp]. apply restrE2 in Hp as []...
-      * eapply domI. apply restrI... apply func_correct... apply Hsub...
-    + intros A HA. rewrite (restr_ap f (dom f))...
-      apply Hr. apply Hne... apply ex2_3...
-  - intros AC3' A.
-    specialize AC3' with {x ∊ 𝒫 A | nonempty} as [f [Hf [Hd Hr]]]. {
-      intros x Hx. apply SepE2 in Hx...
-    }
-    exists f. split; [|split]...
-    intros x Hne Hsub. apply Hr. apply SepI... apply PowerAx...
-Qed.
-
-Theorem AC_III_to_I : AC_III → AC_I.
-Proof with auto.
-  unfold AC_III, AC_I. intros AC3 R Hrel.
-  specialize AC3 with (ran R) as [G [Hgf [Hgd Hgr]]].
-  set (λ x, {y ∊ ran R | λ y, <x, y> ∈ R}) as ℬ.
-  set (Func (dom R) (ran R) (λ x, G[ℬ x])) as F.
-  assert (Hstar: ∀x ∈ dom R, <x, G[ℬ x]> ∈ R). {
-    intros x Hx. cut (G[ℬ x] ∈ ℬ x).
-    intros H. apply SepE2 in H...
-    apply domE in Hx as [y Hp].
-    apply ranI in Hp as Hr. apply Hgr. exists y.
-    apply SepI... intros z Hz. apply SepE1 in Hz...
-  }
-  assert (Hf: F: dom R ⇒ ran R). {
-    apply meta_maps_into. intros x Hx.
-    eapply ranI. apply Hstar...
-  }
-  destruct Hf as [Hff [Hfd _]].
-  exists F. split; [|split]...
-  intros p Hp. apply SepE in Hp as [H1 H2].
-  apply CProdE1 in H1 as [a [Ha [b [Hb Hp]]]].
-  subst. zfcrewrite. subst. apply Hstar...
-Qed.
-
-Theorem AC_VI_to_I : AC_VI → AC_I.
-Proof with eauto.
-  unfold AC_VI, AC_I. intros Zorn R Hrel.
-  set {f ∊ 𝒫 R | λ f, is_function f} as 𝒜.
-  specialize Zorn with 𝒜 as [M [HM Hmax]]. {
-    intros ℬ Hchn Hsub.
-    assert (Hu: ⋃ ℬ ∈ 𝒫 R). {
-      apply PowerAx. intros x Hx.
-      apply UnionAx in Hx as [B [HB Hx]].
-      apply Hsub in HB. apply SepE in HB as [HB _].
-      apply PowerAx in HB. apply HB...
-    }
-    apply SepI... repeat split.
-    - intros x Hx. apply Hrel. apply PowerAx in Hu. apply Hu...
-    - apply domE in H...
-    - intros y1 y2 H1 H2.
-      apply UnionAx in H1 as [g [Hg H1]].
-      apply UnionAx in H2 as [h [Hh H2]].
-      pose proof (Hchn _ Hg _ Hh) as [Hgh|Hhg].
-      + apply Hsub in Hh. apply SepE in Hh as [_ Hh].
-        apply Hgh in H1. eapply func_sv...
-      + apply Hsub in Hg. apply SepE in Hg as [_ Hg].
-        apply Hhg in H2. eapply func_sv...
-  }
-  exists M. apply SepE in HM as [Hsub Hf].
-  apply PowerAx in Hsub. split; [|split]...
-  destruct (classic (dom M = dom R)) as [|Hnq]... exfalso.
-  assert (Hps: dom M ⊂ dom R). {
-    split... intros x Hx. apply domE in Hx as [y Hp].
-    eapply domI. apply Hsub...
-  }
-  apply comp_nonempty in Hps as [a Ha].
-  apply SepE in Ha as [Ha Hb]. apply domE in Ha as [b Hab].
-  set (M ∪ ⎨<a, b>⎬) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM' as [].
-    - apply H. intros x Hx. apply BUnionI1...
-    - apply Hb. rewrite H. eapply domI. apply BUnionI2...
-  }
-  apply SepI.
-  - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
-    apply Hsub... apply SingE in H. subst...
-  - apply bunion_is_func... apply single_pair_is_func.
-    apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
-    apply domE in H1 as [y1 H1].
-    rewrite dom_of_single_pair in H2. apply SingE in H2.
-    subst. apply Hb. eapply domI...
-Qed.
-
-Theorem AC_VI_to_V : AC_VI → AC_V.
-Proof with eauto; try congruence.
-  unfold AC_VI, AC_V. intros Zorn A B.
-  set {f ∊ 𝒫 (A × B) | λ f, injective f} as 𝒜.
-  specialize Zorn with 𝒜 as [M [HM Hmax]]. {
-    intros ℬ Hchn Hsub.
-    assert (Hu: ⋃ ℬ ∈ 𝒫 (A × B)). {
-      apply PowerAx. intros x Hx.
-      apply UnionAx in Hx as [C [HC Hx]].
-      apply Hsub in HC. apply SepE in HC as [HC _].
-      apply PowerAx in HC. apply HC...
-    }
-    apply SepI... apply PowerAx in Hu. split; [split|].
-    - intros x Hx. apply Hu in Hx. apply cprod_is_pairs in Hx...
-    - split. apply domE in H...
-      intros y1 y2 H1 H2.
-      apply UnionAx in H1 as [g [Hg H1]].
-      apply UnionAx in H2 as [h [Hh H2]].
-      pose proof (Hchn _ Hg _ Hh) as [Hgh|Hhg].
-      + apply Hsub in Hh. apply SepE in Hh as [_ [Hh _]].
-        apply Hgh in H1. eapply func_sv...
-      + apply Hsub in Hg. apply SepE in Hg as [_ [Hg _]].
-        apply Hhg in H2. eapply func_sv...
-    - intros y Hy. split. apply ranE in Hy...
-      intros x1 x2 H1 H2.
-      apply UnionAx in H1 as [g [Hg H1]].
-      apply UnionAx in H2 as [h [Hh H2]].
-      pose proof (Hchn _ Hg _ Hh) as [Hgh|Hhg].
-      + apply Hsub in Hh. apply SepE in Hh as [_ Hh].
-        apply Hgh in H1. eapply injectiveE...
-        eapply domI... eapply domI... destruct Hh as [Hh _].
-        apply func_ap in H1... apply func_ap in H2...
-      + apply Hsub in Hg. apply SepE in Hg as [_ Hg].
-        apply Hhg in H2. eapply injectiveE...
-        eapply domI... eapply domI... destruct Hg as [Hg _].
-        apply func_ap in H1... apply func_ap in H2...
-  }
-  apply SepE in HM as [Hsub Hinj]. apply PowerAx in Hsub.
-  destruct (classic (dom M = A ∨ ran M = B)). {
-    destruct H; [left; exists M|right; exists (M⁻¹)].
-    - split... split... intros y Hy. apply ranE in Hy as [x Hp].
-      apply Hsub in Hp. apply CProdE2 in Hp as []...
-    - split. apply inv_injective... split.
-      rewrite inv_dom... rewrite inv_ran.
-      intros x Hx. apply domE in Hx as [y Hp].
-      apply Hsub in Hp. apply CProdE2 in Hp as []...
-  }
-  exfalso. apply not_or_and in H as [Hnq1 Hnq2].
-  assert (Hps1: dom M ⊂ A). {
-    split... intros x Hx. apply domE in Hx as [y Hp].
-    apply Hsub in Hp. apply CProdE2 in Hp as []...
-  }
-  assert (Hps2: ran M ⊂ B). {
-    split... intros y Hy. apply ranE in Hy as [x Hp].
-    apply Hsub in Hp. apply CProdE2 in Hp as []...
-  }
-  apply comp_nonempty in Hps1 as [a Ha].
-  apply comp_nonempty in Hps2 as [b Hb].
-  apply SepE in Ha as [Ha Ha'].
-  apply SepE in Hb as [Hb Hb'].
-  set ((M ∪ ⎨<a, b>⎬)) as M'. cut (M' ∈ 𝒜). {
-    intros HM'. apply Hmax in HM' as [].
-    - apply H. intros x Hx. apply BUnionI1...
-    - apply Ha'. rewrite H. eapply domI. apply BUnionI2...
-  }
-  assert (Hinj' := Hinj). destruct Hinj' as [Hf Hs].
-  apply SepI; [|split].
-  - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
-    apply Hsub... apply SingE in H. subst. apply CProdI...
-  - apply bunion_is_func... apply single_pair_is_func.
-    apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
-    apply domE in H1 as [y1 H1].
-    rewrite dom_of_single_pair in H2. apply SingE in H2.
-    subst. apply Ha'. eapply domI...
-  - intros y Hy. split. apply ranE in Hy...
-    intros x1 x2 H1 H2.
-    apply BUnionE in H1 as [H1|H1]; apply BUnionE in H2 as [H2|H2].
-    + eapply injectiveE... eapply domI... eapply domI...
-      apply func_ap in H1... apply func_ap in H2...
-    + exfalso. apply SingE in H2. apply op_iff in H2 as []; subst.
-      apply Hb'. eapply ranI...
-    + exfalso. apply SingE in H1. apply op_iff in H1 as []; subst.
-      apply Hb'. eapply ranI...
-    + apply SingE in H1. apply op_iff in H1 as []; subst.
-      apply SingE in H2. apply op_iff in H2 as []; subst...
-Qed.
-
-Theorem AC_VI_to_III : AC_VI → AC_III.
-Proof.
-  intros. apply AC_IV_to_III. apply AC_II_to_IV.
-  apply AC_I_to_II. apply AC_VI_to_I. apply H.
-Qed.
-
-Theorem AC_VI_to_III' : AC_VI → AC_III'.
-Proof.
-  intros. apply AC_III_iff_III'. apply AC_VI_to_III. apply H.
-Qed.
-
-Theorem ac1 : AC_I.
-Proof. exact EST3_2.ac1. Qed.
-
-Theorem ac2 : AC_II.
-Proof. apply AC_I_to_II. apply ac1. Qed.
-
-Theorem ac4 : AC_IV.
-Proof. apply AC_II_to_IV. apply ac2. Qed.
-
-Theorem ac3 : AC_III.
-Proof. apply AC_IV_to_III. apply ac4. Qed.
-
-Theorem ac3' : AC_III'.
-Proof. apply AC_III_iff_III'. apply ac3. Qed.
+(* axiom of choice see lib/Choice *)
 
 (* ==需要选择公理== *)
 (* 基数具有可比较性 *)
@@ -449,45 +20,6 @@ Theorem card_comparability : AC_V → ∀ 𝜅 𝜆,
 Proof.
   intros AC5 * Hk Hl.
   pose proof (AC5 𝜅 𝜆) as []; [left|right]; split; auto.
-Qed.
-
-(* ==需要选择公理== *)
-(* 满射的定义域支配值域 *)
-Lemma domain_of_surjection_dominate_range : AC_I →
-  ∀ A B F, F: A ⟹ B → B ≼ A.
-Proof with auto.
-  intros AC1 * H.
-  apply right_inv_of_surjection_injective in H as [G [H _]]...
-  exists G. apply H.
-Qed.
-
-(* ==需要选择公理== *)
-(* 函数的定义域支配值域 *)
-Lemma domain_dominate_range : AC_I → ∀ F, is_function F → ran F ≼ dom F.
-Proof with eauto.
-  intros AC1 F HF.
-  eapply domain_of_surjection_dominate_range... split; [|split]...
-Qed.
-
-(* ==需要选择公理== *)
-(* 任意非空集合B被集合A支配如果B被A满射 *)
-Lemma dominated_impl_mapped_onto : AC_I →
-  ∀ A B, ⦿ B → B ≼ A → ∃ F, F: A ⟹ B.
-Proof with auto.
-  intros AC1 * Hne [G HG].
-  apply injection_is_func in HG as [HG Hi].
-  apply (left_inv G B A HG Hne) in Hi as [F [HF Hid]].
-  exists F. apply right_inv... exists G. split...
-Qed.
-
-(* ==需要选择公理== *)
-(* 任意非空集合B被集合A支配当且仅当B被A满射 *)
-Fact dominated_iff_mapped_onto : AC_I →
-  ∀ A B, ⦿ B → (∃ F, F: A ⟹ B) ↔ B ≼ A.
-Proof with eauto.
-  split; intros [F HF].
-  - eapply domain_of_surjection_dominate_range...
-  - apply dominated_impl_mapped_onto... exists F...
 Qed.
 
 (* 有限集在无限集里的补集是无限集 *)
@@ -585,7 +117,7 @@ Proof with neauto; try congruence.
       apply SingE in Hx. subst. assert (A - B ⊆ A) by auto.
       apply H. apply Hch... apply infinite_set_nonempty.
       apply comp_of_finite_is_infinite...
-    - apply finite_set_adding_one_still_finite...
+    - apply add_one_still_finite_2...
   }
   pose proof (ω_recursion ℋ 𝒜 ∅) as [h [Hh [Hh0 Hhn]]]... {
     apply SepI... apply empty_in_all_power.
@@ -768,4 +300,518 @@ Proof with neauto; try congruence.
       * rewrite inv_dom_reduction... rewrite <- Hn'eq.
         rewrite inv_ran_reduction...
       * exfalso. apply n. eapply ranI. apply func_correct...
+Qed.
+
+(* 基数的无限累加和 *)
+Definition CardInfSum : set → (set → set) → set := λ I ℱ,
+  |⋃{λ i, ℱ i × ⎨i⎬ | i ∊ I}|.
+Notation "∑" := (CardInfSum) : Card_scope.
+Notation "∑ᵢ" := (CardInfSum ω) : Card_scope.
+
+(* 基数的无限累乘积 *)
+Definition CardInfProd : set → (set → set) → set := λ I ℱ,
+  |InfCProd I ℱ|.
+Notation "∏" := (CardInfProd) : Card_scope.
+Notation "∏ᵢ" := (CardInfProd ω) : Card_scope.
+
+(* 函数不交化：给定任意函数和单集，可以构造一个新的函数，使得
+  (1) 新函数的定义域是原函数的定义域与给定单集的笛卡尔积 且
+  (2) 新函数的值域是原函数的值域与给定单集的笛卡尔积 *)
+Definition FuncDisjointify : set → set → set := λ i F,
+  Func (dom F × ⎨i⎬) (ran F × ⎨i⎬) (λ x, <F[π1 x], i>).
+
+Lemma bijection_disjointify : ∀ F i, injective F →
+  (FuncDisjointify i F): dom F × ⎨i⎬ ⟺ ran F × ⎨i⎬.
+Proof with eauto; try congruence.
+  intros. apply meta_bijective.
+  - intros x Hx. apply CProdI... eapply ap_ran.
+    split. destruct H... split... apply CProdE0 in Hx as [H1 _]...
+  - intros p1 Hp1 p2 Hp2 Heq.
+    apply CProdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
+    apply CProdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
+    apply SingE in Hb. apply SingE in Hd. subst. zfcrewrite.
+    apply op_iff in Heq as [Heq _]. apply op_iff.
+    split... eapply injectiveE...
+  - intros y Hy. destruct H as [Hf _].
+    apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
+    apply ranE in Ha as [x Hp].
+    apply domI in Hp as Hx. apply func_ap in Hp as Hap...
+    exists <x, b>. split. apply CProdI... subst y. zfcrewrite.
+    apply op_iff. apply SingE in Hb. split...
+Qed.
+
+(* 如果不交化后的函数相等那么原函数相等 *)
+Lemma funcDisjointify_injective : ∀ i f g,
+  is_function f → is_function g →
+  FuncDisjointify i f = FuncDisjointify i g → f = g.
+Proof with eauto.
+  cut (∀ i f g, is_function f → is_function g →
+      FuncDisjointify i f = FuncDisjointify i g → f ⊆ g). {
+    intros H * Hf Hg Heq. apply sub_antisym; eapply H...
+  }
+  intros * Hf Hg Heq p Hpf.
+  apply func_pair in Hpf as Heqp... rewrite Heqp in Hpf.
+  apply domI in Hpf as Hdf. apply ranI in Hpf as Hrf.
+  assert (<<π1 p, i>, <π2 p, i>> ∈ FuncDisjointify i f). {
+    apply SepI. apply CProdI; apply CProdI... zfcrewrite.
+    apply op_iff. split... symmetry. apply func_ap...
+  }
+  rewrite Heq in H. apply SepE in H as [Hpg Hap].
+  apply CProdE2 in Hpg as [Hdg Hrg].
+  apply CProdE2 in Hdg as [Hdg _].
+  apply CProdE2 in Hrg as [Hrg _]. zfcrewrite.
+  apply op_iff in Hap as [Hap _]. symmetry in Hap.
+  rewrite Heqp. apply func_point...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累加和良定义 *)
+Theorem cardInfSum_well_defined : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A i| = |B i|) → ∑ I A = ∑ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⟺ B i}) as F_.
+  set (λ i, {FuncDisjointify i | f ∊ F_ i}) as F'_.
+  set {F'_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply CardAx1 in Hi as [f Hf].
+    exists (FuncDisjointify i f). apply ReplAx.
+    exists f. split... apply SepI... apply arrowI.
+    apply bijection_is_func...
+  }
+  set {λ F, g[F] | F ∊ ℱ} as G.
+  assert (HpUG: ∀p ∈ ⋃G, ∃i ∈ I, p ∈ g[F'_ i]). {
+    intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
+    apply ReplAx in Hf as [F [HF Heqf]].
+    apply ReplAx in HF as [i [Hi HeqF]].
+    subst F f. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, ∃ f, f: A i ⟺ B i ∧ g[F'_ i] = FuncDisjointify i f). {
+    intros i Hi.
+    assert (HFi: F'_ i ∈ ℱ). { apply ReplAx. exists i. split... }
+    apply Hrg in HFi. apply ReplAx in HFi as [f [Hf Heq]].
+    apply SepE in Hf as [_ Hf]. exists f. split...
+  }
+  apply CardAx1. exists (⋃ G). split; split.
+  - repeat split.
+    + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply cprod_is_pairs in Hp...
+    + apply domE in H...
+    + intros y1 y2 H1 H2.
+      apply HpUG in H1 as [i1 [Hi1 Hp1]].
+      apply HpUG in H2 as [i2 [Hi2 Hp2]].
+      apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+      apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+      apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 _].
+      apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 _].
+      zfcrewrite. destruct (classic (i1 = i2)). {
+        cut (f1 = f2). { intros Heqf. subst. apply op_iff... }
+        apply (funcDisjointify_injective i1)...
+        destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+      }
+      exfalso. eapply disjointE; revgoals.
+      apply Hx1. apply Hx2. apply disjoint_cprod_single...
+  - intros y Hy. split. apply ranE in Hy...
+    intros x1 x2 H1 H2.
+    apply HpUG in H1 as [i1 [Hi1 Hp1]].
+    apply HpUG in H2 as [i2 [Hi2 Hp2]].
+    apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+    apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+    apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 Hy1].
+    apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 Hy2].
+    apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply SingE in Hb. apply SingE in Hd. zfcrewrite. subst x1 x2.
+    zfcrewrite. destruct (classic (i1 = i2)). {
+      cut (f1 = f2). {
+        intros Heqf. subst. apply op_iff in H2 as [Hap Hi].
+        apply op_iff. split... eapply injectiveE... destruct Hf2...
+      }
+      apply (funcDisjointify_injective i1)...
+      destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+    }
+    exfalso. eapply disjointE; revgoals.
+    apply Hy1. apply Hy2. apply disjoint_cprod_single...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply HpUG in Hp as [i [Hi Hp]].
+      apply UnionAx. exists (A i × ⎨i⎬). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply CProdE2 in Hp as [Hx _].
+      destruct Hf as [_ [Hdf _]]...
+    + apply UnionAx in Hx as [X [HX Hx]].
+      apply ReplAx in HX as [i [Hi Heq]]. subst X.
+      apply CProdE1 in Hx as [a [Ha [b [Hb Heq]]]].
+      apply SingE in Hb. subst.
+      cut (<<a, i>, g[F'_ i][<a, i>]> ∈ ⋃G). { eapply domI... }
+      apply UnionAx. exists (g[F'_ i]). split.
+      apply ReplAx. exists (F'_ i). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq.
+      destruct Hf as [Hif [Hdf _]].
+      pose proof (bijection_disjointify f i) as [[Hfd _] [Hdd _]]...
+      apply func_correct... rewrite Hdd. apply CProdI...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply HpUG in Hp as [i [Hi Hp]].
+      apply UnionAx. exists (B i × ⎨i⎬). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply CProdE2 in Hp as [_ Hy].
+      destruct Hf as [_ [_ Hrf]]...
+    + apply UnionAx in Hy as [Y [HY Hy]].
+      apply ReplAx in HY as [i [Hi Heq]]. subst Y.
+      apply CProdE1 in Hy as [a [Ha [b [Hb Heq]]]].
+      apply SingE in Hb. subst.
+      cut (<g[F'_ i]⁻¹[<a, i>], <a, i>> ∈ ⋃G). { eapply ranI... }
+      apply UnionAx. exists (g[F'_ i]). split.
+      apply ReplAx. exists (F'_ i). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq.
+      destruct Hf as [Hif [_ Hrf]].
+      pose proof (bijection_disjointify f i) as [[Hfd Hsd] [_ Hrd]]...
+      rewrite inv_op. apply func_correct. apply inv_func_iff_sr...
+      rewrite inv_dom. rewrite Hrd. apply CProdI...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累乘积良定义 *)
+Theorem cardInfProd_well_defined : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A i| = |B i|) → ∏ I A = ∏ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⟺ B i}) as F_.
+  set {F_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply CardAx1 in Hi as [f Hf].
+    exists f. apply SepI... apply arrowI. apply bijection_is_func...
+  }
+  set (⋃{B | i ∊ I}) as ℬ.
+  set (⋃{A | i ∊ I}) as 𝒜.
+  set (λ x, Func I ℬ (λ i, g[F_ i][x[i]])) as G.
+  set (λ y, Func I 𝒜 (λ i, g[F_ i]⁻¹[y[i]])) as G'.
+  assert (HFi: ∀i ∈ I, F_ i ∈ ℱ). {
+    intros i Hi. apply ReplAx. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, g[F_ i]: A i ⟺ B i). {
+    intros i Hi. apply HFi in Hi.
+    apply Hrg in Hi. apply SepE in Hi as [_ HgF]...
+  }
+  assert (HgFx: ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ B i). {
+    intros i Hi x Hx. eapply ap_ran. apply bijection_is_func...
+    apply HgF... eapply InfCProdE...
+  }
+  assert (HgFy: ∀i ∈ I, ∀y ∈ InfCProd I B, g[F_ i]⁻¹[y[i]] ∈ A i). {
+    intros i Hi x Hx. eapply ap_ran. apply bijection_is_func...
+    apply inv_bijection. apply HgF... eapply InfCProdE...
+  }
+  assert (HBi: ∀i ∈ I, B i ⊆ ℬ). {
+    intros i Hi b Hb. apply UnionAx. exists (B i). split...
+    apply ReplAx. exists i. split...
+  }
+  assert (HgFx': ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ ℬ). {
+    intros i Hi x Hx. eapply HBi... apply HgFx...
+  }
+  assert (HG: ∀x ∈ InfCProd I A, G x: I ⇒ ℬ). {
+    intros x Hx. apply meta_maps_into. intros i Hi.
+    eapply HBi... apply HgFx...
+  }
+  assert (HAi: ∀i ∈ I, A i ⊆ 𝒜). {
+    intros i Hi a Ha. apply UnionAx. exists (A i). split...
+    apply ReplAx. exists i. split...
+  }
+  assert (HgFy': ∀i ∈ I, ∀y ∈ InfCProd I B, g[F_ i]⁻¹[y[i]] ∈ 𝒜). {
+    intros i Hi x Hx. eapply HAi... apply HgFy...
+  }
+  assert (HG': ∀y ∈ InfCProd I B, G' y: I ⇒ 𝒜). {
+    intros y Hy. apply meta_maps_into. intros i Hi.
+    eapply HAi... apply HgFy...
+  }
+  set (Func (InfCProd I A) (InfCProd I B) G) as h.
+  apply CardAx1. exists h. apply meta_bijective.
+  - intros x Hx. apply SepI.
+    + apply arrowI. apply HG...
+    + intros i Hi. unfold G. rewrite meta_func_ap...
+      apply HgFx... apply HG...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    assert (∀i ∈ I, g[F_ i][x1[i]] = g[F_ i][x2[i]]). {
+      intros i Hi. eapply func_sv. apply HG... rewrite <- Heq.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+    }
+    apply InfCProdE in Hx1 as [Hx1 Hxi1].
+    apply InfCProdE in Hx2 as [Hx2 Hxi2].
+    destruct Hx1 as [Hf1 [Hd1 Hr1]].
+    destruct Hx2 as [Hf2 [Hd2 Hr2]].
+    apply func_ext_intro... intros i Hi. rewrite Hd1 in Hi.
+    pose proof (HgF _ Hi) as [Hinj [Hd _]].
+    eapply injectiveE...
+    + rewrite Hd. apply Hxi1...
+    + rewrite Hd. apply Hxi2...
+    + apply H...
+  - intros y Hy. assert (Hx: G' y ∈ InfCProd I A). {
+      apply InfCProdI. apply HG'...
+      intros i Hi. unfold G'. rewrite meta_func_ap...
+      apply HgFy... apply HG'...
+    }
+    assert (Heqd: dom (G (G' y)) = I). {
+      apply ExtAx. intros i. split; intros Hi.
+      - apply domE in Hi as [f Hp].
+        apply SepE in Hp as [Hp _].
+        apply CProdE2 in Hp as [Hi _]...
+      - eapply domI. apply SepI. apply CProdI...
+        apply HgFx'... zfcrewrite.
+    }
+    exists (G' y). split... apply func_ext_intro...
+    + apply meta_maps_into. intros i Hi. apply HgFx'...
+    + apply InfCProdE in Hy as [[]]...
+    + apply InfCProdE in Hy as [[_ [Hd _]]]...
+    + intros i Hi. rewrite Heqd in Hi. unfold G, G'.
+      pose proof (HgF _ Hi) as [Hinj [Hd Hr]].
+      rewrite meta_func_ap... rewrite meta_func_ap...
+      rewrite inv_ran_reduction...
+      * rewrite Hr. eapply InfCProdE...
+      * apply meta_maps_into. intros j Hj. apply HgFy'...
+      * apply meta_maps_into. intros j Hj. apply HgFx'...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累加保持序关系 *)
+Theorem cardInfSum_preserve_leq : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A i| ≤ |B i|) → ∑ I A ≤ ∑ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⇔ B i}) as F_.
+  set (λ i, {FuncDisjointify i | f ∊ F_ i}) as F'_.
+  set {F'_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    exists (FuncDisjointify i f). apply ReplAx.
+    exists f. split... apply SepI... apply arrowI.
+    apply injection_is_func...
+  }
+  set {λ F, g[F] | F ∊ ℱ} as G.
+  assert (HpUG: ∀p ∈ ⋃G, ∃i ∈ I, p ∈ g[F'_ i]). {
+    intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
+    apply ReplAx in Hf as [F [HF Heqf]].
+    apply ReplAx in HF as [i [Hi HeqF]].
+    subst F f. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, ∃ f, f: A i ⇔ B i ∧ g[F'_ i] = FuncDisjointify i f). {
+    intros i Hi.
+    assert (HFi: F'_ i ∈ ℱ). { apply ReplAx. exists i. split... }
+    apply Hrg in HFi. apply ReplAx in HFi as [f [Hf Heq]].
+    apply SepE in Hf as [_ Hf]. exists f. split...
+  }
+  apply cardLeq_iff. exists (⋃ G). split; split.
+  - repeat split.
+    + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply cprod_is_pairs in Hp...
+    + apply domE in H...
+    + intros y1 y2 H1 H2.
+      apply HpUG in H1 as [i1 [Hi1 Hp1]].
+      apply HpUG in H2 as [i2 [Hi2 Hp2]].
+      apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+      apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+      apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 _].
+      apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 _].
+      zfcrewrite. destruct (classic (i1 = i2)). {
+        cut (f1 = f2). { intros Heqf. subst. apply op_iff... }
+        apply (funcDisjointify_injective i1)...
+        destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+      }
+      exfalso. eapply disjointE; revgoals.
+      apply Hx1. apply Hx2. apply disjoint_cprod_single...
+  - intros y Hy. split. apply ranE in Hy...
+    intros x1 x2 H1 H2.
+    apply HpUG in H1 as [i1 [Hi1 Hp1]].
+    apply HpUG in H2 as [i2 [Hi2 Hp2]].
+    apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
+    apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
+    apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 Hy1].
+    apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 Hy2].
+    apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply SingE in Hb. apply SingE in Hd. zfcrewrite. subst x1 x2.
+    zfcrewrite. destruct (classic (i1 = i2)). {
+      cut (f1 = f2). {
+        intros Heqf. subst. apply op_iff in H2 as [Hap Hi].
+        apply op_iff. split... eapply injectiveE... destruct Hf2...
+      }
+      apply (funcDisjointify_injective i1)...
+      destruct Hf1 as [[]]... destruct Hf2 as [[]]...
+    }
+    exfalso. eapply disjointE; revgoals.
+    apply Hy1. apply Hy2. apply disjoint_cprod_single...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply HpUG in Hp as [i [Hi Hp]].
+      apply UnionAx. exists (A i × ⎨i⎬). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+      apply SepE in Hp as [Hp _]. apply CProdE2 in Hp as [Hx _].
+      destruct Hf as [_ [Hdf _]]...
+    + apply UnionAx in Hx as [X [HX Hx]].
+      apply ReplAx in HX as [i [Hi Heq]]. subst X.
+      apply CProdE1 in Hx as [a [Ha [b [Hb Heq]]]].
+      apply SingE in Hb. subst.
+      cut (<<a, i>, g[F'_ i][<a, i>]> ∈ ⋃G). { eapply domI... }
+      apply UnionAx. exists (g[F'_ i]). split.
+      apply ReplAx. exists (F'_ i). split...
+      apply ReplAx. exists i. split...
+      apply HgF in Hi as [f [Hf Heq]]. rewrite Heq.
+      destruct Hf as [Hif [Hdf _]].
+      pose proof (bijection_disjointify f i) as [[Hfd _] [Hdd _]]...
+      apply func_correct... rewrite Hdd. apply CProdI...
+  - intros y Hy.
+    apply ranE in Hy as [x Hp].
+    apply HpUG in Hp as [i [Hi Hp]].
+    apply UnionAx. exists (B i × ⎨i⎬). split...
+    apply ReplAx. exists i. split...
+    apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
+    apply SepE in Hp as [Hp _].
+    apply CProdE2 in Hp as [_ Hy].
+    apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst y.
+    apply CProdI... destruct Hf as [_ [_ Hrf]]. apply Hrf...
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数的无限累乘保持序关系 *)
+Theorem cardInfProd_preserve_leq : AC_III' → ∀ I A B,
+  (∀i ∈ I, |A i| ≤ |B i|) → ∏ I A ≤ ∏ I B.
+Proof with eauto; try congruence.
+  intros AC3' * Heqcd. unfold AC_III' in AC3'.
+  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⇔ B i}) as F_.
+  set {F_ | i ∊ I} as ℱ.
+  specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
+    intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
+    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    exists f. apply SepI... apply arrowI. apply injection_is_func...
+  }
+  set (⋃{B | i ∊ I}) as ℬ.
+  set (⋃{A | i ∊ I}) as 𝒜.
+  set (λ x, Func I ℬ (λ i, g[F_ i][x[i]])) as G.
+  set (λ y, Func I 𝒜 (λ i, g[F_ i]⁻¹[y[i]])) as G'.
+  assert (HFi: ∀i ∈ I, F_ i ∈ ℱ). {
+    intros i Hi. apply ReplAx. exists i. split...
+  }
+  assert (HgF: ∀i ∈ I, g[F_ i]: A i ⇔ B i). {
+    intros i Hi. apply HFi in Hi.
+    apply Hrg in Hi. apply SepE in Hi as [_ HgF]...
+  }
+  assert (HgFx: ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ B i). {
+    intros i Hi x Hx. eapply ap_ran. apply injection_is_func...
+    apply HgF... eapply InfCProdE...
+  }
+  assert (HBi: ∀i ∈ I, B i ⊆ ℬ). {
+    intros i Hi b Hb. apply UnionAx. exists (B i). split...
+    apply ReplAx. exists i. split...
+  }
+  assert (HgFx': ∀i ∈ I, ∀x ∈ InfCProd I A, g[F_ i][x[i]] ∈ ℬ). {
+    intros i Hi x Hx. eapply HBi... apply HgFx...
+  }
+  assert (HG: ∀x ∈ InfCProd I A, G x: I ⇒ ℬ). {
+    intros x Hx. apply meta_maps_into. intros i Hi.
+    eapply HBi... apply HgFx...
+  }
+  set (Func (InfCProd I A) (InfCProd I B) G) as h.
+  apply cardLeq_iff. exists h. apply meta_injective.
+  - intros x Hx. apply SepI.
+    + apply arrowI. apply HG...
+    + intros i Hi. unfold G. rewrite meta_func_ap...
+      apply HgFx... apply HG...
+  - intros x1 Hx1 x2 Hx2 Heq.
+    assert (∀i ∈ I, g[F_ i][x1[i]] = g[F_ i][x2[i]]). {
+      intros i Hi. eapply func_sv. apply HG... rewrite <- Heq.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+    }
+    apply InfCProdE in Hx1 as [Hx1 Hxi1].
+    apply InfCProdE in Hx2 as [Hx2 Hxi2].
+    destruct Hx1 as [Hf1 [Hd1 Hr1]].
+    destruct Hx2 as [Hf2 [Hd2 Hr2]].
+    apply func_ext_intro... intros i Hi. rewrite Hd1 in Hi.
+    pose proof (HgF _ Hi) as [Hinj [Hd _]].
+    eapply injectiveE...
+    + rewrite Hd. apply Hxi1...
+    + rewrite Hd. apply Hxi2...
+    + apply H...
+Qed.
+
+(* 相同基数的无限累加和等价于基数乘法 *)
+Theorem cardInfSum_of_same_card : ∀ I 𝜅, is_card 𝜅 →
+  ∑ I (λ _, 𝜅) = |I| ⋅ 𝜅.
+Proof with auto; try congruence.
+  intros * Hcd. rewrite (card_of_card 𝜅) at 1...
+  rewrite cardMul_comm, cardMul. apply CardAx1.
+  replace (⋃{λ i, 𝜅 × ⎨i⎬ | i ∊ I}) with (𝜅 × I)...
+  apply ExtAx. intros p. split; intros Hp.
+  - apply CProdE1 in Hp as [k [Hk [i [Hi Hp]]]]. subst p.
+    apply UnionAx. exists (𝜅 × ⎨i⎬). split...
+    apply ReplAx. exists i. split... apply CProdI...
+  - apply UnionAx in Hp as [P [HP Hp]].
+    apply ReplAx in HP as [i [Hi HP]]. subst P.
+    apply CProdE1 in Hp as [k [Hk [j [Hj Hp]]]]. subst p.
+    apply SingE in Hj; subst. apply CProdI...
+Qed.
+
+(* 不交集的无限累加和 *)
+Lemma cardInfSum_of_disjoint : ∀ I ℱ,
+  (∀ i j ∈ I, i ≠ j → disjoint (ℱ i) (ℱ j)) →
+  ∑ I ℱ = |⋃{λ i, ℱ i | i ∊ I}|.
+Proof with eauto.
+  intros * Hdj. apply CardAx1.
+  set (⋃{λ i, ℱ i × ⎨i⎬ | i ∊ I}) as X.
+  set (⋃{ℱ | i ∊ I}) as Y.
+  set (Func X Y π1) as f.
+  exists f. apply meta_bijective.
+  - intros x Hx. apply FUnionE in Hx as [i [Hi Hx]].
+    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+    subst x. zfcrewrite. eapply FUnionI...
+  - intros x1 H1 x2 H2 Heq.
+    apply FUnionE in H1 as [i [Hi H1]].
+    apply FUnionE in H2 as [j [Hj H2]].
+    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+    apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+    apply SingE in Hb. apply SingE in Hd.
+    subst. zfcrewrite. apply op_iff. split...
+    destruct (classic (i = j))... exfalso.
+    apply Hdj in H... eapply disjointE... congruence.
+  - intros y Hy. apply FUnionE in Hy as [i [Hi Hx]].
+    exists <y, i>. split; zfcrewrite.
+    eapply FUnionI... apply CProdI...
+Qed.
+
+Fact cardInfSum_0_pow : ∑ᵢ (λ i, 0 ^ i) = 1.
+Proof with nauto.
+  rewrite (card_of_nat 1)... apply CardAx1.
+  set (⋃ᵢ λ i, 0 ^ i × ⎨i⎬) as A.
+  set (Func A 1 (λ _, 0)) as f.
+  exists f. apply meta_bijective.
+  - intros _ _. apply suc_has_0...
+  - intros x1 H1 x2 H2 _.
+    apply IFUnionE in H1 as [n [Hn H1]].
+    apply IFUnionE in H2 as [m [Hm H2]].
+    destruct (classic (n = 0)); destruct (classic (m = 0)).
+    + subst. rewrite cardExp_0_r in H1, H2.
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+      rewrite one in Ha, Hc.
+      apply SingE in Ha. apply SingE in Hc.
+      apply SingE in Hb. apply SingE in Hd. congruence.
+    + rewrite cardExp_0_l in H2...
+      apply CProdE1 in H2 as [a [Ha _]]. exfalso0.
+    + rewrite cardExp_0_l in H1...
+      apply CProdE1 in H1 as [a [Ha _]]. exfalso0.
+    + rewrite cardExp_0_l in H1...
+      apply CProdE1 in H1 as [a [Ha _]]. exfalso0.
+  - intros y Hy. rewrite one in Hy. apply SingE in Hy.
+    exists <0, 0>. split... apply (IFUnionI _ 0)...
+    apply CProdI... rewrite cardExp_0_0... apply suc_has_0...
 Qed.

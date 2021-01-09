@@ -17,7 +17,7 @@ Record Ord : Type := constr {
 }.
 Hint Immediate cond : core.
 
-Lemma ord_eq : ∀ α β, s α = s β → α = β.
+Lemma eq_intro : ∀ α β, s α = s β → α = β.
 Proof.
   intros α β Heq. destruct α. destruct β.
   simpl in Heq. subst. f_equal. apply proof_irrelevance.

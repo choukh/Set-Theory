@@ -3,6 +3,7 @@
 
 Require Export ZFC.EST7_4.
 Require Import ZFC.lib.Real.
+Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.Cardinal.
 Require Import ZFC.lib.WosetMin.
 Close Scope Real_scope.
@@ -372,7 +373,6 @@ Proof with eauto.
 Qed.
 
 Import WOStruct.
-Hint Immediate ord_is_ord : core.
 
 (* 有限集的序数等于基数 *)
 Lemma finite_ord_eq_card : ∀ S, finite (A S) → ord S = |A S|.
@@ -395,11 +395,10 @@ Proof with eauto; try congruence.
     assert (Hmw: m ∈ ω). eapply ω_trans...
     assert (Heqm: (A (Seg m N)) = m). {
       apply ExtAx. split; intros Hx.
-      - rewrite seg_a_eq in Hx... apply SepE2 in Hx.
-        unfold N in Hx. apply SepE1 in Hx.
-        apply binRelE2 in Hx as [_ [_ Hx]]...
+      - apply SepE2 in Hx. unfold N in Hx. apply SepE1 in Hx.
+        apply binRelE3 in Hx...
       - rewrite seg_a_eq... apply segI. unfold N.
-        apply seg_r_eq; apply binRelI... eapply ω_trans...
+        apply seg_lt; apply binRelI... eapply ω_trans...
     }
     assert (Hcard': |A S| = m). {
       rewrite (card_of_nat m)... apply CardAx1. exists g...
