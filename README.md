@@ -120,15 +120,10 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
   - 选择函数
   - 势的可比较性
   - 佐恩引理
-- 阿列夫零是最小的无限基数
-- 戴德金无穷
-
-## EST6_4_EXTEND_1.v
-- 选择公理的系统考察
   - 图基引理
   - 豪斯多夫极大原理
-  
-## EST6_4_EXTEND_2.v
+- 阿列夫零是最小的无限基数
+- 戴德金无穷
 - 基数的无限累加和
 - 基数的无限累乘积
 
