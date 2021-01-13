@@ -389,13 +389,13 @@ Qed.
 Section Recursion.
 Import TransfiniteRecursion.
 
-Definition RecurFunc := λ S γ, constr (A S) (R S) γ.
+Definition Recursion := λ S γ, constr (A S) (R S) γ.
 
 Definition recrusion_spec := λ S γ F,
   is_function F ∧ dom F = A S ∧ ∀t ∈ A S, γ (F ↾ seg t (R S)) F[t].
 
 Lemma recrusion_spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
-  recrusion_spec S γ (RecurFunc S γ).
+  recrusion_spec S γ (Recursion S γ).
 Proof. intros. apply spec_intro; auto. Qed.
 
 End Recursion.
@@ -404,7 +404,7 @@ End Recursion.
 Module Import EpsilonImage.
 
 Definition γ := λ x y, y = ran x.
-Definition E := λ S, RecurFunc S γ.
+Definition E := λ S, Recursion S γ.
 Definition α := λ S, ran (E S).
 Definition ε := λ S, MemberRel (α S).
 
@@ -753,7 +753,7 @@ Proof with eauto; try congruence.
     | inl _ => (Min T)[A T - ran f]
     | inr _ => e
   end) as γ.
-  set (RecurFunc S γ) as F.
+  set (Recursion S γ) as F.
   pose proof (recrusion_spec_intro S γ) as [HfF [HdF Hγ]]. {
     intros f. split... unfold γ.
     destruct (ixm (⦿ (A T - ran f))).

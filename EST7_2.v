@@ -532,7 +532,7 @@ Definition constr := λ A R γ,
 Lemma spec_intro : ∀ A R γ, woset A R →
   (∀ x, ∃! y, γ x y) → spec A R γ (constr A R γ).
 Proof.
-  intros. apply (epsilon_spec (inhabits ∅) (λ F, spec A R γ F)).
+  intros. apply (epsilon_spec (inhabits ∅) (spec A R γ)).
   apply transfinite_recursion; auto.
 Qed.
 

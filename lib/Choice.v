@@ -47,8 +47,7 @@ Definition AC_VI := ∀ 𝒜,
 (* AC cycle
     (1 ↔ 1') → 2 → (3 ↔ 3') → 4 → 1
     6 → [1, 5]
-    continue at EST7_5
-    [3, 5] → WO → 6
+    continue at EST7_5: [3, 5] → WO → 6
 *)
 
 Theorem AC_I_to_II : AC_I → AC_II.

@@ -89,9 +89,6 @@ Proof with eauto; try congruence.
       subst y. apply SepE1 in Ha...
 Qed.
 
-(* 无限基数 *)
-Definition infcard : set → Prop := λ 𝜅, is_card 𝜅 ∧ infinite 𝜅.
-
 (* 所有自然数都小于无限基数 *)
 Corollary cardLt_infcard_n : ∀ 𝜅, ∀n ∈ ω, infcard 𝜅 → n <𝐜 𝜅.
 Proof with auto.

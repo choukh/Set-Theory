@@ -35,22 +35,22 @@ Notation "α ≤ β" := (s α ≤ s β) (at level 70) : Ord_scope.
 Definition OrdStruct := λ α,
   WOStruct.constr (s α) (MemberRel (s α)) (ord_woset _ (cond _)).
 
-Definition RecurFunc := λ α γ,
-  (RecurFunc (OrdStruct α) γ).
+Definition Recursion := λ α γ,
+  (Recursion (OrdStruct α) γ).
 
 Definition recrusion_spec := λ α γ F,
   is_function F ∧ dom F = s α ∧
   ∀t ∈ s α, γ (F ↾ seg t (MemberRel (s α))) F[t].
 
 Lemma recursion_spec_intro : ∀ α γ, (∀ x, ∃! y, γ x y) →
-  recrusion_spec α γ (RecurFunc α γ).
+  recrusion_spec α γ (Recursion α γ).
 Proof. intros. apply recrusion_spec_intro; auto. Qed.
 
-Module ImageRecursion.
+Module OrdRecursion.
 
 Definition γ := λ F f y, y = F[ran f].
-Definition E := λ F α, (RecurFunc α (γ F)).
-Definition Recursion := λ F α, (E F α⁺)[s α].
+Definition E := λ F α, (Recursion α (γ F)).
+Definition OrdRecursion := λ F α, (E F α⁺)[s α].
 
 Lemma e_spec : ∀ F α, is_function F →
   recrusion_spec α (γ F) (E F α).
@@ -85,4 +85,4 @@ Proof with eauto.
     rewrite Hd. eapply ord_trans...
 Qed.
 
-End ImageRecursion.
+End OrdRecursion.

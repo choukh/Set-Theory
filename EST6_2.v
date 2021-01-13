@@ -6,12 +6,12 @@ Require Export ZFC.EST7_5.
 
 (*** EST第六章2：无限基数，基数算术：加法，乘法，乘方 ***)
 
-(* TODO: We will remove this primitive notion after Chapter 7 *)
-Parameter card : set → set.
-Notation "| A |" := (card A) (at level 40) : ZFC_scope.
-Axiom CardAx0 : ∀ A, A ≈ |A|.
-Axiom CardAx1 : ∀ A B, |A| = |B| ↔ A ≈ B.
-Axiom CardAx2 : ∀ A, finite A → |A| = FinCard A.
+Check EST7_5.CardAx0.
+(* Theorem CardAx0 : ∀ A, A ≈ |A|. *)
+Check EST7_5.CardAx1.
+(* Theorem CardAx1 : ∀ A B, |A| = |B| ↔ A ≈ B. *)
+Check EST7_5.CardAx2.
+(* Theorem CardAx2 : ∀ A, finite A → |A| = FinCard A. *)
 
 Definition is_card : set → Prop := λ 𝜅, ∃ K, 𝜅 = |K|.
 
@@ -42,7 +42,9 @@ Proof. intros. apply nat_is_card. apply embed_ran. Qed.
 Hint Immediate embed_is_card : number_hint.
 
 (* 有限基数 *)
-Definition fincard : set → Prop := λ n, is_card n ∧ finite n.
+Definition fincard := λ n, is_card n ∧ finite n.
+(* 无限基数 *)
+Definition infcard := λ 𝜅, is_card 𝜅 ∧ infinite 𝜅.
 
 (* 自然数等价于有限基数 *)
 Lemma nat_iff_fincard : ∀ n, n ∈ ω ↔ fincard n.

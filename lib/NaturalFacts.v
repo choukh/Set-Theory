@@ -31,7 +31,7 @@ Proof with auto; try congruence.
   } {
     eapply sub_tran...
   }
-  apply SepE in Hq as [Hq _]... apply Hsub in Hq as Hqw.
+  apply SepE1 in Hq... apply Hsub in Hq as Hqw.
   destruct (classic (p ⊆ q)) as [Hpq|Hqp].
   - exists q. split... intros n Hn.
     destruct (classic (n = k)).
