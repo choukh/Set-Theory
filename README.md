@@ -156,8 +156,9 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 后继序数，极限序数
 
 ## EST7_5.v (TODO)
-- 哈托格斯定理，良序定理
-- TODO
+- 哈托格斯数，良序定理
+- 基数的定义
+- 良序定理与选择公理、佐恩引理的互推
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
