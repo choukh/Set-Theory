@@ -18,8 +18,18 @@ Require Import ZFC.lib.IndexedFamilyUnion.
 Theorem card_comparability : AC_V → ∀ 𝜅 𝜆,
   is_card 𝜅 → is_card 𝜆 → 𝜅 ≤ 𝜆 ∨ 𝜆 ≤ 𝜅.
 Proof.
-  intros AC5 * Hk Hl.
+  intros AC5 𝜅 𝜆 H𝜅 H𝜆.
   pose proof (AC5 𝜅 𝜆) as []; [left|right]; split; auto.
+Qed.
+
+(* ==需要选择公理== *)
+(* 基数具有连通性 *)
+Corollary card_connected : AC_V → ∀ 𝜅 𝜆,
+  is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 𝜆 → 𝜅 <𝐜 𝜆 ∨ 𝜆 <𝐜 𝜅.
+Proof.
+  intros AC5 𝜅 𝜆 H𝜅 H𝜆 Hnq.
+  destruct (card_comparability AC5 𝜅 𝜆) as [];
+  auto; [left|right]; split; auto.
 Qed.
 
 (* 有限集在无限集里的补集是无限集 *)
@@ -36,7 +46,7 @@ Proof with auto.
   - rewrite <- eqnum_cprod_single...
   - apply disjointI. intros [x [Hx1 Hx2]].
     apply SepE2 in Hx2...
-  - apply disjoint_cprod_0_1.
+  - apply disjointify_0_1.
 Qed.
 
 (* 所有自然数都被无限集支配 *)
@@ -409,7 +419,7 @@ Proof with eauto; try congruence.
         destruct Hf1 as [[]]... destruct Hf2 as [[]]...
       }
       exfalso. eapply disjointE; revgoals.
-      apply Hx1. apply Hx2. apply disjoint_cprod_single...
+      apply Hx1. apply Hx2. apply cprod_disjointify...
   - intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply HpUG in H1 as [i1 [Hi1 Hp1]].
@@ -430,7 +440,7 @@ Proof with eauto; try congruence.
       destruct Hf1 as [[]]... destruct Hf2 as [[]]...
     }
     exfalso. eapply disjointE; revgoals.
-    apply Hy1. apply Hy2. apply disjoint_cprod_single...
+    apply Hy1. apply Hy2. apply cprod_disjointify...
   - apply ExtAx. split; intros Hx.
     + apply domE in Hx as [y Hp].
       apply HpUG in Hp as [i [Hi Hp]].
@@ -624,7 +634,7 @@ Proof with eauto; try congruence.
         destruct Hf1 as [[]]... destruct Hf2 as [[]]...
       }
       exfalso. eapply disjointE; revgoals.
-      apply Hx1. apply Hx2. apply disjoint_cprod_single...
+      apply Hx1. apply Hx2. apply cprod_disjointify...
   - intros y Hy. split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply HpUG in H1 as [i1 [Hi1 Hp1]].
@@ -645,7 +655,7 @@ Proof with eauto; try congruence.
       destruct Hf1 as [[]]... destruct Hf2 as [[]]...
     }
     exfalso. eapply disjointE; revgoals.
-    apply Hy1. apply Hy2. apply disjoint_cprod_single...
+    apply Hy1. apply Hy2. apply cprod_disjointify...
   - apply ExtAx. split; intros Hx.
     + apply domE in Hx as [y Hp].
       apply HpUG in Hp as [i [Hi Hp]].

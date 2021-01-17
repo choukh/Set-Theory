@@ -651,14 +651,7 @@ Proof.
   eapply subset_of_finite_is_finite; eauto.
 Qed.
 
-(* 任意自然数与自身的单集不交 *)
-Lemma disjoint_nat_single : ∀n ∈ ω, disjoint n ⎨n⎬.
-Proof.
-  intros n Hn. apply disjointI. intros [x [H1 H2]].
-  apply SingE in H2. subst. eapply nat_irrefl; eauto.
-Qed.
-
-Lemma disjoint_cprod_l : ∀ A B C D,
+Lemma cprod_disjoint_l : ∀ A B C D,
   disjoint A C → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
@@ -667,7 +660,7 @@ Proof.
   eapply disjointE; eauto.
 Qed.
 
-Lemma disjoint_cprod_r : ∀ A B C D,
+Lemma cprod_disjoint_r : ∀ A B C D,
   disjoint B D → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
@@ -676,58 +669,25 @@ Proof.
   eapply disjointE; eauto.
 Qed.
 
-(* 给定任意两个集合，通过笛卡尔积可以构造出分别与原集合等势但不交的两个集合 *)
-Lemma disjoint_cprod_single : ∀ A B m n,
+(* 不交化：通过笛卡尔积构造出分别与原集合等势但不交的两个集合 *)
+Lemma cprod_disjointify : ∀ A B m n,
   m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
 Proof.
-  intros. apply disjoint_cprod_r.
+  intros. apply cprod_disjoint_r.
   apply disjointI. intros [x [H1 H2]].
   apply SingE in H1. apply SingE in H2. congruence.
 Qed.
 
-Corollary disjoint_cprod_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
+Corollary disjointify_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
 Proof.
-  intros. apply disjoint_cprod_single. intro. eapply suc_neq_0. eauto.
+  intros. apply cprod_disjointify. intro. eapply suc_neq_0. eauto.
 Qed.
 
-(* 壹与单集的笛卡尔积 *)
-Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
+(* 任意自然数与自身的单集不交 *)
+Lemma nat_disjoint : ∀n ∈ ω, disjoint n ⎨n⎬.
 Proof.
-  intros. rewrite one. apply ExtAx. split; intros Hx.
-  - apply CProdE1 in Hx as [a [Ha [b [Hb H0]]]].
-    apply SingE in Ha. apply SingE in Hb. subst. auto.
-  - apply SingE in Hx. subst. apply CProdI; apply SingI.
-Qed.
-
-(* 集合除去非自身的元素，集合不变 *)
-Lemma remove_no_member : ∀ a A, a ∉ A → A - ⎨a⎬ = A.
-Proof with auto.
-  intros * Ha. apply ExtAx. split; intros Hx.
-  - apply SepE1 in Hx...
-  - apply SepI... apply SingNI. intros Heq.
-    apply Ha. subst...
-Qed.
-
-(* 集合除去自身的一个元素再放回去，集合不变 *)
-Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
-Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
-  - apply BUnionE in Hx as [].
-    + apply SepE1 in H0...
-    + apply SingE in H0. subst...
-  - destruct (classic (x = a)).
-    + subst. apply BUnionI2...
-    + apply BUnionI1. apply SepI... apply SingNI...
-Qed.
-
-(* 集合加入一个不是自身的元素再去掉，集合不变 *)
-Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
-Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
-  - apply SepE in Hx as [].
-    apply BUnionE in H0 as []... exfalso...
-  - apply SepI. apply BUnionI1...
-    apply SingNI. intros Heq. congruence.
+  intros n Hn. apply disjointI. intros [x [H1 H2]].
+  apply SingE in H2. subst. eapply nat_irrefl; eauto.
 Qed.
 
 (* 等势的集合分别除去一个元素仍然等势 *)
@@ -779,33 +739,12 @@ Proof with eauto; try congruence.
         apply Hdjb. apply Hy. apply SingI.
 Qed.
 
-(* 与后继数等势的集合非空 *)
-Lemma set_eqnum_suc_nonempty : ∀ A, ∀n ∈ ω, A ≈ n⁺ → ⦿ A.
-Proof with eauto.
-  intros A n Hn HA. apply EmptyNE.
-  destruct (classic (A = ∅))... exfalso. subst A.
-  symmetry in HA. apply eqnum_empty in HA. eapply suc_neq_0...
-Qed.
-
-(* 从集合中取出一个元素组成单集，它与取完元素后的集合的并等于原集合 *)
-Lemma split_one_element : ∀ A a, a ∈ A → A = (A - ⎨a⎬) ∪ ⎨a⎬.
-Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
-  - destruct (classic (x = a)).
-    + subst x. apply BUnionI2...
-    + apply BUnionI1. apply SepI...
-      intros contra. apply SingE in contra...
-  - apply BUnionE in Hx as [].
-    + apply SepE1 in H0...
-    + apply SingE in H0. subst x...
-Qed.
-
 (* 从有限集中取出一个元素则基数减1 *)
-Lemma finite_set_remove_one_element : ∀ A a, ∀n ∈ ω,
+Corollary finite_set_remove_one_element : ∀ A a, ∀n ∈ ω,
   (A - ⎨a⎬) ∪ ⎨a⎬ ≈ n⁺ → A - ⎨a⎬ ≈ n.
 Proof with eauto.
   intros * n Hn Hqn.
   eapply eqnum_sets_removing_one_element_still_eqnum...
   apply disjointI. intros [x [H1 H2]]. apply SepE2 in H1...
-  apply disjoint_nat_single...
+  apply nat_disjoint...
 Qed.

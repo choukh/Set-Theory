@@ -7,8 +7,8 @@ Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.WosetMin.
 Import WosetMin.FullVer.
 
-(*** EST第七章5：哈托格斯数，良序定理，基数的定义，
-  良序定理与选择公理、佐恩引理的互推 ***)
+(*** EST第七章5：哈托格斯数，良序定理与选择公理、佐恩引理的互推，
+  冯·诺伊曼基数指派，初始序数 ***)
 
 Section ImportStruct.
 
@@ -16,29 +16,34 @@ Import OrderedStruct.
 Import WOStruct.
 Import WOStruct.EpsilonImage.
 
-(* 若集合与给定序数等势，那么可以用该集合构造与该序数同构的良序结构 *)
+(* 与良序集等势的集合可以良序化 *)
+Lemma set_eqnum_woset_can_be_woset :
+  ∀ S B, A S ≈ B → ∃ T, A T = B ∧ S ≅ T.
+Proof with auto.
+  intros S B Hqn.
+  symmetry in Hqn. destruct Hqn as [f Hf].
+  set (BinRel B (λ x y, (f[x] <ᵣ f[y]) (R S))) as Q.
+  set (OrderedStruct.constr B Q (binRel_is_binRel _ _)) as T.
+  (* order_embedding *)
+  assert (Hoeb: ∀ x y ∈ B, (x <ᵣ y) Q ↔ (f[x] <ᵣ f[y]) (R S)). {
+    intros x Hx y Hy. split; intros Hlt.
+    - apply binRelE3 in Hlt...
+    - apply binRelI...
+  }
+  assert (Hiso: (parent S ≅ T)%os). {
+    symmetry. exists f. split...
+  }
+  apply iso_wo in Hiso as Hwo; [|apply wo].
+  exists (constr B Q Hwo). split...
+Qed.
+
+(* 与序数等势的集合可以良序化 *)
 Lemma set_eqnum_ord_can_be_woset :
   ∀ S B, ord S ≈ B → ∃ T, A T = B ∧ S ≅ T.
 Proof with auto.
   intros S B Hqn.
-  symmetry in Hqn. destruct Hqn as [f Hf].
-  set (BinRel B (λ x y, f[x] ∈ f[y])) as R.
-  set (OrderedStruct.constr B R (binRel_is_binRel _ _)) as T.
-  (* order_embedding *)
-  assert (Hoeb: ∀ x y ∈ B, (x <ᵣ y) R ↔ (f[x] <ᵣ f[y]) (ε S)). {
-    intros x Hx y Hy. split; intros Hlt.
-    - apply binRelE3 in Hlt.
-      apply SepI; zfcrewrite.
-      apply CProdI; eapply ap_ran; eauto; apply bijection_is_func...
-    - apply binRelE3 in Hlt. apply binRelI...
-  }
-  assert (Hiso: (parent (Epsilon S) ≅ T)%os). {
-    symmetry. exists f. split...
-  }
-  apply iso_wo in Hiso as Hwo; [|apply parent_wo].
-  set (constr B R Hwo) as T'.
-  exists T'. split... rewrite iso_epsilon. symmetry.
-  exists f. split...
+  apply set_eqnum_woset_can_be_woset. rewrite <- Hqn.
+  pose proof (iso_epsilon S) as [f [Hf _]]. exists f...
 Qed.
 
 (* 哈托格斯定理：对任意集合存在不被其支配的最小序数 *)
@@ -101,7 +106,7 @@ Proof with eauto; try congruence.
       apply CProdI; apply Hsub...
     + exists T; zfcrewrite. split...
       rewrite HS. apply ord_well_defined...
-  - intros β Hβ Hneg. apply ord_leq_iff_neg_lt...
+  - intros β Hβ Hneg. apply ord_leq_iff_not_gt...
     intros Hβα. apply Hneg. apply SepE2 in Hβα...
 Qed.
 
@@ -124,8 +129,7 @@ Qed.
 (* 良序定理：任意集合都可以良序化 *)
 Definition WO := ∀ A, ∃ R, woset A R.
 
-(* ==需要选择公理== *)
-Theorem well_ordering : AC_III → WO.
+Theorem AC_III_to_WO : AC_III → WO.
 Proof with eauto; try congruence.
   intros AC3 B.
   pose proof (AC3 B) as [G [_ [_ HrG]]].
@@ -244,6 +248,95 @@ Proof with eauto; try congruence.
     apply HrG... apply EmptyNE...
 Qed.
 
+Theorem AC_V_to_WO : AC_V → WO.
+Proof with eauto; try congruence.
+  intros AC5 A.
+  pose proof (Hartogs' A) as [α [Hα [Hndom _]]].
+  destruct (AC5 A α) as []...
+  apply dominate_iff in H as [β [Hle Hqn]].
+  assert (Hords: is_ords β). {
+    intros x Hx. apply Hle in Hx. eapply ord_is_ords...
+  }
+  pose proof (ords_woset β Hords) as Hwo.
+  set (constr β (MemberRel β) Hwo) as S.
+  assert (WOStruct.A S ≈ A). symmetry...
+  apply set_eqnum_woset_can_be_woset in H as [T [Heq _]].
+  rewrite <- Heq. exists (R T). apply wo.
+Qed.
+
+Theorem WO_to_AC_VI : WO → AC_VI.
+Proof with eauto; try congruence.
+  intros WO. intros 𝒜 Hub.
+  pose proof (WO 𝒜) as [Q Hwo].
+  set (constr 𝒜 Q Hwo) as S.
+  set (λ f, ∃A ∈ 𝒜, dom f = seg A (R S) ∧
+    ∀B ∈ dom f, f[B] = 1 → B ⊆ A) as P.
+  set (λ f y, y = match (ixm (P f)) with
+    | inl _ => Embed 1
+    | inr _ => 0
+  end) as γ.
+  pose proof (recrusion_spec_intro S γ) as [HfF [HdF HrF]]. {
+    intros f. unfold γ. destruct (ixm (P f)); split...
+  }
+  set (Recursion S γ) as F. fold F in HfF, HdF, HrF.
+  set {A ∊ 𝒜 | λ A, F[A] = 1} as 𝒞.
+  assert (contra: Embed 0 ≠ 1). {
+    intros H. apply (suc_neq_0 0)...
+  }
+  assert (Hsubd: ∀A ∈ 𝒜, seg A (R S) ⊆ WOStruct.A S). {
+    intros A HA x Hx. apply SepE1 in Hx.
+    eapply dom_binRel in Hx... apply wo.
+  }
+  assert (Heqd: ∀A ∈ 𝒜, dom (F ↾ seg A (R S)) = seg A (R S)). {
+    intros A HA. apply restr_dom...
+    rewrite HdF... apply Hsubd...
+  }
+  assert (H𝒞: ∀A ∈ 𝒜, A ∈ 𝒞 ↔ ∀B ∈ 𝒞, (B <ᵣ A) (R S) → B ⊆ A). {
+    intros A HA𝒜. split.
+    - intros HA B HB Hlt.
+      apply SepE in HA as [_ HFA].
+      apply SepE in HB as [HB HFB]. rewrite HrF in HFA...
+      assert (HB': B ∈ seg A (R S)). apply SepI... eapply domI...
+      destruct (ixm (P (F ↾ seg A (R S))))...
+      destruct p as [A' [HA' [HeqA' Hsub]]].
+      assert (Heq: A = A'). {
+        rewrite Heqd in HeqA'... eapply seg_injective... apply wo.
+      }
+      rewrite Heq. apply Hsub.
+      + eapply domI. apply restrI...
+        eapply func_point... rewrite HdF...
+      + rewrite (restr_ap F (WOStruct.A S))... apply Hsubd...
+    - intros Hinc. apply SepI... rewrite HrF...
+      destruct (ixm (P (F ↾ seg A (R S))))...
+      exfalso. apply n. unfold P.
+      exists A. repeat split... apply Heqd...
+      intros B HB HFB. rewrite Heqd in HB...
+      apply Hsubd in HB as HB𝒜...
+      apply SepE2 in HB as Hlt.
+      apply Hinc... apply SepI...
+      rewrite restr_ap in HFB; revgoals... apply Hsubd...
+  }
+  assert (Hchn: is_chain 𝒞). {
+    intros A HA B HB.
+    apply SepE1 in HA as HA𝒜.
+    apply SepE1 in HB as HB𝒜.
+    destruct (classic (A = B)). left...
+    eapply lo_connected in H; eauto; [|apply Hwo].
+    destruct H; [left|right]; apply H𝒞...
+  }
+  apply Hub in Hchn; [|intros x Hx; apply SepE1 in Hx]...
+  exists (⋃ 𝒞). split... intros D HD.
+  destruct (classic (⋃ 𝒞 ⊆ D))... right.
+  apply sub_antisym... apply union_is_ub.
+  apply SepI... rewrite HrF...
+  destruct (ixm (P (F ↾ seg D (R S))))... exfalso.
+  apply n. exists D. repeat split... apply Heqd...
+  intros E HE HFE. rewrite Heqd in HE...
+  eapply sub_tran; revgoals... apply union_is_ub.
+  apply SepI. apply Hsubd in HE...
+  rewrite restr_ap in HFE; revgoals... apply Hsubd...
+Qed.
+
 (* 良序集与其序数等势 *)
 Lemma woset_eqnum_ord : ∀ S, A S ≈ ord S.
 Proof.
@@ -255,13 +348,14 @@ Qed.
 (* 任意集合都可以用序数计数 *)
 Theorem numeration : AC_III → ∀ A, ∃ α, is_ord α ∧ α ≈ A.
 Proof with auto.
-  intros AC3 A. pose proof (well_ordering AC3 A) as [R Hwo].
+  intros AC3 A. pose proof (AC_III_to_WO AC3 A) as [R Hwo].
   set (WOStruct.constr A R Hwo) as S.
   exists (ord S). split... rewrite <- woset_eqnum_ord...
 Qed.
 
 End ImportStruct.
 
+(* 冯·诺伊曼基数指派 *)
 (* 基数：与给定集合等势的最小序数 *)
 Definition card := λ A,
   let α := HartogsNumber A in
@@ -283,7 +377,7 @@ Proof with eauto.
   fold α in Hndom, Hle.
   assert (Hstar: ∀ ξ, is_ord ξ → ξ ≈ A → ξ ∈ α). {
     intros ξ Hξ Hqn. destruct (classic (ξ ∈ α))...
-    exfalso. apply ord_leq_iff_neg_lt in H...
+    exfalso. apply ord_leq_iff_not_gt in H...
     apply ord_leq_iff_sub in H...
     apply dominate_sub in H.
     apply Hndom. eapply dominate_rewrite_r in H...
@@ -334,3 +428,41 @@ Proof with eauto.
   apply no_fin_set_eqnum_its_proper_subset in H.
   apply H. rewrite Hqnn... apply nat_finite...
 Qed.
+
+(* 初始序数 *)
+Definition initial_ord := λ α, is_ord α ∧ ∀β ∈ α, α ≉ β.
+
+(* == implicit AC == *)
+(* 基数是初始序数 *)
+Lemma card_is_initial_ord : ∀ A, initial_ord (|A|).
+Proof with eauto.
+  intros. pose proof (card_well_defined ac3 A) as [H1 [Hoc Hle]].
+  split... intros β Hβ H2. symmetry in H2.
+  assert (Hoβ: is_ord β). eapply ord_is_ords...
+  rewrite H1 in H2. apply Hle in H2...
+  eapply ord_not_leq_gt; revgoals...
+Qed.
+
+(* == implicit AC == *)
+(* 初始序数的基数等于自身 *)
+Lemma card_of_initial_ord : ∀ α, initial_ord α → α = |α|.
+Proof with eauto.
+  intros α [Hα Hnqn].
+  destruct (classic (α = |α|))... exfalso.
+  eapply ord_connected in H as []...
+  - apply card_is_initial_ord in H. apply H.
+    symmetry. apply CardAx0.
+  - eapply Hnqn... apply CardAx0.
+  - apply card_is_initial_ord.
+Qed.
+
+(* == implicit AC == *)
+(* 基数等价于初始序数 *)
+Lemma card_iff_initial_ord : ∀ α, initial_ord α ↔ α = |α|.
+Proof.
+  split; intros H. apply card_of_initial_ord. apply H.
+  rewrite H. apply card_is_initial_ord.
+Qed.
+
+(* "epsilon ordering and cardinality ordering agree"
+  see Cardinal Lemma cards_woset and cardLt_iff_card_epsilon*)

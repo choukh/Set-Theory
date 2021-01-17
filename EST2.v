@@ -72,6 +72,50 @@ Proof with auto.
   - exfalso0.
 Qed.
 
+(* 集合除去非自身的元素，集合不变 *)
+Lemma remove_no_member : ∀ a A, a ∉ A → A - ⎨a⎬ = A.
+Proof with auto.
+  intros * Ha. apply ExtAx. split; intros Hx.
+  - apply SepE1 in Hx...
+  - apply SepI... apply SingNI. intros Heq.
+    apply Ha. subst...
+Qed.
+
+(* 集合除去自身的一个元素再放回去，集合不变 *)
+Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as [].
+    + apply SepE1 in H0...
+    + apply SingE in H0. subst...
+  - destruct (classic (x = a)).
+    + subst. apply BUnionI2...
+    + apply BUnionI1. apply SepI... apply SingNI...
+Qed.
+
+(* 集合加入一个不是自身的元素再去掉，集合不变 *)
+Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [].
+    apply BUnionE in H0 as []... exfalso...
+  - apply SepI. apply BUnionI1...
+    apply SingNI. intros Heq. congruence.
+Qed.
+
+(* 从集合中取出一个元素组成单集，它与取完元素后的集合的并等于原集合 *)
+Lemma split_one_element : ∀ A a, a ∈ A → A = (A - ⎨a⎬) ∪ ⎨a⎬.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - destruct (classic (x = a)).
+    + subst x. apply BUnionI2...
+    + apply BUnionI1. apply SepI...
+      intros contra. apply SingE in contra...
+  - apply BUnionE in Hx as [].
+    + apply SepE1 in H0...
+    + apply SingE in H0. subst x...
+Qed.
+
 (** 真子集 **)
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
 

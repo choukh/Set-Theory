@@ -206,7 +206,7 @@ Proof.
   symmetry. exact (leq_iff_sub m Hm n Hn).
 Qed.
 
-Corollary leq_iff_neg_lt : ∀ m n ∈ ω, m ≤ n ↔ n ∉ m.
+Corollary leq_iff_not_gt : ∀ m n ∈ ω, m ≤ n ↔ n ∉ m.
 Proof with eauto.
   intros m Hm n Hn.
   rewrite (leq_iff_sub _ Hm _ Hn).
@@ -455,7 +455,7 @@ Qed.
 
 Lemma leq_mul_enlarge : ∀ m n ∈ ω, m ≤ m ⋅ n⁺.
 Proof with eauto.
-  intros m Hm n Hn. apply leq_iff_neg_lt...
+  intros m Hm n Hn. apply leq_iff_not_gt...
   apply mul_ran... apply ω_inductive... intros Hc.
   rewrite mul_m_n in Hc...
   apply lt_add_shrink in Hc; try apply mul_ran...

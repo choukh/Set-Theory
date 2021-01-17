@@ -712,12 +712,12 @@ Proof with neauto; try congruence.
   assert (Hqn: (A₀ × D) ∪ (D × A₀) ∪ (D × D) ≈ D). {
     apply cardAdd_disjoint_iff. {
       apply disjointI. intros [x [H1 H2]]. apply BUnionE in H1 as [].
-      - eapply disjointE. apply disjoint_cprod_l... apply H. apply H2.
-      - eapply disjointE. apply disjoint_cprod_r... apply H. apply H2.
+      - eapply disjointE. apply cprod_disjoint_l... apply H. apply H2.
+      - eapply disjointE. apply cprod_disjoint_r... apply H. apply H2.
     }
     rewrite <- cardAdd_disjoint; revgoals. {
       apply disjointI. intros [x [H1 H2]].
-      eapply disjointE. apply disjoint_cprod_l... apply H1. apply H2.
+      eapply disjointE. apply cprod_disjoint_l... apply H1. apply H2.
     }
     do 3 rewrite <- cardMul.
     fold 𝜆. rewrite <- Heq𝜆, Hmul.
@@ -783,9 +783,9 @@ Proof with neauto; try congruence.
           intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
           rewrite Hdf₀ in H1. rewrite Hdg in H2.
           apply BUnionE in H2 as []; [apply BUnionE in H as []|].
-          - eapply disjointE. apply disjoint_cprod_r... apply H1. apply H.
-          - eapply disjointE. apply disjoint_cprod_l... apply H1. apply H.
-          - eapply disjointE. apply disjoint_cprod_r... apply H1. apply H.
+          - eapply disjointE. apply cprod_disjoint_r... apply H1. apply H.
+          - eapply disjointE. apply cprod_disjoint_l... apply H1. apply H.
+          - eapply disjointE. apply cprod_disjoint_r... apply H1. apply H.
         } {
           intros y Hy. exfalso. apply BInterE in Hy as [H1 H2].
           rewrite Hrf₀ in H1. rewrite Hrg in H2. eapply disjointE...

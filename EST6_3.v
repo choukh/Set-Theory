@@ -220,6 +220,13 @@ Proof with auto.
   apply CardAx1. apply Schröeder_Bernstein...
 Qed.
 
+Corollary cardLeq_to_not_gt : ∀ 𝜅 𝜆,
+  𝜅 ≤ 𝜆 → ¬ 𝜆 <𝐜 𝜅.
+Proof.
+  intros 𝜅 𝜆 Hleq [Hgeq Hnq].
+  apply Hnq. apply cardLeq_antisym; auto.
+Qed.
+
 Corollary cardLeq_lt_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 <𝐜 𝜇 → 𝜅 <𝐜 𝜇.
 Proof with eauto.
   intros * H1 [H2 Hnq]. split. eapply cardLeq_tran...
@@ -238,7 +245,7 @@ Proof with auto.
   intros. unfold CardAdd. rewrite <- CardAx0, <- CardAx0.
   apply cardAdd_well_defined.
   apply cardMul_well_defined... apply cardMul_well_defined...
-  apply disjoint_cprod_0_1. apply disjoint_cprod_0_1.
+  apply disjointify_0_1. apply disjointify_0_1.
 Qed.
 
 (* 基数加法保持序关系 *)
@@ -379,7 +386,7 @@ Proof with neauto.
       apply Hf2 in H1. apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
       subst x. apply CProdE2 in H2 as [H _].
       apply SepE in H as [_ H]. exfalso...
-Admitted.
+Qed.
 
 (** 阿列夫零 **)
 Notation "'ℵ₀'" := (|ω|).
@@ -452,7 +459,7 @@ Proof with neauto; try congruence.
   apply cardAdd_well_defined.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
-  apply disjoint_cprod_0_1. apply disjoint_cprod_0_1.
+  apply disjointify_0_1. apply disjointify_0_1.
   set (Func (ω × ⎨0⎬ ∪ ω × ⎨1⎬) ω (λ x,
     match (ixm (π2 x = 0)) with
     | inl _ => (2 ⋅ (π1 x))%n

@@ -128,6 +128,18 @@ Proof.
   apply binRelE3 in Hx0. exfalso0. exfalso0.
 Qed.
 
+Lemma seg_injective : ∀ A R, loset A R → ∀ a b ∈ A,
+  seg a R = seg b R → a = b.
+Proof with eauto.
+  intros A R Hlo a Ha b Hb Heq.
+  destruct (classic (a = b))... exfalso.
+  eapply lo_connected in H as []...
+  - assert (a ∈ seg b R). apply segI...
+    rewrite <- Heq in H0. apply SepE2 in H0. eapply lo_irrefl...
+  - assert (b ∈ seg a R). apply segI...
+    rewrite Heq in H0. apply SepE2 in H0. eapply lo_irrefl...
+Qed.
+
 Lemma seg_with_single_eq_head : ∀ t A R, t ∈ A → is_binRel R A →
   seg t R ∪ ⎨t⎬ = head t A R.
 Proof with eauto.

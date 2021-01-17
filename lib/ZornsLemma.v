@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.EST7_4.
+Require Import ZFC.EST7_5.
 Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.Cardinal.
 Require Import ZFC.lib.OrdinalAsType.
@@ -81,9 +81,12 @@ Proof with auto.
     apply empty_loset. exists m...
 Qed.
 
+(* AC cycle
+  3' → (Zorn ↔ WO) → 6 (→ ... → 3')
+*)
+
 Import OrdinalAsType.
 
-(* ==需要选择公理== *)
 (* 佐恩引理一般形式的证明 *)
 Lemma Zorn's : AC_III' → general_Zorn.
 Proof with eauto; try congruence.
@@ -138,7 +141,6 @@ Admitted.
 
 Module AlternativeProofWithoutRecursion.
 
-(* ==需要选择公理== *)
 (* 佐恩引理一般形式的证明 *)
 Lemma Zorn's : AC_III' → general_Zorn.
 Proof with eauto; try congruence.
@@ -429,3 +431,6 @@ Proof with eauto; try congruence.
 Qed.
 
 End AlternativeProofWithoutRecursion.
+
+Theorem WO_to_Zorn : WO → general_Zorn.
+Admitted.

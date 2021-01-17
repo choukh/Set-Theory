@@ -13,7 +13,7 @@ Check EST7_5.CardAx1.
 Check EST7_5.CardAx2.
 (* Theorem CardAx2 : ∀ A, finite A → |A| = FinCard A. *)
 
-Definition is_card : set → Prop := λ 𝜅, ∃ K, 𝜅 = |K|.
+Definition is_card := λ 𝜅, ∃ K, 𝜅 = |K|.
 
 Lemma card_is_card : ∀ A, is_card (|A|).
 Proof. intros. exists A. reflexivity. Qed.
@@ -166,6 +166,15 @@ Hint Immediate cardMul_is_card : core.
 Lemma cardExp_is_card : ∀ 𝜅 𝜆, is_card (𝜅 ^ 𝜆).
 Proof. intros. apply card_is_card. Qed.
 Hint Immediate cardExp_is_card : core.
+
+(* 壹与单集的笛卡尔积 *)
+Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
+Proof.
+  intros. rewrite one. apply ExtAx. split; intros Hx.
+  - apply CProdE1 in Hx as [a [Ha [b [Hb H0]]]].
+    apply SingE in Ha. apply SingE in Hb. subst. auto.
+  - apply SingE in Hx. subst. apply CProdI; apply SingI.
+Qed.
 
 (* 基数算术的一加一等于二 *)
 Example cardAdd_1_1_2 : 1 + 1 = 2.
@@ -409,14 +418,14 @@ Proof with auto.
         symmetry. apply CardAx0. reflexivity.
       - apply cardMul_well_defined.
         symmetry. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
+      - apply disjointify_0_1.
+      - apply disjointify_0_1.
     }
     eapply eqnum_tran. {
       apply cardAdd_well_defined.
       - symmetry. apply eqnum_cprod_single.
       - symmetry. apply eqnum_cprod_single.
-      - apply disjoint_cprod_0_1.
+      - apply disjointify_0_1.
       - apply Hdj.
     }
     apply H.
@@ -425,14 +434,14 @@ Proof with auto.
       + apply (eqnum_cprod_single _ 0).
       + apply (eqnum_cprod_single _ 1).
       + apply Hdj.
-      + apply disjoint_cprod_0_1.
+      + apply disjointify_0_1.
     }
     eapply eqnum_tran. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
+      - apply disjointify_0_1.
+      - apply disjointify_0_1.
     }
     apply CardAx1. apply H.
 Qed.
@@ -449,16 +458,16 @@ Proof with auto.
         symmetry. apply CardAx0. reflexivity.
       - apply cardMul_well_defined.
         symmetry. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
+      - apply disjointify_0_1.
+      - apply disjointify_0_1.
     }
     apply H.
   - eapply eqnum_tran. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
-      - apply disjoint_cprod_0_1.
-      - apply disjoint_cprod_0_1.
+      - apply disjointify_0_1.
+      - apply disjointify_0_1.
     }
     apply CardAx1. apply H.
 Qed.
@@ -661,8 +670,8 @@ Proof.
     rewrite <- eqnum_cprod_single. reflexivity.
   - rewrite <- eqnum_cprod_single.
     rewrite <- eqnum_cprod_single. reflexivity.
-  - unfold disjoint. rewrite binter_comm. apply disjoint_cprod_0_1.
-  - apply disjoint_cprod_0_1.
+  - unfold disjoint. rewrite binter_comm. apply disjointify_0_1.
+  - apply disjointify_0_1.
 Qed.
 
 (* 基数乘法交换律 *)
@@ -713,13 +722,13 @@ Proof with neauto; try congruence.
     apply cardAdd_well_defined.
     - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0...
     - rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
-    - apply disjoint_cprod_0_1.
+    - apply disjointify_0_1.
     - unfold disjoint. rewrite binter_comm, binter_bunion_distr.
       apply EmptyI. intros x Hx.
       apply BUnionE in Hx as []; apply BInterE in H as [].
-      + eapply disjointE. apply (disjoint_cprod_single 𝜇 𝜅 2 0).
+      + eapply disjointE. apply (cprod_disjointify 𝜇 𝜅 2 0).
         apply suc_neq_0. apply H. apply H0.
-      + eapply disjointE. apply (disjoint_cprod_single 𝜇 𝜆 2 1).
+      + eapply disjointE. apply (cprod_disjointify 𝜇 𝜆 2 1).
         intro. apply Hnq... apply H. apply H0.
   }
   symmetry. eapply eqnum_tran. {
@@ -729,15 +738,15 @@ Proof with neauto; try congruence.
       apply cardAdd_well_defined.
       + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 1)...
       + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
-      + apply disjoint_cprod_0_1.
-      + apply disjoint_cprod_single. intro. apply Hnq...
-    - apply disjoint_cprod_0_1.
+      + apply disjointify_0_1.
+      + apply cprod_disjointify. intro. apply Hnq...
+    - apply disjointify_0_1.
     - unfold disjoint. rewrite binter_bunion_distr.
       apply EmptyI. intros x Hx. apply BUnionE in Hx as [].
-      + pose proof (disjoint_cprod_0_1 𝜅 𝜆).
+      + pose proof (disjointify_0_1 𝜅 𝜆).
         rewrite H0 in H. exfalso0.
       + apply BInterE in H as [].
-        eapply disjointE. apply (disjoint_cprod_single 𝜅 𝜇 0 2).
+        eapply disjointE. apply (cprod_disjointify 𝜅 𝜇 0 2).
         intro. eapply suc_neq_0... apply H. apply H0.
   }
   rewrite bunion_assoc...
@@ -770,8 +779,8 @@ Proof with auto.
     apply CProdE0 in H1 as [_ H1].
     apply CProdE0 in H2 as [_ H2].
     eapply disjointE; revgoals.
-    apply H2. apply H1. apply disjoint_cprod_0_1.
-  - apply disjoint_cprod_0_1.
+    apply H2. apply H1. apply disjointify_0_1.
+  - apply disjointify_0_1.
 Qed.
 
 Corollary cardMul_distr' : ∀ 𝜅 𝜆 𝜇, (𝜆 + 𝜇) ⋅ 𝜅 = 𝜆 ⋅ 𝜅 + 𝜇 ⋅ 𝜅.
@@ -795,7 +804,7 @@ Proof with eauto; try congruence.
       reflexivity. apply (eqnum_cprod_single _ 1).
   }
   remember (𝜆 × ⎨0⎬) as s. remember (𝜇 × ⎨1⎬) as t.
-  assert (Hdj: disjoint s t). { subst. apply disjoint_cprod_0_1. }
+  assert (Hdj: disjoint s t). { subst. apply disjointify_0_1. }
   clear Heqs Heqt. symmetry.
   set (Func (s ∪ t ⟶ 𝜅) ((s ⟶ 𝜅) × (t ⟶ 𝜅)) (λ f,
     <Func s 𝜅 (λ x, f[x]), Func t 𝜅 (λ x, f[x])>
@@ -1080,8 +1089,8 @@ Proof with auto.
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...
   - rewrite <- eqnum_cprod_single, eqnum_single_one...
-  - apply disjoint_cprod_0_1.
-  - apply disjoint_nat_single...
+  - apply disjointify_0_1.
+  - apply nat_disjoint...
 Qed.
 
 (* 有限基数加法等效于自然数加法 *)
@@ -1154,7 +1163,7 @@ Proof with auto.
   - rewrite Ha. apply eqnum_cprod_single.
   - rewrite Hb. apply eqnum_cprod_single.
   - apply binter_comp_empty.
-  - apply disjoint_cprod_0_1.
+  - apply disjointify_0_1.
 Qed.
 
 (* 有限集的笛卡尔积仍是有限集 *)
@@ -1175,6 +1184,14 @@ Proof with auto.
   exists (m ^ n). split. apply cardExp_ω...
   unfold CardExp. rewrite <- CardAx0.
   apply cardExp_well_defined...
+Qed.
+
+(* 与后继数等势的集合非空 *)
+Lemma set_eqnum_suc_nonempty : ∀ A, ∀n ∈ ω, A ≈ n⁺ → ⦿ A.
+Proof with eauto.
+  intros A n Hn HA. apply EmptyNE.
+  destruct (classic (A = ∅))... exfalso. subst A.
+  symmetry in HA. apply eqnum_empty in HA. eapply suc_neq_0...
 Qed.
 
 (* 有限集里的补集是有限集 *)
@@ -1219,7 +1236,7 @@ Proof with auto.
   destruct (classic (disjoint A ⎨a⎬)).
   - destruct Hfa as [m [Hm HA]].
     exists m⁺. split. apply ω_inductive...
-    apply cardAdd_well_defined... apply disjoint_nat_single...
+    apply cardAdd_well_defined... apply nat_disjoint...
   - apply EmptyNE in H as [a' Ha].
     apply BInterE in Ha as [Ha Heq].
     apply SingE in Heq. subst a'.

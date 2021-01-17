@@ -554,7 +554,7 @@ Proof.
   symmetry. exact (ord_leq_iff_sub α β Hα Hβ).
 Qed.
 
-Lemma ord_leq_iff_neg_lt : ∀ α β, is_ord α → is_ord β →
+Lemma ord_leq_iff_not_gt : ∀ α β, is_ord α → is_ord β →
   α ≤ β ↔ β ∉ α.
 Proof with eauto.
   intros α β Hα Hβ.
@@ -730,3 +730,5 @@ Qed.
 
 End Ordinals.
 Hint Immediate ord_is_ord : core.
+Hint Resolve empty_is_ord : core.
+Hint Resolve ω_is_ord : core.
