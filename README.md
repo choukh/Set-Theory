@@ -157,14 +157,14 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 序数上的超限归纳模式
 
 ## EST7_5.v
-- 哈托格斯数，良序定理
+- 哈特格斯数，良序定理
 - 良序定理与选择公理、佐恩引理的互推
 - 冯·诺伊曼基数指派，初始序数
-- 基数的序遵循序数的序
 - 后继基数
 
 ## EST7_6.v (TODO)
 - 冯·诺伊曼宇宙
+- 集合的秩
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
