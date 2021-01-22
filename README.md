@@ -29,8 +29,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## ZFC3.v
 - 无穷公理
-- 选择公理
-- 正则公理
+- 希尔伯特ε算子蕴含选择公理
 
 ## EST2.v
 - 补集，真子集
@@ -45,7 +44,8 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 限制，像
 - 函数空间
 - 无限笛卡尔积
-- 选择公理等效表述
+- 选择公理等效表述1：函数存在右逆
+- 选择公理等效表述2：任意多个非空集合的笛卡尔积非空
 
 ## EST3_3.v
 - 等价关系，等价类，商集
