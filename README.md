@@ -162,9 +162,10 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - 冯·诺伊曼基数指派，初始序数
 - 后继基数
 
-## EST7_6.v (TODO)
+## EST7_6.v
 - 冯·诺伊曼宇宙
 - 集合的秩
+- 正则公理
 
 ## EX*.v
 - Elements of Set Theory 第*章习题
