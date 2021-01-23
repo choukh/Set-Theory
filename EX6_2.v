@@ -147,7 +147,7 @@ Proof with eauto; try congruence.
     + exact Hstar.
 Qed.
 
-(* ex6_20 see EST7_2 Lemma ex_descending_chain *)
+(* ex6_20 see EST7_2 Lemma non_woset_ex_descending_chain *)
 (* ex6_21 see lib/Choice Theorem AC_VI_to_AC_VII *)
 (* ex6_22 see lib/Choice Theorem AC_I_iff_I' *)
 

@@ -2,6 +2,23 @@
 
 Require Export ZFC.EX4.
 
+(* 自然数是奇数或偶数 *)
+Lemma even_or_odd : ∀n ∈ ω, even n ∨ odd n.
+Proof. intros n Hn. apply ex4_14. apply Hn. Qed.
+
+(* 自然数不能同时是奇数和偶数 *)
+Lemma no_even_and_odd : ∀n ∈ ω, ¬ (even n ∧ odd n).
+Proof. intros n Hn. apply ex4_14. apply Hn. Qed.
+
+(* 自然数是偶数当且仅当其后继是奇数 *)
+Lemma even_iff_suc_odd : ∀n ∈ ω, even n ↔ odd n⁺.
+Proof with nauto.
+  intros n Hn. split; intros [m [Hm H]].
+  - exists m. split... rewrite <- H. apply add_suc...
+  - exists m. split... rewrite add_suc in H...
+    apply add_cancel in H... apply mul_ran...
+Qed.
+
 (* 递归单射 *)
 Lemma injective_recursion : ∀ f A a, f: A ⇔ A → a ∈ A - ran f →
   ∃ h, h: ω ⇔ A ∧ h[∅] = a ∧ ∀n ∈ ω, h[n⁺] = f[h[n]].

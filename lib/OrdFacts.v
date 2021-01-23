@@ -101,7 +101,7 @@ Lemma ω_is_inford : inford ω.
 Proof. split. apply ω_is_ord. apply ω_infinite. Qed.
 
 (* 大于等于ω的序数是无限序数 *)
-Lemma ord_geq_ω_infinite : ∀ α, is_ord α → ω ≤ α → inford α.
+Lemma ord_geq_ω_infinite : ∀ α, is_ord α → ω ⋸ α → inford α.
 Proof with eauto.
   intros α Hα Hle.
   apply ord_leq_iff_sub in Hle... split...
@@ -110,14 +110,14 @@ Proof with eauto.
 Qed.
 
 (* 无限序数大于等于ω *)
-Lemma inford_geq_ω : ∀ α, inford α → ω ≤ α.
+Lemma inford_geq_ω : ∀ α, inford α → ω ⋸ α.
 Proof with auto.
   intros α [Hα Hinf]. apply ord_leq_iff_not_gt...
   intros Hlt. apply Hinf. apply nat_finite...
 Qed.
 
 (* 序数大于等于ω当且仅当该序数是无限序数 *)
-Lemma ord_geq_ω_iff_inford : ∀ α, is_ord α ∧ ω ≤ α ↔ inford α.
+Lemma ord_geq_ω_iff_inford : ∀ α, is_ord α ∧ ω ⋸ α ↔ inford α.
 Proof with auto.
   split.
   - intros [Hα Hle]. apply ord_geq_ω_infinite...

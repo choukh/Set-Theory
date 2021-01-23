@@ -338,6 +338,16 @@ Proof.
   exists x. split. apply Hx. reflexivity.
 Qed.
 
+Lemma repl_rewrite : ∀ G F A, (∀a ∈ A, F a = G a) →
+  {F | a ∊ A} = {G | a ∊ A}.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [y [Hy Hx]].
+    apply ReplAx. exists y. split... rewrite <- H...
+  - apply ReplAx in Hx as [y [Hy Hx]].
+    apply ReplAx. exists y. split... rewrite H...
+Qed.
+
 (* 空集的替代是空集 *)
 Fact repl_empty : ∀ F, {F | x ∊ ∅} = ∅.
 Proof.

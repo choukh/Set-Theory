@@ -1,7 +1,7 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 2 **)
 (** Coq coding by choukh, Dec 2020 **)
 
-Require Export ZFC.EST7_4.
+Require Import ZFC.EST7_4.
 Require Import ZFC.lib.FuncFacts.
 Require Import ZFC.lib.Real.
 Require Import ZFC.lib.NatIsomorphism.
@@ -550,7 +550,7 @@ Qed.
 (* ex7_16_2 see EST7_4 Lemma ord_suc_injective *)
 
 (* ex7_17 子结构的序数小于等于原结构的序数 *)
-Theorem ord_of_sub_struct_leq : ∀ S T, S ⊑ T → ord S ≤ ord T.
+Theorem ord_of_sub_struct_leq : ∀ S T, S ⊑ T → ord S ⋸ ord T.
 Proof with eauto.
   intros * [Has Hrs].
   destruct (classic (ord S = ord T))...
@@ -583,5 +583,8 @@ Qed.
 (* ex7_18 see EST7_4 limit ordinal *)
 (* ex7_19 see EX7_1 Section EX7_19 *)
 (* ex7_20 see EX7_1 Section EX7_20 *)
-(* ex7_21 see lib/ZornsLemma *)
-(* ex7_22 see lib/ZornsLemma *)
+(* ex7_21 see lib/ZornsLemma Lemma Zorn's *)
+(* ex7_22 see lib/ZornsLemma Theorem Zorn_to_WO *)
+(* ex7_23 see lib/Cardinal Theorem hartogs_is_card_suc *)
+(* ex7_24 see lib/Cardinal Theorem all_ord_ex_larger_card *)
+(* ex7_25 see EST7_4 Theorem transfinite_induction_schema *)

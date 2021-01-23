@@ -7,11 +7,10 @@ Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.WosetMin.
 Import WosetMin.FullVer.
 
-(*** EST第七章5：哈托格斯数，良序定理与选择公理、佐恩引理的互推，
-  冯·诺伊曼基数指派，初始序数 ***)
+(*** EST第七章5：哈特格斯数，良序定理与选择公理、佐恩引理的互推，
+  冯·诺伊曼基数指派，初始序数，基数的序遵循序数的序，后继基数 ***)
 
 Section ImportStruct.
-
 Import OrderedStruct.
 Import WOStruct.
 Import WOStruct.EpsilonImage.
@@ -46,9 +45,11 @@ Proof with auto.
   pose proof (iso_epsilon S) as [f [Hf _]]. exists f...
 Qed.
 
-(* 哈托格斯定理：对任意集合存在不被其支配的最小序数 *)
-Theorem Hartogs' : ∀ A, ∃ α, is_ord α ∧ ¬ α ≼ A ∧
-  ∀ β, is_ord β → ¬ β ≼ A → α ≤ β.
+Definition hartog_spec := λ A α, is_ord α ∧ ¬ α ≼ A ∧
+  ∀ β, is_ord β → ¬ β ≼ A → α ⋸ β.
+
+(* 哈特格斯定理：对任意集合存在不被其支配的最小序数 *)
+Theorem Hartogs' : ∀ A, ∃ α, hartog_spec A α.
 Proof with eauto; try congruence.
   intros B.
   set {w ∊ 𝒫 B × 𝒫 (B × B) | λ w, woset (π1 w) (π2 w)} as W.
@@ -110,16 +111,13 @@ Proof with eauto; try congruence.
     intros Hβα. apply Hneg. apply SepE2 in Hβα...
 Qed.
 
-(* 哈托格斯数：不被给定集合支配的最小序数 *)
-Definition hartog_spec := λ A α, is_ord α ∧ ¬ α ≼ A ∧
-  ∀ β, is_ord β → ¬ β ≼ A → α ≤ β.
-
-Definition HartogsNumber := λ A, epsilon (inhabits ∅) (hartog_spec A).
+(* 哈特格斯数：不被给定集合支配的最小序数 *)
+(* == we use Hilbert's epsilon for convenience reasons == *)
+Definition HartogsNumber := λ A, ClassChoice (hartog_spec A).
 
 Lemma hartog_spec_intro : ∀ A, hartog_spec A (HartogsNumber A).
 Proof.
-  intros A. apply (epsilon_spec (inhabits ∅) (hartog_spec A)).
-  apply Hartogs'.
+  intros A. apply (class_choice_spec (hartog_spec A)). apply Hartogs'.
 Qed.
 
 (* AC cycle
@@ -226,7 +224,7 @@ Proof with eauto; try congruence.
   assert (He: ∀x ∈ δ, F[x] ≠ e). {
     intros x Hx He.
     assert (x ∈ E). {
-      apply SepI... eapply (Ordinals.ord_trans)...
+      apply SepI... eapply EST7_4.ord_trans...
     }
     apply Hmin in H as [].
     - apply binRelE3 in H. eapply ord_not_lt_gt; revgoals...
@@ -367,7 +365,7 @@ Notation "| A |" := (card A) (at level 40) : ZFC_scope.
 (* ==需要选择公理== *)
 Lemma card_well_defined : AC_III →
   ∀ A, |A| ≈ A ∧ is_ord (|A|) ∧
-  ∀ β, is_ord β → β ≈ A → |A| ≤ β.
+  ∀ β, is_ord β → β ≈ A → |A| ⋸ β.
 Proof with eauto.
   intros AC3 A.
   set (HartogsNumber A) as α.
@@ -464,5 +462,8 @@ Proof.
   rewrite H. apply card_is_initial_ord.
 Qed.
 
-(* "epsilon ordering and cardinality ordering agree"
-  see Cardinal Lemma cards_woset and cardLt_iff_card_epsilon*)
+(* for "epsilon ordering and cardinality ordering agree"
+  see lib/Cardinal Lemma cards_woset and cardLt_iff_ord_lt *)
+
+(* for "successor cardinal"
+  see lib/Cardinal Theorem hartogs_is_card_suc *)

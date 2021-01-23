@@ -432,5 +432,419 @@ Qed.
 
 End AlternativeProofWithoutRecursion.
 
+Section ImportWOStruct.
+Import WOStruct.
+
 Theorem WO_to_Zorn : WO → general_Zorn.
-Admitted.
+Proof with eauto; try congruence.
+  intros WO. intros A Q Hpo Hub.
+  pose proof (WO A) as [W Hwo].
+  set (WOStruct.constr A W Hwo) as S.
+  set (λ f, ∃a ∈ A, dom f = seg a (R S) ∧
+    ∀b ∈ dom f, f[b] = 1 → (b <ᵣ a) Q) as P.
+  set (λ f y, y = match (ixm (P f)) with
+    | inl _ => Embed 1
+    | inr _ => 0
+  end) as γ.
+  pose proof (recrusion_spec_intro S γ) as [Hff [Hdf Hrf]]. {
+    intros f. unfold γ. destruct (ixm (P f)); split...
+  }
+  set (Recursion S γ) as f. fold f in Hff, Hdf, Hrf.
+  set {a ∊ A | λ A, f[a] = 1} as C.
+  assert (contra: Embed 0 ≠ 1). {
+    intros H. apply (suc_neq_0 0)...
+  }
+  assert (Hsubd: ∀a ∈ A, seg a (R S) ⊆ WOStruct.A S). {
+    intros a Ha x Hx. apply SepE1 in Hx.
+    eapply dom_binRel in Hx... apply wo.
+  }
+  assert (Heqd: ∀a ∈ A, dom (f ↾ seg a (R S)) = seg a (R S)). {
+    intros a Ha. apply restr_dom...
+    rewrite Hdf... apply Hsubd...
+  }
+  assert (HC: ∀a ∈ A, a ∈ C ↔ ∀b ∈ C, (b <ᵣ a) (R S) → (b <ᵣ a) Q). {
+    intros a HaA. split.
+    - intros Ha b Hb Hlt.
+      apply SepE in Ha as [_ Hfa].
+      apply SepE in Hb as [Hb Hfb]. rewrite Hrf in Hfa...
+      assert (Hb': b ∈ seg a (R S)). apply SepI... eapply domI...
+      destruct (ixm (P (f ↾ seg a (R S))))...
+      destruct p as [a' [Ha' [Heqa' Hsub]]].
+      assert (Heq: a = a'). {
+        rewrite Heqd in Heqa'... eapply seg_injective... apply wo.
+      }
+      rewrite Heq. apply Hsub.
+      + eapply domI. apply restrI...
+        eapply func_point... rewrite Hdf...
+      + rewrite (restr_ap f (WOStruct.A S))... apply Hsubd...
+    - intros Hinc. apply SepI... rewrite Hrf...
+      destruct (ixm (P (f ↾ seg a (R S))))...
+      exfalso. apply n. unfold P.
+      exists a. repeat split... apply Heqd...
+      intros b Hb Hfb. rewrite Heqd in Hb...
+      apply Hsubd in Hb as HbA...
+      apply SepE2 in Hb as Hlt.
+      apply Hinc... apply SepI...
+      rewrite restr_ap in Hfb; revgoals... apply Hsubd...
+  }
+  assert (Hsub: C ⊆ A). {
+    intros x Hx. apply SepE1 in Hx...
+  }
+  assert (Hlo: loset C (Q ⥏ C)). {
+    apply loset_iff_connected_poset.
+    split; [|eapply subRel_poset]...
+    intros a Ha b Hb Hnq.
+    apply SepE1 in Ha as HaA.
+    apply SepE1 in Hb as HbA.
+    eapply lo_connected in Hnq as [];
+    [left|right|apply Hwo|auto..];
+    (apply SepI; [apply HC|apply CProdI])...
+  }
+  pose proof (Hub C) as [u [Hu Hle]]...
+  exists u. split... intros d Hd.
+  destruct (classic ((u <ᵣ d) Q))... exfalso.
+  assert (HdC: d ∈ C). {
+    apply HC... intros b Hb Hbd. apply Hle in Hb.
+    eapply relLe_lt_tranr... apply Hpo.
+  }
+  apply Hle in HdC. eapply relLt_irrefl. apply Hpo.
+  eapply relLe_lt_tranr... apply Hpo.
+Qed.
+
+End ImportWOStruct.
+
+Theorem Zorn_to_WO : general_Zorn → WO.
+Proof with eauto; try congruence.
+  intros Zorn X.
+  set {w ∊ 𝒫 X × 𝒫 (X × X) | λ w, woset (π1 w) (π2 w)} as 𝓦.
+  set (BinRel 𝓦 (λ u v,
+    let A := π1 u in let B := π1 v in
+    let RA := π2 u in let RB := π2 v in
+    A ⊂ B ∧
+    RA = RB ⥏ A ∧
+    ∀a ∈ A, ∀b ∈ B - A, (a <ᵣ b) RB
+  )) as 𝓡.
+  pose proof (Zorn 𝓦 𝓡) as [𝓜 [H𝓜 Hmax]]. {
+    (* poset 𝓦 𝓡 *)
+    repeat split.
+    - apply binRel_is_binRel.
+    - apply rel_is_rel.
+    - intros u v w Huv Hvw.
+      apply binRelE2 in Huv as [Hu [_ [[H11 H11'] [H12 H13]]]].
+      apply binRelE2 in Hvw as [_ [Hw [[H21 H21'] [H22 H23]]]].
+      apply binRelI... repeat split.
+      + eapply sub_tran...
+      + intros Heq. rewrite Heq in H11.
+        apply H21'. eapply sub_antisym...
+      + apply ExtAx. split; intros Hx.
+        * rewrite H12 in Hx. apply SepE in Hx as [H1 H2].
+          rewrite H22 in H1. apply SepE1 in H1. apply SepI...
+        * apply SepE in Hx as [H1 H2].
+          rewrite H12. apply SepI...
+          rewrite H22. apply SepI...
+          apply CProdE1 in H2 as [a [Ha [b [Hb Hx]]]].
+          subst x. apply CProdI; apply H11...
+      + intros a Ha b Hb.
+        destruct (classic (b ∈ π1 v)) as [Hb'|Hb'].
+        * assert ((a <ᵣ b) (π2 v)). {
+            apply H13... apply SepE in Hb as [H1 H2]. apply SepI...
+          }
+          rewrite H22 in H. apply SepE1 in H...
+        * apply H23. apply H11...
+          apply SepE in Hb as [H1 H2]. apply SepI...
+    - intros w Hp. apply binRelE3 in Hp as [[] _]...
+  } {
+    (* chain 𝓒 has upper bound *)
+    intros 𝓒 Hsub Hlo.
+    set (⋃ {π1 | w ∊ 𝓒}) as U.
+    set (BinRel U (λ s t, ∃ C RC, (s <ᵣ t) RC ∧ <C, RC> ∈ 𝓒)) as RU.
+    assert (HU: <U, RU> ∈ 𝓦). {
+      apply SepI; zfcrewrite. {
+        apply CProdI.
+        - apply PowerAx. intros x Hx.
+          apply UnionAx in Hx as [A [HA Hx]].
+          apply ReplAx in HA as [p [Hp Heq]].
+          apply Hsub in Hp. apply SepE1 in Hp.
+          apply CProdE1 in Hp as [A' [HA [R [_ Hp]]]].
+          subst p. zfcrewrite. subst A'.
+          apply PowerAx in HA. apply HA...
+        - apply PowerAx. intros p Hp.
+          apply binRelE1 in Hp as [a [Ha [b [Hb [Heq [C [RC [Hlt Hp]]]]]]]].
+          subst p. apply Hsub in Hp. apply SepE1 in Hp.
+          apply CProdE2 in Hp as [_ H].
+          apply PowerAx in H. apply H...
+      }
+      (* woset U RU *)
+      split; [apply loset_iff_connected_poset; split|].
+      - (* connected RU U *)
+        intros a Ha b Hb Hnq.
+        assert (HaU := Ha). assert (HbU := Hb).
+        apply UnionAx in Ha as [A [HA Ha]].
+        apply UnionAx in Hb as [B [HB Hb]].
+        apply ReplAx in HA as [p [HpC HA]].
+        apply ReplAx in HB as [q [HqC HB]]. subst.
+        destruct (classic (p = q)). {
+          subst. apply Hsub in HpC.
+          apply SepE in HpC as [Hp Hwo].
+          apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
+          subst. zfcrewrite.
+          eapply lo_connected in Hnq as [];
+          [left|right|apply Hwo|auto..]; apply binRelI...
+        }
+        eapply lo_connected in H as [];
+        [| |apply Hlo|auto..]; apply SepE1 in H;
+        apply binRelE2 in H as [Hp [Hq [HAB _]]];
+        apply SepE in Hp as [Hp HwoA];
+        apply SepE in Hq as [Hq HwoB];
+        apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]];
+        apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
+        subst; zfcrewrite; [apply HAB in Ha|apply HAB in Hb];
+        (eapply lo_connected in Hnq as [];
+        [left|right|apply HwoB|auto..]; apply binRelI)...
+      - (* poset U RU *)
+        repeat split.
+        + apply binRel_is_binRel.
+        + apply rel_is_rel.
+        + intros u v w Huv Hvw.
+          apply binRelE2 in Huv as [Hu [Hv [C [RC [Huv HC]]]]].
+          apply binRelE2 in Hvw as [_ [Hw [D [RD [Hvw HD]]]]].
+          destruct (classic (<C, RC> = <D, RD>)). {
+            apply op_iff in H as []; subst.
+            apply Hsub in HC. apply SepE2 in HC. zfcrewrite.
+            apply binRelI... exists D, RD. split...
+            eapply relLt_tranr... apply HC.
+          }
+          eapply lo_connected in H as [];
+          [| |apply Hlo|auto..]; apply SepE1 in H;
+          apply binRelE2 in H as [Hp [Hq [_ [H _]]]];
+          apply SepE in Hp as [Hp HwoA];
+          apply SepE in Hq as [Hq HwoB];
+          apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]];
+          apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
+          apply op_iff in Hp as [];
+          apply op_iff in Hq as [];
+          subst; zfcrewrite; apply binRelI; auto;
+          exists B, RB; split; auto; [
+            rewrite H in Huv; apply SepE1 in Huv|
+            rewrite H in Hvw; apply SepE1 in Hvw
+          ]; eapply relLt_tranr; eauto; apply HwoB.
+        + intros u Hp. apply binRelE3 in Hp as [C [RC [Hlt Hp]]].
+          apply Hsub in Hp. apply SepE2 in Hp. zfcrewrite.
+          eapply lo_irrefl. apply Hp. apply Hlt.
+      - (* has min *)
+        intros A [a Ha] HAU.
+        apply HAU in Ha as HaU.
+        apply UnionAx in HaU as [C [HC HaC]].
+        apply ReplAx in HC as [p [HpC HC]].
+        apply Hsub in HpC as Hp.
+        apply SepE in Hp as [Hp [_ Hmin]].
+        apply CProdE1 in Hp as [C' [_ [RC [_ Hp]]]].
+        subst p. zfcrewrite. subst C'.
+        pose proof (Hmin (A ∩ C)) as [m [Hm Hle]].
+        + exists a. apply BInterI...
+        + intros x Hx. apply BInterE in Hx as []...
+        + apply BInterE in Hm as [HmA HmC].
+          exists m. split... intros x HxA.
+          destruct (classic (m = x)) as [|Hmx]. right... left.
+          apply binRelI; [apply HAU..|]...
+          destruct (classic (x ∈ C)) as [HxC|HxC']. {
+            assert (x ∈ A ∩ C). apply BInterI...
+            apply Hle in H as []...
+          }
+          apply HAU in HxA as Hx.
+          apply UnionAx in Hx as [D [HD Hx]].
+          apply ReplAx in HD as [q [HqC HD]].
+          apply Hsub in HqC as Hq.
+          apply SepE in Hq as [Hq Hwo].
+          apply CProdE1 in Hq as [D' [_ [RD [_ Hq]]]].
+          subst q. zfcrewrite. subst D'.
+          destruct (classic (<C, RC> = <D, RD>)) as [|Hnq]. {
+            apply op_iff in H as []; subst...
+          }
+          eapply lo_connected in Hnq as [];
+          [| |apply Hlo|auto..]; apply SepE1 in H;
+          apply binRelE3 in H as [H1 [_ H3]]; zfcrewrite.
+          * exists D, RD. split... apply H3... apply SepI...
+          * apply H1 in Hx...
+    }
+    (* show that <U, RU> is upper bound of 𝓒 *)
+    exists (<U, RU>). split... intros p HpC.
+    destruct (classic (p = <U, RU>)) as [|Hnq]. right... left.
+    apply binRelI... apply Hsub...
+    apply Hsub in HpC as Hp.
+    apply SepE in Hp as [Hp Hwo].
+    apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
+    subst. zfcrewrite.
+    assert (HAU: A ⊆ U). {
+      apply union_is_ub. apply ReplAx.
+      exists <A, RA>. split... zfcrewrite.
+    }
+    assert (HeqR: RA = RU ⥏ A). {
+      destruct Hwo as [[Hbr _] _].
+      apply ExtAx. intros p. split; intros Hp.
+      - apply Hbr in Hp as H.
+        apply CProdE1 in H as [a [Ha [b [Hb Heqp]]]].
+        subst p. apply SepI.
+        apply binRelI; [apply HAU..|]... apply CProdI...
+      - apply SepE in Hp as [Hp Hpp].
+        apply binRelE1 in Hp as [a [Ha [b [Hb [Hp [B [RB [Hlt HP]]]]]]]].
+        subst p. apply CProdE2 in Hpp as [HaA HaB]. 
+        destruct (classic (<A, RA> = <B, RB>)). {
+          apply op_iff in H as []; subst...
+        }
+        eapply lo_connected in H as [];
+        [| |apply Hlo|auto..]; apply SepE1 in H;
+        apply binRelE3 in H as [_ [H2 _]]; zfcrewrite.
+        * rewrite H2. apply SepI... apply CProdI...
+        * rewrite H2 in Hlt. apply SepE1 in Hlt...
+    }
+    repeat split...
+    - intros Heq. apply Hnq. apply op_iff. split...
+      rewrite HeqR, Heq.
+      apply ExtAx. intros p. split; intros Hp.
+      apply SepE1 in Hp... apply SepI... apply SepE1 in Hp...
+    - intros a Ha b Hb. apply binRelI.
+      apply HAU... apply SepE1 in Hb...
+      apply SepE in Hb as [Hb Hb'].
+      apply UnionAx in Hb as [B [HB Hb]].
+      apply ReplAx in HB as [q [HqC HB]].
+      apply Hsub in HqC as Hq.
+      apply SepE in Hq as [Hq HwoB].
+      apply CProdE1 in Hq as [B' [_ [RB [_ Hq]]]].
+      subst q. zfcrewrite. subst B'.
+      destruct (classic (<A, RA> = <B, RB>)). {
+        apply op_iff in H as []; subst...
+      }
+      eapply lo_connected in H as [];
+      [| |apply Hlo|auto..]; apply SepE1 in H;
+      apply binRelE3 in H as [H1 [_ H3]]; zfcrewrite;
+      exists B, RB; split...
+      * apply H3... apply SepI...
+      * apply H1 in Hb...
+  }
+  (* by contradiction show that M = X and RM is the desired well order *)
+  apply SepE in H𝓜 as H. destruct H as [Hp Hwo].
+  apply CProdE1 in Hp as [M [Hsub [RM [_ Hp]]]].
+  subst. zfcrewrite. apply PowerAx in Hsub.
+  exists RM. replace X with M...
+  destruct (classic (M = X)) as [|HMX]... exfalso.
+  assert (Hpsub: M ⊂ X). split...
+  apply comp_nonempty in Hpsub as [s Hs].
+  apply SepE in Hs as [Hs Hs'].
+  set (M ∪ ⎨s⎬) as M'.
+  set (BinRel (M ∪ ⎨s⎬) (λ x y,
+    match (ixm (x = s)) with
+    | inl _ => ⊥
+    | inr _ =>
+      match (ixm (y = s)) with
+      | inl _ => ⊤
+      | inr _ => (x <ᵣ y) RM
+  end end)) as RM'.
+  assert (Hsub': M' ⊆ X). {
+    intros x Hx. apply BUnionE in Hx as [].
+    apply Hsub... apply SingE in H...
+  }
+  assert (HM': <M', RM'> ∈ 𝓦). {
+    apply SepI; zfcrewrite.
+    apply CProdI; apply PowerAx...
+    intros p Hp. apply SepE1 in Hp.
+    apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+    subst. apply CProdI; apply Hsub'...
+    (* woset M' RM' *)
+    split; [apply loset_iff_connected_poset; split|].
+    - (* connected RM' M' *)
+      intros a Ha b Hb Hnq.
+      apply BUnionE in Ha as [Ha|Ha];
+      apply BUnionE in Hb as [Hb|Hb].
+      + eapply lo_connected in Hnq as [];
+        [left|right|apply Hwo|auto..];
+        (apply binRelI; [apply BUnionI1; auto..|]);
+        destruct (ixm (a = s)); try congruence;
+        destruct (ixm (b = s))...
+      + left. apply binRelI.
+        apply BUnionI1... apply BUnionI2... apply SingE in Hb.
+        destruct (ixm (b = s))...
+        destruct (ixm (a = s))...
+      + right. apply binRelI.
+        apply BUnionI1... apply BUnionI2... apply SingE in Ha.
+        destruct (ixm (b = s))...
+        destruct (ixm (a = s))...
+      + apply SingE in Ha; apply SingE in Hb...
+    - (* poset M' RM' *)
+      repeat split.
+      + apply binRel_is_binRel.
+      + apply rel_is_rel.
+      + intros x y z Hxy Hyz.
+        apply binRelE2 in Hxy as [Hx [Hy Hxy]].
+        apply binRelE2 in Hyz as [_ [Hz Hyz]].
+        apply binRelI...
+        (apply BUnionE in Hx as [Hx|Hx]; [|apply SingE in Hx]);
+        (apply BUnionE in Hy as [Hy|Hy]; [|apply SingE in Hy]);
+        (apply BUnionE in Hz as [Hz|Hz]; [|apply SingE in Hz]);
+        destruct (ixm (x = s));
+        destruct (ixm (y = s));
+        destruct (ixm (z = s))...
+        * eapply relLt_tranr... apply Hwo.
+        * exfalso...
+      + intros x Hp. apply binRelE2 in Hp as [Hx [_ H]].
+        apply BUnionE in Hx as [Hx|Hx].
+        * destruct (ixm (x = s))...
+          eapply lo_irrefl... apply Hwo.
+        * apply SingE in Hx.
+          destruct (ixm (x = s))...
+    - (* has min *)
+      intros A [a Ha] HAM'.
+      destruct (classic (A - ⎨s⎬ = ∅)) as [|Hne]. {
+        exists a. split... intros x Hx. right.
+        replace A with ⎨a⎬ in Hx.
+        apply SingE in Hx... clear x Hx.
+        apply ExtAx. split; intros Hx.
+        - apply SingE in Hx...
+        - apply sub_iff_no_comp in H.
+          apply H in Hx. apply SingE in Hx.
+          apply H in Ha. apply SingE in Ha. subst...
+      }
+      destruct Hwo as [_ Hmin].
+      pose proof (Hmin (A - ⎨s⎬)) as [m [Hm Hle]].
+      + apply EmptyNE...
+      + intros x Hx. apply SepE in Hx as [Hx Hx'].
+        apply SingNE in Hx'. apply HAM' in Hx.
+        apply BUnionE in Hx as []... apply SingE in H...
+      + apply SepE in Hm as [Hm Hm']. apply SingNE in Hm'.
+        exists m. split... intros x Hx.
+        destruct (classic (m = x)) as [|Hnq]. right... left.
+        apply binRelI; [apply HAM'..|]...
+        destruct (ixm (m = s))...
+        destruct (ixm (x = s))...
+        assert (x ∈ A - ⎨s⎬). apply SepI... apply SingNI...
+        apply Hle in H as []...
+  }
+  apply Hmax in HM' as H.
+  destruct H; revgoals. {
+    apply op_iff in H as [H _].
+    apply Hs'. rewrite <- H. apply BUnionI2...
+  }
+  apply H. apply binRelI...
+  repeat split; zfcrewrite...
+  - intros x Hx. apply BUnionI1...
+  - intros Heq. apply Hs'. rewrite Heq. apply BUnionI2...
+  - apply ExtAx. split; intros Hx.
+    + destruct Hwo as [[Hbr _] _].
+      apply Hbr in Hx as Hp. apply SepI...
+      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      subst. apply binRelI; [apply BUnionI1..|]...
+      destruct (ixm (a = s))...
+      destruct (ixm (b = s))...
+    + apply SepE in Hx as [H1 H2].
+      apply binRelE1 in H1 as [a [_ [b [_ [Heq Hlt]]]]].
+      subst. apply CProdE2 in H2 as [Ha Hb].
+      destruct (ixm (a = s))...
+      destruct (ixm (b = s))...
+  - intros a Ha b Hb.
+    apply SepE in Hb as [Hb Hb'].
+    apply binRelI; [apply BUnionI1|..]...
+    destruct (ixm (a = s))...
+    destruct (ixm (b = s))...
+    apply BUnionE in Hb as []...
+    apply SingE in H0...
+Qed.

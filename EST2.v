@@ -5,10 +5,6 @@ Require Export ZFC.lib.Essential.
 
 (*** EST第二章：补集，真子集，集合代数定律 ***)
 
-Declare Scope ZFC_scope.
-Open Scope ZFC_scope.
-Delimit Scope ZFC_scope with zfc.
-
 (** 补集 **)
 Definition Complement : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
 Notation "A - B" := (Complement A B) : ZFC_scope.

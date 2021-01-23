@@ -60,7 +60,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 非良序的关系存在无穷降链 *)
-Lemma ex_descending_chain : AC_I → ∀ A R, ⦿ A →
+Lemma non_woset_ex_descending_chain : AC_I → ∀ A R, ⦿ A →
   (∀y ∈ A, ∃x ∈ A, (x <ᵣ y) R) →
   ∃ f, descending_chain f A R.
 Proof with eauto.
@@ -97,7 +97,7 @@ Proof with neauto.
   - intros Hwo. apply woset_no_descending_chain...
   - intros Hndc. split... intros B Hne Hsub.
     destruct (classic (∃ m, minimum m B R))...
-    pose proof (ex_descending_chain AC1 B R Hne) as [f Hdc]. {
+    pose proof (non_woset_ex_descending_chain AC1 B R Hne) as [f Hdc]. {
       intros y Hy. eapply not_ex_all_not in H.
       apply not_and_or in H as []. exfalso...
       apply set_not_all_ex_not in H as [x [Hx H]].
@@ -533,25 +533,24 @@ Proof.
   apply transfinite_recursion.
 Qed.
 
+(* == we use Hilbert's epsilon for convenience reasons == *)
 Module Import TransfiniteRecursion.
 
 Definition spec := λ A R γ F,
   is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
 
-Definition constr := λ A R γ,
-  epsilon (inhabits ∅) (λ F, spec A R γ F).
+Definition constr := λ A R γ, ClassChoice (spec A R γ).
 
 Lemma spec_intro : ∀ A R γ, woset A R →
   (∀ x, ∃! y, γ x y) → spec A R γ (constr A R γ).
 Proof.
-  intros. apply (epsilon_spec (inhabits ∅) (spec A R γ)).
+  intros. apply (class_choice_spec (spec A R γ)).
   apply transfinite_recursion; auto.
 Qed.
 
 End TransfiniteRecursion.
 
 (** 传递闭包 **)
-
 Module Import TransitiveClosureDef.
 
 Definition γ := λ A x y, y = A ∪ ⋃ ⋃ (ran x).

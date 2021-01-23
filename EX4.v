@@ -280,11 +280,11 @@ Proof with try apply ω_inductive; auto.
 Qed.
 
 Example ex4_26: ∀n ∈ ω, ∀ f, f: n⁺ ⇒ ω →
-  ∃m ∈ ran f, ∀k ∈ ran f, k ≤ m.
+  ∃m ∈ ran f, ∀k ∈ ran f, k ⋸ m.
 Proof with eauto.
   intros n Hn.
   set {n ∊ ω | λ n, ∀ f, f: n⁺ ⇒ ω →
-    ∃m ∈ ran f, ∀k ∈ ran f, k ≤ m} as N.
+    ∃m ∈ ran f, ∀k ∈ ran f, k ⋸ m} as N.
   ω_induction N Hn; intros f [Hff [Hfd Hfr]].
   - exists (f[0]). split.
     + eapply ap_ran. split... nauto.
@@ -584,10 +584,10 @@ Proof with eauto; try congruence.
 Qed.
 
 Lemma ex4_37_2_0 : ∀ a b ∈ ω, ∀x ∈ a + b,
-  a ≤ x → ∃c ∈ b, x = a + c.
+  a ⋸ x → ∃c ∈ b, x = a + c.
 Proof with neauto.
   intros a Ha b Hb.
-  set {b ∊ ω | λ b, ∀x ∈ a + b, a ≤ x → 
+  set {b ∊ ω | λ b, ∀x ∈ a + b, a ⋸ x → 
     ∃c ∈ b, x = a + c
   } as N.
   ω_induction N Hb; intros x Hx Hlt.

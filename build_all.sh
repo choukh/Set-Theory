@@ -10,6 +10,8 @@ echo "building ZFC3"
 coqc -R . ZFC ZFC3.v
 echo "building Essential"
 coqc -R . ZFC lib/Essential.v
+echo "building EpsilonInduction"
+coqc -R . ZFC lib/EpsilonInduction.v
 
 echo "building EST2"
 coqc -R . ZFC EST2.v
@@ -113,6 +115,9 @@ echo "building EX7_1"
 coqc -R . ZFC EX7_1.v
 echo "building EX7_2"
 coqc -R . ZFC EX7_2.v
+
+echo "building EST7_6"
+coqc -R . ZFC EST7_6.v
 echo "building EX7_3"
 coqc -R . ZFC EX7_3.v
 

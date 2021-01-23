@@ -52,24 +52,17 @@ Proof.
     exists B. split. apply HB. apply Hb.
 Qed.
 
-(* 没有循环三链 *)
-Lemma well_founded_3 : ∀ X Y Z, X ∈ Y → Y ∈ Z → Z ∉ X.
-Proof.
-  intros X Y Z H. pose proof (ε_ind (λ X, ∀ Y Z, X ∈ Y → Y ∈ Z → Z ∉ X)).
-  apply H0; [|apply H]. clear X Y Z H H0.
-  intros X H Y Z H1 H2 H3.
-  pose proof (H Z H3 X Y H3 H1). auto.
-Qed.
-
 Example ex3_4: ¬ ∃ S, ∀ a b, <a, b> ∈ S.
-Proof.
-  intros [S H]. specialize H with S S.
-  assert (<S, S> = ⎨⎨S⎬⎬). {
-    apply ExtAx. split; intros.
-    apply PairE in H0 as []; subst x; apply SingI. apply H0.
-  }
-  rewrite H0 in H.
-  apply (well_founded_3 S ⎨S⎬ ⎨⎨S⎬⎬); try apply SingI. apply H.
+Proof with auto.
+  intros [S H]. apply ex2_8.
+  exists {Union | s ∊ S}. intros s.
+  specialize H with s s.
+  apply ReplAx. exists <s, s>. split...
+  apply ExtAx. split; intros Hx.
+  - rewrite op_union in Hx.
+    apply PairE in Hx as []; subst...
+  - apply SingE in Hx; subst.
+    apply UnionAx. exists ⎨s⎬. split... apply PairI1.
 Qed.
 
 Example ex3_5_b: ∀ A B, A × B = ⋃{λ x, ⎨x⎬ × B | x ∊ A}.

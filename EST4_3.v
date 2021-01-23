@@ -5,7 +5,7 @@ Require Export ZFC.EST4_2.
 
 (*** EST第四章3：自然数线序，自然数良序，强归纳原理 ***)
 
-Lemma leq_iff_lt_suc : ∀ m n ∈ ω, m ≤ n ↔ m ∈ n⁺.
+Lemma leq_iff_lt_suc : ∀ m n ∈ ω, m ⋸ n ↔ m ∈ n⁺.
 Proof with nauto.
   intros m Hm n Hn. split.
   - intros []. apply BUnionI1... subst...
@@ -28,7 +28,7 @@ Proof with try apply ω_inductive; neauto.
 Qed.
 
 (* 自然数的后继是大于该数的最小数 *)
-Lemma lt_iff_suc_leq : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ≤ n.
+Lemma lt_iff_suc_leq : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ⋸ n.
 Proof with auto.
   intros m Hm n Hn. split.
   - intros H. apply suc_preserve_lt in H...
@@ -56,7 +56,7 @@ Proof.
   intros m Hm n Hn Heq Hlt. subst. eapply nat_irrefl; eauto.
 Qed.
 
-Lemma nat_not_leq_gt : ∀ m n ∈ ω, m ≤ n → n ∈ m → ⊥.
+Lemma nat_not_leq_gt : ∀ m n ∈ ω, m ⋸ n → n ∈ m → ⊥.
 Proof with eauto.
   intros m Hm n Hn Hleq Hgt. destruct Hleq.
   - eapply nat_not_lt_gt; revgoals...
@@ -189,7 +189,7 @@ Proof with auto.
       apply H. apply lt_iff_psub...
 Qed.
 
-Corollary leq_iff_sub : ∀ m n ∈ ω, m ≤ n ↔ m ⊆ n.
+Corollary leq_iff_sub : ∀ m n ∈ ω, m ⋸ n ↔ m ⊆ n.
 Proof with eauto.
   intros m Hm n Hn. split.
   - intros [].
@@ -206,7 +206,7 @@ Proof.
   symmetry. exact (leq_iff_sub m Hm n Hn).
 Qed.
 
-Corollary leq_iff_not_gt : ∀ m n ∈ ω, m ≤ n ↔ n ∉ m.
+Corollary leq_iff_not_gt : ∀ m n ∈ ω, m ⋸ n ↔ n ∉ m.
 Proof with eauto.
   intros m Hm n Hn.
   rewrite (leq_iff_sub _ Hm _ Hn).
@@ -320,7 +320,7 @@ Proof with eauto.
 Qed.
 
 Corollary mul_preserve_leq : ∀ m n p ∈ ω,
-  p ≠ 0 → m ≤ n ↔ m ⋅ p ≤ n ⋅ p.
+  p ≠ 0 → m ⋸ n ↔ m ⋅ p ⋸ n ⋅ p.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0. split; intros [].
   - left. apply mul_preserve_lt...
@@ -420,10 +420,10 @@ Proof with eauto.
   - subst. eapply nat_irrefl...
 Qed.
 
-Lemma leq_add_enlarge : ∀ m n ∈ ω, m ≤ m + n.
+Lemma leq_add_enlarge : ∀ m n ∈ ω, m ⋸ m + n.
 Proof with neauto.
   intros k Hk n Hn. generalize dependent k.
-  set {n ∊ ω | λ n, ∀ k, k ∈ ω → k ≤ k + n} as N.
+  set {n ∊ ω | λ n, ∀ k, k ∈ ω → k ⋸ k + n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite add_ident...
   - rewrite add_m_n... assert (Hk' := Hk).
@@ -453,7 +453,7 @@ Proof with neauto.
     eapply nat_trans; revgoals...
 Qed.
 
-Lemma leq_mul_enlarge : ∀ m n ∈ ω, m ≤ m ⋅ n⁺.
+Lemma leq_mul_enlarge : ∀ m n ∈ ω, m ⋸ m ⋅ n⁺.
 Proof with eauto.
   intros m Hm n Hn. apply leq_iff_not_gt...
   apply mul_ran... apply ω_inductive... intros Hc.

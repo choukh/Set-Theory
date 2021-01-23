@@ -80,7 +80,7 @@ Proof with eauto.
   - eapply Hir. eapply Htr...
 Qed.
 
-(* 偏序若满足"≤"且"≥"则满足"=" *)
+(* 偏序若满足"⋸"且"≥"则满足"=" *)
 Fact po_semi_antisym : ∀ R x y, partialOrder R →
   (x ≤ᵣ y) R ∧ (y ≤ᵣ x) R → x = y.
 Proof with auto.
@@ -278,12 +278,12 @@ Proof.
   subst. apply CProdI; auto.
 Qed.
 
-Notation "a ≤ b" := (a ∈ b ∨ a = b) (at level 70) : ZFC_scope.
+Notation "a ⋸ b" := (a ∈ b ∨ a = b) (at level 70) : ZFC_scope.
 
 Definition ε_minimal := λ a A, a ∈ A ∧ ∀b ∈ A, b ∉ a ∨ a = b.
 Definition ε_maximal := λ a A, a ∈ A ∧ ∀b ∈ A, a ∉ b ∨ a = b.
-Definition ε_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ≤ b.
-Definition ε_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ≤ a.
+Definition ε_minimum := λ a A, a ∈ A ∧ ∀b ∈ A, a ⋸ b.
+Definition ε_maximum := λ a A, a ∈ A ∧ ∀b ∈ A, b ⋸ a.
 
 Lemma ε_minimal_iff : ∀ a A B, B ⊆ A →
   minimal a B (MemberRel A) ↔ ε_minimal a B.

@@ -30,7 +30,7 @@ Definition Suc := λ α, constr (s α)⁺ (ord_suc_is_ord _ (cond _)).
 Notation "α ⁺" := (Suc α) : Ord_scope.
 
 Notation "α <ₒ β" := (s α ∈ s β) (at level 70) : Ord_scope.
-Notation "α ≤ β" := (s α ≤ s β) (at level 70) : Ord_scope.
+Notation "α ≤ β" := (s α ⋸ s β) (at level 70) : Ord_scope.
 
 Definition OrdStruct := λ α,
   WOStruct.constr (s α) (MemberRel (s α)) (ord_woset _ (cond _)).

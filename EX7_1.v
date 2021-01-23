@@ -1,7 +1,6 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 1 **)
 (** Coq coding by choukh, Nov 2020 **)
 
-Require Export ZFC.EST7_4.
 Require Import ZFC.lib.Real.
 Require Import ZFC.lib.Choice.
 Require Import ZFC.lib.Cardinal.
@@ -96,7 +95,7 @@ Proof with nauto.
         [apply intEqSymm; apply H22|apply H12|..]...
 Qed.
 
-(* ==使用了类型论上的选择函数== *)
+(* == we use Hilbert's epsilon for convenience reasons == *)
 Lemma card_rat_eq_aleph0 : |ℚ| = ℵ₀.
 Proof with nauto.
   apply CardAx1. symmetry.
@@ -573,5 +572,8 @@ Qed.
 
 End EX7_20.
 
-(* ex7_21 see lib/ZornsLemma *)
-(* ex7_22 see lib/ZornsLemma *)
+(* ex7_21 see lib/ZornsLemma Lemma Zorn's *)
+(* ex7_22 see lib/ZornsLemma Theorem Zorn_to_WO *)
+(* ex7_23 see lib/Cardinal Theorem hartogs_is_card_suc *)
+(* ex7_24 see lib/Cardinal Theorem all_ord_ex_larger_card *)
+(* ex7_25 see EST7_4 Theorem transfinite_induction_schema *)

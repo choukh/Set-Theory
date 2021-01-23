@@ -106,7 +106,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* ==使用了类型论上的选择函数== *)
+(* == we use Hilbert's epsilon for convenience reasons == *)
 (* 有理数的小于关系 *)
 Definition RatLt : set := BinRel ℚ (λ r s,
   let u := RatProj r in let v := RatProj s in
