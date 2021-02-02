@@ -1,171 +1,183 @@
-# Set-Theory
+[中文](./README.zh-CN.md) 👈
 
-本项目为集合论教材Elements of Set Theory - Herbert B. Enderton的Coq形式化。基本按教材顺序编写，而没有考虑模块化。仅适合作为集合论教学的辅助，而不适合作为一个通用的数学库。
+# Set-Theory
 
 This project is a Coq formalization of the textbook Elements of Set Theory - Herbert B. Enderton. It is basically written in the order of the textbook, without considering modularity. It is only suitable as an aid to the teaching of set theory, not as a general mathematical library.
 
-
-## 编译
+## Build
 ```
 ./build_all.sh
 ```
 
 ## ZFC0.v
-- 元理论：排中律，希尔伯特ε算子
-- 外延公理
-- 空集公理
-- 并集公理
-- 幂集公理
-- 替代公理
+- Metatheory: Law of excluded middle, Hilbert's ε-operator
+- Axiom of extensionality
+- Axiom of empty set
+- Axiom of union
+- Axiom of power set
+- Axiom schema of replacement
 
 ## ZFC1.v
-- 配对，单集
-- 二元并，集族的并
+- Pair, Singleton
+- Binary union
+- Union of a family of sets
 
 ## ZFC2.v
-- 集合建构式
-- 任意交，二元交
-- 有序对，笛卡尔积
+- Set comprehension
+- Intersaction, Binary intersaction
+- Ordered Pair
+- Cartesian product
 
 ## ZFC3.v
-- 无穷公理
-- 希尔伯特ε算子蕴含选择公理
+- Axiom of infinity
+- Hilbert's ε-operator implies axiom of choice
 
 ## EST2.v
-- 补集，真子集
-- 集合代数定律
+- Complement, Proper subset
+- Algebra of sets
 
 ## EST3_1.v
-- 关系，函数
-- 逆，复合
+- Relation, Function
+- Inverse, Composition
 
 ## EST3_2.v
-- 函数的左右逆
-- 限制，像
-- 函数空间
-- 无限笛卡尔积
-- 选择公理等效表述1：函数存在右逆
-- 选择公理等效表述2：任意多个非空集合的笛卡尔积非空
+- Injection, Surjection, Bijection
+- Left inverse and right inverse of function
+- Restriction, Image
+- Function space
+- Infinite Cartesian product
+- AC equivalent form 1: Function has right inverse iff surjective
+- AC equivalent form 2: Infinite Cartesian product of nonempty sets is nonempty
 
 ## EST3_3.v
-- 等价关系，等价类，商集
-- 三歧性，线序
+- Equivalence relation, Equivalence class, Quotient set
+- Trichotomy, Linear order
 
 ## EST4_1.v
-- 自然数
-- 传递集
-- 皮亚诺结构
-- ω递归定理
+- Natural number
+- Induction principle
+- Transitive set
+- Peano structure
+- Recursion theorem
 
 ## EST4_2.v
-- 元语言自然数(nat)的嵌入与投射
-- 自然数算术：加法，乘法，乘方
+- Embedding of type-theoretic nat
+- Natural number arithmetic: Addition, Multiplication, Exponentiation
 
 ## EST4_3.v
-- 自然数全序
-- 自然数良序
-- 强归纳原理
+- Linear ordering of ω
+- Well ordering of ω
+- Strong induction principle
 
 ## EST5_1.v
-- 整数的定义
-- 整数算术：加法，加法逆元
+- Integer
+- Integer arithmetic: Addition, Additive inverse
 
 ## EST5_2.v
-- 整数乘法
-- 整数的序
-- 自然数嵌入
+- Multiplication of integers
+- Order of integers
+- Embedding of the natural numbers
 
 ## EST5_3.v
-- 有理数的定义
-- 有理数算术：加法，加法逆元，乘法，乘法逆元
+- Rational number
+- Rational number arithmetic: Addition, Additive inverse, Multiplication, Multiplicative inverse
 
 ## EST5_4.v
-- 有理数的序
-- 整数嵌入
-- 关于逆元的运算律
+- Order of rational numbers
+- Embedding of the integers
+- Algebra regarding to inverse
 
 ## EST5_5.v
-- 实数的定义（戴德金分割）
-- 实数的序
-- 实数的完备性
-- 实数算术：加法，加法逆元
+- Real number（Dedekind cut）
+- Order of real numbers
+- Completeness of the real numbers
+- Real number arithmetic: Addition, Additive inverse
 
 ## EST5_6.v
-- 实数绝对值
-- 非负实数乘法
-- 正实数乘法逆元
+- Absolute value of real number
+- Multiplication of non-negative real numbers
+- Multiplicative inverse of positive real number
 
 ## EST5_6.v
-- 实数算术：乘法，乘法逆元
-- 有理数嵌入
-- 实数的稠密性
+- Arithmetic of rational numbers: Multiplication, Multiplicative inverse
+- Embedding of the rational numbers
+- Density of the real numbers
 
 ## EST6_1.v
-- 等势，康托定理，鸽笼原理
-- 有限基数
+- Equinumerous
+- Cantor's theorem
+- Pigeonhole principle
+- Finite cardinal
 
 ## EST6_2.v
-- 无限基数
-- 基数算术：加法，乘法，乘方
+- Infinite cardinal
+- Cardinal arithmetic: Addition, Multiplication, Exponentiation
 
 ## EST6_3.v
-- 集合的支配关系
-- 施罗德-伯恩斯坦定理
-- 基数的序
-- 阿列夫零
+- Dominate
+- Schröder–Bernstein theorem
+- Order of cardinals
+- Aleph Zero
 
 ## EST6_4.v
-- 选择公理的系统考察
-  - 单值化原则
-  - 选择函数
-  - 势的可比较性
-  - 佐恩引理
-  - 图基引理
-  - 豪斯多夫极大原理
-- 阿列夫零是最小的无限基数
-- 戴德金无穷
-- 基数的无限累加和
-- 基数的无限累乘积
+- Systematic discussion on AC
+  - Uniformization
+  - Choice function
+  - Cardinal comparability
+  - Zorn's lemma
+  - Tukey's lemma
+  - Hausdorff maximal principle
+- Aleph Zero is the least infinite cardinal
+- Dedekind infinite
+- Infinite sum of cardinals
+- Infinite product of cardinals
 
 ## EST6_5.v
-- 可数集
-  - 可数多个可数集的并是可数集
+- Countable set
+  - Countable union of countable sets is countable
 
 ## EST6_6.v
-- 无限基数的运算律
-  - 自乘等于自身
-  - 加法和乘法的吸收律
-  
+- Algebra of infinite cardinals
+  - Cardinal multiplied by itself equals to itself
+  - Absortion law of cardinal addition and multiplication
+
 ## EST7_1.v
-- 偏序，线序
-- 极值，最值，确界
+- Partial order, Linear order
+- Minimal, Minimum, Maximal, Maximum
+- Bound, Supremum, Infimum
 
 ## EST7_2.v
-- 良序
-- 超限归纳原理
-- 超限递归定理
-- 传递闭包（集合）
+- Well order
+- Transfinite induction principle
+- Transfinite recursion theorem
+- Transitive closure of set
 
 ## EST7_3.v
-- 序结构，序同构
-- 良序结构，伊普西隆像
+- Order structure
+- Isomorphism
+- Epsilon Image
 
 ## EST7_4.v
-- 序数的定义，序数的序
-- 布拉利-福尔蒂悖论
-- 后继序数，极限序数
-- 序数上的超限归纳模式
+- Ordinal
+- Order of ordinals
+- Burali-Forti's paradox
+- Successor ordinal, Limit ordinal
+- Transfinite induction schema on ordinals
 
 ## EST7_5.v
-- 哈特格斯数，良序定理
-- 良序定理与选择公理、佐恩引理的互推
-- 冯·诺伊曼基数指派，初始序数
-- 后继基数
+- Hartog's number
+- Equivalence between well order theorem, AC and Zorn's lemma
+- von Neumann cardinal assignment
+- Initial cardinal, Successor cardinal
 
 ## EST7_6.v
-- 冯·诺伊曼宇宙
-- 集合的秩
-- 正则公理
+- von Neumann universe
+- Rank
+- Axiom of Regularity
 
-## EX*.v
-- Elements of Set Theory 第*章习题
+## EST8_1.v (TODO)
+- Transfinite recursion schema on ordinals
+- Aleph number
+
+## EX{n}.v
+- Solution to exercises of Chapter n
