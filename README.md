@@ -18,7 +18,8 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Axiom schema of replacement
 
 ## ZFC1.v
-- Pair, Singleton
+- Pair
+- Singleton
 - Binary union
 - Union of a family of sets
 
@@ -33,7 +34,8 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Hilbert's ε-operator implies axiom of choice
 
 ## EST2.v
-- Complement, Proper subset
+- Complement
+- Proper subset
 - Algebra of sets
 
 ## EST3_1.v
@@ -50,6 +52,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - AC equivalent form 2: Infinite Cartesian product of nonempty sets is nonempty
 
 ## EST3_3.v
+- Binary relation
 - Equivalence relation, Equivalence class, Quotient set
 - Trichotomy, Linear order
 
@@ -88,7 +91,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Algebra regarding to inverse
 
 ## EST5_5.v
-- Real number（Dedekind cut）
+- Real number (Dedekind cut)
 - Order of real numbers
 - Completeness of the real numbers
 - Real number arithmetic: Addition, Additive inverse
