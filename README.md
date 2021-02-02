@@ -26,7 +26,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 ## ZFC2.v
 - Set comprehension
 - Intersaction, Binary intersaction
-- Ordered Pair
+- Ordered pair
 - Cartesian product
 
 ## ZFC3.v
@@ -176,7 +176,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 ## EST7_6.v
 - von Neumann universe
 - Rank
-- Axiom of Regularity
+- Axiom of regularity
 
 ## EST8_1.v (TODO)
 - Transfinite recursion schema on ordinals
