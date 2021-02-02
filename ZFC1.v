@@ -103,6 +103,23 @@ Proof.
   rewrite <- H in Hc. apply SingE in Hc. split; congruence.
 Qed.
 
+Theorem pair_iff : ∀ a b c d,
+  {a, b} = {c, d} ↔ a = c ∧ b = d ∨ a = d ∧ b = c.
+Proof with auto; try congruence.
+  split; intros.
+  - assert (Ha: a ∈ {c, d}). rewrite <- H. apply PairI1.
+    assert (Hb: b ∈ {c, d}). rewrite <- H. apply PairI2.
+    apply PairE in Ha as [].
+    + left. split...
+      apply PairE in Hb as []...
+      subst. apply single_eq_pair in H as []...
+    + right. split...
+      apply PairE in Hb as []...
+      subst. apply single_eq_pair in H as []...
+  - destruct H as [[]|[]]; subst...
+    apply pair_ordering_agnostic.
+Qed.
+
 (* 如果单集与单集相等那么它们的成员相等 *)
 Lemma single_injective : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
 Proof.

@@ -25,7 +25,7 @@ Lemma chain_is_loset : ∀ A, is_chain A ↔ loset A (SubsetRel A).
 Proof with eauto; try congruence.
   split.
   - intros Hchn. apply loset_iff_connected_poset.
-    split; [|apply subsetRel_is_poset].
+    split; [|apply subsetRel_poset].
     intros a Ha b Hb Hnq.
     pose proof (Hchn a Ha b Hb) as []; [left|right]; apply binRelI...
   - intros Hlo x Hx y Hy.
@@ -54,7 +54,7 @@ Lemma general_Zorn_to_set_theoretic :
 Proof with eauto; try congruence.
   intros AC6_0 A Hzn.
   pose proof (AC6_0 A (SubsetRel A)) as [m Hmax].
-  - apply subsetRel_is_poset.
+  - apply subsetRel_poset.
   - intros B Hsub Hlo. 
     assert (Hchn: is_chain B). {
       apply chain_is_loset.
@@ -111,7 +111,7 @@ Proof with eauto; try congruence.
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
   assert (HrF': ∀B ∈ ℬ, F[Upper B] ∈ Upper B). {
-    intros B HB. apply HrF. apply ReplAx. exists B. split...
+    intros B HB. apply HrF. eapply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
     apply meta_maps_into. intros B HB.
@@ -134,7 +134,7 @@ Proof with eauto; try congruence.
       intros x Hx. apply SepE1 in Hx...
     }
     unfold a₀, f. rewrite meta_func_ap...
-    apply Hsub. apply HrF. apply ReplAx. exists ∅. split...
+    apply Hsub. apply HrF. eapply ReplI...
   }
   (* TODO: wait for recursion on ordinals on ch8 *)
 Admitted.
@@ -166,7 +166,7 @@ Proof with eauto; try congruence.
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
   assert (HrF': ∀B ∈ ℬ, F[Upper B] ∈ Upper B). {
-    intros B HB. apply HrF. apply ReplAx. exists B. split...
+    intros B HB. apply HrF. eapply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
     apply meta_maps_into. intros B HB.

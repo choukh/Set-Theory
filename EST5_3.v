@@ -75,6 +75,7 @@ Local Ltac nzmr := apply nzIntMul_ranI; nauto.
 Close Scope PreInt_scope.
 Declare Scope PreRat_scope.
 Open Scope PreRat_scope.
+Delimit Scope PreRat_scope with pq.
 
 (* 整数平面上的用于构造有理数的等价关系 *)
 Definition RatEq : PlaneEq := λ a b c d, a ⋅ d = c ⋅ b.

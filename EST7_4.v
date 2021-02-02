@@ -234,6 +234,15 @@ Proof.
   destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]]; tauto.
 Qed.
 
+(* 序数具有可比较性 *)
+Corollary ord_comparability : ∀ α β, is_ord α → is_ord β →
+  α ⋸ β ∨ β ⋸ α.
+Proof with auto.
+  intros α β Hα Hβ.
+  destruct (classic (α = β)). left. right...
+  apply ord_connected in H as []...
+Qed.
+
 (* 序数的小于等于关系与子集关系等价 *)
 Corollary ord_leq_iff_sub : ∀ α β, is_ord α → is_ord β → α ⋸ β ↔ α ⊆ β.
 Proof with eauto.
@@ -352,6 +361,14 @@ Proof with eauto.
     apply Hord... apply Hδ. apply Hord...
 Qed.
 
+(* 两个序数的二元并是序数 *)
+Corollary bunion_of_ords_is_ord : ∀ α β,
+  is_ord α → is_ord β → is_ord (α ∪ β).
+Proof.
+  intros * Hoα Hoβ. apply union_of_ords_is_ord.
+  intros x Hx. apply PairE in Hx as []; subst; auto.
+Qed.
+
 (* 序数上界 *)
 Definition is_ub := λ μ A, is_ord μ ∧ ∀α ∈ A, α ⋸ μ.
 
@@ -378,6 +395,27 @@ Proof with auto.
   apply union_of_ords_is_ord...
   apply union_is_sup. intros a Ha.
   apply ord_leq_iff_sub... apply Hord... apply H2...
+Qed.
+
+(* 两个序数的二元并等于它们中较大的一个 *)
+Lemma bunion_of_ords_eq_l : ∀ α β, is_ord α → is_ord β →
+  α ⋸ β → α ∪ β = β.
+Proof with auto.
+  intros α β Hoα Hoβ Hle.
+  apply ord_leq_iff_sub in Hle...
+  apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as []... apply Hle...
+  - apply BUnionI2...
+Qed.
+
+Lemma bunion_of_ords_eq_r : ∀ α β, is_ord α → is_ord β →
+  β ⋸ α → α ∪ β = α.
+Proof with auto.
+  intros α β Hoα Hoβ Hle.
+  apply ord_leq_iff_sub in Hle...
+  apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as []... apply Hle...
+  - apply BUnionI1...
 Qed.
 
 (* 后继序数是大于该序数的最小序数 *)

@@ -166,7 +166,7 @@ Proof with neauto.
     apply countable_iff.
     destruct (classic (n = 0)).
     + left. subst n. rewrite arrow_from_empty. apply nat_finite...
-    + right. eapply eqnum_tran.
+    + right. eapply Equivalence_Transitive.
       * apply cardExp_well_defined. apply CardAx0. reflexivity.
       * apply CardAx1. rewrite <- cardExp_aleph0_n at 2... reflexivity.
 Qed.
@@ -226,7 +226,7 @@ Fact sq_countable : ∀ A, countable A → countable (𝗦𝗾 A).
 Proof with eauto; try congruence.
   intros A [g Hg].
   eapply dominate_tran; revgoals. {
-    apply eqnum_dominate. rewrite ω_eqnum_sq_ω...
+    apply eqnum_dominate. now rewrite ω_eqnum_sq_ω.
   }
   set (Func (𝗦𝗾 A) (𝗦𝗾 ω) (λ f,
     Func (dom f) ω (λ n, g[f[n]])
@@ -347,7 +347,7 @@ Proof with neauto; try congruence.
   apply cardLeq_iff.
   eapply dominate_rewrite_r. {
     apply cardMul_well_defined. apply CardAx0.
-    eapply eqnum_tran; revgoals. apply CardAx0.
+    eapply Equivalence_Transitive; revgoals. apply CardAx0.
     apply cardExp_well_defined; apply CardAx0.
   }
   assert (Hne: ⦿ A). {

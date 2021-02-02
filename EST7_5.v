@@ -348,17 +348,27 @@ Theorem numeration : AC_III → ∀ A, ∃ α, is_ord α ∧ α ≈ A.
 Proof with auto.
   intros AC3 A. pose proof (AC_III_to_WO AC3 A) as [R Hwo].
   set (WOStruct.constr A R Hwo) as S.
-  exists (ord S). split... rewrite <- woset_eqnum_ord...
+  exists (ord S). split... now rewrite <- woset_eqnum_ord...
 Qed.
 
 End ImportStruct.
+
+Definition OrdMin := λ α P, (Min α (MemberRel α))[{ξ ∊ α | P}].
+
+Lemma ordMin_correct : ∀ α P, is_ord α → (∃ξ ∈ α, P ξ) →
+  minimum (OrdMin α P) {ξ ∊ α | P} (MemberRel α).
+Proof with auto.
+  intros α P Hoα [ξ [Hξ HP]].
+  apply min_correct. apply ord_woset...
+  exists ξ. apply SepI...
+  intros x Hx. apply SepE1 in Hx...
+Qed.
 
 (* 冯·诺伊曼基数指派 *)
 (* 基数：与给定集合等势的最小序数 *)
 Definition card := λ A,
   let α := HartogsNumber A in
-  let min := Min α (MemberRel α) in
-  min[{ξ ∊ α | λ ξ, ξ ≈ A}].
+  (OrdMin α (λ ξ, ξ ≈ A)).
 
 Notation "| A |" := (card A) (at level 40) : ZFC_scope.
 
@@ -369,8 +379,9 @@ Lemma card_well_defined : AC_III →
 Proof with eauto.
   intros AC3 A.
   set (HartogsNumber A) as α.
-  set {ξ ∊ α | λ ξ, ξ ≈ A} as B.
-  set ((Min α (MemberRel α))[B]) as μ.
+  set (λ ξ, ξ ≈ A) as P.
+  set {ξ ∊ α | P} as Ω.
+  set (OrdMin α P) as μ.
   pose proof (hartog_spec_intro A) as [Hα [Hndom Hle]].
   fold α in Hndom, Hle.
   assert (Hstar: ∀ ξ, is_ord ξ → ξ ≈ A → ξ ∈ α). {
@@ -380,17 +391,14 @@ Proof with eauto.
     apply dominate_sub in H.
     apply Hndom. eapply dominate_rewrite_r in H...
   }
-  assert (Hwo: woset α (MemberRel α)). apply ord_woset...
-  pose proof (min_correct α (MemberRel α) B Hwo) as [Hμ Hmin]. {
+  pose proof (ordMin_correct α P) as [Hμ Hmin]... {
     pose proof (numeration AC3 A) as [ξ [Hξ Hqn]].
-    exists ξ. apply SepI...
-  } {
-    intros ξ Hξ. apply SepE1 in Hξ...
+    exists ξ. split...
   }
-  fold μ in Hμ, Hmin. split; [|split].
+  fold μ Ω in Hμ, Hmin. split; [|split].
   - apply SepE2 in Hμ...
   - apply SepE1 in Hμ. eapply ord_is_ords...
-  - intros β Hβ Hqn. assert (β ∈ B). apply SepI...
+  - intros β Hβ Hqn. assert (β ∈ Ω). apply SepI...
     apply Hmin in H as []... apply binRelE3 in H...
 Qed.
 
@@ -404,7 +412,7 @@ Qed.
 Theorem CardAx1 : ∀ A B, |A| = |B| ↔ A ≈ B.
 Proof with eauto.
   split; intros H.
-  - rewrite CardAx0, H, <- CardAx0...
+  - now rewrite CardAx0, H, <- CardAx0.
   - pose proof (card_well_defined ac3 A) as [Hca [Hoa Hlea]].
     pose proof (card_well_defined ac3 B) as [Hcb [Hob Hleb]].
     rewrite H in Hca at 2. apply Hleb in Hca...
@@ -421,10 +429,10 @@ Proof with eauto.
   rewrite Hfin. apply CardAx1 in Hqn. rewrite Hqn.
   pose proof (card_well_defined ac3 n) as [Hqnn [Hocn Hle]].
   assert (Hon: is_ord n). apply nat_is_ord...
-  pose proof (Hle n) as []...
+  pose proof (Hle n) as []... easy.
   exfalso. apply ord_lt_iff_psub in H...
   apply no_fin_set_eqnum_its_proper_subset in H.
-  apply H. rewrite Hqnn... apply nat_finite...
+  apply H. now rewrite Hqnn. apply nat_finite...
 Qed.
 
 (* 初始序数 *)

@@ -144,7 +144,7 @@ Hint Immediate card_suc_is_ord : core.
 
 (* 集合的基数小于其后继 *)
 Lemma card_suc_has_card : ∀ A, |A| ∈ A₊.
-Proof with auto.
+Proof with auto; try easy.
   intros. unfold card.
   set (Min A₊ (MemberRel A₊)) as min.
   set {ξ ∊ A₊ | λ ξ, ξ ≈ A} as B.

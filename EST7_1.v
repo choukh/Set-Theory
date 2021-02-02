@@ -357,7 +357,7 @@ Proof.
   intros S x Hp. apply binRelE3 in Hp as [_ Heq]. auto.
 Qed.
 
-Lemma subsetRel_is_poset : ∀ S, poset S (SubsetRel S).
+Lemma subsetRel_poset : ∀ S, poset S (SubsetRel S).
 Proof with auto.
   repeat split.
   - apply subsetRel_is_binRel.

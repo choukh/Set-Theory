@@ -103,9 +103,9 @@ Qed.
 (* 如果两个基数有序关系，那么存在有子集关系的集合，它们分别与这两个基数等势 *)
 Lemma cardLeq_sub_exists : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 →
   ∃ K L, K ≈ 𝜅 ∧ L ≈ 𝜆 ∧ K ⊆ L.
-Proof with auto.
+Proof with auto; try easy.
   intros * [Hk [Hl [f [Hf [Hd Hr]]]]].
-  exists (ran f), 𝜆. split; [|split]...
+  exists (ran f), 𝜆. repeat split...
   rewrite <- Hd. symmetry. exists f. split...
 Qed.
 
@@ -244,7 +244,7 @@ Lemma cardAdd_preserve_eqnum : ∀ 𝜅 𝜆 𝜇, 𝜅 ≈ 𝜆 → 𝜅 + 𝜇
 Proof with auto.
   intros. unfold CardAdd. rewrite <- CardAx0, <- CardAx0.
   apply cardAdd_well_defined.
-  apply cardMul_well_defined... apply cardMul_well_defined...
+  apply cardMul_well_defined... now apply cardMul_well_defined...
   apply disjointify_0_1. apply disjointify_0_1.
 Qed.
 
@@ -455,7 +455,7 @@ Qed.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
 Proof with neauto; try congruence.
-  apply CardAx1. eapply eqnum_tran.
+  apply CardAx1. eapply Equivalence_Transitive.
   apply cardAdd_well_defined.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
@@ -545,7 +545,7 @@ Qed.
 
 Fact cardMul_aleph0_aleph0 : ℵ₀ ⋅ ℵ₀ = ℵ₀.
 Proof with auto.
-  apply CardAx1. eapply eqnum_tran.
+  apply CardAx1. eapply Equivalence_Transitive.
   apply cardMul_well_defined; rewrite <- CardAx0; reflexivity.
   symmetry. apply ω_eqnum_ω_cp_ω.
 Qed.

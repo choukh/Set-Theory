@@ -1,53 +1,36 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 1 **)
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export Setoid.
+Require Import Relation_Definitions.
+Require Export RelationClasses.
+Require Import ZFC.lib.WosetMin.
 Require Export ZFC.lib.Natural.
 Require Export ZFC.lib.FuncFacts.
-Require Import ZFC.lib.WosetMin.
-Import WosetMin.SimpleVer.
 
 (*** EST第六章1：等势，康托定理，鸽笼原理，有限基数 ***)
 
 (** 等势 **)
-Definition equinumerous : set → set → Prop := λ A B,
-  ∃ F, F: A ⟺ B.
+Definition equinumerous : relation set :=
+  λ A B, ∃ F, F: A ⟺ B.
 Notation "A ≈ B" := ( equinumerous A B) (at level 70).
 Notation "A ≉ B" := (¬equinumerous A B) (at level 70).
 
-(* 等势有自反性 *)
-Lemma eqnum_refl : ∀ A, A ≈ A.
+(* 等势是等价关系 *)
+Lemma eqnum_equiv : Equivalence equinumerous.
 Proof.
-  intros. exists (Ident A).
-  apply ident_bijective.
+  split.
+  - intros A. exists (Ident A). apply ident_bijective.
+  - intros A B [f H]. exists (f⁻¹). apply inv_bijection. auto.
+  - intros A B C [f Hf] [g Hg]. exists (g ∘ f).
+    eapply compo_bijection; eauto...
 Qed.
-Hint Immediate eqnum_refl : core.
-
-(* 等势有对称性 *)
-Lemma eqnum_symm : ∀ A B, A ≈ B → B ≈ A.
-Proof.
-  intros * [f H]. exists (f⁻¹).
-  apply inv_bijection. auto.
-Qed.
-
-(* 等势有传递性 *)
-Lemma eqnum_tran : ∀ A B C, A ≈ B → B ≈ C → A ≈ C.
-Proof.
-  intros * [f Hf] [g Hg]. exists (g ∘ f).
-  eapply compo_bijection; eauto.
-Qed.
-
-Add Relation set equinumerous
-  reflexivity proved by eqnum_refl
-  symmetry proved by eqnum_symm
-  transitivity proved by eqnum_tran
-  as eqnum_rel.
+Existing Instance eqnum_equiv.
 
 (* 集合与空集等势当且仅当它是空集 *)
 Lemma eqnum_empty : ∀ A, A ≈ ∅ ↔ A = ∅.
-Proof with auto.
-  split. intros [f Hf]. apply bijection_to_empty in Hf...
-  intros. subst A...
+Proof.
+  split. intros [f Hf]. now apply bijection_to_empty in Hf.
+  intros. now subst A.
 Qed.
 
 (* 单集与壹等势 *)
@@ -84,7 +67,7 @@ Qed.
 
 (* 所有的单集等势 *)
 Lemma eqnum_single : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
-Proof. intros. repeat rewrite eqnum_single_one; auto. Qed.
+Proof. intros. now repeat rewrite eqnum_single_one. Qed.
 Hint Immediate eqnum_single : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
@@ -316,6 +299,8 @@ Proof with neauto; try congruence.
     exfalso. apply Hxp. eapply injectiveE... split...
 Qed.
 
+Import WosetMin.SimpleVer.
+
 (* 任意自然数到自身的满射是单射 *)
 Lemma surjection_between_same_nat_injective :
   ∀n ∈ ω, ∀ f, f: n ⟹ n → injective f.
@@ -385,7 +370,7 @@ Definition infinite : set → Prop := λ A, ¬finite A.
 
 (* 空集是有限集 *)
 Fact empty_finite : finite ∅.
-Proof. exists ∅. split; nauto. Qed.
+Proof. exists ∅. now split; nauto. Qed.
 Hint Resolve empty_finite : core.
 
 (* 单集是有限集 *)
@@ -562,7 +547,7 @@ Proof with auto.
   - apply UnionAx in Hx as [m [Hm Hx]].
     apply SepE in Hm as [Hm Hqn].
     apply nat_eqnum_eq in Hqn... congruence.
-  - apply UnionAx. exists n. split... apply SepI...
+  - apply UnionAx. exists n. split... now apply SepI...
 Qed.
 
 (* 自然数的子集是有限集 *)
@@ -577,7 +562,7 @@ Proof with neauto.
   - rename m into k. rename Hm into Hk.
     (* C = {0, 1 ... k-1} | k *)
     destruct (classic (C = k)) as [|Hnq']. {
-      exists k. split... split. apply suc_has_n. subst...
+      exists k. split... split. apply suc_has_n. now subst.
     }
     destruct (classic (k ∈ C)) as [Hkc|Hkc]; revgoals.
     + (* C = {0, 1 ... k-2} | k-1, k *)

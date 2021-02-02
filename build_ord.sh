@@ -57,6 +57,8 @@ coqc -R . ZFC EX7_2.v
 
 echo "building EST7_6"
 coqc -R . ZFC EST7_6.v
+echo "building Scott's_Trick"
+coqc -R . ZFC lib/ScottsTrick.v
 echo "building EX7_3"
 coqc -R . ZFC EX7_3.v
 

@@ -162,6 +162,13 @@ Proof with auto.
     apply SepE in H as []; zfcrewrite.
 Qed.
 
+Corollary nat_comparability : ∀ m n ∈ ω, m ⋸ n ∨ n ⋸ m.
+Proof with auto.
+  intros m Hm n Hn.
+  destruct (classic (m = n)). left. right...
+  apply nat_connected in H as []...
+Qed.
+
 Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
 Proof with nauto.
   intros n Hn. split; intros.

@@ -642,10 +642,10 @@ Proof with neauto; try congruence.
     assert (HinfA: infinite A). {
       intros Hfin. apply ω_infinite.
       apply (dominated_by_finite_is_finite _ A)...
-      apply eqnum_dominate. rewrite Hqn...
+      apply eqnum_dominate. now rewrite Hqn.
     }
     assert (Hg: A × A ≈ A). {
-      rewrite <- Hqn at 3. eapply eqnum_tran.
+      rewrite <- Hqn at 3. eapply Equivalence_Transitive.
       apply cardMul_well_defined; symmetry; apply Hqn.
       symmetry. apply ω_eqnum_ω_cp_ω.
     }
@@ -671,7 +671,7 @@ Proof with neauto; try congruence.
   set (|A₀|) as 𝜆. fold 𝜆 in HinfA₀.
   assert (Hcd: is_card 𝜆). { exists A₀... }
   assert (Hmul: 𝜆 ⋅ 𝜆 = 𝜆). {
-    apply CardAx1. eapply eqnum_tran.
+    apply CardAx1. eapply Equivalence_Transitive.
     apply cardMul_well_defined; symmetry; apply CardAx0.
     exists f₀...
   }

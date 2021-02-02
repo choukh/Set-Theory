@@ -40,8 +40,8 @@ Proof with nauto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ Hx].
     rewrite eqnum_empty in Hx. subst...
-  - apply SingE in Hx. subst. apply SepI...
-    apply empty_in_all_power.
+  - apply SingE in Hx. subst. apply SepI.
+    apply empty_in_all_power. easy.
 Qed.
 
 (* 有限子集集的基数等于所有n元子集集的基数的累加 *)
@@ -731,7 +731,7 @@ Qed.
 
 (* 0的阶乘等于1 *)
 Fact cardFactorial_0 : 0! = 1.
-Proof with nauto.
+Proof with nauto; try easy.
   rewrite (card_of_nat 1)... apply CardAx1.
   replace (Embed 1) with (Permutation 0)...
   apply ExtAx. split; intros Hx.
@@ -743,7 +743,7 @@ Qed.
 
 (* 1的阶乘等于1 *)
 Fact cardFactorial_1 : 1! = 1.
-Proof with nauto.
+Proof with nauto; try easy.
   rewrite <- (card_of_single ⎨<∅, ∅>⎬) at 2. apply CardAx1.
   replace ⎨⎨<∅, ∅>⎬⎬ with (Permutation 1)...
   apply ExtAx. split; intros Hx.

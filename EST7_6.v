@@ -14,7 +14,7 @@ Let F := λ δ, constr δ (MemberRel δ) γ.
 Let F_spec := λ δ, is_function (F δ) ∧ dom (F δ) = δ ∧
   ∀α ∈ δ, (F δ)[α] = ⋃{λ β, 𝒫 (F δ)[β] | β ∊ α}.
 
-Local Lemma F_spec_intros : ∀ δ, is_ord δ → F_spec δ.
+Local Lemma F_spec_intro : ∀ δ, is_ord δ → F_spec δ.
 Proof with eauto; try congruence.
   intros δ Hoδ.
   pose proof (spec_intro δ (MemberRel δ) γ) as [HfF [HdF HrF]]. {
@@ -26,20 +26,14 @@ Proof with eauto; try congruence.
   split... split...
   intros α Hα. rewrite HrF...
   apply ExtAx. split; intros Hx.
-  - apply UnionAx in Hx as [y [Hy Hx]].
-    apply ReplAx in Hy as [z [Hz Hy]].
-    apply ranE in Hz as [β Hp].
+  - apply FUnionE in Hx as [y [Hy Hx]].
+    apply ranE in Hy as [β Hp].
     apply restrE2 in Hp as [Hp Hβ]. apply func_ap in Hp...
-    apply SepE2 in Hβ. apply binRelE3 in Hβ.
-    apply UnionAx. exists y. split...
-    apply ReplAx. exists β. split...
-  - apply UnionAx in Hx as [y [Hy Hx]].
-    apply ReplAx in Hy as [β [Hβ Hy]].
+    apply SepE2 in Hβ. apply binRelE3 in Hβ. eapply FUnionI...
+  - apply FUnionE in Hx as [β [Hβ Hx]].
     assert (Hβδ: β ∈ δ). eapply ord_trans...
-    apply UnionAx. exists y. split...
-    apply ReplAx. exists ((F δ)[β]). split...
-    apply (ranI _ β). apply restrI. apply segI.
-    apply binRelI... apply func_correct...
+    eapply FUnionI... apply (ranI _ β). apply restrI.
+    apply segI. apply binRelI... apply func_correct...
 Qed.
 
 Local Lemma F_agree_on_smaller_partial : ∀ δ ε, δ ∈ ε →
@@ -57,8 +51,8 @@ Proof with eauto; try congruence.
   eapply transfinite_induction. apply ord_woset...
   split. intros α Hα. apply SepE1 in Hα...
   intros α Hα Hseg. apply SepI...
-  pose proof (F_spec_intros δ Hoδ) as [_ [_ Heqδ]].
-  pose proof (F_spec_intros ε Hoε) as [_ [_ Heqε]].
+  pose proof (F_spec_intro δ Hoδ) as [_ [_ Heqδ]].
+  pose proof (F_spec_intro ε Hoε) as [_ [_ Heqε]].
   assert (Hα': α ∈ ε). eapply ord_trans...
   rewrite Heqδ, Heqε...
   erewrite repl_rewrite. reflexivity.
@@ -85,7 +79,7 @@ Theorem V_hierarchy : ∀ α, is_ord α →
 Proof with eauto.
   intros α Ho. unfold V.
   assert (Ho': is_ord α⁺). apply ord_suc_is_ord...
-  pose proof (F_spec_intros α⁺) as [_ [_ Heqα]]...
+  pose proof (F_spec_intro α⁺) as [_ [_ Heqα]]...
   rewrite Heqα; [|apply suc_has_n].
   erewrite repl_rewrite. reflexivity.
   intros β Hβ. rewrite F_agree_on_smaller...
@@ -97,19 +91,16 @@ Qed.
 End V_Def.
 
 Lemma V_intro : ∀ α, is_ord α → ∀β ∈ α, ∀x ∈ 𝒫 (V β), x ∈ V α.
-Proof with auto.
+Proof with eauto.
   intros α Hoα β Hβ x Hx.
-  rewrite V_hierarchy...
-  apply UnionAx. exists (𝒫 (V β)). split...
-  apply ReplAx. exists β. split...
+  rewrite V_hierarchy... eapply FUnionI...
 Qed.
 
 Lemma V_elim : ∀ α, is_ord α → ∀x ∈ V α, ∃β ∈ α, x ∈ 𝒫 (V β).
 Proof with auto.
   intros α Hoα x Hx.
   rewrite V_hierarchy in Hx...
-  apply UnionAx in Hx as [y [Hy Hx]].
-  apply ReplAx in Hy as [β [Hβ Hy]]. subst y.
+  apply FUnionE in Hx as [β [Hβ Hx]].
   exists β. split...
 Qed.
 
@@ -167,12 +158,8 @@ Proof with eauto.
   apply sub_antisym; intros x Hx.
   - apply V_elim in Hx as [β [Hβ Hx]]...
     rewrite <- V_suc in Hx; [|eapply ord_is_ords]...
-    apply UnionAx. exists (V β⁺). split...
-    apply ReplAx. exists β⁺. split...
-    apply suc_in_limit...
-  - apply UnionAx in Hx as [y [Hy Hx]].
-    apply ReplAx in Hy as [β [Hβ Hy]].
-    subst y. eapply V_sub...
+    eapply FUnionI; revgoals... apply suc_in_limit...
+  - apply FUnionE in Hx as [β [Hβ Hx]]. eapply V_sub...
 Qed.
 
 (* 良基集：x ∈ 𝐖𝐅 *)
@@ -307,8 +294,7 @@ Proof with eauto.
   - apply ord_leq_iff_sub... apply rank_spec_intro...
     apply grounded_in_α. apply member_grounded...
   - intros x Hx.
-    apply UnionAx in Hx as [β [Hβ Hx]].
-    apply ReplAx in Hβ as [a [Ha Hβ]]. subst β.
+    apply FUnionE in Hx as [a [Ha Hx]].
     apply rank_of_member in Ha...
     apply BUnionE in Hx as [].
     eapply ord_trans... apply SingE in H. subst...
@@ -330,14 +316,12 @@ Proof with eauto; try congruence.
   intros α Hα Hind.
   rewrite rank_recurrence; [|apply ord_grounded]...
   apply ExtAx. split; intros Hx.
-  - apply UnionAx in Hx as [y [Hy Hx]].
-    apply ReplAx in Hy as [β [Hβ Hy]]. subst y.
+  - apply FUnionE in Hx as [β [Hβ Hx]].
     rewrite Hind in Hx...
     apply BUnionE in Hx as [].
     eapply ord_trans... apply SingE in H...
   - apply Hind in Hx as Heq.
-    apply UnionAx. exists x⁺. split; [|apply BUnionI2]...
-    apply ReplAx. exists x. split...
+    eapply FUnionI... rewrite Heq. apply suc_has_n.
 Qed.
 
 (* 任意集合都是良基集等价于正则公理 *)
@@ -352,14 +336,14 @@ Proof with eauto; try congruence.
     }
     pose proof (Hmin Ω) as [μ [Hμ Hle]]... {
       apply EmptyNE in Hne as [a Ha].
-      exists (rank a). apply ReplAx. exists a. split...
+      exists (rank a). eapply ReplI...
     }
     apply ReplAx in Hμ as [m [Hm Hμ]].
     exists m. split...
     apply ExtAx. split; intros Hx; [|exfalso0].
     apply BInterE in Hx as [Hxm HxA].
     apply rank_of_member in Hxm; [|eapply member_grounded]...
-    assert (rank x ∈ Ω). apply ReplAx. exists x. split...
+    assert (rank x ∈ Ω). eapply ReplI...
     exfalso. apply Hle in H as [].
     + apply binRelE3 in H. eapply ord_not_lt_gt; revgoals...
       eapply ord_is_ords; revgoals...
@@ -384,6 +368,22 @@ Module RegularityConsequences.
 
 Axiom RegAx : Regularity.
 
+(* 任意集合都是良基集 *)
+Fact all_grounded : ∀ A, grounded A.
+Proof. apply all_grounded_iff_regularity. apply RegAx. Qed.
+
+(* 任意集合均存在∈极小元 *)
+Lemma ex_epsilon_minimal : ∀ A, A ≠ ∅ →
+  ∃ m, minimal m A (MemberRel A).
+Proof with auto.
+  intros * Hne.
+  pose proof (RegAx A Hne) as [m [Hm H]].
+  exists m. split... intros x Hx.
+  destruct (classic (x = m))... left.
+  intros Hxm. apply binRelE3 in Hxm.
+  eapply EmptyNI in H... exists x. apply BInterI...
+Qed.
+
 (* 不存在集合的无穷降链 *)
 Theorem no_descending_chain : ¬ ∃ f,
   is_function f ∧ dom f = ω ∧ ∀n ∈ ω, f[n⁺] ∈ f[n].
@@ -400,9 +400,9 @@ Proof with nauto; try congruence.
   rewrite Hd. apply ω_inductive...
 Qed.
 
-Theorem no_descending_chain_1 : ∀ A, A ∉ A.
+Corollary no_descending_chain_1 : ∀ A, A ∉ A.
 Proof with auto.
-  intros A HA.
+  intros A H.
   set (Func ω A (λ n, A)) as f.
   assert (Hf: f: ω ⇒ A). {
     apply meta_maps_into. intros n Hn...
@@ -413,14 +413,14 @@ Proof with auto.
   repeat rewrite meta_func_ap... apply ω_inductive...
 Qed.
 
-Theorem no_descending_chain_2 : ∀ A B, A ∈ B → B ∉ A.
+Corollary no_descending_chain_2 : ∀ a b, a ∈ b → b ∉ a.
 Proof with nauto.
-  intros A B HA HB.
-  set (Func ω {A, B} (λ n, match (ixm (even n)) with
-    | inl _=> A
-    | inr _=> B
+  intros a b Ha Hb.
+  set (Func ω {a, b} (λ n, match (ixm (even n)) with
+    | inl _=> a
+    | inr _=> b
   end)) as f.
-  assert (Hf: f: ω ⇒ {A, B}). {
+  assert (Hf: f: ω ⇒ {a, b}). {
     apply meta_maps_into. intros n Hn.
     destruct (ixm (even n)). apply PairI1. apply PairI2.
   }
@@ -436,4 +436,269 @@ Proof with nauto.
     apply n1. apply even_iff_suc_odd...
 Qed.
 
+Corollary no_descending_chain_3 : ∀ a b c,
+  a ∈ b → b ∈ c → c ∉ a.
+Proof with auto; try congruence.
+  intros a b c Ha Hb Hc.
+  set ({a, b} ∪ ⎨c⎬) as A.
+  assert (HaA: a ∈ A). apply BUnionI1; apply PairI1.
+  assert (HbA: b ∈ A). apply BUnionI1; apply PairI2.
+  assert (HcA: c ∈ A). apply BUnionI2...
+  set (Func A A (λ x, match (ixm (x = a)) with
+    | inl _ => c
+    | inr _ => match (ixm (x = b)) with
+      | inl _ => a
+      | inr _ => b
+  end end)) as F.
+  assert (HF: F: A ⇒ A). {
+    apply meta_maps_into. intros x Hx.
+    destruct (ixm (x = a))...
+    destruct (ixm (x = b))...
+  }
+  pose proof (ω_recursion F A a) as [h [[Hh [Hd Hr]] [Hh0 Hhn]]]...
+  apply no_descending_chain. exists h. split... split...
+  intros n Hn. rewrite Hhn...
+  rewrite <- Hd in Hn. apply func_correct in Hn...
+  apply ranI in Hn. apply Hr in Hn.
+  apply BUnionE in Hn as [];
+  [apply PairE in H as []|apply SingE in H];
+  rewrite H; unfold F; rewrite meta_func_ap...
+  - destruct (ixm (a = a))...
+  - destruct (ixm (b = a))...
+    destruct (ixm (b = b))...
+  - destruct (ixm (c = a))...
+    destruct (ixm (c = b))...
+Qed.
+
+Corollary single_regularity : ∀ a, a ≠ ⎨a⎬.
+Proof with eauto.
+  intros a Heq. assert (a ∈ ⎨a⎬)...
+  rewrite <- Heq in H.
+  eapply no_descending_chain_1...
+Qed.
+
+Corollary pair_regularity : ∀ a b, a ≠ {a, b}.
+Proof with eauto.
+  intros * Heq. assert (a ∈ {a, b}) by apply PairI1.
+  rewrite <- Heq in H.
+  eapply no_descending_chain_1...
+Qed.
+
 End RegularityConsequences.
+
+Section MoreLemmaAboutRank.
+Hint Resolve ord_grounded : core.
+Hint Resolve rank_is_ord : core.
+Hint Resolve ord_suc_is_ord : core.
+
+Lemma V_grounded : ∀ α, is_ord α → grounded (V α).
+Proof. intros. exists α. split; auto. Qed.
+Hint Resolve V_grounded : core.
+
+Lemma rank_of_V : ∀ α, is_ord α → rank (V α) = α.
+Proof with eauto.
+  intros α Hoα.
+  apply sub_antisym.
+  - apply ord_leq_iff_sub... apply rank_spec_intro...
+  - intros x Hx.
+    rewrite rank_recurrence...
+    rewrite <- rank_of_ord, rank_recurrence in Hx...
+    apply FUnionE in Hx as [y [Hy Hx]].
+    eapply FUnionI... rewrite <- (rank_of_ord α)...
+    apply grounded_in_rank...
+Qed.
+
+Theorem V_iff_rank : ∀ A α, grounded A → is_ord α →
+  A ∈ V α ↔ rank A ∈ α.
+Proof with eauto.
+  intros * HgA HgB. split; intros.
+  - apply rank_of_member in H... rewrite rank_of_V in H...
+  - eapply V_intro... apply PowerAx... apply grounded_in_rank...
+Qed.
+
+(* 良基集的配对是良基集 *)
+Lemma pair_grounded : ∀ a b, grounded a → grounded b →
+  grounded {a, b}.
+Proof.
+  intros * Hga Hgb. apply grounded_intro.
+  intros x Hx. apply PairE in Hx as []; subst; auto.
+Qed.
+Hint Resolve pair_grounded : core.
+
+(* 良基集的单集是良基集 *)
+Lemma single_grounded : ∀ a, grounded a → grounded ⎨a⎬.
+Proof. intros. apply pair_grounded; auto. Qed.
+Hint Resolve single_grounded : core.
+
+(* 良基集的有序对是良基集 *)
+Lemma op_grounded : ∀ a b, grounded a → grounded b →
+  grounded <a, b>.
+Proof.
+  intros * Hga Hgb. apply grounded_intro.
+  intros x Hx. apply PairE in Hx as []; subst;
+  apply pair_grounded; auto.
+Qed.
+Hint Resolve op_grounded : core.
+
+(* 良基集的笛卡尔积是良基集 *)
+Lemma cprod_grounded : ∀ A B, grounded A → grounded B →
+  grounded (A × B).
+Proof.
+  intros * HgA HgB. apply grounded_intro.
+  intros p Hp. apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]];
+  subst; apply op_grounded; eapply member_grounded; revgoals; eauto.
+Qed.
+Hint Resolve cprod_grounded : core.
+
+(* 良基集的幂集是良基集 *)
+Lemma power_grounded : ∀ A, grounded A → grounded (𝒫 A).
+Proof with eauto.
+  intros A Hgnd. apply grounded_intro.
+  intros a Ha. apply PowerAx in Ha.
+  apply grounded_intro. intros x Hx.
+  eapply member_grounded... apply Ha...
+Qed.
+Hint Resolve power_grounded : core.
+
+(* 良基集的并集是良基集 *)
+Lemma union_grounded : ∀ A, grounded A → grounded (⋃ A).
+Proof with eauto.
+  intros A Hgnd. apply grounded_intro.
+  intros x Hx. apply UnionAx in Hx as [y [Hy Hx]].
+  eapply member_grounded; revgoals...
+  eapply member_grounded...
+Qed.
+Hint Resolve union_grounded : core.
+
+(* 配对的秩 *)
+Lemma rank_of_pair_p : ∀ a b, grounded a → grounded b →
+  rank a ⋸ rank b → rank {a, b} = (rank b)⁺.
+Proof with eauto; try congruence.
+  intros * Hga Hgb Hle.
+  rewrite rank_recurrence...
+  apply ExtAx. split; intros Hx.
+  - apply FUnionE in Hx as [y [Hy Hx]].
+    apply BUnionE in Hx as [].
+    + apply BUnionI1. apply PairE in Hy as []; subst...
+      apply ord_leq_iff_sub in Hle... apply Hle...
+    + apply SingE in H. subst x.
+      apply PairE in Hy as []; subst...
+      * apply ord_leq_iff_lt_suc...
+      * apply suc_has_n.
+  - eapply FUnionI... apply PairI2.
+Qed.
+
+Lemma rank_of_pair : ∀ a b, grounded a → grounded b →
+  rank {a, b} = (rank a ∪ rank b)⁺.
+Proof with auto.
+  intros * Hga Hgb.
+  destruct (ord_comparability (rank a) (rank b))...
+  - rewrite rank_of_pair_p... f_equal.
+    symmetry. apply bunion_of_ords_eq_l...
+  - rewrite (pair_ordering_agnostic a).
+    rewrite rank_of_pair_p... f_equal.
+    symmetry. apply bunion_of_ords_eq_r...
+Qed.
+
+(* 单集的秩 *)
+Lemma rank_of_single : ∀ a, grounded a → rank ⎨a⎬ = (rank a)⁺.
+Proof. intros. apply rank_of_pair_p; auto. Qed.
+
+(* 有序对的秩 *)
+Lemma rank_of_op_l : ∀ a b, grounded a → grounded b →
+  rank b ⋸ rank a → rank <a, b> = (rank a)⁺⁺.
+Proof with auto.
+  intros * Hga Hgb Hle. unfold OPair.
+  rewrite (pair_ordering_agnostic a).
+  repeat rewrite rank_of_pair_p...
+  rewrite rank_of_single...
+Qed.
+
+Lemma rank_of_op_r : ∀ a b, grounded a → grounded b →
+  rank a ⋸ rank b → rank <a, b> = (rank b)⁺⁺.
+Proof with auto.
+  intros * Hga Hgb Hle. unfold OPair.
+  repeat rewrite rank_of_pair_p...
+  rewrite rank_of_single...
+  destruct Hle; [left|right; congruence].
+  rewrite <- ord_suc_preserve_lt...
+Qed.
+
+Lemma rank_of_op : ∀ a b, grounded a → grounded b →
+  rank <a, b> = (rank a ∪ rank b)⁺⁺.
+Proof with auto.
+  intros * Hga Hgb.
+  destruct (ord_comparability (rank a) (rank b))...
+  - rewrite rank_of_op_r... f_equal. f_equal.
+    symmetry. apply bunion_of_ords_eq_l...
+  - rewrite rank_of_op_l... f_equal. f_equal.
+    symmetry. apply bunion_of_ords_eq_r...
+Qed.
+
+(* 秩的后继 *)
+Lemma rank_suc : ∀ a, grounded a →
+  (rank a)⁺ = rank 𝒫 (V (rank a)).
+Proof with auto.
+  intros a Hgnd. rewrite <- (rank_of_V (rank a)⁺)...
+  f_equal. apply V_suc...
+Qed.
+
+(* 幂集的秩 *)
+Lemma rank_of_power : ∀ a, grounded a → rank (𝒫 a) = (rank a)⁺.
+Proof with eauto.
+  intros a Hgnd.
+  rewrite rank_recurrence...
+  apply ExtAx. split; intros Hx.
+  - apply FUnionE in Hx as [y [Hy Hx]].
+    rewrite rank_suc, rank_recurrence...
+    eapply FUnionI... apply PowerAx.
+    intros z Hz. apply grounded_in_rank...
+    apply PowerAx in Hy. apply Hy...
+  - eapply FUnionI... apply all_in_its_power.
+Qed.
+
+(* 并集的秩 *)
+Lemma rank_of_union : ∀ a, grounded a → rank (⋃ a) ⋸ rank a.
+Proof with eauto.
+  intros a Hgnd. apply ord_leq_iff_sub...
+  rewrite rank_recurrence, rank_recurrence...
+  intros x Hx. apply FUnionE in Hx as [y [Hy Hx]].
+  apply UnionAx in Hy as [z [Hz Hy]].
+  assert (Hgz: grounded z). eapply member_grounded...
+  assert (Hgy: grounded y). eapply member_grounded...
+  eapply FUnionI... eapply ord_trans...
+  rewrite <- ord_suc_preserve_lt... apply rank_of_member...
+Qed.
+
+(* 如果良基集的所有成员等秩，那么该良基集的秩正好比成员的秩大1 *)
+Lemma member_rank_up : ∀ A, grounded A →
+  (∀ a b ∈ A, rank a = rank b) → ∀a ∈ A, rank A = (rank a)⁺.
+Proof with eauto.
+  intros A Hgnd Hsame a Ha.
+  rewrite rank_recurrence...
+  apply ExtAx. split; intros Hx.
+  - apply FUnionE in Hx as [y [Hy Hx]]. rewrite Hsame...
+  - eapply FUnionI...
+Qed.
+
+(* 如果良基集的所有成员等秩，那么该良基集与其任意非空子集等秩 *)
+Lemma subset_same_rank : ∀ A, grounded A →
+  (∀ a b ∈ A, rank a = rank b) →
+  ∀B ∈ 𝒫 A, B ≠ ∅ → rank A = rank B.
+Proof with eauto.
+  intros A HgA Hsame B HB Hne.
+  apply PowerAx in HB.
+  apply EmptyNE in Hne as [b Hb].
+  assert (HgB: grounded B). {
+    apply grounded_intro. intros x Hx.
+    apply HB in Hx. eapply member_grounded...
+  }
+  apply ExtAx. split; intros Hx; rewrite rank_recurrence...
+  - eapply FUnionI... replace (rank b)⁺ with (rank A)...
+    apply member_rank_up... apply HB...
+  - eapply FUnionI... apply HB...
+    replace (rank b)⁺ with (rank B)... apply member_rank_up...
+    intros c Hc d Hd. apply Hsame; apply HB...
+Qed.
+
+End MoreLemmaAboutRank.

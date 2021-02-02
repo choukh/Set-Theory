@@ -102,8 +102,8 @@ Qed.
 (* 集合有限当且仅当其基数有限 *)
 Lemma set_finite_iff_card_finite : ∀ A, finite A ↔ finite (|A|).
 Proof.
-  split; intros Hfin; apply set_finite_iff_eqnum_finite_set;
-  [exists A|exists (|A|)]; split; auto; rewrite <- CardAx0; auto.
+  now split; intros Hfin; apply set_finite_iff_eqnum_finite_set;
+  [exists A|exists (|A|)]; split; auto; rewrite <- CardAx0.
 Qed.
 
 (* 集合无限当且仅当其基数无限 *)
@@ -412,7 +412,7 @@ Lemma cardAdd_disjoint_iff : ∀ A B C, disjoint A B →
 Proof with auto.
   intros * Hdj. split; intros H.
   - apply CardAx1.
-    eapply eqnum_tran. {
+    eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined.
         symmetry. apply CardAx0. reflexivity.
@@ -421,7 +421,7 @@ Proof with auto.
       - apply disjointify_0_1.
       - apply disjointify_0_1.
     }
-    eapply eqnum_tran. {
+    eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       - symmetry. apply eqnum_cprod_single.
       - symmetry. apply eqnum_cprod_single.
@@ -429,14 +429,14 @@ Proof with auto.
       - apply Hdj.
     }
     apply H.
-  - eapply eqnum_tran. {
+  - eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       + apply (eqnum_cprod_single _ 0).
       + apply (eqnum_cprod_single _ 1).
       + apply Hdj.
       + apply disjointify_0_1.
     }
-    eapply eqnum_tran. {
+    eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
@@ -452,7 +452,7 @@ Lemma cardAdd_iff : ∀ A B C,
 Proof with auto.
   intros. split; intros H.
   - apply CardAx1.
-    eapply eqnum_tran. {
+    eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined.
         symmetry. apply CardAx0. reflexivity.
@@ -462,7 +462,7 @@ Proof with auto.
       - apply disjointify_0_1.
     }
     apply H.
-  - eapply eqnum_tran. {
+  - eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
       - apply cardMul_well_defined. apply CardAx0. reflexivity.
@@ -476,10 +476,10 @@ Qed.
 Lemma cardMul_iff : ∀ A B C, A × B ≈ C ↔ (|A| ⋅ |B|) = |C|.
 Proof with auto.
   split; intros.
-  - apply CardAx1. eapply eqnum_tran.
+  - apply CardAx1. eapply Equivalence_Transitive.
     + apply cardMul_well_defined; symmetry; apply CardAx0.
     + apply H.
-  - eapply eqnum_tran.
+  - eapply Equivalence_Transitive.
     + apply cardMul_well_defined; apply CardAx0.
     + apply CardAx1. apply H.
 Qed.
@@ -488,29 +488,29 @@ Qed.
 Lemma cardExp_iff : ∀ A B C, B ⟶ A ≈ C ↔ (|A| ^ |B|) = |C|.
 Proof with auto.
   split; intros.
-  - apply CardAx1. eapply eqnum_tran.
+  - apply CardAx1. eapply Equivalence_Transitive.
     + apply cardExp_well_defined; symmetry; apply CardAx0.
     + apply H.
-  - eapply eqnum_tran.
+  - eapply Equivalence_Transitive.
     + apply cardExp_well_defined; apply CardAx0.
     + apply CardAx1. apply H.
 Qed.
 
 (* 不交集的基数的和等于它们的二元并的基数 *)
 Lemma cardAdd_disjoint : ∀ A B, disjoint A B → |A| + |B| = |A ∪ B|.
-Proof. intros. apply cardAdd_disjoint_iff; auto. Qed.
+Proof. intros. now apply cardAdd_disjoint_iff. Qed.
 
 (* 基数的和等于它们的不交化二元并的基数 *)
 Lemma cardAdd : ∀ A B, |A| + |B| = |A × ⎨0⎬ ∪ B × ⎨1⎬|.
-Proof. intros. apply cardAdd_iff; auto. Qed.
+Proof. intros. now apply cardAdd_iff. Qed.
 
 (* 集合的基数的积等于它们的笛卡尔积的基数*)
 Lemma cardMul : ∀ A B, (|A| ⋅ |B|) = |A × B|.
-Proof. intros. apply cardMul_iff; auto. Qed.
+Proof. intros. now apply cardMul_iff. Qed.
 
 (* 集合的基数的幂等于它们张起的函数空间的基数*)
 Lemma cardExp : ∀ A B, (|A| ^ |B|) = |B ⟶ A|.
-Proof. intros. apply cardExp_iff; auto. Qed.
+Proof. intros. now apply cardExp_iff. Qed.
 
 (* 零是基数加法单位元 *)
 Lemma cardAdd_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 + 0 = 𝜅.
@@ -650,7 +650,7 @@ Lemma card_of_power : ∀ A, |𝒫 A| = 2 ^ |A|.
 Proof with auto.
   intros. pose proof (power_eqnum_func_to_2 A).
   apply CardAx1 in H. rewrite H. clear H.
-  apply CardAx1. apply cardExp_well_defined... apply CardAx0.
+  apply CardAx1. apply cardExp_well_defined. easy. apply CardAx0.
 Qed.
 
 (* 任意基数不等于2的该基数次幂 *)
@@ -693,7 +693,7 @@ Qed.
 Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
 Proof with auto.
   intros. rewrite cardMul_comm. apply CardAx1.
-  cut (𝜅 × ⎨0⎬ ∪ 𝜅 × ⎨1⎬ = 𝜅 × 2). { intros H. rewrite H... }
+  cut (𝜅 × ⎨0⎬ ∪ 𝜅 × ⎨1⎬ = 𝜅 × 2). { intros H. now rewrite H. }
   assert (H1_2: 1 ∈ 2) by apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   apply ExtAx. split; intros Hx.
@@ -712,13 +712,13 @@ Qed.
 
 (* 基数加法结合律 *)
 Theorem cardAdd_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 + 𝜆) + 𝜇 = 𝜅 + (𝜆 + 𝜇).
-Proof with neauto; try congruence.
+Proof with neauto; try congruence; try easy.
   intros. apply CardAx1.
   assert (Hnq: Embed 1 = Embed 2 → ⊥). {
     intros. apply (nat_irrefl 2)...
     rewrite <- H at 1. apply suc_has_n.
   }
-  eapply eqnum_tran. {
+  eapply Equivalence_Transitive. {
     apply cardAdd_well_defined.
     - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0...
     - rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
@@ -731,7 +731,7 @@ Proof with neauto; try congruence.
       + eapply disjointE. apply (cprod_disjointify 𝜇 𝜆 2 1).
         intro. apply Hnq... apply H. apply H0.
   }
-  symmetry. eapply eqnum_tran. {
+  symmetry. eapply Equivalence_Transitive. {
     apply cardAdd_well_defined.
     - reflexivity.
     - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0.
@@ -754,19 +754,19 @@ Qed.
 
 (* 基数乘法结合律 *)
 Theorem cardMul_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 ⋅ 𝜆) ⋅ 𝜇 = 𝜅 ⋅ (𝜆 ⋅ 𝜇).
-Proof with auto.
-  intros. apply CardAx1. eapply eqnum_tran.
+Proof.
+  intros. apply CardAx1. eapply Equivalence_Transitive.
   - apply cardMul_well_defined.
     symmetry. apply CardAx0. reflexivity.
   - rewrite eqnum_cprod_assoc.
-    apply cardMul_well_defined... apply CardAx0.
+    apply cardMul_well_defined. easy. apply CardAx0.
 Qed.
 
 (* 基数乘法分配律 *)
 Theorem cardMul_distr : ∀ 𝜅 𝜆 𝜇, 𝜅 ⋅ (𝜆 + 𝜇) = 𝜅 ⋅ 𝜆 + 𝜅 ⋅ 𝜇.
 Proof with auto.
   intros. apply CardAx1.
-  eapply eqnum_tran. {
+  eapply Equivalence_Transitive. {
     apply cardMul_well_defined.
     reflexivity. symmetry. apply CardAx0...
   }
@@ -792,11 +792,11 @@ Qed.
 Theorem cardExp_id_1 : ∀ 𝜅 𝜆 𝜇, 𝜅 ^ (𝜆 + 𝜇) = 𝜅 ^ 𝜆 ⋅ 𝜅 ^ 𝜇.
 Proof with eauto; try congruence.
   intros. apply CardAx1.
-  eapply eqnum_tran. {
+  eapply Equivalence_Transitive. {
     apply cardExp_well_defined.
     reflexivity. symmetry. apply CardAx0.
   }
-  symmetry. eapply eqnum_tran. {
+  symmetry. eapply Equivalence_Transitive. {
     unfold CardExp. apply cardMul_well_defined.
     - rewrite <- CardAx0. apply cardExp_well_defined.
       reflexivity. apply (eqnum_cprod_single _ 0).
@@ -890,11 +890,11 @@ Qed.
 Theorem cardExp_id_2 : ∀ 𝜅 𝜆 𝜇, (𝜅 ⋅ 𝜆) ^ 𝜇 = 𝜅 ^ 𝜇 ⋅ 𝜆 ^ 𝜇.
 Proof with eauto; try congruence.
   intros. apply CardAx1.
-  eapply eqnum_tran. {
+  eapply Equivalence_Transitive. {
     apply cardExp_well_defined.
     symmetry. apply CardAx0. reflexivity.
   }
-  symmetry. eapply eqnum_tran. {
+  symmetry. eapply Equivalence_Transitive. {
     unfold CardExp. apply cardMul_well_defined.
     - symmetry. apply CardAx0.
     - symmetry. apply CardAx0.
@@ -981,11 +981,11 @@ Qed.
 Theorem cardExp_id_3 : ∀ 𝜅 𝜆 𝜇, (𝜅 ^ 𝜆) ^ 𝜇 = 𝜅 ^ (𝜆 ⋅ 𝜇).
 Proof with eauto; try congruence.
   intros. apply CardAx1.
-  eapply eqnum_tran. {
+  eapply Equivalence_Transitive. {
     apply cardExp_well_defined.
     symmetry. apply CardAx0. reflexivity.
   }
-  symmetry. eapply eqnum_tran. {
+  symmetry. eapply Equivalence_Transitive. {
     apply cardExp_well_defined.
     reflexivity. symmetry. apply CardAx0.
   }
@@ -1084,7 +1084,7 @@ Lemma cardExp_suc : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 ^ (𝜆 + 1) = 𝜅 ^ �
 Proof. intros. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
 
 Lemma card_suc : ∀n ∈ ω, n + 1 = n⁺.
-Proof with auto.
+Proof with auto; try easy.
   intros n Hn. rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...

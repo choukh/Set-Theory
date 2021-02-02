@@ -87,7 +87,7 @@ Lemma lambdaEmbed : ∀ F A, ∀a ∈ A, (F ↿ A)[a] = F a.
 Proof with auto.
   intros * a Ha. unfold LambdaEmbed.
   rewrite meta_func_ap... apply meta_maps_into.
-  intros x Hx. apply ReplAx. exists x. split...
+  intros x Hx. eapply ReplI...
 Qed.
 
 (** special cases **)
@@ -689,7 +689,7 @@ Proof with eauto.
   destruct Hg as [Hig [Hdg Hdr]].
   exists (F' ∘ (F ↾ A)). split... split... rewrite Hdr.
   intros y Hy. apply ReplAx in Hy as [x [Hx Heq]].
-  apply Hr in Hx. subst y. apply ReplAx. exists x. split...
+  apply Hr in Hx. subst y. eapply ReplI...
 Qed.
 
 (** swap value **)

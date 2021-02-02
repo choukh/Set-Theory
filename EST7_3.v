@@ -1,10 +1,12 @@
 (** Based on "Elements of Set Theory" Chapter 7 Part 3 **)
 (** Coq coding by choukh, Dec 2020 **)
 
-Require Import Coq.Logic.PropExtensionality.
-Require Export ZFC.EST7_2.
+Require Import Relation_Definitions.
+Require Import RelationClasses.
+Require Import PropExtensionality.
 Require Import ZFC.lib.FuncFacts.
 Require Import ZFC.lib.WosetMin.
+Require Export ZFC.EST7_2.
 
 (*** EST第七章3：序结构，序同构，良序结构，伊普西隆像 ***)
 
@@ -37,21 +39,22 @@ Notation "f :ₒₑ S ⟺ T" := (order_embedding_bijection f S T)
   (at level 70) : OrderedStruct_scope.
 
 (* 序同构 *)
-Definition isomorphic := λ S T, ∃ f, f :ₒₑ S ⟺ T.
+Definition isomorphic : relation OrderedStruct :=
+  λ S T, ∃ f, f :ₒₑ S ⟺ T.
 
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : OrderedStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : OrderedStruct_scope.
 
-Theorem iso_refl : ∀ S, S ≅ S.
+Theorem iso_refl : Reflexive isomorphic.
 Proof with auto.
-  intros. exists (Ident (A S)).
+  intros S. exists (Ident (A S)).
   split. apply ident_bijective.
   intros x Hx y Hy. rewrite ident_ap, ident_ap... reflexivity.
 Qed.
 
-Theorem iso_symm : ∀ S T, S ≅ T → T ≅ S.
+Theorem iso_symm : Symmetric isomorphic.
 Proof with eauto.
-  intros * [f [Hf H]]. exists (f⁻¹).
+  intros S T [f [Hf H]]. exists (f⁻¹).
   pose proof (inv_bijection f (A S) (A T) Hf) as Hf'.
   destruct Hf as [Hi [_ Hr]].
   split... intros x Hx y Hy. symmetry.
@@ -63,9 +66,9 @@ Proof with eauto.
   rewrite inv_ran_reduction... congruence.
 Qed.
 
-Theorem iso_tran : ∀ S T U, S ≅ T → T ≅ U → S ≅ U.
+Theorem iso_tran : Transitive isomorphic.
 Proof with eauto; try congruence.
-  intros * [f [Hf H1]] [g [Hg H2]]. exists (g ∘ f).
+  intros S T U [f [Hf H1]] [g [Hg H2]]. exists (g ∘ f).
   pose proof (compo_bijection f g (A S) (A T) (A U) Hf Hg) as Hcom.
   apply bijection_is_func in Hf as [Hf _].
   apply bijection_is_func in Hg as [Hg _].
@@ -82,11 +85,11 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 序同构是等价关系 *)
-Add Relation OrderedStruct isomorphic
-  reflexivity proved by iso_refl
-  symmetry proved by iso_symm
-  transitivity proved by iso_tran
-  as iso_rel.
+Theorem iso_equiv : Equivalence isomorphic.
+Proof.
+  split. apply iso_refl. apply iso_symm. apply iso_tran.
+Qed.
+Existing Instance iso_equiv.
 
 (* 像关系 *)
 Module ImageRel.
@@ -236,7 +239,8 @@ Definition order_embedding_bijection := λ f S T, f: A S ⟺ A T ∧
 Notation "f :ₒₑ S ⟺ T" := (order_embedding_bijection f S T)
   (at level 70) : WOStruct_scope.
 
-Definition isomorphic := λ S T, ∃ f, f :ₒₑ S ⟺ T.
+Definition isomorphic : relation WOStruct :=
+  λ S T, ∃ f, f :ₒₑ S ⟺ T.
 
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : WOStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : WOStruct_scope.
@@ -259,28 +263,28 @@ Qed.
 Lemma parent_wo : ∀ S, OrderedStruct.wo (parent S).
 Proof. intros. apply wo. Qed.
 
-Theorem iso_refl : ∀ S, S ≅ S.
+Theorem iso_refl : Reflexive isomorphic.
 Proof.
-  intros. apply parent_iso. apply OrderedStruct.iso_refl.
+  intros S. apply parent_iso. apply OrderedStruct.iso_refl.
 Qed.
 
-Theorem iso_symm : ∀ S T, S ≅ T → T ≅ S.
+Theorem iso_symm : Symmetric isomorphic.
 Proof.
-  intros. rewrite parent_iso in H. apply parent_iso.
+  intros S T H. rewrite parent_iso in H. apply parent_iso.
   apply OrderedStruct.iso_symm; auto.
 Qed.
 
-Theorem iso_tran : ∀ S T U, S ≅ T → T ≅ U → S ≅ U.
+Theorem iso_tran : Transitive isomorphic.
 Proof.
-  intros * H1 H2. rewrite parent_iso in H1, H2.
+  intros S T U H1 H2. rewrite parent_iso in H1, H2.
   apply parent_iso. eapply OrderedStruct.iso_tran; eauto.
 Qed.
 
-Add Relation WOStruct isomorphic
-  reflexivity proved by iso_refl
-  symmetry proved by iso_symm
-  transitivity proved by iso_tran
-  as iso_rel.
+Theorem iso_equiv : Equivalence isomorphic.
+Proof.
+  split. apply iso_refl. apply iso_symm. apply iso_tran.
+Qed.
+Existing Instance iso_equiv.
 
 (* 良序结构间的态射唯一 *)
 Theorem wo_iso_unique : ∀ S T, S ≅ T → ∃! f, f :ₒₑ S ⟺ T.
@@ -438,7 +442,7 @@ Lemma e_ap_order : ∀ S,
   ∀ s t ∈ A S, (s <ᵣ t) (R S) → (E S)[s] ∈ (E S)[t].
 Proof with auto.
   intros S s Hs t Ht Hst. rewrite (e_ap S t Ht).
-  apply ReplAx. exists s. split... apply segI...
+  eapply ReplI... apply segI...
 Qed.
 
 Lemma e_intro : ∀ S, ∀ x, ∀ s t ∈ A S,

@@ -100,7 +100,7 @@ Lemma eqvcI : ∀ R x y, <x, y> ∈ R → y ∈ [x]R.
 Proof with eauto. intros. apply SepI... eapply ranI... Qed.
 
 Lemma eqvcE : ∀ R x y, y ∈ [x]R → <x, y> ∈ R.
-Proof. intros. apply SepE in H as []; auto. Qed.
+Proof. intros. apply SepE2 in H. apply H. Qed.
 
 Lemma eqvc_refl: ∀ R A, refl R A → ∀x ∈ A, x ∈ [x]R.
 Proof. intros R A Hrf x Hx. apply eqvcI. apply Hrf; auto. Qed.

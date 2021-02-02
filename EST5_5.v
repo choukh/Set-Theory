@@ -131,7 +131,7 @@ Qed.
 Theorem realLt_linearOrder : linearOrder RealLt ℝ.
 Proof.
   apply loset_iff_connected_poset. split.
-  apply realLt_connected. apply subsetRel_is_poset.
+  apply realLt_connected. apply subsetRel_poset.
 Qed.
 
 Lemma realLt_irrefl : irrefl RealLt.

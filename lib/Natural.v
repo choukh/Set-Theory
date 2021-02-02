@@ -19,6 +19,25 @@ Proof with nauto.
     apply add_cancel in H... apply mul_ran...
 Qed.
 
+(* 两个自然数的二元并等于它们中较大的一个 *)
+Lemma bunion_of_nats_eq_l : ∀ m n ∈ ω, m ⋸ n → m ∪ n = n.
+Proof with auto.
+  intros m Hm n Hn Hle.
+  apply leq_iff_sub in Hle...
+  apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as []... apply Hle...
+  - apply BUnionI2...
+Qed.
+
+Lemma bunion_of_nats_eq_r : ∀ m n ∈ ω, n ⋸ m → m ∪ n = m.
+Proof with auto.
+  intros m Hm n Hn Hle.
+  apply leq_iff_sub in Hle...
+  apply ExtAx. split; intros Hx.
+  - apply BUnionE in Hx as []... apply Hle...
+  - apply BUnionI1...
+Qed.
+
 (* 递归单射 *)
 Lemma injective_recursion : ∀ f A a, f: A ⇔ A → a ∈ A - ran f →
   ∃ h, h: ω ⇔ A ∧ h[∅] = a ∧ ∀n ∈ ω, h[n⁺] = f[h[n]].

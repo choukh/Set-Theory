@@ -1,10 +1,9 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 1 **)
 (** Coq coding by choukh, Dec 2020 **)
 
-Require Import Coq.Logic.PropExtensionality.
+Require Import PropExtensionality.
 Require Import ZFC.EST7_4.
 Require Import ZFC.lib.FuncFacts.
-
 Import WOStruct.
 
 Declare Scope Ord_scope.
