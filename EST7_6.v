@@ -373,15 +373,14 @@ Fact all_grounded : ∀ A, grounded A.
 Proof. apply all_grounded_iff_regularity. apply RegAx. Qed.
 
 (* 任意集合均存在∈极小元 *)
-Lemma ex_epsilon_minimal : ∀ A, A ≠ ∅ →
-  ∃ m, minimal m A (MemberRel A).
+Lemma ex_epsilon_minimal : ∀ A, A ≠ ∅ → ∃ m, ε_minimal m A.
 Proof with auto.
   intros * Hne.
   pose proof (RegAx A Hne) as [m [Hm H]].
   exists m. split... intros x Hx.
   destruct (classic (x = m))... left.
-  intros Hxm. apply binRelE3 in Hxm.
-  eapply EmptyNI in H... exists x. apply BInterI...
+  intros Hxm. eapply EmptyNI in H...
+  exists x. apply BInterI...
 Qed.
 
 (* 不存在集合的无穷降链 *)
