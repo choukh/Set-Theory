@@ -10,7 +10,9 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 ```
 
 ## ZFC0.v
-- Metatheory: Law of excluded middle, Hilbert's ε-operator
+- Metatheory
+  - Law of excluded middle
+  - Hilbert's ε-operator
 - Axiom of extensionality
 - Axiom of empty set
 - Axiom of union
