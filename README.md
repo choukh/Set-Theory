@@ -27,13 +27,13 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## ZFC2.v
 - Set comprehension
-- Intersaction, Binary intersaction
+- Intersaction, binary intersaction
 - Ordered pair
 - Cartesian product
 
 ## ZFC3.v
 - Axiom of infinity
-- Hilbert's ε-operator implies axiom of choice
+- Hilbert's ε-operator implies AC
 
 ## EST2.v
 - Complement
@@ -41,13 +41,13 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Algebra of sets
 
 ## EST3_1.v
-- Relation, Function
-- Inverse, Composition
+- Relation, function
+- Inverse, composition
 
 ## EST3_2.v
-- Injection, Surjection, Bijection
+- Injection, surjection, bijection
 - Left inverse and right inverse of function
-- Restriction, Image
+- Restriction, image
 - Function space
 - Infinite Cartesian product
 - AC equivalent form 1: Function has right inverse iff surjective
@@ -55,8 +55,8 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST3_3.v
 - Binary relation
-- Equivalence relation, Equivalence class, Quotient set
-- Trichotomy, Linear order
+- Equivalence relation, equivalence class, quotient set
+- Trichotomy, linear order
 
 ## EST4_1.v
 - Natural number
@@ -67,7 +67,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST4_2.v
 - Embedding of type-theoretic nat
-- Natural number arithmetic: Addition, Multiplication, Exponentiation
+- Natural number arithmetic: addition, multiplication, exponentiation
 
 ## EST4_3.v
 - Linear ordering of ω
@@ -76,7 +76,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST5_1.v
 - Integer
-- Integer arithmetic: Addition, Additive inverse
+- Integer arithmetic: addition, additive inverse
 
 ## EST5_2.v
 - Multiplication of integers
@@ -85,7 +85,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST5_3.v
 - Rational number
-- Rational number arithmetic: Addition, Additive inverse, Multiplication, Multiplicative inverse
+- Rational number arithmetic: addition, additive inverse, nultiplication, multiplicative inverse
 
 ## EST5_4.v
 - Order of rational numbers
@@ -96,7 +96,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Real number (Dedekind cut)
 - Order of real numbers
 - Completeness of the real numbers
-- Real number arithmetic: Addition, Additive inverse
+- Real number arithmetic: addition, additive inverse
 
 ## EST5_6.v
 - Absolute value of real number
@@ -104,7 +104,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Multiplicative inverse of positive real number
 
 ## EST5_6.v
-- Arithmetic of rational numbers: Multiplication, Multiplicative inverse
+- Arithmetic of rational numbers: multiplication, multiplicative inverse
 - Embedding of the rational numbers
 - Density of the real numbers
 
@@ -116,7 +116,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST6_2.v
 - Infinite cardinal
-- Cardinal arithmetic: Addition, Multiplication, Exponentiation
+- Cardinal arithmetic: addition, multiplication, exponentiation
 
 ## EST6_3.v
 - Dominate
@@ -147,9 +147,9 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
   - Absortion law of cardinal addition and multiplication
 
 ## EST7_1.v
-- Partial order, Linear order
-- Minimal, Minimum, Maximal, Maximum
-- Bound, Supremum, Infimum
+- Partial order, linear order
+- Minimal, minimum, maximal, maximum
+- Bound, supremum, infimum
 
 ## EST7_2.v
 - Well order
@@ -160,20 +160,20 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 ## EST7_3.v
 - Order structure
 - Isomorphism
-- Epsilon Image
+- Epsilon image
 
 ## EST7_4.v
 - Ordinal
 - Order of ordinals
 - Burali-Forti's paradox
-- Successor ordinal, Limit ordinal
+- Successor ordinal, limit ordinal
 - Transfinite induction schema on ordinals
 
 ## EST7_5.v
 - Hartog's number
 - Equivalence between well order theorem, AC and Zorn's lemma
 - von Neumann cardinal assignment
-- Initial cardinal, Successor cardinal
+- Initial cardinal, successor cardinal
 
 ## EST7_6.v
 - Transfinite recursion schema on ordinals
