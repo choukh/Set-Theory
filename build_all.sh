@@ -116,6 +116,11 @@ coqc -R . ZFC EX7_1.v
 echo "building EX7_2"
 coqc -R . ZFC EX7_2.v
 
+echo "building Ordinal"
+coqc -R . ZFC lib/Ordinal.v
+echo "building ZornsLemma"
+coqc -R . ZFC lib/ZornsLemma.v
+
 echo "building EST7_6"
 coqc -R . ZFC EST7_6.v
 echo "building Scott's_Trick"
@@ -123,7 +128,5 @@ coqc -R . ZFC lib/ScottsTrick.v
 echo "building EX7_3"
 coqc -R . ZFC EX7_3.v
 
-echo "building OrdinalAsType"
-coqc -R . ZFC lib/OrdinalAsType.v
-echo "building ZornsLemma"
-coqc -R . ZFC lib/ZornsLemma.v
+echo "building EST8_1"
+coqc -R . ZFC EST8_1.v

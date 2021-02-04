@@ -1,94 +1,30 @@
 (** Based on "Elements of Set Theory" Chapter 7 Part 6 **)
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Export ZFC.lib.Cardinal.
+Require Export ZFC.lib.Ordinal.
 Require Import ZFC.lib.FuncFacts.
 
-(*** EST第七章6：冯·诺伊曼宇宙，集合的秩，正则公理 ***)
+(*** EST第七章6：序数上的超限递归模式，冯·诺伊曼宇宙，集合的秩，正则公理 ***)
 
-Section V_Def.
-Import TransfiniteRecursion.
-
-Let γ := λ x y, y = ⋃{Power | z ∊ ran x}.
-Let F := λ δ, constr δ (MemberRel δ) γ.
-Let F_spec := λ δ, is_function (F δ) ∧ dom (F δ) = δ ∧
-  ∀α ∈ δ, (F δ)[α] = ⋃{λ β, 𝒫 (F δ)[β] | β ∊ α}.
-
-Local Lemma F_spec_intro : ∀ δ, is_ord δ → F_spec δ.
-Proof with eauto; try congruence.
-  intros δ Hoδ.
-  pose proof (spec_intro δ (MemberRel δ) γ) as [HfF [HdF HrF]]. {
-    apply ord_woset...
-  } {
-    intros x. split... exists (⋃{Power | z ∊ ran x})...
-  }
-  fold (F δ) in HfF, HdF, HrF.
-  split... split...
-  intros α Hα. rewrite HrF...
-  apply ExtAx. split; intros Hx.
-  - apply FUnionE in Hx as [y [Hy Hx]].
-    apply ranE in Hy as [β Hp].
-    apply restrE2 in Hp as [Hp Hβ]. apply func_ap in Hp...
-    apply SepE2 in Hβ. apply binRelE3 in Hβ. eapply FUnionI...
-  - apply FUnionE in Hx as [β [Hβ Hx]].
-    assert (Hβδ: β ∈ δ). eapply ord_trans...
-    eapply FUnionI... apply (ranI _ β). apply restrI.
-    apply segI. apply binRelI... apply func_correct...
-Qed.
-
-Local Lemma F_agree_on_smaller_partial : ∀ δ ε, δ ∈ ε →
-  is_ord δ → is_ord ε → ∀α ∈ δ ∩ ε, (F δ)[α] = (F ε)[α].
-Proof with eauto; try congruence.
-  intros δ ε Hlt Hoδ Hoε α Hα.
-  assert (Hsm: δ ∩ ε = δ). {
-    apply ExtAx. split; intros Hx.
-    - apply BInterE in Hx as []...
-    - apply BInterI... eapply ord_trans...
-  }
-  rewrite Hsm in Hα.
-  set {α ∊ δ | λ α, (F δ)[α] = (F ε)[α]} as δ'.
-  replace δ with δ' in Hα. apply SepE2 in Hα... clear Hα α.
-  eapply transfinite_induction. apply ord_woset...
-  split. intros α Hα. apply SepE1 in Hα...
-  intros α Hα Hseg. apply SepI...
-  pose proof (F_spec_intro δ Hoδ) as [_ [_ Heqδ]].
-  pose proof (F_spec_intro ε Hoε) as [_ [_ Heqε]].
-  assert (Hα': α ∈ ε). eapply ord_trans...
-  rewrite Heqδ, Heqε...
-  erewrite repl_rewrite. reflexivity.
-  intros β Hβ. rewrite seg_of_ord in Hseg...
-  apply Hseg in Hβ. apply SepE2 in Hβ...
-Qed.
-
-Local Lemma F_agree_on_smaller : ∀ δ ε, is_ord δ → is_ord ε →
-  ∀α ∈ δ ∩ ε, (F δ)[α] = (F ε)[α].
-Proof with auto; try congruence.
-  intros δ ε Hoδ Hoε α Hα.
-  destruct (classic (δ = ε)) as [|Hnq]...
-  apply ord_connected in Hnq as []...
-  apply (F_agree_on_smaller_partial δ ε)... symmetry.
-  apply (F_agree_on_smaller_partial ε δ)... rewrite binter_comm...
-Qed.
+(* 序数上的超限递归模式 *)
+Import RecursionOnOrdinals.
 
 (* 冯·诺伊曼宇宙层级 *)
-Definition V := λ α, (F α⁺)[α].
+Definition V := Recursion (λ A, ⋃{Power | x ∊ A}).
 
 (* 宇宙层级的递推公式 *)
 Theorem V_hierarchy : ∀ α, is_ord α →
   V α = ⋃{λ β, 𝒫 (V β) | β ∊ α}.
-Proof with eauto.
-  intros α Ho. unfold V.
-  assert (Ho': is_ord α⁺). apply ord_suc_is_ord...
-  pose proof (F_spec_intro α⁺) as [_ [_ Heqα]]...
-  rewrite Heqα; [|apply suc_has_n].
-  erewrite repl_rewrite. reflexivity.
-  intros β Hβ. rewrite F_agree_on_smaller...
-  eapply ord_is_ords... rewrite <- ord_suc_preserve_lt...
-  eapply ord_is_ords... apply BUnionI1...
-  apply BInterI. apply BUnionI1... apply BUnionI2...
+Proof with eauto; try congruence.
+  intros α Hoα. unfold V.
+  rewrite recursion_spec at 1...
+  apply ExtAx. split; intros Hx.
+  - apply FUnionE in Hx as [y [Hy Hx]].
+    apply ReplAx in Hy as [β [Hβ Hy]].
+    eapply FUnionI...
+  - apply FUnionE in Hx as [β [Hβ Hx]].
+    eapply FUnionI... eapply ReplI...
 Qed.
-
-End V_Def.
 
 Lemma V_intro : ∀ α, is_ord α → ∀β ∈ α, ∀x ∈ 𝒫 (V β), x ∈ V α.
 Proof with eauto.
@@ -305,14 +241,14 @@ End RankRecurrence.
 (* ex7_26 序数是良基集：𝐎𝐍 ⊆ 𝐖𝐅 *)
 Fact ord_grounded : ∀ α, is_ord α → grounded α.
 Proof.
-  apply transfinite_induction_schema.
+  apply transfinite_induction_schema_on_ordinals.
   intros α Hα. apply grounded_intro.
 Qed.
 
 (* ex7_26 序数的秩等于自身 *)
 Fact rank_of_ord : ∀ α, is_ord α → rank α = α.
 Proof with eauto; try congruence.
-  apply transfinite_induction_schema.
+  apply transfinite_induction_schema_on_ordinals.
   intros α Hα Hind.
   rewrite rank_recurrence; [|apply ord_grounded]...
   apply ExtAx. split; intros Hx.

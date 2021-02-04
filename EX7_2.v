@@ -587,4 +587,4 @@ Qed.
 (* ex7_22 see lib/ZornsLemma Theorem Zorn_to_WO *)
 (* ex7_23 see lib/Cardinal Theorem hartogs_is_card_suc *)
 (* ex7_24 see lib/Cardinal Theorem all_ord_ex_larger_card *)
-(* ex7_25 see EST7_4 Theorem transfinite_induction_schema *)
+(* ex7_25 see EST7_4 Theorem transfinite_induction_schema_on_ordinals *)

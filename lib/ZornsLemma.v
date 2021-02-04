@@ -1,11 +1,8 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.EST7_5.
+Require Export ZFC.lib.Ordinal.
 Require Import ZFC.lib.Choice.
-Require Import ZFC.lib.Cardinal.
-Require Import ZFC.lib.OrdinalAsType.
-Require Import ZFC.lib.WosetMin.
-Import WosetMin.FullVer.
+Require ZFC.lib.WosetMin.
 
 (* set-theoretic form *)
 Definition set_theoretic_Zorn := Choice.AC_VI.
@@ -85,7 +82,7 @@ Qed.
   3' → (Zorn ↔ WO) → 6 (→ ... → 3')
 *)
 
-Import OrdinalAsType.
+Import RecursionOnOrdinals.
 
 (* 佐恩引理一般形式的证明 *)
 Lemma Zorn's : AC_III' → general_Zorn.
@@ -97,7 +94,7 @@ Proof with eauto; try congruence.
   (* 子集的上界集 *)
   set (λ B, {x ∊ A | λ x, ∀b ∈ B, (b <ᵣ x) R}) as Upper.
   (* 全序子集族 *)
-  set {B ∊ 𝒫 A | λ W, loset B (R ⥏ B)} as ℬ.
+  set {B ∊ 𝒫 A | λ B, loset B (R ⥏ B)} as ℬ.
   (* 上界集族 *)
   set {Upper | B ∊ ℬ} as 𝒜.
   pose proof (AC3' 𝒜) as [F [HfF [HdF HrF]]]. {
@@ -123,23 +120,52 @@ Proof with eauto; try congruence.
     unfold f. rewrite meta_func_ap...
     apply HrF' in HB. apply SepE2 in HB. apply HB...
   }
-  (* 构造a₀ *)
-  set (f[∅]) as a₀.
-  assert (Ha₀: a₀ ∈ A). {
-    assert (H0: ∅ ∈ ℬ). {
-      apply SepI. apply empty_in_all_power.
-      rewrite subRel_empty. apply empty_loset.
+  set (Recursion (λ B, f[B])) as a.
+  assert (HB: ∀ α, is_ord α → {a | β ∊ α} ∈ ℬ). {
+    eapply transfinite_induction_schema_on_ordinals.
+    intros α Hoα IH.
+    assert (Hsub: {a | β ∊ α} ⊆ A). {
+      intros x Hx. apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
+      assert (Hoβ: is_ord β). eapply ord_is_ords...
+      unfold a. rewrite recursion_spec...
+      eapply ap_ran... apply IH...
     }
-    assert (Hsub: Upper ∅ ⊆ A). {
-      intros x Hx. apply SepE1 in Hx...
-    }
-    unfold a₀, f. rewrite meta_func_ap...
-    apply Hsub. apply HrF. eapply ReplI...
+    apply SepI. apply PowerAx...
+    apply loset_iff_connected_poset.
+    split; [|eapply subRel_poset]...
+    intros x Hx y Hy Hnq.
+    apply ReplAx in Hx as H. destruct H as [δ [Hδ Heqx]].
+    apply ReplAx in Hy as H. destruct H as [ε [Hε Heqy]]. subst x y.
+    assert (Hoδ: is_ord δ). eapply ord_is_ords...
+    assert (Hoε: is_ord ε). eapply ord_is_ords; revgoals...
+    destruct (classic (δ = ε)) as [|Hnq']...
+    apply ord_connected in Hnq' as []; auto; [left|right];
+    (apply SepI; [|apply CProdI; auto]); unfold a;
+    [rewrite (recursion_spec _ ε)|rewrite (recursion_spec _ δ)]; auto;
+    (apply f_strict; [apply IH|eapply ReplI])...
   }
-  (* TODO: wait for recursion on ordinals on ch8 *)
-Admitted.
+  assert (Hmono: ∀ α, is_ord α → ∀β ∈ α, (a β <ᵣ a α) R). {
+    intros α Hoα β Hlt.
+    unfold a. rewrite (recursion_spec _ α)...
+    apply f_strict... eapply ReplI...
+  }
+  set {x ∊ A | λ x, ∃ α, is_ord α ∧ x = a α} as A'.
+  set (ϕ_Repl (λ x α, is_ord α ∧ x = a α) A') as Ω.
+  apply Burali_Forti. exists Ω.
+  intros α Hoα. apply ϕ_ReplAx.
+  - intros x Hx. split.
+    + apply SepE2 in Hx as [ξ [Hξ Hx]]...
+    + intros δ ε [Hoδ H1] [Hoε H2]. subst x.
+      destruct (classic (δ = ε))... exfalso.
+      apply ord_connected in H as []; auto;
+      apply Hmono in H; auto; rewrite H2 in H;
+      eapply relLt_irrefl; eauto; apply Hpo.
+  - exists (a α). split... apply SepI...
+    unfold a. rewrite recursion_spec... eapply ap_ran...
+Qed.
 
 Module AlternativeProofWithoutRecursion.
+Import WosetMin.FullVer.
 
 (* 佐恩引理一般形式的证明 *)
 Lemma Zorn's : AC_III' → general_Zorn.

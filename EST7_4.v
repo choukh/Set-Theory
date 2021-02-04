@@ -792,8 +792,8 @@ Proof with auto.
 Qed.
 
 (* ex7_25 序数上的超限归纳模式 *)
-Theorem transfinite_induction_schema : ∀ (ϕ : set → Prop),
-  (∀ α, is_ord α → ((∀β ∈ α, ϕ β) → ϕ α)) →
+Theorem transfinite_induction_schema_on_ordinals :
+  ∀ ϕ, (∀ α, is_ord α → ((∀β ∈ α, ϕ β) → ϕ α)) →
   ∀ α, is_ord α → ϕ α.
 Proof with eauto.
   intros * Hind α Hoα.
