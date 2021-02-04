@@ -176,12 +176,12 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Initial cardinal, Successor cardinal
 
 ## EST7_6.v
+- Transfinite recursion schema on ordinals
 - von Neumann universe
 - Rank
 - Axiom of regularity
 
 ## EST8_1.v (TODO)
-- Transfinite recursion schema on ordinals
 - Aleph number
 
 ## EX{n}.v
