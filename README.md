@@ -85,7 +85,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## EST5_3.v
 - Rational number
-- Rational number arithmetic: addition, additive inverse, nultiplication, multiplicative inverse
+- Rational number arithmetic: addition, additive inverse, multiplication, multiplicative inverse
 
 ## EST5_4.v
 - Order of rational numbers
