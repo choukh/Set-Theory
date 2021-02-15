@@ -8,9 +8,7 @@ Global Set Warnings "-ambiguous-paths".
 
 (* 自动化证明 *)
 Hint Immediate ω_has_0 : number_hint.
-Hint Immediate suc_has_n : number_hint.
 Hint Immediate suc_inc_n : number_hint.
-Hint Immediate suc_neq_0 : number_hint.
 Ltac nauto := auto with number_hint.
 Ltac neauto := eauto with number_hint.
 

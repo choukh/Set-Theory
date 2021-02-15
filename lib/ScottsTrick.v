@@ -9,7 +9,6 @@ Import RegularityConsequences.
 Module ForAnyType.
 
 Local Hint Resolve all_grounded : core.
-Local Hint Resolve ord_suc_is_ord : core.
 Local Hint Resolve grounded_in_rank : core.
 Local Hint Resolve grounded_under_rank : core.
 

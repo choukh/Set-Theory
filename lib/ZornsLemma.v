@@ -108,7 +108,7 @@ Proof with eauto; try congruence.
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
   assert (HrF': ∀B ∈ ℬ, F[Upper B] ∈ Upper B). {
-    intros B HB. apply HrF. eapply ReplI...
+    intros B HB. apply HrF. apply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
     apply meta_maps_into. intros B HB.
@@ -142,12 +142,12 @@ Proof with eauto; try congruence.
     apply ord_connected in Hnq' as []; auto; [left|right];
     (apply SepI; [|apply CProdI; auto]); unfold a;
     [rewrite (recursion_spec _ ε)|rewrite (recursion_spec _ δ)]; auto;
-    (apply f_strict; [apply IH|eapply ReplI])...
+    (apply f_strict; [apply IH|apply ReplI])...
   }
   assert (Hmono: ∀ α, is_ord α → ∀β ∈ α, (a β <ᵣ a α) R). {
     intros α Hoα β Hlt.
     unfold a. rewrite (recursion_spec _ α)...
-    apply f_strict... eapply ReplI...
+    apply f_strict... apply ReplI...
   }
   set {x ∊ A | λ x, ∃ α, is_ord α ∧ x = a α} as A'.
   set (ϕ_Repl (λ x α, is_ord α ∧ x = a α) A') as Ω.
@@ -192,7 +192,7 @@ Proof with eauto; try congruence.
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
   assert (HrF': ∀B ∈ ℬ, F[Upper B] ∈ Upper B). {
-    intros B HB. apply HrF. eapply ReplI...
+    intros B HB. apply HrF. apply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
     apply meta_maps_into. intros B HB.

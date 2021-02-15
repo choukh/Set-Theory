@@ -442,7 +442,7 @@ Lemma e_ap_order : ∀ S,
   ∀ s t ∈ A S, (s <ᵣ t) (R S) → (E S)[s] ∈ (E S)[t].
 Proof with auto.
   intros S s Hs t Ht Hst. rewrite (e_ap S t Ht).
-  eapply ReplI... apply segI...
+  apply ReplI... apply segI...
 Qed.
 
 Lemma e_intro : ∀ S, ∀ x, ∀ s t ∈ A S,

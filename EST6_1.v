@@ -52,7 +52,7 @@ Proof with eauto; try congruence.
     | inl _ => 0
     | inr _ => 1
   end)) as F.
-  assert (H1_2: 1 ∈ 2) by apply suc_has_n.
+  assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   exists F. apply meta_bijective.
   - intros x Hx. destruct (ixm (x = a))...
@@ -136,7 +136,7 @@ Proof with neauto.
     end
   )) as ℱ.
   set (Func (𝒫 A) (A ⟶ 2) (λ B, ℱ B)) as G.
-  assert (H1_2: 1 ∈ 2) by apply suc_has_n.
+  assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   exists G. apply meta_bijective.
   - intros B HB. apply arrow_iff. split...
@@ -562,7 +562,7 @@ Proof with neauto.
   - rename m into k. rename Hm into Hk.
     (* C = {0, 1 ... k-1} | k *)
     destruct (classic (C = k)) as [|Hnq']. {
-      exists k. split... split. apply suc_has_n. now subst.
+      exists k. split... split... now subst.
     }
     destruct (classic (k ∈ C)) as [Hkc|Hkc]; revgoals.
     + (* C = {0, 1 ... k-2} | k-1, k *)

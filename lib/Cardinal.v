@@ -9,7 +9,8 @@ Import WosetMin.FullVer.
   基数的序与序数的序等价，
   无限基数是极限基数，
   后继基数，
-  每个序数都有比它大的基数
+  每个序数都有比它大的基数，
+  不存在包括所有基数的集合
 ***)
 
 (* == implicit AC == *)
@@ -18,7 +19,13 @@ Lemma card_is_ord : ∀ 𝜅, is_card 𝜅 → is_ord 𝜅.
 Proof.
   intros 𝜅 [k Hk]. subst. apply card_is_initial_ord.
 Qed.
-Hint Immediate card_is_ord : core.
+Hint Resolve card_is_ord : core.
+
+(* == implicit AC == *)
+(* 无限基数是序数 *)
+Lemma infcard_is_ord : ∀ 𝜅, infcard 𝜅 → is_ord 𝜅.
+Proof. intros 𝜅 [H _]. auto. Qed.
+Hint Immediate infcard_is_ord : core.
 
 (* == implicit AC == *)
 (* 基数集是良序集 *)
@@ -154,7 +161,7 @@ Proof with auto; try easy.
     apply hartog_spec_intro. apply Hb.
   } {
     exists (|A|). apply SepI...
-    apply ord_lt_iff_not_sub... apply card_is_ord...
+    apply ord_lt_iff_not_sub...
     intros H. apply dominate_sub in H...
     apply (dominate_rewrite_r A) in H...
     rewrite <- CardAx0... rewrite <- CardAx0...
@@ -201,4 +208,31 @@ Proof with auto.
   apply ord_lt_iff_not_sub...
   intros H. apply dominate_sub in H.
   apply Hnqn. apply Schröeder_Bernstein...
+Qed.
+
+(* 不存在一个集合包括所有基数 *)
+Corollary no_set_of_all_card : ¬ ∃ A, ∀ 𝜅, is_card 𝜅 → 𝜅 ∈ A.
+Proof.
+  intros [A H]. apply Burali_Forti.
+  exists (⋃ A). intros α Hoα. apply UnionAx.
+  apply all_ord_ex_larger_card in Hoα as [𝜅 [Hcd Hα]].
+  exists 𝜅. split; auto.
+Qed.
+
+(* 不存在一个集合包括所有无限基数 *)
+Corollary no_set_of_all_infcard : ¬ ∃ A, ∀ 𝜅, infcard 𝜅 → 𝜅 ∈ A.
+Proof with eauto.
+  intros [A H]. apply Burali_Forti.
+  exists (⋃ A). intros α Hoα. apply UnionAx.
+  apply all_ord_ex_larger_card in Hoα as [𝜅 [H𝜅 Hα]].
+  assert (Hcs: is_card (𝜅 + ℵ₀))...
+  assert (Hos: is_ord (𝜅 + ℵ₀))...
+  apply all_ord_ex_larger_card in Hos as [𝜆 [H𝜆 Hlt]].
+  exists 𝜆. split. apply H. split...
+  - apply (parent_set_of_infinite_is_infinite (𝜅 + ℵ₀)).
+    apply ord_leq_iff_sub... apply cardAdd_infinite_iff...
+  - eapply ord_trans...
+    cut (𝜅 <𝐜 𝜆). apply cardLt_iff_ord_lt.
+    eapply cardLeq_lt_tran; revgoals.
+    apply cardLt_iff_ord_lt... apply cardAdd_enlarge...
 Qed.

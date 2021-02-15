@@ -445,13 +445,24 @@ Proof with auto.
 Qed.
 
 (* 大于等于阿列夫零的基数是无限基数 *)
-Corollary cardGeq_aleph0_is_infinite : ∀ 𝜅,
+Corollary cardGeq_aleph0_infinite : ∀ 𝜅,
   is_card 𝜅 → ℵ₀ ≤ 𝜅 → infinite 𝜅.
 Proof with auto.
   intros AC3 𝜅 Hcd Hfin.
   apply cardLt_aleph0_iff_finite in Hfin as [Hle Hnq]...
   apply Hnq. apply cardLeq_antisym...
 Qed.
+
+(* 阿列夫零是无限基数 *)
+Corollary aleph0_infinite : infinite ℵ₀.
+Proof with auto.
+  apply cardGeq_aleph0_infinite... split...
+Qed.
+Hint Resolve aleph0_infinite : core.
+
+Corollary aleph0_is_infcard : infcard ℵ₀.
+Proof. split; auto. Qed.
+Hint Resolve aleph0_is_infcard : core.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
 Proof with neauto; try congruence.

@@ -552,7 +552,7 @@ Proof with neauto; try congruence.
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
     eapply single_of_member_is_subset...
-    eapply ap_ran... split... split...
+    apply (ap_ran ⎨∅⎬)... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
     rewrite Heq in H. apply SingE in H.
@@ -694,7 +694,7 @@ Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
 Proof with auto.
   intros. rewrite cardMul_comm. apply CardAx1.
   cut (𝜅 × ⎨0⎬ ∪ 𝜅 × ⎨1⎬ = 𝜅 × 2). { intros H. now rewrite H. }
-  assert (H1_2: 1 ∈ 2) by apply suc_has_n.
+  assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   apply ExtAx. split; intros Hx.
   - apply BUnionE in Hx as [].

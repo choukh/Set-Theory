@@ -348,7 +348,7 @@ Proof with eauto.
   destruct (classic (∃ m, minimum m A Lt))... exfalso.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
-    eapply (H0 a⁺)... apply ω_inductive... apply BUnionI2...
+    eapply (H0 a⁺)... apply ω_inductive...
   }
   intros n Hn. clear a Ha.
   set {n ∊ ω | λ n, ∀m ∈ ω, m ∈ n → m ∉ A} as N.

@@ -349,7 +349,7 @@ Proof with eauto; try congruence.
     }
     eapply domI. apply Hstar. exists f0.
     split; [|split; [apply Hac|apply SingI]].
-    apply SepI... eapply UnionI. eapply ReplI.
+    apply SepI... eapply UnionI. apply ReplI.
     apply PowerAx. cut (⎨∅⎬ ⊆ ω)...
     intros x Hx. apply SingE in Hx. subst x. apply ω_has_0.
     apply arrow_iff. split... split.
@@ -432,7 +432,7 @@ Proof with eauto; try congruence.
     intros p Hp. apply BUnionE in Hp as []...
     apply SingE in H. subst p. apply Hstar.
     exists v. split; [|split; [apply Hac|apply Hp1]].
-    apply SepI... eapply UnionI. eapply ReplI.
+    apply SepI... eapply UnionI. apply ReplI.
     apply PowerAx. apply Hd.
     apply arrow_iff. split... split...
     intros x Hx. apply Hr. eapply ranI. eapply func_correct...
