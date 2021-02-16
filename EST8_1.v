@@ -496,6 +496,31 @@ Qed.
 
 End 𝐎𝐍NormalOperation.
 
+Module AlternativeDefinitionOfAleph.
+Import 𝐎𝐍NormalOperation.
+
+Definition ℵ' := Operation ℵ₀ (λ α, α₊).
+
+(* ==需要选择公理== *)
+Fact alternative_aleph_correct : AC_III →
+  ∀ α, is_ord α → ℵ' α = ℵ α.
+Proof with auto.
+  intros AC3.
+  eapply transfinite_induction_schema_on_ordinals.
+  intros α Hoα IH. unfold ℵ'.
+  destruct (ord_is_suc_or_limit α) as [|Hlim]...
+  - destruct H as [β [Hoβ Heq]]. subst.
+    rewrite operation_suc, aleph_suc...
+    f_equal. apply IH...
+  - destruct (classic (α = 0)) as [|Hne]. {
+      subst. rewrite operation_0, aleph_0...
+    }
+    rewrite operation_limit, aleph_limit... f_equal.
+    apply repl_rewrite. intros ξ Hξ. apply IH...
+Qed.
+
+End AlternativeDefinitionOfAleph.
+
 (* ℶ数 *)
 Section Beth.
 Import 𝐎𝐍NormalOperation.
@@ -576,27 +601,3 @@ End Beth.
 
 Definition CH := ℵ 1 = ℶ 1.
 Definition GCH := ∀ α, is_ord α → ℵ α = ℶ α.
-
-Module AlternativeDefinitionOfAleph.
-Import 𝐎𝐍NormalOperation.
-
-Definition ℵ' := Operation ℵ₀ (λ α, α₊).
-
-(* ==需要选择公理== *)
-Fact correct : AC_III → ∀ α, is_ord α → ℵ' α = ℵ α.
-Proof with auto.
-  intros AC3.
-  eapply transfinite_induction_schema_on_ordinals.
-  intros α Hoα IH. unfold ℵ'.
-  destruct (ord_is_suc_or_limit α) as [|Hlim]...
-  - destruct H as [β [Hoβ Heq]]. subst.
-    rewrite operation_suc, aleph_suc...
-    f_equal. apply IH...
-  - destruct (classic (α = 0)) as [|Hne]. {
-      subst. rewrite operation_0, aleph_0...
-    }
-    rewrite operation_limit, aleph_limit... f_equal.
-    apply repl_rewrite. intros ξ Hξ. apply IH...
-Qed.
-
-End AlternativeDefinitionOfAleph.
