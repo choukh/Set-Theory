@@ -561,6 +561,13 @@ Proof with auto.
   - destruct (classic (α = ∅))... subst. exfalso0.
 Qed.
 
+(* 后继序数不等于零 *)
+Corollary ord_suc_neq_0 : ∀ α, is_ord α → α⁺ ≠ ∅.
+Proof with auto.
+  intros. eapply ord_nq_0_gt_0; revgoals...
+  apply ord_suc_has_0...
+Qed.
+
 (* 任意序数大于等于零 *)
 Lemma ord_ge_0 : ∀ α, is_ord α → ∅ ⋸ α.
 Proof with auto.

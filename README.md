@@ -181,8 +181,10 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Rank
 - Axiom of regularity
 
-## EST8_1.v (TODO)
-- Separation of subclass of 𝐎𝐍.
+## EST8_1.v
+- Class function on 𝐎𝐍
+  - Subclass separation
+  - Normal operation
 - Aleph number
 - Beth number
 
