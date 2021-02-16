@@ -4,22 +4,22 @@
 Require Export ZFC.lib.Ordinal.
 Require Import ZFC.lib.Choice.
 
-(*** EST第八章1：𝐎𝐍类函数，𝐎𝐍子类的分离，阿列夫数，𝐎𝐍规范操作，ℶ数 ***)
+(*** EST第八章1：序数操作，子类分离，规范操作，阿列夫数，ℶ数 ***)
 
-(* 𝐎𝐍类函数 *)
-Module Import 𝐎𝐍Func.
+(* 序数操作 *)
+Module Import 𝐎𝐍Operation.
 
-(* 𝐎𝐍类函数的单调性 *)
+(* 序数操作的单调性 *)
 Definition monotone := λ F, ∀ α, is_ord α → ∀β ∈ α, F β ∈ F α.
-(* 𝐎𝐍类函数的连续性 *)
+(* 序数操作的连续性 *)
 Definition continuous := λ F, ∀ 𝜆, 𝜆 ≠ ∅ → is_limit 𝜆 →
   F 𝜆 = ⋃{F | α ∊ 𝜆}.
-(* 𝐎𝐍类函数的规范性 *)
+(* 序数操作的规范性 *)
 Definition normal := λ F, monotone F ∧ continuous F.
 
-End 𝐎𝐍Func.
+End 𝐎𝐍Operation.
 
-(* 𝐎𝐍子类的分离 *)
+(* 序数子类的分离 *)
 Module 𝐎𝐍Separation.
 (* 序数上的超限递归模式 *)
 Import RecursionSchemaOnOrdinals.
@@ -359,7 +359,7 @@ Proof. split. apply aleph_monotone. apply aleph_limit. Qed.
 
 End Aleph.
 
-(* 𝐎𝐍规范操作 *)
+(* 序数的规范操作 *)
 Module 𝐎𝐍NormalOperation.
 Import RecursionSchemaOnOrdinals.
 

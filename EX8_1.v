@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Feb 2021 **)
 
-Require Export ZFC.EST8_1.
+Require Export ZFC.EST8_2.
 
 Section EX8_1_and_2.
 Import 𝐎𝐍NormalOperation.

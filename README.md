@@ -182,11 +182,15 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Axiom of regularity
 
 ## EST8_1.v
-- Class function on 𝐎𝐍
+- Ordinal operations
   - Subclass separation
   - Normal operation
 - Aleph number
 - Beth number
+
+## EST8_2 (TODO).v
+- Properties of ordinal operations
+- Veblen fixed-point theorem
 
 ## EX{n}.v
 - Solution to exercises of Chapter n
