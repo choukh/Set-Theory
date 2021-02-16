@@ -599,5 +599,7 @@ Qed.
 
 End Beth.
 
+(* 连续统假设 *)
 Definition CH := ℵ 1 = ℶ 1.
+(* 广义连续统假设 *)
 Definition GCH := ∀ α, is_ord α → ℵ α = ℶ α.

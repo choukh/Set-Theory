@@ -718,6 +718,15 @@ Proof.
   unfold sup. rewrite union_empty. reflexivity.
 Qed.
 
+(* ω是极限序数 *)
+Lemma ω_is_limit : is_limit ω.
+Proof with auto.
+  split... apply ExtAx. split; intros Hx.
+  - apply UnionAx. exists x⁺. split... apply ω_inductive...
+  - apply trans_union_sub... apply ω_trans.
+Qed.
+Hint Resolve ω_is_limit : core.
+
 (* 极限序数具有阿基米德性 *)
 Lemma limit_ord_archimedean : ∀ α, is_limit α → ord_archimedean α.
 Proof.
