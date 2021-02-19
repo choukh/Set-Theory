@@ -182,6 +182,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Axiom of regularity
 
 ## EST8_1.v
+- Ordinal class
 - Ordinal operations
   - Subclass separation
   - Normal operation

@@ -174,7 +174,7 @@ Qed.
 (* 有限序列集 *)
 Definition FiniteSequences : set → set := λ A,
   {f ∊ 𝒫 (ω × A) | λ f, ∃n ∈ ω, f: n ⇒ A}.
-Notation "'𝗦𝗾' A" := (FiniteSequences A) (at level 60).
+Notation 𝗦𝗾 := FiniteSequences.
 
 (* 空集的有限序列等于1 *)
 Fact sq_empty : 𝗦𝗾 ∅ = 1.

@@ -687,7 +687,7 @@ Proof.
   unfold sup. rewrite H. reflexivity.
 Qed.
 
-(* 后继序数包含上确界 *)
+(* 后继序数大于自身的上确界 *)
 Lemma suc_contains_sup : ∀ α, is_suc α → sup α ∈ α.
 Proof.
   intros α [β [Hβ Heqα]]. subst α.
@@ -703,8 +703,8 @@ Proof with auto.
   apply ord_is_ords...
 Qed.
 
-(* 极限序数不含上确界 *)
-Lemma limit_ord_not_contains_sup : ∀ α, is_limit α → sup α ∉ α.
+(* 极限序数不大于自身的上确界 *)
+Lemma limit_not_contains_sup : ∀ α, is_limit α → sup α ∉ α.
 Proof with auto.
   intros α [Hα Heq] H. rewrite Heq in H at 2.
   apply (ord_irrefl (sup α))...
@@ -797,6 +797,26 @@ Theorem ord_is_suc_or_limit : ∀ α, is_ord α →
 Proof with auto.
   intros. destruct (classic (is_suc α))...
   right. apply ord_is_limit_iff_not_suc...
+Qed.
+
+(* 序数是后继序数当且仅当它大于自身的上确界 *)
+Corollary suc_iff_contains_sup :
+  ∀ α, is_ord α → is_suc α ↔ sup α ∈ α.
+Proof with auto.
+  intros α Hoα. split; intros H.
+  - apply suc_contains_sup...
+  - destruct (ord_is_suc_or_limit α)... exfalso.
+    apply limit_not_contains_sup in H0...
+Qed.
+
+(* 序数是极限序数当且仅当它不大于自身的上确界 *)
+Corollary limit_iff_not_contains_sup :
+  ∀ α, is_ord α → is_limit α ↔ sup α ∉ α.
+Proof with auto.
+  intros α Hoα. split; intros H.
+  - apply limit_not_contains_sup...
+  - destruct (ord_is_suc_or_limit α)... exfalso.
+    apply H. apply suc_contains_sup...
 Qed.
 
 (* ex7_25 序数上的超限归纳模式 *)

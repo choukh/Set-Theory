@@ -128,6 +128,8 @@ coqc -R . ZFC lib/ScottsTrick.v
 echo "building EX7_3"
 coqc -R . ZFC EX7_3.v
 
+echo "building Class"
+coqc -R . ZFC lib/Class.v
 echo "building EST8_1"
 coqc -R . ZFC EST8_1.v
 echo "building EST8_2"

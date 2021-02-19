@@ -3,54 +3,280 @@
 
 Require Export ZFC.lib.Ordinal.
 Require Import ZFC.lib.Choice.
+Require Import ZFC.lib.Class.
 
-(*** EST第八章1：序数操作，子类分离，规范操作，阿列夫数，ℶ数 ***)
+(*** EST第八章1：序数类，序数操作，阿列夫数，ℶ数 ***)
 
-(* 序数操作 *)
-Module Import 𝐎𝐍Operation.
+Module Import OrdinalClass.
+
+Notation 𝐎𝐍 := is_ord.
+Notation 𝐂𝐃 := is_card.
 
 (* 序数操作的单调性 *)
-Definition monotone := λ F, ∀ α, is_ord α → ∀β ∈ α, F β ∈ F α.
+Definition monotone := λ F,
+  ∀α ⋵ 𝐎𝐍, ∀β ∈ α, F β ∈ F α.
+
 (* 序数操作的连续性 *)
-Definition continuous := λ F, ∀ 𝜆, 𝜆 ≠ ∅ → is_limit 𝜆 →
-  F 𝜆 = ⋃{F | α ∊ 𝜆}.
+Definition continuous := λ F,
+  ∀ 𝜆, 𝜆 ≠ ∅ → is_limit 𝜆 → F 𝜆 = sup{F | α ∊ 𝜆}.
+
 (* 序数操作的规范性 *)
 Definition normal := λ F, monotone F ∧ continuous F.
 
-End 𝐎𝐍Operation.
+(* 序数操作的递增性 *)
+Definition ascending := λ F, ∀α ⋵ 𝐎𝐍, F α ∈ F α⁺.
+
+(* 𝐎𝐍子类对上界的封闭性 *)
+Definition closed := λ C : Class,
+  ∀ A, A ≠ ∅ → (∀x ∈ A, x ⋵ C) → sup A ⋵ C.
+
+(* 𝐎𝐍子类的有界性 *)
+Definition bounded := λ C : Class,
+  ∃α ⋵ 𝐎𝐍, ∀β ⋵ C, β ⋸ α.
+
+(* 𝐎𝐍子类的无界性 *)
+Definition unbounded := λ C : Class,
+  ∀α ⋵ 𝐎𝐍, ∃β ⋵ C, α ∈ β.
+
+End OrdinalClass.
+
+(* 序数的后继操作是单调的 *)
+Example ord_suc_monotone : monotone Suc.
+Proof with eauto.
+  intros α Hoα β Hβ.
+  rewrite <- ord_suc_preserve_lt...
+  eapply ord_is_ords...
+Qed.
+
+(* 单调操作具有单射性 *)
+Lemma monotone_operation_injective :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⇒ C → C ⫃ 𝐎𝐍 →
+  monotone F → class_injective F 𝐎𝐍.
+Proof with auto.
+  intros F C HF Hsub Hmono α Hoα β Hoβ Heq.
+  destruct (classic (α = β)) as [|Hnq]... exfalso.
+  apply ord_connected in Hnq as []; auto;
+  eapply Hmono in H; eauto;
+  rewrite Heq in H; eapply ord_irrefl; revgoals; eauto;
+  apply Hsub; apply HF...
+Qed.
+
+Lemma unbounded_iff_not_bounded : ∀ C, C ⫃ 𝐎𝐍 →
+  unbounded C ↔ ¬ bounded C.
+Proof with eauto; try congruence.
+  intros C Hsub. split.
+  - intros Hbnd [μ [Hμ Hmax]].
+    apply Hbnd in Hμ as H. destruct H as [β [Hβ Hlt]].
+    apply Hmax in Hβ as Hle.
+    eapply ord_not_leq_gt; revgoals...
+  - intros Hnb α Hoα. unfold ex_in_class.
+    apply not_all_not_ex. intros H. apply Hnb.
+    exists α. split... intros β Hβ. specialize H with β.
+    apply not_and_or in H as []...
+    apply ord_leq_iff_not_gt...
+Qed.
+
+(* 𝐎𝐍子类是集合当且仅当它有界的 *)
+Lemma bounded_iff_is_set : ∀ C, C ⫃ 𝐎𝐍 → bounded C ↔ is_set C.
+Proof with auto.
+  intros C Hsub. split.
+  - intros [α [Hoα Hle]]. exists {x ∊ α⁺ | C}.
+    intros x. split; intros Hx. apply SepE2 in Hx...
+    apply SepI... apply ord_leq_iff_lt_suc... apply Hle...
+  - intros [A HA].
+    assert (Hos: is_ords A). intros x Hx. apply HA in Hx...
+    exists (sup A). split. apply union_of_ords_is_ord...
+    intros β Hβ. apply HA in Hβ. apply ord_sup_is_ub...
+Qed.
+
+(* 存在与给定值域对应的定义域 *)
+Lemma ex_domain_of_given_range_in_class :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → monotone F →
+  ∀ A, (∀x ∈ A, x ⋵ C) → ∃ Ω, ∀α, α ∈ Ω ↔ α ⋵ 𝐎𝐍 ∧ F α ∈ A.
+Proof with eauto.
+  intros F C [HF HR] Hsub Hmono A HA.
+  set (λ x y, y ⋵ 𝐎𝐍 ∧ F y = x) as ϕ.
+  assert (Hϕ: ∀x ∈ A, ∃! y, ϕ x y). {
+    intros x Hx. split. apply HR. apply HA...
+    intros y1 y2 [H11 H12] [H21 H22]. subst x.
+    eapply monotone_operation_injective...
+  }
+  exists (ϕ_Repl ϕ A). intros ξ. split.
+  - intros Hξ. apply ϕ_ReplAx in Hξ as [α [Hα [Hoξ Heq]]]...
+    split... congruence.
+  - intros [Hoξ HFξ]. apply ϕ_ReplAx...
+    exists (F ξ). split... split...
+Qed.
+
+(* ex8_6_a 单调操作的值域无界 *)
+Lemma monotone_operation_range_unbounded :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → monotone F → unbounded C.
+Proof with eauto; try congruence.
+  intros F C HF Hsub Hmono.
+  apply unbounded_iff_not_bounded...
+  intros H. apply bounded_iff_is_set in H as [A HA]...
+  pose proof (ex_domain_of_given_range_in_class) as [Ω H]...
+  intros x Hx. apply HA...
+  apply Burali_Forti. exists Ω. intros α Hoα.
+  apply H. split... apply HA. apply HF...
+Qed.
+
+(* 如果具有单调性的序数操作的值域是封闭的，那么该序数操作具有连续性 *)
+Lemma monotone_operation_continuous_if_range_closed :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 →
+  monotone F → closed C → continuous F.
+Proof with eauto.
+  intros F C [HF HR] Hsub Hmono Hcld 𝜆 Hne Hlim.
+  assert (H := Hlim). destruct H as [Ho𝜆 _].
+  set {F | α ∊ 𝜆} as A.
+  pose proof (ord_sup_is_ub A) as [_ Hub]. {
+    intros x Hx. apply ReplAx in Hx as [α [Hα Hx]].
+    subst x. apply Hsub. apply HF. eapply ord_is_ords...
+  }
+  assert (Hu: sup A ⋵ C). {
+    apply Hcld.
+    - apply EmptyNE in Hne as [α Hα].
+      apply EmptyNI. exists (F α). eapply ReplI...
+    - intros x Hx. apply ReplAx in Hx as [α [Hα Heq]].
+      subst x. apply HF. eapply ord_is_ords; revgoals...
+  }
+  assert (HoF: ∀ α, α ⋵ 𝐎𝐍 → 𝐎𝐍 (F α)). {
+    intros α Hoα. apply Hsub. apply HF...
+  }
+  apply HR in Hu as [α [Hoα HFα]].
+  rewrite <- HFα. f_equal.
+  destruct (classic (𝜆 = α)) as [|Hnq]... exfalso.
+  apply ord_connected in Hnq as [H𝜆α|Hα𝜆]...
+  - apply Hmono in H𝜆α... rewrite HFα in H𝜆α.
+    apply FUnionE in H𝜆α as [β [Hβ Hlt]].
+    assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords; revgoals...
+    apply Hmono in Hβ... eapply ord_not_lt_gt; revgoals...
+  - assert (F α⁺ ∈ A). eapply ReplI... apply suc_in_limit...
+    apply Hub in H. rewrite <- HFα in H.
+    apply (ord_not_leq_gt (F α⁺) (F α))... apply Hmono...
+Qed.
+
+(* 如果序数集的上确界是后继序数，那么该上确界在序数集内 *)
+Lemma sup_of_ords_is_suc_impl_in_ords :
+  ∀ A, is_ords A → is_suc (sup A) → sup A ∈ A.
+Proof with eauto; try congruence.
+  intros A Hos [α [Hoα Heq]].
+  apply ord_sup_correct in Hos as H.
+  destruct H as [[Ho Hub] Hsup].
+  destruct (classic (is_ub α A)).
+  - exfalso. apply Hsup in H. rewrite Heq in H.
+    eapply ord_not_leq_gt; revgoals...
+  - apply not_and_or in H as []...
+    apply set_not_all_ex_not in H as [β [Hβ Hnle]].
+    pose proof (Hub β Hβ) as []; rewrite Heq in H...
+    apply ord_leq_iff_lt_suc in H... apply Hos...
+Qed.
+
+(* ex8_6_b 序数规范操作的值域封闭 *)
+Lemma normal_operation_range_closed :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → normal F → closed C.
+Proof with eauto; try congruence.
+  intros F C HF Hsub [Hmono Hcon] A Hne HA.
+  pose proof (ex_domain_of_given_range_in_class) as [Ω HΩ]...
+  set (sup Ω) as μ.
+  assert (HosA: is_ords A). intros x Hx. apply Hsub... apply HA...
+  assert (HosΩ: is_ords Ω). intros x Hx. apply HΩ...
+  assert (Hoμ: μ ⋵ 𝐎𝐍). apply union_of_ords_is_ord...
+  assert (HoA: sup A ⋵ 𝐎𝐍). apply union_of_ords_is_ord...
+  assert (HoF: ∀ α, α ⋵ 𝐎𝐍 → 𝐎𝐍 (F α)). {
+    intros α Hoα. apply Hsub. apply HF...
+  }
+  replace (sup A) with (F μ). apply HF...
+  apply sub_antisym.
+  - intros x Hx. apply UnionAx.
+    destruct (ord_is_suc_or_limit μ)...
+    + exists (F μ). split... apply HΩ.
+      apply sup_of_ords_is_suc_impl_in_ords...
+    + destruct (classic (μ = ∅)). {
+        rewrite H0 in Hx.
+        apply union_empty_iff in H0 as [].
+        - apply EmptyNE in Hne as [a Ha].
+          apply HA in Ha as HaC.
+          apply HF in HaC as [α [Hoα Heq]]. subst a.
+          exfalso. eapply EmptyE... apply HΩ...
+        - exists (F ∅). split... apply HΩ.
+          rewrite H0. apply SingI.
+      }
+      rewrite Hcon in Hx...
+      apply FUnionE in Hx as [α [Hα Hx]].
+      apply UnionAx in Hα as [β [Hβ Hα]].
+      assert (Hoβ: is_ord β). apply HΩ...
+      exists (F β). split. apply HΩ...
+      eapply ord_trans... apply Hmono...
+  - apply ord_leq_iff_sub...
+    apply ord_sup_correct... split...
+    intros x Hx. apply HA in Hx as HxC.
+    apply HF in HxC as [α [Hoα Heq]]. subst x.
+    assert (α ⋸ μ). apply ord_sup_is_ub... apply HΩ...
+    destruct H; [left|right]... apply Hmono...
+Qed.
+
+(* 具有单调性的序数操作的值域是封闭的当且仅当该序数操作具有连续性 *)
+Fact monotone_operation_continuous_iff_range_closed :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → 
+  monotone F → closed C ↔ continuous F.
+Proof with eauto.
+  intros F C HF Hsub Hmono. split.
+  - eapply monotone_operation_continuous_if_range_closed...
+  - intros Hcon.
+    eapply normal_operation_range_closed...
+    split...
+Qed.
+
+(* 连续递增操作单调 *)
+Theorem continuous_ascending_operation_monotone :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → continuous F → ascending F → monotone F.
+Proof with eauto.
+  intros F HF Hcon Hasc α Hoα β Hlt.
+  generalize dependent α.
+  set (λ α, β ∈ α → F β ∈ F α) as ϕ.
+  apply (transfinite_induction_schema_on_ordinals ϕ)...
+  intros α Hoα IH Hlt.
+  destruct (ord_is_suc_or_limit α)...
+  - destruct H as [γ [Hγ H]]. subst.
+    apply BUnionE in Hlt as [].
+    + eapply ord_trans. apply HF... apply IH... apply Hasc...
+    + apply SingE in H; subst. apply Hasc...
+  - destruct (classic (α = ∅)). subst. exfalso0.
+    rewrite (Hcon α)... eapply FUnionI.
+    apply suc_in_limit... apply Hasc. eapply ord_is_ords...
+Qed.
 
 (* 序数子类的分离 *)
 Module 𝐎𝐍Separation.
 (* 序数上的超限递归模式 *)
 Import RecursionSchemaOnOrdinals.
 
-Definition is_sub := λ P : set → Prop, ∀ α, P α → is_ord α.
-Definition unbounded := λ P : set → Prop, ∀ α, is_ord α → ∃ β, α ∈ β ∧ P β.
-Definition γ := λ P f y, P y ∧ y ∉ ran f ∧ ∀x, P x → x ∉ ran f → y ⋸ x.
-Definition Sub𝐎𝐍 := λ P, Recursion (γ P).
+Definition γ := λ C f y, y ⋵ C ∧ y ∉ ran f ∧ ∀x ⋵ C, x ∉ ran f → y ⋸ x.
+Definition enumerate := λ C, Recursion (γ C).
 
 Local Lemma unbounded_subclass_cannot_be_a_set :
-  ∀ P, is_sub P → unbounded P → ¬ ∃ A, ∀ α, P α → α ∈ A.
+  ∀ C, C ⫃ 𝐎𝐍 → unbounded C → ¬ ∃ A, ∀α ⋵ C, α ∈ A.
 Proof with auto.
-  intros P Hsub Hubd [A Hset]. apply Burali_Forti.
-  exists (⋃ A). intros α Hoα. apply UnionAx.
-  apply Hubd in Hoα as [β [Hα HP]].
-  exists β. split...
+  intros C Hsub Hubd [A Hset]. apply Burali_Forti.
+  exists (sup A). intros α Hoα. apply UnionAx.
+  apply Hubd in Hoα as [β [Hα HC]].
+  exists β. split... apply Hset...
 Qed.
 
 Local Lemma γ_functional :
-  ∀ P f, is_sub P → unbounded P → ∃! y, γ P f y.
+  ∀ C f, C ⫃ 𝐎𝐍 → unbounded C → ∃! y, γ C f y.
 Proof with eauto; try congruence.
-  intros P f Hsub Hubd. split.
-  - destruct (classic (∀ α, P α → α ∈ ran f)). {
+  intros C f Hsub Hubd. split.
+  - destruct (classic (∀α ⋵ C, α ∈ ran f)). {
       exfalso. eapply unbounded_subclass_cannot_be_a_set...
     }
     apply not_all_ex_not in H as [α H].
     apply imply_to_and in H as [HPα Hα].
-    assert (Hoα: is_ord α). apply Hsub...
-    set (λ α, P α ∧ α ∉ ran f) as Q.
-    set (OrdMin α⁺ Q) as μ.
-    pose proof (ordMin_correct α⁺ Q) as [Hμ Hmin]... {
+    assert (Hoα: α ⋵ 𝐎𝐍). apply Hsub...
+    set (λ α, α ⋵ C ∧ α ∉ ran f) as P.
+    set (OrdMin α⁺ P) as μ.
+    pose proof (ordMin_correct α⁺ P) as [Hμ Hmin]... {
       exists α. split. apply BUnionI2... split...
     }
     fold μ in Hμ, Hmin.
@@ -58,56 +284,55 @@ Proof with eauto; try congruence.
     exists μ. split... split...
     intros x HPx Hx.
     destruct (classic (x ∈ α⁺)) as [Hxα|Hxα].
-    + assert (x ∈ {ξ ∊ α⁺ | Q}). apply SepI... split...
+    + assert (x ∈ {ξ ∊ α⁺ | P}). apply SepI... split...
       apply Hmin in H as []... apply binRelE3 in H...
-    + assert (Hoμ: is_ord μ). apply Hsub...
-      assert (Hox: is_ord x). apply Hsub...
+    + assert (Hoμ: μ ⋵ 𝐎𝐍). apply Hsub...
+      assert (Hox: x ⋵ 𝐎𝐍). apply Hsub...
       destruct (classic (μ = x)) as [|Hnq]...
       apply ord_connected in Hnq as []...
       exfalso. apply Hxα. eapply ord_trans...
-  - intros x y [HPx [Hx H1]] [HPy [Hy H2]].
+  - intros x y [HxC [Hx H1]] [HyC [Hy H2]].
     apply H1 in Hy... apply H2 in Hx...
     destruct Hx; destruct Hy... exfalso.
     eapply ord_not_lt_gt; revgoals...
 Qed.
 Hint Immediate γ_functional : core.
 
-(* 子类元素是满足P且与之前的元素都不同的最小序数 *)
-Lemma subon_spec : ∀ P, is_sub P → unbounded P →
-  ∀ α ξ, is_ord α → P ξ → ξ ∉ {Sub𝐎𝐍 P | x ∊ α} → Sub𝐎𝐍 P α ⋸ ξ.
+(* 枚举元素是属于类C且与之前的元素都不同的最小序数 *)
+Lemma enum_spec : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ C, ξ ∉ {enumerate C | x ∊ α} → enumerate C α ⋸ ξ.
 Proof with auto.
-  intros P Hsub Hund α Hoα ξ HPξ Hout.
-  pose proof (recursion_spec (γ P) α) as [_ [_ Hmin]]...
+  intros C Hsub Hund α Hoα ξ HξC Hout.
+  pose proof (recursion_spec (γ C) α) as [_ [_ Hmin]]...
   apply Hmin... rewrite ran_of_op_repl...
 Qed.
 
-(* 子类元素具有性质P *)
-Lemma subon_is_P : ∀ P, is_sub P → unbounded P →
-  ∀ α, is_ord α → P (Sub𝐎𝐍 P α).
+(* 枚举元素属于类C *)
+Lemma enum_in_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  enumerate C :ᶜ 𝐎𝐍 ⇒ C.
 Proof.
-  intros P Hsub Hund α Hoα. unfold Sub𝐎𝐍.
-  apply (recursion_spec (γ P) α); auto.
+  intros C Hsub Hund α Hoα. unfold enumerate.
+  apply (recursion_spec (γ C) α); auto.
 Qed.
 
-(* 子类元素是序数 *)
-Lemma subon_is_ord : ∀ P, is_sub P → unbounded P →
-  ∀ α, is_ord α → is_ord (Sub𝐎𝐍 P α).
+(* 枚举是序数操作 *)
+Lemma enum_operative : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  enumerate C :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof.
-  intros P Hsub Hund α Hoα. apply Hsub.
-  apply subon_is_P; auto.
+  intros C Hsub Hund α Hoα. apply Hsub.
+  apply enum_in_class; auto.
 Qed.
-Hint Immediate subon_is_ord : core.
 
-(* 子类元素单调增 *)
-Theorem subon_monotone : ∀ P, is_sub P → unbounded P →
-  monotone (Sub𝐎𝐍 P).
+(* 枚举元素单调增 *)
+Theorem enum_monotone : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  monotone (enumerate C).
 Proof with eauto.
-  intros P Hsub Hund α Hoα β Hβ.
-  assert (Hoβ: is_ord β). eapply ord_is_ords...
-  pose proof (recursion_spec (γ P) α) as [Hinf [Hout _]]...
-  pose proof (recursion_spec (γ P) β) as [_ [_ Hmin]]...
-  fold (Sub𝐎𝐍 P) in *. rewrite ran_of_op_repl in *.
-  assert (Sub𝐎𝐍 P α ∉ {Sub𝐎𝐍 P | x ∊ β}). {
+  intros C Hsub Hund α Hoα β Hβ.
+  assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
+  pose proof (recursion_spec (γ C) α) as [Hinf [Hout _]]...
+  pose proof (recursion_spec (γ C) β) as [_ [_ Hmin]]...
+  fold (enumerate C) in *. rewrite ran_of_op_repl in *.
+  assert (enumerate C α ∉ {enumerate C | x ∊ β}). {
     intros H. apply ReplAx in H as [δ [Hδ H]].
     apply Hout. rewrite <- H. apply ReplI. eapply ord_trans...
   }
@@ -115,72 +340,70 @@ Proof with eauto.
   exfalso. apply Hout. rewrite <- H. apply ReplI...
 Qed.
 
-(* 子类元素映射具有单射性 *)
-Corollary subon_injective : ∀ P, is_sub P → unbounded P →
-  ∀ α β, is_ord α → is_ord β → Sub𝐎𝐍 P α = Sub𝐎𝐍 P β → α = β.
+(* 枚举操作具有单射性 *)
+Corollary enum_injective : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  class_injective (enumerate C) 𝐎𝐍.
 Proof with eauto.
-  intros P Hsub Hund α β Hoα Hoβ Heq.
-  destruct (classic (α = β)) as [|Hnq]... exfalso.
-  apply ord_connected in Hnq as []; auto;
-  eapply subon_monotone in H; eauto;
-  rewrite Heq in H; eapply ord_irrefl; revgoals...
+  intros C Hsub Hund.
+  eapply monotone_operation_injective...
+  apply enum_in_class... apply enum_monotone...
 Qed.
 
-(* 满足P的序数都是子类元素 *)
-Theorem P_is_subon : ∀ P, is_sub P → unbounded P →
-  ∀ ξ, P ξ → ∃ α, is_ord α ∧ ξ = Sub𝐎𝐍 P α.
+(* 类C元素均被枚举 *)
+Theorem enum_surjective : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  class_surjective (enumerate C) 𝐎𝐍 C.
 Proof with eauto; try congruence.
-  intros P Hsub Hund ξ H. apply Hsub in H as Hoξ.
+  intros C Hsub Hund ξ H. apply Hsub in H as Hoξ.
   generalize dependent H. generalize dependent ξ.
-  set (λ ξ, P ξ → ∃ α, is_ord α ∧ ξ = Sub𝐎𝐍 P α) as ϕ.
+  set (λ ξ, ξ ⋵ C → ∃α ⋵ 𝐎𝐍, enumerate C α = ξ) as ϕ.
   apply (transfinite_induction_schema_on_ordinals ϕ).
   intros ξ Hoξ IH Hinfξ.
-  set (λ x α, is_ord α ∧ x = Sub𝐎𝐍 P α) as ψ.
-  set {x ∊ ξ | P} as χ.
+  set (λ x α, α ⋵ 𝐎𝐍 ∧ x = enumerate C α) as ψ.
+  set {x ∊ ξ | C} as χ.
   set (ϕ_Repl ψ χ) as α.
   assert (Hψ: ∀x ∈ χ, ∃! y, ψ x y). {
     intros x Hx. apply SepE in Hx as [Hx Hinfx]. split.
     - apply IH in Hx as [β [Hoβ Hx]]...
       exists β. split...
     - intros δ ε [Hoδ Hδ] [Hoε Hε].
-      eapply subon_injective...
+      eapply enum_injective...
   }
-  assert (Hoα: is_ord α). {
+  assert (Hoα: α ⋵ 𝐎𝐍). {
     apply transitive_set_well_ordered_by_epsilon_is_ord; revgoals.
     - apply ords_woset. intros x Hx.
       apply ϕ_ReplAx in Hx as [_ [_ [Ho _]]]...
     - intros ε δ Hε Hδ.
       apply ϕ_ReplAx in Hδ as [x [Hx [Hoδ Heqx]]]... subst x.
-      assert (Hoε: is_ord ε). eapply ord_is_ords...
-      apply ϕ_ReplAx... exists (Sub𝐎𝐍 P ε). repeat split...
+      assert (Hoε: ε ⋵ 𝐎𝐍). eapply ord_is_ords...
+      apply ϕ_ReplAx... exists (enumerate C ε). repeat split...
       apply SepE1 in Hx. apply SepI.
-      + eapply subon_monotone in Hε... eapply ord_trans...
-      + apply subon_is_P...
+      + eapply enum_monotone in Hε... eapply ord_trans...
+      + apply enum_in_class...
   }
   exists α. split...
-  pose proof (recursion_spec (γ P) α) as [_ [Hout Hmin]]...
-  fold (Sub𝐎𝐍 P) in *. rewrite ran_of_op_repl in *.
-  assert (Hle: Sub𝐎𝐍 P α ⋸ ξ). {
+  pose proof (recursion_spec (γ C) α) as [_ [Hout Hmin]]...
+  fold (enumerate C) in *. rewrite ran_of_op_repl in *.
+  assert (Hle: enumerate C α ⋸ ξ). {
     apply Hmin... intros Hξ.
     apply ReplAx in Hξ as [β [Hβ Heq]].
     apply ϕ_ReplAx in Hβ as [μ [Hμ [Hoβ Heqμ]]]...
     apply SepE1 in Hμ. subst. eapply ord_irrefl; revgoals...
   }
   destruct Hle...
-  destruct (classic (ξ = Sub𝐎𝐍 P α)) as [|Hnq]... exfalso.
-  apply ord_connected in Hnq as []...
-  - eapply ord_not_lt_gt; revgoals...
+  destruct (classic (ξ = enumerate C α)) as [|Hnq]... exfalso.
+  apply ord_connected in Hnq as []; [..|apply enum_operative]...
+  - eapply ord_not_lt_gt; revgoals... apply enum_operative...
   - apply Hout. apply ReplAx. exists α. split...
-    apply ϕ_ReplAx... exists (Sub𝐎𝐍 P α). repeat split...
-    apply SepI... apply subon_is_P...
+    apply ϕ_ReplAx... exists (enumerate C α). repeat split...
+    apply SepI... apply enum_in_class...
 Qed.
 
 (* 子类元素等价于满足P的序数 *)
-Theorem subon_iff_P : ∀ P, is_sub P → unbounded P →
-  ∀ ξ, P ξ ↔ ∃ α, is_ord α ∧ ξ = Sub𝐎𝐍 P α.
+Theorem enum_iff_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  ∀ ξ, ξ ⋵ C ↔ ∃ α, α ⋵ 𝐎𝐍 ∧ enumerate C α = ξ.
 Proof with auto.
-  split. apply P_is_subon...
-  intros [α [Hoα Heq]]. subst. apply subon_is_P...
+  split. apply enum_surjective...
+  intros [α [Hoα Heq]]. subst. apply enum_in_class...
 Qed.
 
 End 𝐎𝐍Separation.
@@ -189,9 +412,9 @@ End 𝐎𝐍Separation.
 Section Aleph.
 Import 𝐎𝐍Separation.
 
-Definition ℵ := Sub𝐎𝐍 infcard.
+Definition ℵ := enumerate infcard.
 
-Lemma infcard_is_sub : is_sub infcard.
+Lemma infcard_is_sub : infcard ⫃ 𝐎𝐍.
 Proof. exact infcard_is_ord. Qed.
 Local Hint Resolve infcard_is_sub : core.
 
@@ -199,61 +422,59 @@ Lemma infcard_unbounded : unbounded infcard.
 Proof with eauto.
   intros α Hoα.
   apply all_ord_ex_larger_card in Hoα as [𝜅 [H𝜅 Hα]].
-  assert (Hcs: is_card (𝜅 + ℵ₀))...
-  assert (Hos: is_ord (𝜅 + ℵ₀))...
+  assert (Hcs: 𝜅 + ℵ₀ ⋵ 𝐂𝐃)...
+  assert (Hos: 𝜅 + ℵ₀ ⋵ 𝐎𝐍)...
   apply all_ord_ex_larger_card in Hos as [𝜆 [H𝜆 Hlt]].
   exists 𝜆. split.
+  - split... apply (parent_set_of_infinite_is_infinite (𝜅 + ℵ₀)).
+    apply ord_leq_iff_sub... apply cardAdd_infinite_iff...
   - eapply ord_trans...
     cut (𝜅 <𝐜 𝜆). apply cardLt_iff_ord_lt.
     eapply cardLeq_lt_tran; revgoals.
     apply cardLt_iff_ord_lt... apply cardAdd_enlarge...
-  - split... apply (parent_set_of_infinite_is_infinite (𝜅 + ℵ₀)).
-    apply ord_leq_iff_sub... apply cardAdd_infinite_iff...
 Qed.
 Local Hint Resolve infcard_unbounded : core.
 
 (* 阿列夫数是与之前的阿列夫数都不同的最小无限基数 *)
-Lemma aleph_spec : ∀ α ξ, is_ord α →
-  infcard ξ → ξ ∉ {ℵ | x ∊ α} → ℵ α ⋸ ξ.
-Proof. apply subon_spec; auto. Qed.
+Lemma aleph_spec : ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ infcard, ξ ∉ {ℵ | x ∊ α} → ℵ α ⋸ ξ.
+Proof. apply enum_spec; auto. Qed.
 
 (* 阿列夫数是无限基数 *)
-Lemma aleph_is_infcard : ∀ α, is_ord α → infcard (ℵ α).
-Proof. apply subon_is_P; auto. Qed.
+Lemma aleph_is_infcard : ℵ :ᶜ 𝐎𝐍 ⇒ infcard.
+Proof. apply enum_in_class; auto. Qed.
 
-(* 阿列夫数是序数 *)
-Lemma aleph_is_ord : ∀ α, is_ord α → is_ord (ℵ α).
-Proof. intros. apply subon_is_ord; auto. Qed.
-Local Hint Resolve aleph_is_ord : core.
+(* 阿列夫是序数操作 *)
+Lemma aleph_operative : ℵ :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
+Proof. intros. apply enum_operative; auto. Qed.
 
 (* 阿列夫数是基数 *)
-Lemma aleph_is_card : ∀ α, is_ord α → is_card (ℵ α).
+Lemma aleph_is_card : ∀ α, α ⋵ 𝐎𝐍 → is_card (ℵ α).
 Proof. intros. apply aleph_is_infcard; auto. Qed.
 Local Hint Resolve aleph_is_card : core.
 
 (* 阿列夫数是无限集 *)
-Lemma aleph_infinite : ∀ α, is_ord α → infinite (ℵ α).
+Lemma aleph_infinite : ∀ α, α ⋵ 𝐎𝐍 → infinite (ℵ α).
 Proof. intros. apply aleph_is_infcard; auto. Qed.
 Local Hint Resolve aleph_infinite : core.
 
 (* 阿列夫数单调增 *)
 Theorem aleph_monotone : monotone ℵ.
-Proof. apply subon_monotone; auto. Qed.
+Proof. apply enum_monotone; auto. Qed.
 
-(* 阿列夫映射具有单射性 *)
-Corollary aleph_injective : ∀ α β, is_ord α → is_ord β →
-  ℵ α = ℵ β → α = β.
-Proof. apply subon_injective; auto. Qed.
+(* 阿列夫操作具有单射性 *)
+Corollary aleph_injective : class_injective ℵ 𝐎𝐍.
+Proof. apply enum_injective; auto. Qed.
 
 (* 无限基数都是阿列夫数 *)
-Theorem infcard_is_aleph : ∀ 𝜅, infcard 𝜅 →
-  ∃ α, is_ord α ∧ 𝜅 = ℵ α.
-Proof. apply P_is_subon; auto. Qed.
+Theorem aleph_surjective : class_surjective ℵ 𝐎𝐍 infcard.
+Proof. apply enum_surjective; auto. Qed.
 
 (* 阿列夫数等价于无限基数 *)
 Theorem aleph_iff_infcard :
-  ∀ 𝜅, infcard 𝜅 ↔ ∃ α, is_ord α ∧ 𝜅 = ℵ α.
-Proof. apply subon_iff_P; auto. Qed.
+  ∀ 𝜅, infcard 𝜅 ↔ ∃ α, α ⋵ 𝐎𝐍 ∧ ℵ α = 𝜅.
+Proof. apply enum_iff_class; auto. Qed.
+
+Local Hint Resolve empty_is_ord : core.
 
 (* ==需要选择公理== *)
 Theorem aleph_0 : AC_III → ℵ 0 = ℵ₀.
@@ -267,7 +488,7 @@ Proof with auto.
     apply aleph_is_infcard...
 Qed.
 
-Theorem aleph_suc : ∀ α, is_ord α → ℵ α⁺ = (ℵ α)₊.
+Theorem aleph_suc : ∀α ⋵ 𝐎𝐍, ℵ α⁺ = (ℵ α)₊.
 Proof with eauto.
   intros α Hoα.
   apply sub_antisym; apply ord_leq_iff_sub...
@@ -291,21 +512,21 @@ Qed.
 
 (* 基数集的并是基数 *)
 Lemma union_of_cards_is_card : ∀ A,
-  (∀x ∈ A, is_card x) → is_card (⋃ A).
+  (∀x ∈ A, is_card x) → is_card (sup A).
 Proof with eauto.
   intros A Hcds.
   assert (Hods: is_ords A). {
     intros x Hx. apply card_is_ord. apply Hcds...
   }
-  assert (Hou: is_ord (sup A)). {
+  assert (Hou: sup A ⋵ 𝐎𝐍). {
     apply union_of_ords_is_ord...
   }
-  exists (⋃ A). apply card_of_initial_ord.
+  exists (sup A). apply card_of_initial_ord.
   split. apply union_of_ords_is_ord...
   intros α Hα Hqn. symmetry in Hqn.
   apply UnionAx in Hα as [κ [Hκ Hα]].
-  assert (Hoκ: is_ord κ). apply Hods...
-  assert (Hoα: is_ord α). eapply ord_is_ords...
+  assert (Hoκ: κ ⋵ 𝐎𝐍). apply Hods...
+  assert (Hoα: α ⋵ 𝐎𝐍). eapply ord_is_ords...
   assert (H1: α ⊆ κ). apply ord_leq_iff_sub...
   assert (H2: κ ⋸ sup A). apply ord_sup_is_ub...
   apply ord_leq_iff_sub in H2...
@@ -316,41 +537,15 @@ Qed.
 
 Theorem aleph_limit : continuous ℵ.
 Proof with eauto.
-  intros 𝜆 Hne Hlim.
-  assert (H := Hlim). destruct H as [Ho𝜆 _].
-  assert (Hos: is_ords {ℵ | α ∊ 𝜆}). {
-    intros x Hx.
-    apply ReplAx in Hx as [α [Hα Hx]]. subst x.
-    apply aleph_is_ord. eapply ord_is_ords...
-  }
-  assert (Hou: is_ord ⋃{ℵ | α ∊ 𝜆}). {
-    apply union_of_ords_is_ord...
-  }
-  assert (Hcu: infcard ⋃{ℵ | α ∊ 𝜆}). {
-    split.
-    - apply union_of_cards_is_card.
-      intros x Hx. apply ReplAx in Hx as [α [Hα H]]. subst x.
-      apply aleph_is_card. apply (ord_is_ords 𝜆)...
-    - intros Hfin. apply finite_union in Hfin as [_ Hfin].
-      apply EmptyNE in Hne as [α Hα].
-      assert (Hoα: is_ord α). eapply ord_is_ords; revgoals...
-      assert (ℵ α ∈ {ℵ | α ∊ 𝜆}). eapply ReplI...
-      apply Hfin in H. eapply aleph_infinite...
-  }
-  apply sub_antisym; apply ord_leq_iff_sub...
-  - apply aleph_spec... intros H.
-    apply ReplAx in H as [α [Hα Heq]].
-    assert (Hoα: is_ord α). eapply ord_is_ords; revgoals...
-    pose proof (ord_sup_is_ub {ℵ | α ∊ 𝜆}) as [_ Hub]...
-    unfold sup in Hub. rewrite <- Heq in Hub.
-    assert (ℵ α⁺ ∈ {ℵ | α ∊ 𝜆}). {
-      eapply ReplI. apply suc_in_limit...
-    }
-    apply Hub in H. apply (ord_not_leq_gt (ℵ α⁺) (ℵ α))...
-    apply aleph_monotone...
-  - apply ord_sup_correct... split... intros x Hx.
-    apply ReplAx in Hx as [α [Hα Hx]]. subst x.
-    left. apply aleph_monotone...
+  eapply monotone_operation_continuous_if_range_closed...
+  - split. apply aleph_is_infcard. apply aleph_surjective.
+  - apply aleph_monotone.
+  - intros A Hne HA. split.
+    + apply union_of_cards_is_card.
+      intros x Hx. apply HA...
+    + intros Hfin. apply finite_union in Hfin as [_ Hfin].
+      apply EmptyNE in Hne as [a Ha].
+      apply Hfin in Ha as Hfina. apply HA in Ha as [_ Hinf]...
 Qed.
 
 (* 阿列夫是规范操作 *)
@@ -360,7 +555,7 @@ Proof. split. apply aleph_monotone. apply aleph_limit. Qed.
 End Aleph.
 
 (* 序数的规范操作 *)
-Module 𝐎𝐍NormalOperation.
+Module 𝐎𝐍Operation.
 Import RecursionSchemaOnOrdinals.
 
 Definition γ := λ y₀ G f y, y =
@@ -371,13 +566,12 @@ Definition γ := λ y₀ G f y, y =
     | inl _ => G f[sup (dom f)]
     | inr _ =>
       match (ixm (∃ 𝜆, is_limit 𝜆 ∧ dom f = 𝜆)) with
-      | inl _ => ⋃(ran f)
+      | inl _ => sup (ran f)
       | inr _ => ∅
       end
     end
   end.
 
-Definition operative := λ G, ∀ α, is_ord α → is_ord (G α).
 Definition Operation := λ y₀ G, Recursion (γ y₀ G).
 
 Lemma γ_functional : ∀ y₀ G f, ∃! y, γ y₀ G f y.
@@ -391,10 +585,10 @@ Proof with auto.
   destruct (ixm (∅ = ∅))... exfalso...
 Qed.
 
-Theorem operation_suc : ∀ y₀ G α, is_ord α →
+Theorem operation_suc : ∀ y₀ G, ∀α ⋵ 𝐎𝐍,
   Operation y₀ G α⁺ = G (Operation y₀ G α).
 Proof with eauto.
-  intros * Hoα. unfold Operation.
+  intros * α Hoα. unfold Operation.
   rewrite (recursion_spec (γ y₀ G) α⁺), dom_of_op_repl...
   destruct (ixm (α⁺ = ∅))... {
     exfalso. eapply ord_suc_neq_0...
@@ -423,15 +617,16 @@ Proof with eauto; try congruence.
   - exfalso. destruct (ord_is_suc_or_limit 𝜆)...
 Qed.
 
-Lemma ran_of_operation : ∀ y₀ G, is_ord y₀ → operative G →
-  ∀ α, is_ord α → is_ord (Operation y₀ G α).
+Lemma operation_operative : ∀ y₀ G, y₀ ⋵ 𝐎𝐍 → G:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 →
+  Operation y₀ G :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof with auto.
-  intros * Hoy₀ Hop.
+  intros y₀ G Hoy₀ HG.
+  unfold class_func, all_in_class, all.
   eapply transfinite_induction_schema_on_ordinals.
   intros α Hoα IH.
   destruct (ord_is_suc_or_limit α)...
   - destruct H as [β [Hoβ Heq]]. subst.
-    rewrite operation_suc... apply Hop. apply IH...
+    rewrite operation_suc... apply HG. apply IH...
   - destruct (classic (α = ∅)).
     + subst. rewrite operation_0...
     + rewrite operation_limit...
@@ -439,73 +634,33 @@ Proof with auto.
       apply ReplAx in Hx as [β [Hβ Heq]]. subst. apply IH...
 Qed.
 
-Definition ascending := λ y₀ G, ∀ α, is_ord α →
-  Operation y₀ G α ∈ G (Operation y₀ G α).
-
-Lemma operation_suc_monotone :
-  ∀ y₀ G, is_ord y₀ → operative G → ascending y₀ G →
-  ∀ α, is_suc α → ∀β ∈ α, Operation y₀ G β ∈ Operation y₀ G α.
+Lemma operation_monotone : ∀ y₀ G, y₀ ⋵ 𝐎𝐍 → G:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 →
+  ascending (Operation y₀ G) → monotone (Operation y₀ G).
 Proof with eauto.
-  intros * Hoy₀ Hop Hasc α Hsuc β Hβ.
-  assert (Hoα: is_ord α). {
-    destruct Hsuc as [δ [Hoδ Heq]].
-    subst. apply ord_suc_is_ord...
-  }
-  generalize dependent Hsuc.
-  generalize dependent Hβ.
-  generalize dependent α.
-  set (λ α, β ∈ α → is_suc α → Operation y₀ G β ∈ Operation y₀ G α) as ϕ.
-  apply (transfinite_induction_schema_on_ordinals ϕ).
-  intros α Hoα IH Hβ [δ [Hoδ Heq]]. subst.
-  assert (Hoβ: is_ord β). eapply ord_is_ords; revgoals...
-  assert (Hoo: is_ord (Operation y₀ G δ)). apply ran_of_operation...
-  rewrite operation_suc...
-  apply BUnionE in Hβ as [].
-  - destruct (ord_is_suc_or_limit δ)...
-    + eapply ord_trans. apply Hop...
-      apply IH... apply Hasc...
-    + destruct (classic (δ = ∅)). subst. exfalso0.
-      eapply ord_trans; revgoals...
-      rewrite (operation_limit _ _ δ)...
-      eapply FUnionI. apply suc_in_limit... apply IH...
-      rewrite <- ord_suc_preserve_lt... exists β. split...
-  - apply SingE in H; subst. apply Hasc...
+  intros * Hoy₀ Hop Hasc.
+  apply continuous_ascending_operation_monotone...
+  apply operation_operative...
+  apply operation_limit.
 Qed.
 
-Lemma operation_monotone :
-  ∀ y₀ G, is_ord y₀ → operative G → ascending y₀ G →
-  monotone (Operation y₀ G).
-Proof with eauto.
-  intros * Hoy₀ Hop Hasc α Hoα β Hβ.
-  assert (Hoβ: is_ord β). eapply ord_is_ords...
-  destruct (classic (α = ∅)). subst. exfalso0.
-  destruct (ord_is_suc_or_limit α)...
-  - apply operation_suc_monotone...
-  - rewrite (operation_limit _ _ α)...
-    eapply FUnionI. apply suc_in_limit...
-    eapply operation_suc_monotone... exists β. split...
-Qed.
-
-Theorem operation_normal :
-  ∀ y₀ G, is_ord y₀ → operative G → ascending y₀ G →
-  normal (Operation y₀ G).
+Theorem operation_normal : ∀ y₀ G, y₀ ⋵ 𝐎𝐍 → G:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 →
+  ascending (Operation y₀ G) → normal (Operation y₀ G).
 Proof.
   intros. split. apply operation_monotone; auto.
   apply operation_limit.
 Qed.
 
-End 𝐎𝐍NormalOperation.
+End 𝐎𝐍Operation.
 
 Module AlternativeDefinitionOfAleph.
-Import 𝐎𝐍NormalOperation.
+Import 𝐎𝐍Operation.
 
 Definition ℵ' := Operation ℵ₀ (λ α, α₊).
 
 (* ==需要选择公理== *)
-Fact alternative_aleph_correct : AC_III →
-  ∀ α, is_ord α → ℵ' α = ℵ α.
+Fact alternative_aleph_correct : AC_III → ∀α ⋵ 𝐎𝐍, ℵ' α = ℵ α.
 Proof with auto.
-  intros AC3.
+  intros AC3. unfold all_in_class, all.
   eapply transfinite_induction_schema_on_ordinals.
   intros α Hoα IH. unfold ℵ'.
   destruct (ord_is_suc_or_limit α) as [|Hlim]...
@@ -523,21 +678,21 @@ End AlternativeDefinitionOfAleph.
 
 (* ℶ数 *)
 Section Beth.
-Import 𝐎𝐍NormalOperation.
+Import 𝐎𝐍Operation.
 
 Definition ℶ := Operation ℵ₀ (λ α, 2 ^ α).
 
 Theorem beth_0 : ℶ 0 = ℵ₀.
 Proof. apply operation_0. Qed.
 
-Theorem beth_suc : ∀ α, is_ord α → ℶ α⁺ = 2 ^ ℶ α.
+Theorem beth_suc : ∀α ⋵ 𝐎𝐍, ℶ α⁺ = 2 ^ ℶ α.
 Proof. apply operation_suc. Qed.
 
 Theorem beth_limit : continuous ℶ.
 Proof. apply operation_limit. Qed.
 
 (* ℶ数是基数 *)
-Lemma beth_is_card : ∀ α, is_ord α → is_card (ℶ α).
+Lemma beth_is_card : ℶ:ᶜ 𝐎𝐍 ⇒ 𝐂𝐃.
 Proof with eauto.
   intros α Hoα.
   destruct (ord_is_suc_or_limit α)...
@@ -555,21 +710,24 @@ Proof with eauto.
     + destruct (classic (β = 0)). subst. rewrite beth_0...
       apply IH...
 Qed.
-Local Hint Resolve beth_is_card : core.
 
 (* ℶ数是序数 *)
-Lemma beth_is_ord : ∀ α, is_ord α → is_ord (ℶ α).
-Proof. intros. apply card_is_ord; auto. Qed.
+Lemma beth_is_ord : ℶ:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
+Proof.
+  intros α Ho. apply card_is_ord.
+  apply beth_is_card. apply Ho.
+Qed.
 
 (* ℶ数是无限集 *)
-Lemma beth_infinite : ∀ α, is_ord α → infinite (ℶ α).
+Lemma beth_infinite : ℶ:ᶜ 𝐎𝐍 ⇒ infinite.
 Proof with nauto.
+  unfold class_func, all_in_class, all.
   eapply transfinite_induction_schema_on_ordinals.
   intros α Hoα IH.
   destruct (ord_is_suc_or_limit α) as [|Hlim]...
   - destruct H as [β [Hoβ Heq]]. subst. rewrite beth_suc...
     assert (Hinf: infinite (ℶ β)). apply IH...
-    apply cardExp_infinite_iff...
+    apply cardExp_infinite_iff... apply beth_is_card...
     apply ord_leq_to_cardLeq...
     apply EmptyNI. apply infinite_set_nonempty...
   - destruct (classic (α = 0)) as [|Hne]. subst. rewrite beth_0...
@@ -584,9 +742,9 @@ Proof with nauto.
 Qed.
 
 (* ℶ数是无限基数 *)
-Lemma beth_is_infcard : ∀ α, is_ord α → infcard (ℶ α).
+Lemma beth_is_infcard : ℶ:ᶜ 𝐎𝐍 ⇒ infcard.
 Proof with auto.
-  intros. split... apply beth_infinite...
+  intros. split... apply beth_is_card... apply beth_infinite...
 Qed.
 
 (* ℶ是规范操作 *)
@@ -594,7 +752,8 @@ Theorem beth_normal : normal ℶ.
 Proof with auto.
   apply operation_normal...
   - intros α Hoα. apply card_is_ord. apply cardExp_is_card.
-  - intros α Hoα. apply cardLt_to_ord_lt. apply cardLt_power...
+  - intros α Hoα. apply cardLt_to_ord_lt. rewrite beth_suc...
+    apply cardLt_power... apply beth_is_card...
 Qed.
 
 End Beth.
@@ -602,4 +761,4 @@ End Beth.
 (* 连续统假设 *)
 Definition CH := ℵ 1 = ℶ 1.
 (* 广义连续统假设 *)
-Definition GCH := ∀ α, is_ord α → ℵ α = ℶ α.
+Definition GCH := ∀α ⋵ 𝐎𝐍, ℵ α = ℶ α.

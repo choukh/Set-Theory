@@ -3,7 +3,7 @@
 Require Export ZFC.EST8_2.
 
 Section EX8_1_and_2.
-Import 𝐎𝐍NormalOperation.
+Import 𝐎𝐍Operation.
 Close Scope Card_scope.
 Open Scope Nat_scope.
 
@@ -65,3 +65,6 @@ Proof with neauto.
 Qed.
 
 End EX8_1_and_2.
+
+(* ex8_6_a see EST8_1 Lemma monotone_operation_range_unbounded *)
+(* ex8_6_b see EST8_1 Lemma normal_operation_range_closed *)

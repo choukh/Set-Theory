@@ -2,6 +2,47 @@
 
 Require Export ZFC.lib.Cardinal.
 
+Lemma dom_of_op_repl :
+  ∀ A G, dom {λ x, <x, G x> | x ∊ A} = A.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply domE in Hx as [y Hp].
+    apply ReplAx in Hp as [α [Hα Hp]].
+    apply op_iff in Hp as []; subst...
+  - eapply domI. apply ReplAx. exists x. split...
+Qed.
+
+Lemma ran_of_op_repl :
+  ∀ A G, ran {λ x, <x, G x> | x ∊ A} = {G | x ∊ A}.
+Proof with auto.
+  intros. apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply ReplAx in Hp as [α [Hα Hp]].
+    apply op_iff in Hp as []; subst. apply ReplI...
+  - apply ReplAx in Hy as [x [Hx Hy]]. eapply ranI.
+    apply ReplAx. exists x. split... apply op_iff...
+Qed.
+
+Lemma op_repl_is_func :
+  ∀ A G, is_function {λ x, <x, G x> | x ∊ A}.
+Proof with auto.
+  intros. repeat split.
+  - intros p Hp. apply ReplAx in Hp as [x [_ H]]; subst...
+  - rewrite dom_of_op_repl in H.
+    exists (G x). apply ReplAx. exists x. split...
+  - intros y1 y2 H1 H2.
+    apply ReplAx in H1 as [x1 [Hx1 H1]].
+    apply ReplAx in H2 as [x2 [Hx2 H2]].
+    apply op_iff in H1 as []; apply op_iff in H2 as []; subst...
+Qed.
+
+Lemma ap_of_op_repl :
+  ∀ A G, ∀ x ∈ A, {λ x, <x, G x> | x ∊ A}[x] = G x.
+Proof with auto.
+  intros * x Hx. apply func_ap. apply op_repl_is_func.
+  apply ReplAx. exists x. split...
+Qed.
+
 (* 序数上的超限递归模式 *)
 Module RecursionSchemaOnOrdinals.
 Import TransfiniteRecursion.
@@ -91,17 +132,6 @@ Proof with eauto.
     apply ReplAx. exists a. split... apply op_iff. split...
     apply func_ap in Hp... subst b. apply F_agree_on_smaller...
     apply ord_suc_is_ord. eapply ord_is_ords... apply BInterI...
-Qed.
-
-Lemma ran_of_op_repl :
-  ∀ A G, ran {λ x, <x, G x> | x ∊ A} = {G | x ∊ A}.
-Proof with auto.
-  intros. apply ExtAx. intros y. split; intros Hy.
-  - apply ranE in Hy as [x Hp].
-    apply ReplAx in Hp as [α [Hα Hp]].
-    apply op_iff in Hp as []; subst. apply ReplI...
-  - apply ReplAx in Hy as [x [Hx Hy]]. eapply ranI.
-    apply ReplAx. exists x. split... apply op_iff...
 Qed.
 
 End RecursionSchemaOnOrdinals.

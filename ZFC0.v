@@ -281,7 +281,7 @@ Qed.
 (* 存在幂集，它是给定集合的所有子集组成的集合 *)
 Parameter Power : set → set.
 Notation "'𝒫' A" := (Power A) (at level 9, right associativity).
-Axiom PowerAx : ∀ A Y, Y ∈ 𝒫(A) ↔ Y ⊆ A.
+Axiom PowerAx : ∀ A Y, Y ∈ 𝒫 A ↔ Y ⊆ A.
 
 (* 空集是任意集合的幂集的成员 *)
 Lemma empty_in_all_power: ∀ A, ∅ ∈ 𝒫 A.

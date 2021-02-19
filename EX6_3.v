@@ -16,12 +16,12 @@ Require Import ZFC.lib.Choice.
 (* 有限子集集 *)
 Definition FiniteSubSets : set → set := λ A,
   {B ∊ 𝒫 A | finite}.
-Notation "'𝗙𝗶𝗻'" := (FiniteSubSets) (at level 9).
+Notation 𝗙𝗶𝗻 := FiniteSubSets.
 
 (* n元子集集 *)
 Definition FinCardSubSets : set → set → set := λ A n,
   {B ∊ 𝒫 A | λ B, B ≈ n}.
-Notation "'𝗙𝗶𝗻𝗰'" := (FinCardSubSets) (at level 9).
+Notation 𝗙𝗶𝗻𝗰 := FinCardSubSets.
 
 (* 有限子集与n元子集的相互转化 *)
 Lemma finCardSubSets_iff_finiteSubSets : 

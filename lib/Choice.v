@@ -490,7 +490,7 @@ Definition finite_character_property : (set → Prop) → Prop := λ P,
 (* 有限特征集：集合是其成员当且仅当该集合的每个有限子集都是其成员 *)
 Definition finite_character_set := λ 𝒜,
   finite_character_property (λ x, x ∈ 𝒜).
-Notation "'𝗙𝗖' 𝒜" := (finite_character_set 𝒜) (at level 70).
+Notation 𝗙𝗖 := finite_character_set.
 
 (* 选择公理等效表述7：图基引理（第二极大原理） *)
 (* 具有有限特征的非空集合必有子集关系下的极大元 *)

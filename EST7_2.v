@@ -650,7 +650,7 @@ Qed.
 End TransitiveClosureDef.
 
 Definition TransitiveClosure := λ A, ⋃ (ran (F A)).
-Notation "'𝗧𝗖' A" := (TransitiveClosure A) (at level 70).
+Notation 𝗧𝗖 := TransitiveClosure.
 
 (* 传递闭包是传递集 *)
 Theorem tc_trans : ∀ A, trans (𝗧𝗖 A).

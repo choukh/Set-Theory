@@ -389,7 +389,7 @@ Proof with neauto.
 Qed.
 
 (** 阿列夫零 **)
-Notation "'ℵ₀'" := (|ω|).
+Notation ℵ₀ := (|ω|).
 
 Lemma aleph0_is_card : is_card ℵ₀.
 Proof. exists ω. reflexivity. Qed.
