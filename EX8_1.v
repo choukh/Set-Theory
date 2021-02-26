@@ -66,5 +66,6 @@ Qed.
 
 End EX8_1_and_2.
 
+(* ex8_5 see EST8_2 Lemma monotone_operation_leq *)
 (* ex8_6_a see EST8_1 Lemma monotone_operation_range_unbounded *)
 (* ex8_6_b see EST8_1 Lemma normal_operation_range_closed *)

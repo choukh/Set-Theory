@@ -38,6 +38,35 @@ Definition bounded := λ C : Class,
 Definition unbounded := λ C : Class,
   ∀α ⋵ 𝐎𝐍, ∃β ⋵ C, α ∈ β.
 
+(* 序数操作的与指定值域对应的定义域 *)
+Definition Domain := λ F A,
+  ϕ_Repl (λ x y, y ⋵ 𝐎𝐍 ∧ F y = x) A.
+
+(* 序数操作的与指定定义域对应的值域 *)
+Definition Range := λ F Ω,
+  {F | α ∊ Ω}.
+
+(* 序数操作的包含于指定集合里的值域 *)
+Definition RangeAmong := λ F Ω,
+  {y ∊ Ω | λ y, ∃α ⋵ 𝐎𝐍, F α = y}.
+
+Lemma domain_spec :
+  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → class_injective F 𝐎𝐍 →
+  ∀ A, (∀x ∈ A, x ⋵ C) → ∀ ξ, ξ ∈ Domain F A ↔ ξ ⋵ 𝐎𝐍 ∧ F ξ ∈ A.
+Proof with eauto.
+  intros F C [_ HR] Hsub Hinj A HA ξ.
+  set (λ x y, y ⋵ 𝐎𝐍 ∧ F y = x) as ϕ.
+  assert (Hϕ: ∀x ∈ A, ∃! y, ϕ x y). {
+    intros x Hx. split. apply HR. apply HA...
+    intros y1 y2 [H11 H12] [H21 H22]. subst x. eapply Hinj...
+  }
+  split.
+  - intros Hξ. apply ϕ_ReplAx in Hξ as [α [Hα [Hoξ Heq]]]...
+    split... congruence.
+  - intros [Hoξ HFξ]. apply ϕ_ReplAx...
+    exists (F ξ). split...
+Qed.
+
 End OrdinalClass.
 
 (* 序数的后继操作是单调的 *)
@@ -76,7 +105,7 @@ Proof with eauto; try congruence.
     apply ord_leq_iff_not_gt...
 Qed.
 
-(* 𝐎𝐍子类是集合当且仅当它有界的 *)
+(* 𝐎𝐍子类是集合当且仅当它是有界的 *)
 Lemma bounded_iff_is_set : ∀ C, C ⫃ 𝐎𝐍 → bounded C ↔ is_set C.
 Proof with auto.
   intros C Hsub. split.
@@ -89,25 +118,6 @@ Proof with auto.
     intros β Hβ. apply HA in Hβ. apply ord_sup_is_ub...
 Qed.
 
-(* 存在与给定值域对应的定义域 *)
-Lemma ex_domain_of_given_range_in_class :
-  ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → monotone F →
-  ∀ A, (∀x ∈ A, x ⋵ C) → ∃ Ω, ∀α, α ∈ Ω ↔ α ⋵ 𝐎𝐍 ∧ F α ∈ A.
-Proof with eauto.
-  intros F C [HF HR] Hsub Hmono A HA.
-  set (λ x y, y ⋵ 𝐎𝐍 ∧ F y = x) as ϕ.
-  assert (Hϕ: ∀x ∈ A, ∃! y, ϕ x y). {
-    intros x Hx. split. apply HR. apply HA...
-    intros y1 y2 [H11 H12] [H21 H22]. subst x.
-    eapply monotone_operation_injective...
-  }
-  exists (ϕ_Repl ϕ A). intros ξ. split.
-  - intros Hξ. apply ϕ_ReplAx in Hξ as [α [Hα [Hoξ Heq]]]...
-    split... congruence.
-  - intros [Hoξ HFξ]. apply ϕ_ReplAx...
-    exists (F ξ). split... split...
-Qed.
-
 (* ex8_6_a 单调操作的值域无界 *)
 Lemma monotone_operation_range_unbounded :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → monotone F → unbounded C.
@@ -115,10 +125,11 @@ Proof with eauto; try congruence.
   intros F C HF Hsub Hmono.
   apply unbounded_iff_not_bounded...
   intros H. apply bounded_iff_is_set in H as [A HA]...
-  pose proof (ex_domain_of_given_range_in_class) as [Ω H]...
-  intros x Hx. apply HA...
-  apply Burali_Forti. exists Ω. intros α Hoα.
-  apply H. split... apply HA. apply HF...
+  apply Burali_Forti. exists (Domain F A).
+  intros α Hoα. eapply domain_spec...
+  eapply monotone_operation_injective...
+  apply HF. intros x Hx. apply HA...
+  split... apply HA... apply HF...
 Qed.
 
 (* 如果具有单调性的序数操作的值域是封闭的，那么该序数操作具有连续性 *)
@@ -156,7 +167,7 @@ Proof with eauto.
     apply (ord_not_leq_gt (F α⁺) (F α))... apply Hmono...
 Qed.
 
-(* 如果序数集的上确界是后继序数，那么该上确界在序数集内 *)
+(* 如果序数集的上确界是后继序数，那么该上确界在该序数集内 *)
 Lemma sup_of_ords_is_suc_impl_in_ords :
   ∀ A, is_ords A → is_suc (sup A) → sup A ∈ A.
 Proof with eauto; try congruence.
@@ -177,8 +188,12 @@ Lemma normal_operation_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → normal F → closed C.
 Proof with eauto; try congruence.
   intros F C HF Hsub [Hmono Hcon] A Hne HA.
-  pose proof (ex_domain_of_given_range_in_class) as [Ω HΩ]...
+  set (Domain F A) as Ω.
   set (sup Ω) as μ.
+  assert (HΩ: ∀ ξ, ξ ∈ Ω ↔ ξ ⋵ 𝐎𝐍 ∧ F ξ ∈ A). {
+    eapply domain_spec...
+    eapply monotone_operation_injective... apply HF.
+  }
   assert (HosA: is_ords A). intros x Hx. apply Hsub... apply HA...
   assert (HosΩ: is_ords Ω). intros x Hx. apply HΩ...
   assert (Hoμ: μ ⋵ 𝐎𝐍). apply union_of_ords_is_ord...
@@ -393,8 +408,8 @@ Proof with eauto; try congruence.
   destruct (classic (ξ = enumerate C α)) as [|Hnq]... exfalso.
   apply ord_connected in Hnq as []; [..|apply enum_operative]...
   - eapply ord_not_lt_gt; revgoals... apply enum_operative...
-  - apply Hout. apply ReplAx. exists α. split...
-    apply ϕ_ReplAx... exists (enumerate C α). repeat split...
+  - apply Hout. eapply ReplI. apply ϕ_ReplAx...
+    exists (enumerate C α). repeat split...
     apply SepI... apply enum_in_class...
 Qed.
 
@@ -734,8 +749,7 @@ Proof with nauto.
     rewrite beth_limit... intros Hfin.
     apply finite_union in Hfin as [_ Hfin].
     assert (ℶ 0 ∈ {ℶ | ξ ∊ α}). {
-      apply ReplAx. exists 0. split...
-      apply ord_nq_0_gt_0...
+      eapply ReplI. apply ord_nq_0_gt_0...
     }
     apply Hfin in H. rewrite beth_0 in H.
     apply aleph0_infinite...
