@@ -189,9 +189,15 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Aleph number
 - Beth number
 
-## EST8_2 (TODO).v
+## EST8_2.v
 - Properties of ordinal operations
 - Veblen fixed-point theorem
+  - Enumeration of fixed-point is normal operation
+  - There exist fixed-point of fixed-point
+
+## EST8_3 (TODO).v
+- Isomorphism types
+- Order types
 
 ## EX{n}.v
 - Solution to exercises of Chapter n

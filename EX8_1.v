@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Feb 2021 **)
 
-Require Export ZFC.EST8_2.
+Require Export ZFC.EST8_3.
 
 Section EX8_1_and_2.
 Import 𝐎𝐍Operation.
@@ -66,6 +66,11 @@ Qed.
 
 End EX8_1_and_2.
 
+(* ex8_3_a see EST8_2 Fact monotone_operation_preserve_order *)
+(* ex8_3_b see EST8_1 Lemma monotone_operation_injective *)
+(* ex8_4 see EST8_2 Fact normal_operation_limit_is_limit *)
 (* ex8_5 see EST8_2 Lemma monotone_operation_leq *)
 (* ex8_6_a see EST8_1 Lemma monotone_operation_range_unbounded *)
 (* ex8_6_b see EST8_1 Lemma normal_operation_range_closed *)
+(* ex8_7 see EST8_2 Corollary ex_least_fixed_point *)
+(* ex8_8 see EST8_2 Theorem fixed_point_normal *)

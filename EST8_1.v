@@ -16,7 +16,7 @@ Notation 𝐂𝐃 := is_card.
 Definition monotone := λ F,
   ∀α ⋵ 𝐎𝐍, ∀β ∈ α, F β ∈ F α.
 
-(* 序数操作的连续性 *)
+(* 序数操作在极限处的连续性 *)
 Definition continuous := λ F,
   ∀ 𝜆, 𝜆 ≠ ∅ → is_limit 𝜆 → F 𝜆 = sup{F | α ∊ 𝜆}.
 
@@ -77,7 +77,7 @@ Proof with eauto.
   eapply ord_is_ords...
 Qed.
 
-(* 单调操作具有单射性 *)
+(* ex8_3_b 单调操作具有单射性 *)
 Lemma monotone_operation_injective :
   ∀ F C, F:ᶜ 𝐎𝐍 ⇒ C → C ⫃ 𝐎𝐍 →
   monotone F → class_injective F 𝐎𝐍.
@@ -243,6 +243,11 @@ Proof with eauto.
     split...
 Qed.
 
+(* 单调操作递增 *)
+Fact monotone_operation_ascending :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → monotone F → ascending F.
+Proof. intros F HF Hmono α Hoα. apply Hmono; auto. Qed.
+
 (* 连续递增操作单调 *)
 Theorem continuous_ascending_operation_monotone :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → continuous F → ascending F → monotone F.
@@ -268,7 +273,7 @@ Module 𝐎𝐍Separation.
 Import RecursionSchemaOnOrdinals.
 
 Definition γ := λ C f y, y ⋵ C ∧ y ∉ ran f ∧ ∀x ⋵ C, x ∉ ran f → y ⋸ x.
-Definition enumerate := λ C, Recursion (γ C).
+Definition Enumerate := λ C, Recursion (γ C).
 
 Local Lemma unbounded_subclass_cannot_be_a_set :
   ∀ C, C ⫃ 𝐎𝐍 → unbounded C → ¬ ∃ A, ∀α ⋵ C, α ∈ A.
@@ -313,41 +318,41 @@ Proof with eauto; try congruence.
 Qed.
 Hint Immediate γ_functional : core.
 
-(* 枚举元素是属于类C且与之前的元素都不同的最小序数 *)
+(* 枚举元素是属于子类且与之前的元素都不同的最小序数 *)
 Lemma enum_spec : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ C, ξ ∉ {enumerate C | x ∊ α} → enumerate C α ⋸ ξ.
+  ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ C, ξ ∉ {Enumerate C | x ∊ α} → Enumerate C α ⋸ ξ.
 Proof with auto.
   intros C Hsub Hund α Hoα ξ HξC Hout.
   pose proof (recursion_spec (γ C) α) as [_ [_ Hmin]]...
   apply Hmin... rewrite ran_of_op_repl...
 Qed.
 
-(* 枚举元素属于类C *)
-Lemma enum_in_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  enumerate C :ᶜ 𝐎𝐍 ⇒ C.
+(* 枚举操作映射到子类 *)
+Lemma enum_into_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  Enumerate C :ᶜ 𝐎𝐍 ⇒ C.
 Proof.
-  intros C Hsub Hund α Hoα. unfold enumerate.
+  intros C Hsub Hund α Hoα. unfold Enumerate.
   apply (recursion_spec (γ C) α); auto.
 Qed.
 
 (* 枚举是序数操作 *)
 Lemma enum_operative : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  enumerate C :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
+  Enumerate C :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof.
   intros C Hsub Hund α Hoα. apply Hsub.
-  apply enum_in_class; auto.
+  apply enum_into_class; auto.
 Qed.
 
-(* 枚举元素单调增 *)
+(* 枚举操作单调增 *)
 Theorem enum_monotone : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  monotone (enumerate C).
+  monotone (Enumerate C).
 Proof with eauto.
   intros C Hsub Hund α Hoα β Hβ.
   assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
   pose proof (recursion_spec (γ C) α) as [Hinf [Hout _]]...
   pose proof (recursion_spec (γ C) β) as [_ [_ Hmin]]...
-  fold (enumerate C) in *. rewrite ran_of_op_repl in *.
-  assert (enumerate C α ∉ {enumerate C | x ∊ β}). {
+  fold (Enumerate C) in *. rewrite ran_of_op_repl in *.
+  assert (Enumerate C α ∉ {Enumerate C | x ∊ β}). {
     intros H. apply ReplAx in H as [δ [Hδ H]].
     apply Hout. rewrite <- H. apply ReplI. eapply ord_trans...
   }
@@ -357,23 +362,23 @@ Qed.
 
 (* 枚举操作具有单射性 *)
 Corollary enum_injective : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  class_injective (enumerate C) 𝐎𝐍.
+  class_injective (Enumerate C) 𝐎𝐍.
 Proof with eauto.
   intros C Hsub Hund.
   eapply monotone_operation_injective...
-  apply enum_in_class... apply enum_monotone...
+  apply enum_into_class... apply enum_monotone...
 Qed.
 
-(* 类C元素均被枚举 *)
+(* 子类元素均被枚举 *)
 Theorem enum_surjective : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  class_surjective (enumerate C) 𝐎𝐍 C.
+  class_surjective (Enumerate C) 𝐎𝐍 C.
 Proof with eauto; try congruence.
   intros C Hsub Hund ξ H. apply Hsub in H as Hoξ.
   generalize dependent H. generalize dependent ξ.
-  set (λ ξ, ξ ⋵ C → ∃α ⋵ 𝐎𝐍, enumerate C α = ξ) as ϕ.
+  set (λ ξ, ξ ⋵ C → ∃α ⋵ 𝐎𝐍, Enumerate C α = ξ) as ϕ.
   apply (transfinite_induction_schema_on_ordinals ϕ).
   intros ξ Hoξ IH Hinfξ.
-  set (λ x α, α ⋵ 𝐎𝐍 ∧ x = enumerate C α) as ψ.
+  set (λ x α, α ⋵ 𝐎𝐍 ∧ x = Enumerate C α) as ψ.
   set {x ∊ ξ | C} as χ.
   set (ϕ_Repl ψ χ) as α.
   assert (Hψ: ∀x ∈ χ, ∃! y, ψ x y). {
@@ -390,35 +395,43 @@ Proof with eauto; try congruence.
     - intros ε δ Hε Hδ.
       apply ϕ_ReplAx in Hδ as [x [Hx [Hoδ Heqx]]]... subst x.
       assert (Hoε: ε ⋵ 𝐎𝐍). eapply ord_is_ords...
-      apply ϕ_ReplAx... exists (enumerate C ε). repeat split...
+      apply ϕ_ReplAx... exists (Enumerate C ε). repeat split...
       apply SepE1 in Hx. apply SepI.
       + eapply enum_monotone in Hε... eapply ord_trans...
-      + apply enum_in_class...
+      + apply enum_into_class...
   }
   exists α. split...
   pose proof (recursion_spec (γ C) α) as [_ [Hout Hmin]]...
-  fold (enumerate C) in *. rewrite ran_of_op_repl in *.
-  assert (Hle: enumerate C α ⋸ ξ). {
+  fold (Enumerate C) in *. rewrite ran_of_op_repl in *.
+  assert (Hle: Enumerate C α ⋸ ξ). {
     apply Hmin... intros Hξ.
     apply ReplAx in Hξ as [β [Hβ Heq]].
     apply ϕ_ReplAx in Hβ as [μ [Hμ [Hoβ Heqμ]]]...
     apply SepE1 in Hμ. subst. eapply ord_irrefl; revgoals...
   }
   destruct Hle...
-  destruct (classic (ξ = enumerate C α)) as [|Hnq]... exfalso.
+  destruct (classic (ξ = Enumerate C α)) as [|Hnq]... exfalso.
   apply ord_connected in Hnq as []; [..|apply enum_operative]...
   - eapply ord_not_lt_gt; revgoals... apply enum_operative...
   - apply Hout. eapply ReplI. apply ϕ_ReplAx...
-    exists (enumerate C α). repeat split...
-    apply SepI... apply enum_in_class...
+    exists (Enumerate C α). repeat split...
+    apply SepI... apply enum_into_class...
+Qed.
+
+(* 枚举操作是到子类的满射 *)
+Corollary enum_onto_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
+  Enumerate C :ᶜ 𝐎𝐍 ⟹ C.
+Proof with auto.
+  intros C Hsub Hund. split.
+  apply enum_into_class... apply enum_surjective...
 Qed.
 
 (* 子类元素等价于满足P的序数 *)
 Theorem enum_iff_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  ∀ ξ, ξ ⋵ C ↔ ∃ α, α ⋵ 𝐎𝐍 ∧ enumerate C α = ξ.
+  ∀ ξ, ξ ⋵ C ↔ ∃ α, α ⋵ 𝐎𝐍 ∧ Enumerate C α = ξ.
 Proof with auto.
   split. apply enum_surjective...
-  intros [α [Hoα Heq]]. subst. apply enum_in_class...
+  intros [α [Hoα Heq]]. subst. apply enum_into_class...
 Qed.
 
 End 𝐎𝐍Separation.
@@ -427,7 +440,7 @@ End 𝐎𝐍Separation.
 Section Aleph.
 Import 𝐎𝐍Separation.
 
-Definition ℵ := enumerate infcard.
+Definition ℵ := Enumerate infcard.
 
 Lemma infcard_is_sub : infcard ⫃ 𝐎𝐍.
 Proof. exact infcard_is_ord. Qed.
@@ -456,7 +469,7 @@ Proof. apply enum_spec; auto. Qed.
 
 (* 阿列夫数是无限基数 *)
 Lemma aleph_is_infcard : ℵ :ᶜ 𝐎𝐍 ⇒ infcard.
-Proof. apply enum_in_class; auto. Qed.
+Proof. apply enum_into_class; auto. Qed.
 
 (* 阿列夫是序数操作 *)
 Lemma aleph_operative : ℵ :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
@@ -569,7 +582,7 @@ Proof. split. apply aleph_monotone. apply aleph_limit. Qed.
 
 End Aleph.
 
-(* 序数的规范操作 *)
+(* 序数操作 *)
 Module 𝐎𝐍Operation.
 Import RecursionSchemaOnOrdinals.
 

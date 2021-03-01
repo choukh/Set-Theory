@@ -7,6 +7,43 @@ Import OrdinalClass.
 
 (*** EST第八章2：序数操作的性质，Veblen不动点定理 ***)
 
+(* ex8_3_a 单调操作保序 *)
+Fact monotone_operation_preserve_order :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → monotone F →
+  ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ F α ∈ F β.
+Proof with auto.
+  intros F HF Hmono α Hoα β Hoβ. split. apply Hmono...
+  intros Hlt. destruct (classic (α = β)) as [|Hnq]. {
+    exfalso. subst. apply (ord_irrefl (F β))... apply HF...
+  }
+  apply ord_connected in Hnq as []...
+  exfalso. apply Hmono in H...
+  apply (ord_not_lt_gt (F α) (F β)); auto; apply HF...
+Qed.
+
+(* ex8_4 规范操作在极限处的值是极限 *)
+Fact normal_operation_limit_is_limit :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
+  ∀ 𝜆, 𝜆 ≠ ∅ → is_limit 𝜆 → is_limit (F 𝜆).
+Proof with auto.
+  intros F HF [Hmono Hcon] 𝜆 Hne Hlim.
+  rewrite Hcon... split. {
+    apply union_of_ords_is_ord. intros x Hx.
+    apply ReplAx in Hx as [α [Hα HFα]]. subst x.
+    apply HF. apply (ord_is_ords 𝜆)... apply Hlim.
+  }
+  apply ExtAx. split; intros Hx.
+  - apply FUnionE in Hx as [α [Hα HFα]].
+    apply UnionAx. exists (F α). split...
+    eapply FUnionI... apply suc_in_limit...
+    apply Hα. apply Hmono... apply ord_suc_is_ord.
+    apply (ord_is_ords 𝜆)... apply Hlim.
+  - apply UnionAx in Hx as [α [Hα Hx]].
+    apply FUnionE in Hα as [β [Hβ HFβ]].
+    eapply FUnionI... apply Hβ. eapply ord_trans; eauto.
+    apply HF. apply (ord_is_ords 𝜆)... apply Hlim.
+Qed.
+
 (* 规范操作的定义域有最大元 *)
 Theorem normal_operation_domain_has_maximum :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → ∀β ⋵ 𝐎𝐍, F 0 ∈ β →
@@ -110,16 +147,19 @@ Proof with auto.
   eapply ord_not_lt_self; revgoals; eauto; try repeat apply HF...
 Qed.
 
+Module VeblenFixedPoint.
 Import 𝐎𝐍Operation.
+
+(* 序数操作的不动点 *)
+Definition fixed_point := λ F α, α ⋵ 𝐎𝐍 ∧ F α = α.
 
 (* Veblen不动点定理：规范操作存在任意大的不动点 *)
 Theorem Veblen_fixed_point : ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
-  ∀β ⋵ 𝐎𝐍, ∃γ ⋵ 𝐎𝐍, F γ = γ ∧ β ⋸ γ.
+  ∀β ⋵ 𝐎𝐍, ∃ γ, fixed_point F γ ∧ β ⋸ γ.
 Proof with neauto; try congruence.
-  intros F HF Hnml β Hoβ.
-  assert (H := Hnml). destruct H as [Hmono Hcon].
+  intros F HF [Hmono Hcon] β Hoβ.
   eapply monotone_operation_leq in Hoβ as H...
-  destruct H as [Heq|Hlt]; revgoals. exists β. split...
+  destruct H as [Heq|Hlt]; revgoals. exists β. repeat split...
   set (Operation β F) as f.
   set {f | n ∊ ω} as S.
   assert (Hne: S ≠ ∅). {
@@ -131,7 +171,7 @@ Proof with neauto; try congruence.
   }
   exists (sup S). repeat split.
   - apply union_of_ords_is_ord...
-  - rewrite operation_of_sup_eq_sup_of_operation...
+  - rewrite operation_of_sup_eq_sup_of_operation; revgoals... split...
     apply ExtAx. split; intros Hx.
     + apply FUnionE in Hx as [α [Hα Hx]].
       apply ReplAx in Hα as [n [Hn Hfn]]. subst α.
@@ -150,3 +190,117 @@ Proof with neauto; try congruence.
     apply ReplAx. exists 0. split...
     unfold f. rewrite operation_0...
 Qed.
+
+(* ex8_7 规范操作存在比指定序数大的最小不动点 *)
+Corollary ex_least_fixed_point :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
+  ∀β ⋵ 𝐎𝐍, ∃ γ, fixed_point F γ ∧ β ⋸ γ ∧
+    ∀ ξ, fixed_point F ξ → β ⋸ ξ → γ ⋸ ξ.
+Proof with eauto.
+  intros F HF Hnml β Hoβ.
+  eapply Veblen_fixed_point in Hoβ as [γ [[Hoγ HFγ] Hβγ]]...
+  set {ξ ∊ γ⁺ | λ ξ, F ξ = ξ ∧ β ⋸ ξ} as Ω.
+  pose proof (ords_woset Ω) as [_ Hmin]. {
+    intros ξ Hξ. apply SepE1 in Hξ.
+    apply (ord_is_ords γ⁺)...
+  }
+  pose proof (Hmin Ω) as [μ [Hμ Hmμ]]... {
+    exists γ. apply SepI...
+  }
+  apply SepE in Hμ as [Hμ [HFμ Hβμ]].
+  exists μ. repeat split... apply (ord_is_ords γ⁺)...
+  intros ξ [Hoξ HFξ] Hβξ.
+  destruct (classic (ξ = γ⁺)) as [|Hnq]. left. congruence.
+  apply ord_connected in Hnq as [Hlt|Hne]...
+  - assert (Hξ: ξ ∈ Ω). apply SepI...
+    apply Hmμ in Hξ as []... apply binRelE3 in H...
+  - left. eapply ord_trans...
+Qed.
+
+(* 不动点类无界 *)
+Corollary fixed_point_class_unbounded :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → unbounded (fixed_point F).
+Proof with eauto.
+  intros F HF Hnml α Hoα.
+  assert (Hoα': α⁺ ⋵ 𝐎𝐍)...
+  eapply ex_least_fixed_point in Hoα' as [β [[Hoβ HFβ] [Hle _]]]...
+  exists β. repeat split... destruct Hle.
+  eapply ord_trans... rewrite <- H... 
+Qed.
+Local Hint Resolve fixed_point_class_unbounded : core.
+
+(* 不动点类是序数类的子类 *)
+Lemma fixed_point_class_sub_on :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → fixed_point F ⫃ 𝐎𝐍.
+Proof.
+  intros F HF α [Hoα HFα]. rewrite <- HFα.
+  apply HF. apply Hoα.
+Qed.
+Local Hint Resolve fixed_point_class_sub_on : core.
+
+Import 𝐎𝐍Separation.
+
+(* 不动点的枚举操作 *)
+Definition FixedPoint := λ F, Enumerate (fixed_point F).
+
+(* 不动点的枚举操作是单调的 *)
+Lemma fixed_point_monotone :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → monotone (FixedPoint F).
+Proof. intros F HF Hnml. apply enum_monotone; auto. Qed.
+
+(* 不动点的枚举操作是连续的 *)
+Lemma fixed_point_continuous :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → continuous (FixedPoint F).
+Proof with eauto; try congruence.
+  intros F HF Hnml.
+  apply (monotone_operation_continuous_if_range_closed _ (fixed_point F))...
+  apply enum_onto_class... apply fixed_point_monotone...
+  intros A Hne HA. split.
+  - apply union_of_ords_is_ord.
+    intros x Hx. apply HA...
+  - assert (Hos: is_ords A). intros x Hx. apply HA...
+    assert (Hou: sup A ⋵ 𝐎𝐍). apply union_of_ords_is_ord...
+    apply ExtAx. split; intros Hx.
+    + destruct (ord_is_suc_or_limit (sup A)) as [Hsuc|Hlim]... {
+        apply sup_of_ords_is_suc_impl_in_ords in Hsuc...
+        apply HA in Hsuc as [_ HFu]...
+      }
+      destruct Hnml as [Hmono Hcon].
+      destruct (classic (sup A = ∅)) as [|Hne'].
+      * apply union_empty_iff in H as [|HeqA]...
+        rewrite HeqA in HA, Hx.
+        unfold sup in Hx. rewrite union_one in Hx.
+        assert (∅ ⋵ fixed_point F). apply HA. apply SingI.
+        destruct H as [_ HF0]. rewrite HF0 in Hx. exfalso0.
+      * rewrite Hcon in Hx...
+        apply FUnionE in Hx as [α [Hα Hx]].
+        apply UnionAx in Hα as [β [Hβ Hα]].
+        apply UnionAx. exists β. split...
+        apply HA in Hβ as [Hoβ HFβ].
+        apply Hmono in Hα... rewrite <- HFβ.
+        eapply ord_trans... apply HF...
+    + apply UnionAx in Hx as [α [Hα Hx]].
+      assert (α ⋸ sup A). apply ord_sup_is_ub...
+      apply HA in Hα as [Hoα HFα]. rewrite <- HFα in Hx.
+      destruct H... eapply ord_trans... apply HF... apply Hnml...
+Qed.
+
+(* ex8_8 不动点的枚举操作是规范的 *)
+Theorem fixed_point_normal :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → normal (FixedPoint F).
+Proof with auto.
+  intros F HF Hnml. split.
+  apply fixed_point_monotone...
+  apply fixed_point_continuous...
+Qed.
+
+(* 存在不动点的不动点 *)
+Corollary ex_fixed_point_of_fixed_point :
+  ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
+  ∀β ⋵ 𝐎𝐍, ∃ γ, fixed_point (FixedPoint F) γ ∧ β ⋸ γ.
+Proof with auto.
+  intros F HF Hnml β Hoβ. apply Veblen_fixed_point...
+  apply enum_operative... apply fixed_point_normal...
+Qed.
+
+End VeblenFixedPoint.
