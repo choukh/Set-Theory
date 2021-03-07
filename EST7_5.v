@@ -12,8 +12,8 @@ Import WosetMin.FullVer.
 
 Section ImportStruct.
 Import OrderedStruct.
-Import WOStruct.
-Import WOStruct.EpsilonImage.
+Import WoStruct.
+Import WoStruct.EpsilonImage.
 
 (* 与良序集等势的集合可以良序化 *)
 Lemma set_eqnum_woset_can_be_woset :
@@ -59,7 +59,7 @@ Proof with eauto; try congruence.
   assert (Hexu: ∀w ∈ W, ∃! y, ϕ w y). {
     intros w Hw. split.
     - apply SepE2 in Hw.
-      set (WOStruct.constr (π1 w) (π2 w) Hw) as S.
+      set (WoStruct.constr (π1 w) (π2 w) Hw) as S.
       exists (ord S), S...
     - intros y1 y2 [S [HAS [HRS H1]]] [T [HAT [HRT H2]]].
       subst. f_equal. apply eq_intro...
@@ -257,7 +257,7 @@ Proof with eauto; try congruence.
   }
   pose proof (ords_woset β Hords) as Hwo.
   set (constr β (MemberRel β) Hwo) as S.
-  assert (WOStruct.A S ≈ A). symmetry...
+  assert (WoStruct.A S ≈ A). symmetry...
   apply set_eqnum_woset_can_be_woset in H as [T [Heq _]].
   rewrite <- Heq. exists (R T). apply wo.
 Qed.
@@ -281,7 +281,7 @@ Proof with eauto; try congruence.
   assert (contra: Embed 0 ≠ 1). {
     intros H. apply (suc_neq_0 0)...
   }
-  assert (Hsubd: ∀A ∈ 𝒜, seg A (R S) ⊆ WOStruct.A S). {
+  assert (Hsubd: ∀A ∈ 𝒜, seg A (R S) ⊆ WoStruct.A S). {
     intros A HA x Hx. apply SepE1 in Hx.
     eapply dom_binRel in Hx... apply wo.
   }
@@ -303,7 +303,7 @@ Proof with eauto; try congruence.
       rewrite Heq. apply Hsub.
       + eapply domI. apply restrI...
         eapply func_point... rewrite HdF...
-      + rewrite (restr_ap F (WOStruct.A S))... apply Hsubd...
+      + rewrite (restr_ap F (WoStruct.A S))... apply Hsubd...
     - intros Hinc. apply SepI... rewrite HrF...
       destruct (ixm (P (F ↾ seg A (R S))))...
       exfalso. apply n. unfold P.
@@ -347,7 +347,7 @@ Qed.
 Theorem numeration : AC_III → ∀ A, ∃ α, is_ord α ∧ α ≈ A.
 Proof with auto.
   intros AC3 A. pose proof (AC_III_to_WO AC3 A) as [R Hwo].
-  set (WOStruct.constr A R Hwo) as S.
+  set (WoStruct.constr A R Hwo) as S.
   exists (ord S). split... now rewrite <- woset_eqnum_ord...
 Qed.
 

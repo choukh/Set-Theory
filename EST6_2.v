@@ -82,7 +82,7 @@ Qed.
 Lemma card_of_single : ∀ a, |⎨a⎬| = 1.
 Proof with nauto.
   intros. rewrite (card_of_nat 1)...
-  apply CardAx1. apply eqnum_single_one.
+  apply CardAx1. apply eqnum_single.
 Qed.
 
 (* 基数为1的集合是单集 *)
@@ -1088,7 +1088,7 @@ Proof with auto; try easy.
   intros n Hn. rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...
-  - rewrite <- eqnum_cprod_single, eqnum_single_one...
+  - rewrite <- eqnum_cprod_single, eqnum_single...
   - apply disjointify_0_1.
   - apply nat_disjoint...
 Qed.
@@ -1295,7 +1295,7 @@ Qed.
 Lemma repl_single_finite : ∀ F a, finite {F | x ∊ ⎨a⎬}.
 Proof with auto.
   intros. exists 1. split. nauto.
-  rewrite <- eqnum_repl_single. apply eqnum_single_one.
+  rewrite <- eqnum_repl_single. apply eqnum_single.
 Qed.
 
 (* 有限集的替代仍是有限集 *)

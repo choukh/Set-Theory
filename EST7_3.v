@@ -215,12 +215,12 @@ Qed.
 End OrderedStruct.
 
 (* 良序结构 *)
-Module WOStruct.
-Declare Scope WOStruct_scope.
-Delimit Scope WOStruct_scope with wo.
-Open Scope WOStruct_scope.
+Module WoStruct.
+Declare Scope WoStruct_scope.
+Delimit Scope WoStruct_scope with wo.
+Open Scope WoStruct_scope.
 
-Record WOStruct : Type := constr {
+Record WoStruct : Type := constr {
   A : set;
   R : set;
   wo : woset A R;
@@ -237,16 +237,16 @@ Qed.
 Definition order_embedding_bijection := λ f S T, f: A S ⟺ A T ∧
   ∀ x y ∈ A S, (x <ᵣ y) (R S) ↔ (f[x] <ᵣ f[y]) (R T).
 Notation "f :ₒₑ S ⟺ T" := (order_embedding_bijection f S T)
-  (at level 70) : WOStruct_scope.
+  (at level 70) : WoStruct_scope.
 
-Definition isomorphic : relation WOStruct :=
+Definition isomorphic : relation WoStruct :=
   λ S T, ∃ f, f :ₒₑ S ⟺ T.
 
-Notation "S ≅ T" := ( isomorphic S T) (at level 60) : WOStruct_scope.
-Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : WOStruct_scope.
+Notation "S ≅ T" := ( isomorphic S T) (at level 60) : WoStruct_scope.
+Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : WoStruct_scope.
 
 Definition subS := λ S T, A S ⊆ A T ∧ R S = R T ⥏ A S.
-Notation "S ⊑ T" := (subS S T) (at level 70) : WOStruct_scope.
+Notation "S ⊑ T" := (subS S T) (at level 70) : WoStruct_scope.
 
 Local Lemma woset_is_binRel : ∀ A R, woset A R → is_binRel R A.
 Proof. intros. apply H. Qed.
@@ -993,4 +993,4 @@ Proof with eauto; try congruence.
         eapply Htr'... apply HL2...
 Qed.
 
-End WOStruct.
+End WoStruct.

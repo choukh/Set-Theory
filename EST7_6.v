@@ -70,8 +70,33 @@ Qed.
 Theorem V_0 : V ∅ = ∅.
 Proof with auto.
   apply ExtAx. split; intros Hx.
-  - apply V_elim in Hx as [β [Hβ _]]... exfalso0.
+  - apply V_elim in Hx as [n [Hn _]]... exfalso0.
   - exfalso0.
+Qed.
+
+Fact V_1 : V 1 = 1.
+Proof with nauto.
+  apply ExtAx. split; intros Hx.
+  - apply V_elim in Hx as [n [Hn Hx]]...
+    rewrite one in Hn. apply SingE in Hn. subst.
+    rewrite V_0, power_empty, <- one in Hx...
+  - eapply V_intro... apply suc_has_0...
+    rewrite pred, V_0, power_empty, <- one...
+Qed.
+
+Fact V_2 : V 2 = 2.
+Proof with nauto.
+  apply ExtAx. split; intros Hx.
+  - apply V_elim in Hx as [n [Hn Hx]]...
+    rewrite two in *. apply TwoE in Hn as []; subst.
+    + rewrite V_0, power_empty in Hx...
+      apply SingE in Hx. apply TwoI3...
+    + rewrite <- one, V_1, one, power_one in Hx...
+  - rewrite two in Hx. apply TwoE in Hx as []; subst.
+    + eapply V_intro... rewrite two. apply TwoI1.
+      rewrite V_0, power_empty. apply SingI.
+    + eapply V_intro... rewrite two. apply TwoI2.
+      rewrite <- one, V_1, one, power_one. apply TwoI2.
 Qed.
 
 Theorem V_suc : ∀ α, is_ord α → V α⁺ = 𝒫 (V α).
@@ -302,6 +327,47 @@ Axiom RegAx : Regularity.
 (* 任意集合都是良基集 *)
 Fact all_grounded : ∀ A, grounded A.
 Proof. apply all_grounded_iff_regularity. apply RegAx. Qed.
+Local Hint Resolve all_grounded : core.
+
+Fact rank_0 : ∀ a, rank a = ∅ → a = ∅.
+Proof with eauto.
+  intros a Ha. apply ExtAx.
+  split; intros Hx; [exfalso|exfalso0].
+  eapply EmptyE... apply rank_of_member...
+Qed.
+
+Fact rank_1 : ∀ a, rank a = 1 → a = 1.
+Proof with neauto.
+  intros a Ha. apply ExtAx. split; intros Hx.
+  - apply rank_of_member in Hx...
+    rewrite Ha, one in Hx. apply SingE in Hx.
+    apply rank_0 in Hx. subst x. apply suc_has_0...
+  - pose proof (rank_spec_intro a) as [_ [H _]]...
+    rewrite Ha, V_1, one in H.
+    apply subset_of_one in H as []; subst a.
+    + rewrite rank_of_ord in Ha...
+      exfalso. eapply suc_neq_0...
+    + rewrite one in Hx...
+Qed.
+
+Fact rank_2 : ∀ a, rank a = 2 → a = 2 ∨ a = ⎨1⎬.
+Proof with neauto.
+  intros a Ha. destruct (classic (a = ⎨1⎬)) as [|Hnq]... left.
+  apply ExtAx. split; intros Hx.
+  - apply rank_of_member in Hx...
+    rewrite Ha, two in Hx. apply TwoE in Hx as [Hx|Hx].
+    + apply rank_0 in Hx. subst x. apply BUnionI1...
+    + rewrite <- one in Hx.
+      apply rank_1 in Hx. subst x. apply BUnionI2...
+  - pose proof (rank_spec_intro a) as [_ [H _]]...
+    rewrite Ha, V_2 in H... apply PowerAx in H.
+    rewrite power_two in H. apply BUnionE in H as [].
+    + apply three_iff in H as [|[]]; subst;
+      rewrite rank_of_ord in Ha; nauto; exfalso.
+      * eapply suc_neq_0...
+      * apply one_neq_two...
+    + apply SingE in H. congruence.
+Qed.
 
 (* 任意集合均存在∈极小元 *)
 Lemma ex_epsilon_minimal : ∀ A, A ≠ ∅ → ∃ m, ε_minimal m A.

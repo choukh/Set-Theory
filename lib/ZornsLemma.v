@@ -458,14 +458,14 @@ Qed.
 
 End AlternativeProofWithoutRecursion.
 
-Section ImportWOStruct.
-Import WOStruct.
+Section ImportWoStruct.
+Import WoStruct.
 
 Theorem WO_to_Zorn : WO → general_Zorn.
 Proof with eauto; try congruence.
   intros WO. intros A Q Hpo Hub.
   pose proof (WO A) as [W Hwo].
-  set (WOStruct.constr A W Hwo) as S.
+  set (WoStruct.constr A W Hwo) as S.
   set (λ f, ∃a ∈ A, dom f = seg a (R S) ∧
     ∀b ∈ dom f, f[b] = 1 → (b <ᵣ a) Q) as P.
   set (λ f y, y = match (ixm (P f)) with
@@ -480,7 +480,7 @@ Proof with eauto; try congruence.
   assert (contra: Embed 0 ≠ 1). {
     intros H. apply (suc_neq_0 0)...
   }
-  assert (Hsubd: ∀a ∈ A, seg a (R S) ⊆ WOStruct.A S). {
+  assert (Hsubd: ∀a ∈ A, seg a (R S) ⊆ WoStruct.A S). {
     intros a Ha x Hx. apply SepE1 in Hx.
     eapply dom_binRel in Hx... apply wo.
   }
@@ -502,7 +502,7 @@ Proof with eauto; try congruence.
       rewrite Heq. apply Hsub.
       + eapply domI. apply restrI...
         eapply func_point... rewrite Hdf...
-      + rewrite (restr_ap f (WOStruct.A S))... apply Hsubd...
+      + rewrite (restr_ap f (WoStruct.A S))... apply Hsubd...
     - intros Hinc. apply SepI... rewrite Hrf...
       destruct (ixm (P (f ↾ seg a (R S))))...
       exfalso. apply n. unfold P.
@@ -537,7 +537,7 @@ Proof with eauto; try congruence.
   eapply relLe_lt_tranr... apply Hpo.
 Qed.
 
-End ImportWOStruct.
+End ImportWoStruct.
 
 Theorem Zorn_to_WO : general_Zorn → WO.
 Proof with eauto; try congruence.

@@ -9,9 +9,9 @@ Open Scope Class_scope.
 Notation Class := (set → Prop).
 
 (* 类成员 *)
-Definition Inclass := λ x (C : Class), C x.
-Notation "x ⋵ C" := (Inclass x C) (at level 70) : Class_scope.
-Hint Unfold Inclass : core.
+Definition InClass := λ x (C : Class), C x.
+Notation "x ⋵ C" := (InClass x C) (at level 70) : Class_scope.
+Hint Unfold InClass : core.
 
 Definition all_in_class `(A : Class, P : set → Prop) : set → Prop :=
   λ x, x ⋵ A → P x.

@@ -286,8 +286,8 @@ Proof.
   auto; apply int_0_not_neg; auto.
 Qed.
 
-Import WOStruct.
-Import WOStruct.EpsilonImage.
+Import WoStruct.
+Import WoStruct.EpsilonImage.
 
 Definition ℤWoS := constr ℤ IntLtWo intLtWo_woset.
 Definition E := E ℤWoS.
@@ -515,8 +515,8 @@ Qed.
 
 End EX7_14.
 
-Import WOStruct.
-Import WOStruct.EpsilonImage.
+Import WoStruct.
+Import WoStruct.EpsilonImage.
 
 (* ex7_15_a 良序结构不与自身的任意前节同构 *)
 Lemma wo_not_iso_seg : ∀ S, ∀t ∈ A S, S ≇ Seg t S.

@@ -196,8 +196,8 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
   - There exist fixed-point of fixed-point
 
 ## EST8_3 (TODO).v
-- Isomorphism types
 - Order types
+- Arithmetic of order types
 
 ## EX{n}.v
 - Solution to exercises of Chapter n

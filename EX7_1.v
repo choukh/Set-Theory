@@ -371,7 +371,7 @@ Proof with eauto.
   exists h... apply nat_finite...
 Qed.
 
-Import WOStruct.
+Import WoStruct.
 
 (* 有限集的序数等于基数 *)
 Lemma finite_ord_eq_card : ∀ S, finite (A S) → ord S = |A S|.
@@ -433,8 +433,8 @@ Proof with auto; try congruence.
   intros * Hlos Hlot Heqa Hfin.
   apply finite_loset_is_woset in Hlos as Hwos...
   apply finite_loset_is_woset in Hlot as Hwot...
-  set (WOStruct.constr (A S) (R S) Hwos) as U.
-  set (WOStruct.constr (A T) (R T) Hwot) as V.
+  set (WoStruct.constr (A S) (R S) Hwos) as U.
+  set (WoStruct.constr (A T) (R T) Hwot) as V.
   cut (U ≅ V)%wo...
   apply well_order_on_same_finite_set_isomorphic...
 Qed.

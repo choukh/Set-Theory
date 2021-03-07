@@ -7,9 +7,9 @@ Require Import ZFC.lib.FuncFacts.
 (*** EST第七章4：序数的定义，序数的序，布拉利-福尔蒂悖论，
   后继序数，极限序数，序数上的超限归纳模式 ***)
 
-Import WOStruct.
+Import WoStruct.
 Section EpsilonImageWellDefined.
-Import WOStruct.EpsilonImage.
+Import WoStruct.EpsilonImage.
 
 Local Lemma eq_α : ∀ f S T, f:ₒₑ S ⟺ T →
   (∀x ∈ A S, (E S)[x] = (E T)[f[x]]) → α S = α T.
@@ -43,13 +43,13 @@ Proof with eauto; try congruence.
   }
   intros [f [Hf Hoe]].
   eapply eq_α. split... intros x Hx.
-  set {x ∊ WOStruct.A S | λ x, (E S)[x] = (E T)[f[x]]} as B.
-  replace (WOStruct.A S) with B in Hx.
+  set {x ∊ WoStruct.A S | λ x, (E S)[x] = (E T)[f[x]]} as B.
+  replace (WoStruct.A S) with B in Hx.
   apply SepE2 in Hx... clear x Hx.
   eapply transfinite_induction...
   split. intros t Ht. apply SepE1 in Ht...
   intros t Ht Hsub. apply SepI...
-  assert (Hft: f[t] ∈ WOStruct.A T). {
+  assert (Hft: f[t] ∈ WoStruct.A T). {
     eapply ap_ran... apply bijection_is_func...
   }
   rewrite e_ap, e_ap...
@@ -57,7 +57,7 @@ Proof with eauto; try congruence.
   - apply ReplAx in Hx as [s [Hs Heq]]. subst x.
     apply ReplAx. exists (f[s]). split.
     + apply SepE in Hs as [Hs Hlt].
-      eapply dom_binRel in Hs; [|apply (WOStruct.wo S)].
+      eapply dom_binRel in Hs; [|apply (WoStruct.wo S)].
       apply segI. apply Hoe...
     + apply Hsub in Hs. apply SepE2 in Hs...
   - apply inv_bijection in Hf as Hf'.
@@ -65,7 +65,7 @@ Proof with eauto; try congruence.
     apply bijection_is_func in Hf' as [Hf' _].
     apply ReplAx in Hx as [s [Hs Heq]]. subst x.
     apply SepE in Hs as [Hs Hlt].
-    eapply dom_binRel in Hs; [|apply (WOStruct.wo T)].
+    eapply dom_binRel in Hs; [|apply (WoStruct.wo T)].
     assert (Hsr: s ∈ ran f) by (rewrite Hr; apply Hs).
     apply ReplAx. exists (f⁻¹[s]). split.
     + apply segI. apply Hoe...
@@ -73,7 +73,7 @@ Proof with eauto; try congruence.
       * rewrite inv_ran_reduction... 
     + rewrite <- (inv_ran_reduction f) in Hlt...
       apply Hoe in Hlt; [|eapply ap_ran|]...
-      assert (f⁻¹[s] ∈ seg t (WOStruct.R S)). {
+      assert (f⁻¹[s] ∈ seg t (WoStruct.R S)). {
         apply SepI... eapply domI...
       }
       apply Hsub in H. apply SepE2 in H.
@@ -83,7 +83,7 @@ Qed.
 End EpsilonImageWellDefined.
 
 Section OrdDef.
-Import WOStruct.EpsilonImage.
+Import WoStruct.EpsilonImage.
 
 (* 序数 *)
 Definition ord := λ S, α S.
@@ -431,7 +431,7 @@ Qed.
 (* ω是序数 *)
 Fact ω_is_ord : is_ord ω.
 Proof.
-  set (WOStruct.constr ω Lt Lt_wellOrder) as S.
+  set (WoStruct.constr ω Lt Lt_wellOrder) as S.
   exists S. symmetry. apply α_ω.
 Qed.
 Hint Resolve ω_is_ord : core.

@@ -64,7 +64,7 @@ Proof with nauto.
   set {n ∊ ω | λ n, ∀ N, N ⊆ ω → n ∈ N → (∀ k ∈ N, k ⊆ n) → finite N} as M.
   ω_induction M Hnw; intros N Hsub Hn Hmax.
   - exists 1. split... cut (N = ⎨∅⎬). {
-      intros H. rewrite H. apply eqnum_single_one.
+      intros H. rewrite H. apply eqnum_single.
     }
     apply ExtAx. split; intros Hx.
     + apply Hmax in Hx. apply sub_empty in Hx. subst x...

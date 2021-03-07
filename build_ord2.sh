@@ -2,6 +2,8 @@
 
 echo "building Class"
 coqc -R . ZFC lib/Class.v
+echo "building LoStruct"
+coqc -R . ZFC lib/LoStruct.v
 echo "building EST8_1"
 coqc -R . ZFC EST8_1.v
 echo "building EST8_2"

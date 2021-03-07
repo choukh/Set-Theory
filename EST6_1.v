@@ -33,16 +33,77 @@ Proof.
   intros. now subst A.
 Qed.
 
-(* 单集与壹等势 *)
-Lemma eqnum_single_one : ∀ a, ⎨a⎬ ≈ 1.
+(* 单集与1等势 *)
+Lemma eqnum_single : ∀ a, ⎨a⎬ ≈ 1.
 Proof with auto.
   intros. set (Func ⎨a⎬ 1 (λ _, 0)) as F.
   exists F. apply meta_bijective.
   - intros _ _. apply suc_has_n.
-  - intros x1 Hx1 x2 Hx2 Heq.
-    apply SingE in Hx1. apply SingE in Hx2. subst...
+  - intros x1 H1 x2 H2 Heq.
+    apply SingE in H1. apply SingE in H2. subst...
   - intros y Hy. rewrite one in Hy. apply SingE in Hy.
     exists a. split...
+Qed.
+
+(* 真配对与2等势 *)
+Lemma eqnum_pair : ∀ a b, a ≠ b → {a, b} ≈ 2.
+Proof with eauto; try congruence.
+  intros a b Hnq.
+  set (Func {a, b} 2 (λ x, match (ixm (x = a)) with
+    | inl _ => 0
+    | inr _ => 1
+  end)) as F.
+  exists F. apply meta_bijective.
+  - intros x Hx. destruct (ixm (x = a))...
+    apply BUnionI1... apply BUnionI2...
+  - intros x1 H1 x2 H2 Heq.
+    apply PairE in H1 as []; apply PairE in H2 as []...
+    + destruct (ixm (x1 = a))... destruct (ixm (x2 = a))...
+      exfalso. eapply suc_neq_0...
+    + destruct (ixm (x1 = a))... destruct (ixm (x2 = a))...
+      exfalso. eapply suc_neq_0...
+  - intros y Hy. rewrite two in Hy. apply TwoE in Hy as [].
+    + exists a. split. apply PairI1. destruct (ixm (a = a))...
+    + exists b. split. apply PairI2. destruct (ixm (b = a))... rewrite one...
+Qed.
+
+(* 集合与1等势当且仅当它是单集 *)
+Lemma eqnum_one_iff : ∀ A, A ≈ 1 ↔ ∃ a, A = ⎨a⎬.
+Proof with auto.
+  split.
+  - intros Hqn. symmetry in Hqn.
+    destruct Hqn as [f [[Hf _] [Hd Hr]]].
+    subst A. exists (f[∅]).
+    apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply domI in Hp as Hx. rewrite Hd in Hx.
+      rewrite one in Hx. apply SingE in Hx. subst x.
+      apply func_ap in Hp... subst y...
+    + apply SingE in Hy. subst y. eapply ap_ran.
+      split... rewrite Hd. apply BUnionI2...
+  - intros [a Heq]. subst A. apply eqnum_single.
+Qed.
+
+(* 集合与2等势当且仅当它是真配对 *)
+Lemma eqnum_two_iff : ∀ A, A ≈ 2 ↔ ∃ a b, a ≠ b ∧ A = {a, b}.
+Proof with eauto.
+  split.
+  - intros Hqn. symmetry in Hqn.
+    destruct Hqn as [f [Hinj [Hd Hr]]].
+    assert (H := Hinj). destruct H as [Hf _].
+    subst A. exists (f[∅]), (f[1]). split.
+    + intros Heq. apply injectiveE in Heq... eapply suc_neq_0...
+      rewrite Hd. apply BUnionI1...
+      rewrite Hd. apply BUnionI2...
+    + apply ExtAx. intros y. split; intros Hy.
+      * apply ranE in Hy as [x Hp].
+        apply domI in Hp as Hx. rewrite Hd in Hx.
+        rewrite two in Hx. apply TwoE in Hx as []; subst x;
+        apply func_ap in Hp; auto; subst y...
+        apply PairI1. rewrite <- one. apply PairI2.
+      * apply PairE in Hy as []; subst y; eapply ap_ran.
+        split... apply BUnionI1... split... apply BUnionI2...
+  - intros [a [b [Hnq Heq]]]. subst A. apply eqnum_pair...
 Qed.
 
 (* 配对与贰等势 *)
@@ -66,9 +127,9 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 所有的单集等势 *)
-Lemma eqnum_single : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
-Proof. intros. now repeat rewrite eqnum_single_one. Qed.
-Hint Immediate eqnum_single : core.
+Lemma all_single_eqnum : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
+Proof. intros. now repeat rewrite eqnum_single. Qed.
+Hint Immediate all_single_eqnum : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
 Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
@@ -375,7 +436,7 @@ Hint Resolve empty_finite : core.
 
 (* 单集是有限集 *)
 Fact single_finite : ∀ a, finite ⎨a⎬.
-Proof. exists 1. split. nauto. apply eqnum_single_one. Qed.
+Proof. exists 1. split. nauto. apply eqnum_single. Qed.
 Hint Resolve single_finite : core.
 
 (* 配对是有限集 *)
