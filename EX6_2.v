@@ -91,8 +91,7 @@ Qed.
 Example ex6_17_d : Embed 1 <𝐜 Embed 2 ∧ 0 ^ 1 = 0 ^ 2.
 Proof with nauto.
   split. apply fin_cardLt_iff_lt... apply suc_has_n...
-  rewrite cardExp_0_l, cardExp_0_l...
-  apply suc_neq_0. apply suc_neq_0.
+  rewrite cardExp_0_l, cardExp_0_l... apply suc_neq_0.
 Qed.
 
 (* ex6_18: see lib/Choice Theorem AC_III_iff_III' *)

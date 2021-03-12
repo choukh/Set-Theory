@@ -250,6 +250,13 @@ Proof with eauto.
     exfalso. eapply nat_irrefl; revgoals. apply H2. apply add_ran...
 Qed.
 
+Corollary add_preserve_lt' : ∀ m n p ∈ ω, m ∈ n ↔ p + m ∈ p + n.
+Proof with auto.
+  intros m Hm n Hn p Hp.
+  rewrite add_comm, (add_comm p)...
+  apply add_preserve_lt...
+Qed.
+
 Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ 0 →
   m ∈ n ↔ m ⋅ p ∈ n ⋅ p.
 Proof with eauto.
@@ -280,6 +287,14 @@ Proof with eauto.
       eapply nat_trans... apply mul_ran...
     }
     exfalso. eapply nat_irrefl; revgoals. apply H2. apply mul_ran...
+Qed.
+
+Corollary mul_preserve_lt' : ∀ m n p ∈ ω, p ≠ 0 →
+  m ∈ n ↔ p ⋅ m ∈ p ⋅ n.
+Proof with auto.
+  intros m Hm n Hn p Hp.
+  rewrite mul_comm, (mul_comm p)...
+  apply mul_preserve_lt...
 Qed.
 
 Corollary add_preserve_lt_tran : ∀ m n p q ∈ ω,

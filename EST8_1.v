@@ -446,6 +446,8 @@ Lemma infcard_is_sub : infcard ⫃ 𝐎𝐍.
 Proof. exact infcard_is_ord. Qed.
 Local Hint Resolve infcard_is_sub : core.
 
+Open Scope Card_scope.
+
 Lemma infcard_unbounded : unbounded infcard.
 Proof with eauto.
   intros α Hoα.

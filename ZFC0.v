@@ -94,8 +94,12 @@ Parameter set : Type.
     我们用 x ∈ y 表示 "x是y的成员"，用 x ∉ y 表示 "x不是y的成员"。 *)
 Parameter In : set → set → Prop.
 
-Notation "x ∈ y" := ( In x y) (at level 70).
-Notation "x ∉ y" := (¬In x y) (at level 70).
+Declare Scope ZFC_scope.
+Open Scope ZFC_scope.
+Delimit Scope ZFC_scope with zfc.
+
+Notation "x ∈ y" := ( In x y) (at level 70) : ZFC_scope.
+Notation "x ∉ y" := (¬In x y) (at level 70) : ZFC_scope.
 
 (* 集合论中配合量词的惯例写法 *)
 
@@ -104,14 +108,14 @@ Definition all_in `(A : set, P : set → Prop) : set → Prop :=
 
 Notation "∀ x .. y ∈ A , P" :=
   ( all ( all_in A ( λ x, .. ( all ( all_in A ( λ y, P ))) .. )))
-  (at level 200, x binder, y binder, right associativity).
+  (at level 200, x binder, y binder, right associativity) : ZFC_scope.
 
 Definition ex_in `(A : set, P : set → Prop) : set → Prop :=
   λ x, x ∈ A ∧ P x.
 
 Notation "∃ x .. y ∈ A , P" :=
   ( ex ( ex_in A ( λ x, .. ( ex ( ex_in A ( λ y, P ))) .. )))
-  (at level 200, x binder, y binder, right associativity).
+  (at level 200, x binder, y binder, right associativity) : ZFC_scope.
 
 (* 关于集合的经典逻辑引理 *)
 
@@ -137,8 +141,8 @@ Qed.
 Definition Sub : set → set → Prop :=
   λ A B, ∀x ∈ A, x ∈ B.
   
-Notation "A ⊆ B" := ( Sub A B) (at level 70).
-Notation "A ⊈ B" := (¬Sub A B) (at level 70).
+Notation "A ⊆ B" := ( Sub A B) (at level 70) : ZFC_scope.
+Notation "A ⊈ B" := (¬Sub A B) (at level 70) : ZFC_scope.
 
 (* 子集关系是自反的 *)
 Lemma sub_refl : ∀ A, A ⊆ A.
@@ -175,14 +179,14 @@ Qed.
 (* 空集公理保证了集合类型是居留的，即存在最底层的集合，
   任何其他集合都不是它的成员，这样的集合就是空集。 *)
 Parameter Empty : set.
-Notation "∅" := Empty.
+Notation "∅" := Empty : ZFC_scope.
 Axiom EmptyAx : ∀ x, x ∉ ∅.
 
 Ltac exfalso0 := exfalso; eapply EmptyAx; eassumption.
 
 (* 集合的非空性 (类似于类型的居留性) *)
 Definition nonempty : set → Prop := λ A, ∃ x, x ∈ A.
-Notation "⦿ x" := (nonempty x) (at level 45).
+Notation "⦿ x" := (nonempty x) (at level 45) : ZFC_scope.
 
 (* 空集非居留 *)
 Fact empty_is_not_inhabited : ¬ ⦿ ∅.
@@ -260,7 +264,7 @@ Qed.
 (**=== 公理3: 并集公理 ===**)
 (* 给定集合X，存在X的并集⋃X，它的成员都是X的某个成员的成员 *)
 Parameter Union : set → set.
-Notation "⋃ A" := (Union A) (at level 9, right associativity).
+Notation "⋃ A" := (Union A) (at level 9, right associativity) : ZFC_scope.
 Axiom UnionAx : ∀ a A, a ∈ ⋃ A ↔ ∃x ∈ A, a ∈ x.
 
 Lemma UnionI : ∀ A, ∀x ∈ A, ∀a ∈ x, a ∈ ⋃ A.
@@ -280,7 +284,7 @@ Qed.
 (**=== 公理4: 幂集公理 ===**)
 (* 存在幂集，它是给定集合的所有子集组成的集合 *)
 Parameter Power : set → set.
-Notation "'𝒫' A" := (Power A) (at level 9, right associativity).
+Notation "'𝒫' A" := (Power A) (at level 9, right associativity) : ZFC_scope.
 Axiom PowerAx : ∀ A Y, Y ∈ 𝒫 A ↔ Y ⊆ A.
 
 (* 空集是任意集合的幂集的成员 *)
@@ -318,7 +322,7 @@ Axiom ϕ_ReplAx : ∀ (P : set → set → Prop) A,
 
 Definition Repl : (set → set) → set → set := λ F A,
   ϕ_Repl (λ x y, F x = y) A.
-Notation "{ F | x ∊ A }" := (Repl (λ x, F x) A).
+Notation "{ F | x ∊ A }" := (Repl (λ x, F x) A) : ZFC_scope.
 
 Theorem ReplAx : ∀ y F A, y ∈ {F | x ∊ A} ↔ ∃x ∈ A, F x = y.
 Proof with auto.

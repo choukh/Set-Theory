@@ -16,6 +16,16 @@ Record LoStruct : Type := constr {
 }.
 Hint Immediate lo : core.
 
+Lemma empty_loset : loset ∅ ∅.
+Proof with auto.
+  repeat split.
+  - intros x H. exfalso0.
+  - intros x y z H. exfalso0.
+  - intros x H. exfalso0.
+Qed.
+
+Definition EmptyStruct := constr ∅ ∅ empty_loset.
+
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.
   intros S T HA HR. destruct S. destruct T.

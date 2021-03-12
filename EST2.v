@@ -113,7 +113,7 @@ Proof with auto.
 Qed.
 
 (** 真子集 **)
-Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70).
+Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70) : ZFC_scope.
 
 Lemma properSub_intro : ∀ A B, B ⊆ A → (∃ a, a ∈ A ∧ a ∉ B) → B ⊂ A.
 Proof with auto.

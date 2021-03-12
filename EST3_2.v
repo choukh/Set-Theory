@@ -8,22 +8,22 @@ Require Export ZFC.EST3_1.
 (* 映射 *)
 Definition maps_into : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F ⊆ B.
-Notation "F : A ⇒ B" := (maps_into F A B) (at level 60).
+Notation "F : A ⇒ B" := (maps_into F A B) (at level 60) : ZFC_scope.
 
 (* 单射 *) (* injection / one-to-one function *)
 Definition maps_one_to_one : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F ⊆ B.
-Notation "F : A ⇔ B" := (maps_one_to_one F A B) (at level 60).
+Notation "F : A ⇔ B" := (maps_one_to_one F A B) (at level 60) : ZFC_scope.
 
 (* 满射 *) (* surjection *)
 Definition maps_onto : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F = B.
-Notation "F : A ⟹ B" := (maps_onto F A B) (at level 60).
+Notation "F : A ⟹ B" := (maps_onto F A B) (at level 60) : ZFC_scope.
 
 (* 双射 *) (* one-to-one correspondence *)
 Definition bijection : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F = B.
-Notation "F : A ⟺ B" := (bijection F A B) (at level 60).
+Notation "F : A ⟺ B" := (bijection F A B) (at level 60) : ZFC_scope.
 
 (* 单射是一对一的映射 *)
 Lemma injection_is_func : ∀ F A B,
@@ -288,7 +288,7 @@ Qed.
 (** 限制 **)
 Definition Restriction : set → set → set :=
   λ F A, {p ∊ F | λ p, is_pair p ∧ π1 p ∈ A}.
-Notation "F ↾ A" := (Restriction F A) (at level 60).
+Notation "F ↾ A" := (Restriction F A) (at level 60) : ZFC_scope.
 
 Lemma restrI : ∀ F A a b, a ∈ A → <a, b> ∈ F → <a, b> ∈ F ↾ A.
 Proof with auto.
@@ -379,7 +379,7 @@ Qed.
 (** 像 **)
 Definition Image : set → set → set :=
   λ F A, ran (F ↾ A).
-Notation "F ⟦ A ⟧" := (Image F A) (at level 30).
+Notation "F ⟦ A ⟧" := (Image F A) (at level 30, format "F ⟦ A ⟧") : ZFC_scope.
 
 Lemma imgI : ∀ F A x y, x ∈ A → <x, y> ∈ F → y ∈ F⟦A⟧.
 Proof with eauto.
@@ -516,7 +516,7 @@ Qed.
 (** 函数空间 **)
 Definition Arrow : set → set → set := λ A B,
   {F ∊ 𝒫(A × B) | λ F, F: A ⇒ B}.
-Notation "A ⟶ B" := (Arrow A B) (at level 60).
+Notation "A ⟶ B" := (Arrow A B) (at level 60) : ZFC_scope.
 
 Theorem arrowI : ∀ F A B, F: A ⇒ B → F ∈ A ⟶ B.
 Proof with auto; try congruence.

@@ -2,7 +2,7 @@
 
 Require Import ZFC.EST7_6.
 Require Import ZFC.EX7_3.
-Require Import ZFC.EST8_3.
+Require Import ZFC.EST8_4.
 
 Section EX8_1_and_2.
 Import 𝐎𝐍Operation.
@@ -206,7 +206,7 @@ Proof with neauto; try congruence.
   assert (Hnqn: 1 ≉ 2). {
     intros Hqn. apply CardAx1 in Hqn.
     rewrite <- card_of_nat, <- card_of_nat in Hqn...
-    apply one_neq_two...
+    apply contra_1_2...
   }
   apply ExtAx. split; intros Hx.
   - apply kard_elim in Hx as [Hqn Hle].
@@ -243,3 +243,5 @@ Qed.
 (* kard 3 = {3, {0, 1, {1}}, {0, {1}, 2}, {1, {1}, 2}} *)
 
 End EX8_10.
+
+(* ex8_11 see EST8_3 Lemma ot_disjointifiable *)

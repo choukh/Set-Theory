@@ -12,7 +12,7 @@ Definition Sep : set → (set → Prop) → set := λ A P,
     | inl _ => ⎨x⎬
     | inr _ => ∅
   end) in ⋃{F | x ∊ A}.
-Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)).
+Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)) : ZFC_scope.
 
 (* 从替代公理和空集公理导出Zermelo分类公理 *)
 Theorem sep_correct : ∀ A P x, x ∈ {x ∊ A | P} ↔ x ∈ A ∧ P x.
@@ -88,7 +88,7 @@ Qed.
 (** 任意交 **)
 Definition Inter : set -> set :=
   λ Y, {x ∊ ⋃Y | (λ x, ∀y ∈ Y, x ∈ y)}.
-Notation "⋂ X" := (Inter X) (at level 9, right associativity).
+Notation "⋂ X" := (Inter X) (at level 9, right associativity) : ZFC_scope.
 
 Lemma InterI : ∀ x Y, ⦿ Y → (∀y ∈ Y, x ∈ y) → x ∈ ⋂Y.
 Proof.
@@ -112,7 +112,7 @@ Qed.
 
 (** 二元交 **)
 Definition BInter : set → set → set := λ X Y, ⋂{X, Y}.
-Notation "X ∩ Y" := (BInter X Y) (at level 49).
+Notation "X ∩ Y" := (BInter X Y) (at level 49) : ZFC_scope.
 
 Lemma BInterI : ∀ x X Y, x ∈ X → x ∈ Y → x ∈ X ∩ Y.
 Proof.
@@ -176,8 +176,8 @@ Qed.
 
 (** 有序对 **)
 Definition OPair : set → set → set := λ x y, {⎨x⎬, {x, y}}.
-Notation "< x , y , .. , z >" :=
-  ( OPair .. ( OPair x y ) .. z ) (z at level 69).
+Notation "< x , y , .. , z >" := ( OPair .. ( OPair x y ) .. z )
+  (z at level 69, format "< x ,  y ,  .. ,  z >") : ZFC_scope.
 
 Definition π1 : set → set := λ p, ⋃ ⋂ p.
 Definition π2 : set → set := λ p,
@@ -289,7 +289,7 @@ Qed.
 (** 笛卡儿积 **)
 Definition CProd : set → set → set := λ A B,
   {p ∊ 𝒫 𝒫 (A ∪ B) | λ p, ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
-Notation "A × B" := (CProd A B) (at level 40).
+Notation "A × B" := (CProd A B) (at level 40) : ZFC_scope.
 
 Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
 Proof with auto.

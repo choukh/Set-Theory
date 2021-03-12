@@ -215,7 +215,7 @@ Definition pre_ap : set → set → set := λ F x,
   {p ∊ F | λ p, is_pair p ∧ π1 p = x}.
 (* ap F x := {y | <x, y> ∈ F} *)
 Definition ap : set → set → set := λ F x, π2 ⋃ (pre_ap F x).
-Notation "F [ x ]" := (ap F x) (at level 9).
+Notation "F [ x ]" := (ap F x) (at level 9, format "F [ x ]") : ZFC_scope.
 
 Lemma pre_ap_single : ∀ F,
   is_function F → ∀x ∈ dom F, ∃! p, p ∈ pre_ap F x.
@@ -382,7 +382,7 @@ Qed.
 (** 逆 **)
 Definition Inverse : set → set := λ F,
   {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
-Notation "F ⁻¹" := (Inverse F) (at level 9).
+Notation "F ⁻¹" := (Inverse F) (at level 9, format "F ⁻¹") : ZFC_scope.
 
 Lemma inv_rel : ∀ R, is_rel R⁻¹.
 Proof.
@@ -513,7 +513,7 @@ Qed.
 Definition Composition : set → set → set := λ F G,
   {p ∊ (dom G × ran F) | λ p, is_pair p ∧
     ∃ y, <π1 p, y> ∈ G ∧ <y, π2 p> ∈ F}.
-Notation "F ∘ G" := (Composition F G) (at level 60).
+Notation "F ∘ G" := (Composition F G) (at level 60) : ZFC_scope.
 
 Lemma compoI : ∀ F G x y t,
   <x, t> ∈ G → <t, y> ∈ F → <x, y> ∈ (F ∘ G).

@@ -18,14 +18,14 @@ Definition all_in_class `(A : Class, P : set → Prop) : set → Prop :=
 
 Notation "∀ x .. y ⋵ A , P" :=
   ( all ( all_in_class A ( λ x, .. ( all ( all_in_class A ( λ y, P ))) .. )))
-  (at level 200, x binder, y binder, right associativity).
+  (at level 200, x binder, y binder, right associativity) : Class_scope.
 
 Definition ex_in_class `(A : Class, P : set → Prop) : set → Prop :=
   λ x, x ⋵ A ∧ P x.
 
 Notation "∃ x .. y ⋵ A , P" :=
   ( ex ( ex_in_class A ( λ x, .. ( ex ( ex_in_class A ( λ y, P ))) .. )))
-  (at level 200, x binder, y binder, right associativity).
+  (at level 200, x binder, y binder, right associativity) : Class_scope.
 
 (* 能成为集合的类 *)
 Definition is_set := λ C, ∃ A, ∀ x, x ∈ A ↔ x ⋵ C.

@@ -27,7 +27,7 @@ Definition PairRepl : set → set → set → set := λ a b x,
 (** 配对 **)
 Definition Pair : set → set → set := λ x y,
   {PairRepl x y | w ∊ Doubleton}.
-Notation "{ x , y }" := (Pair x y).
+Notation "{ x , y }" := (Pair x y) : ZFC_scope.
 
 Lemma PairI1 : ∀ x y, x ∈ {x, y}.
 Proof.
@@ -72,7 +72,7 @@ Qed.
 
 (** 单集 **)
 Definition Singleton : set → set := λ x, {x, x}.
-Notation "⎨ x ⎬" := (Singleton x).
+Notation "⎨ x ⎬" := (Singleton x) (format "⎨ x ⎬") : ZFC_scope.
 
 Lemma SingI : ∀ x, x ∈ ⎨x⎬.
 Proof. unfold Singleton. intros. apply PairI1. Qed.
@@ -300,7 +300,7 @@ Proof. exact (power_single ∅). Qed.
 
 (** 二元并 **)
 Definition BUnion : set → set → set := λ X Y, ⋃{X, Y}.
-Notation "X ∪ Y" := (BUnion X Y) (at level 50).
+Notation "X ∪ Y" := (BUnion X Y) (at level 50) : ZFC_scope.
 
 Lemma BUnionI1 : ∀ w X Y, w∈X → w ∈ X∪Y.
 Proof.

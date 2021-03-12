@@ -6,10 +6,6 @@ Require Export ZFC.ZFC2.
 
 (*** ZFC集合论3：无穷公理，选择公理，正则公理 ***)
 
-Declare Scope ZFC_scope.
-Open Scope ZFC_scope.
-Delimit Scope ZFC_scope with zfc.
-
 (* 后续运算 *)
 Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
 Notation "a ⁺" := (Suc a) (at level 8) : ZFC_scope.

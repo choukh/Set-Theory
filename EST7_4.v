@@ -444,6 +444,10 @@ Proof. apply ord_is_ords. apply ω_is_ord. Qed.
 Fact nat_is_ord : ∀n ∈ ω, is_ord n.
 Proof. intros n Hn. apply ω_is_ords. apply Hn. Qed.
 
+Fact embed_is_ord : ∀ n : nat, is_ord n.
+Proof. intros. apply nat_is_ord. apply embed_ran. Qed.
+Hint Immediate embed_is_ord : number_hint.
+
 (* 有限序数的上确界是ω *)
 Fact sup_of_ω_is_ω : is_sup ω ω.
 Proof.

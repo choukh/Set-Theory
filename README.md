@@ -195,9 +195,13 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
   - Enumeration of fixed-point is normal operation
   - There exist fixed-point of fixed-point
 
-## EST8_3 (TODO).v
+## EST8_3.v
 - Order types
-- Arithmetic of order types
+- Addition of order types
+
+## EST8_4.v (TODO)
+- Multiplication of order types
+- Laws of order type arithmetic
 
 ## EX{n}.v
 - Solution to exercises of Chapter n

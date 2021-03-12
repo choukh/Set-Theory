@@ -242,7 +242,7 @@ Qed.
 End AlternativeProofWithAC.
 
 (* 戴德金无穷：与自身的真子集等势的集合 *)
-Definition dedekind_infinite : set → Prop := λ A, ∃ B, B ⊂ A ∧ A ≈ B.
+Definition dedekind_infinite := λ A, ∃ B, B ⊂ A ∧ A ≈ B.
 
 (* ==需要选择公理== *)
 (* 集合是无限集当且仅当它与自身的真子集等势 *)
@@ -324,7 +324,7 @@ Notation "∏ᵢ" := (CardInfProd ω) : Card_scope.
 (* 函数不交化：给定任意函数和单集，可以构造一个新的函数，使得
   (1) 新函数的定义域是原函数的定义域与给定单集的笛卡尔积 且
   (2) 新函数的值域是原函数的值域与给定单集的笛卡尔积 *)
-Definition FuncDisjointify : set → set → set := λ i F,
+Definition FuncDisjointify := λ i F,
   Func (dom F × ⎨i⎬) (ran F × ⎨i⎬) (λ x, <F[π1 x], i>).
 
 Lemma bijection_disjointify : ∀ F i, injective F →
