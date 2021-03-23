@@ -5,12 +5,12 @@ Require Export ZFC.EX4.
 (* 0不等于1 *)
 Lemma contra_0_1 : Embed 0 ≠ 1.
 Proof. intros H. eapply suc_neq_0. eauto. Qed.
-Hint Immediate contra_0_1 : core.
+Global Hint Immediate contra_0_1 : core.
 
 (* 1不等于0 *)
 Lemma contra_1_0 : Embed 1 ≠ 0.
 Proof. apply suc_neq_0. Qed.
-Hint Immediate contra_1_0 : core.
+Global Hint Immediate contra_1_0 : core.
 
 (* 1不等于2 *)
 Lemma contra_1_2 : Embed 1 ≠ Embed 2.

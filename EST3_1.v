@@ -58,11 +58,11 @@ Fact ident_eq_rel : ∀ A,
 Proof with auto.
   intros. apply ExtAx. split; intros.
   - apply ReplAx in H as [a [Ha Heq]]. subst x.
-    apply SepI. apply CProdI... zfcrewrite.
+    apply SepI. apply CProdI... zfc_simple.
   - apply SepE in H as [Hx Heq].
     apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
     apply ReplAx. exists a. split...
-    rewrite Hp. rewrite Hp in Heq. zfcrewrite.
+    rewrite Hp. rewrite Hp in Heq. zfc_simple.
 Qed.
 
 Fact ident_empty : Ident ∅ = ∅.
@@ -110,7 +110,7 @@ Proof.
   intros * x Hx.
   apply domE in Hx as [y Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE2 in Hp as [Hx _]. zfcrewrite.
+  apply CProdE2 in Hp as [Hx _]. zfc_simple.
 Qed.
 
 Lemma ran_rel : ∀ A B P, ran (Rel A B P) ⊆ B.
@@ -118,7 +118,7 @@ Proof.
   intros * y Hy.
   apply ranE in Hy as [x Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE2 in Hp as [_ Hy]. zfcrewrite.
+  apply CProdE2 in Hp as [_ Hy]. zfc_simple.
 Qed.
 
 Lemma dom_ident : ∀ X, dom (Ident X) = X.
@@ -185,7 +185,7 @@ Proof with auto.
   - apply rel_is_rel. - apply domE in H...
   - intros y1 y2 H1 H2.
     apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfcrewrite.
+    apply SepE in H2 as [_ H2]. zfc_simple.
 Qed.
 
 Lemma ident_is_func : ∀ A, is_function (Ident A).
@@ -202,11 +202,11 @@ Fact ident_eq_func : ∀ A, Ident A = Func A A (λ x, x).
 Proof with auto.
 intros. apply ExtAx. split; intros.
 - apply ReplAx in H as [a [Ha Heq]]. subst x.
-  apply SepI. apply CProdI... zfcrewrite.
+  apply SepI. apply CProdI... zfc_simple.
 - apply SepE in H as [Hx Heq].
   apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
   apply ReplAx. exists a. split...
-  rewrite Hp. rewrite Hp in Heq. zfcrewrite.
+  rewrite Hp. rewrite Hp in Heq. zfc_simple.
 Qed.
 
 (* 函数应用 *)
@@ -388,7 +388,7 @@ Lemma inv_rel : ∀ R, is_rel R⁻¹.
 Proof.
   intros R x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
 Qed.
-Hint Immediate inv_rel : core.
+Global Hint Immediate inv_rel : core.
 
 Lemma inv_dom_ran : ∀ F a b, <a, b> ∈ F → <b, a> ∈ ran F × dom F.
 Proof.
@@ -410,7 +410,7 @@ Qed.
 Lemma inv_ident : ∀ A, (Ident A)⁻¹ = Ident A.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
-  - apply SepE in Hx as [_ [[a [b H]] Hx]]. subst x. zfcrewrite.
+  - apply SepE in Hx as [_ [[a [b H]] Hx]]. subst x. zfc_simple.
     apply identE in Hx as [Hb H]. subst. apply identI...
   - apply ReplAx in Hx as [a [Ha Hx]]. subst x.
     rewrite <- inv_op. apply identI...

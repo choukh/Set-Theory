@@ -603,7 +603,7 @@ Proof with eauto.
         apply CProdE2 in Hp as [Hi _]...
       - apply Hxi in Hi as Hx. destruct Hx.
         eapply domI. apply SepI. apply CProdI...
-        eapply FUnionI... zfcrewrite.
+        eapply FUnionI... zfc_simple.
     }
     exists F. apply InfCProdI.
     + split... split... intros y Hy.
@@ -612,7 +612,7 @@ Proof with eauto.
       apply CProdE2 in Hp as [_ Hy]...
     + intros i Hi. rewrite <- Hdeq2 in Hi.
       apply func_correct in Hi... apply Hsub in Hi.
-      apply SepE in Hi as [_ Hy]. zfcrewrite.
+      apply SepE in Hi as [_ Hy]. zfc_simple.
   - intros AC2 R Hr.
     set (dom R) as I.
     set (λ i, {y ∊ ran R | λ y, <i, y> ∈ R}) as ℱ.
@@ -622,7 +622,7 @@ Proof with eauto.
       intros i. split. apply domE in H...
       intros Y Y' HY HY'.
       apply SepE in HY as [_ Hp].
-      apply SepE in HY' as [_ Hp']. zfcrewrite.
+      apply SepE in HY' as [_ Hp']. zfc_simple.
     }
     assert (HXd: dom X = I). {
       apply ExtAx. intros i. split; intros Hi.
@@ -630,11 +630,11 @@ Proof with eauto.
         apply CProdE2 in Hp as [Hi _]...
       - eapply domI. apply SepI. apply CProdI...
         rewrite PowerAx. cut (ℱ i ⊆ ran R)...
-        intros x Hx. apply SepE1 in Hx... zfcrewrite.
+        intros x Hx. apply SepE1 in Hx... zfc_simple.
     }
     assert (Hℱeq: ∀i ∈ I, X[i] = ℱ i). {
       intros i Hi. rewrite <- HXd in Hi. apply func_correct in Hi...
-      apply SepE in Hi as [_ Heq]. zfcrewrite.
+      apply SepE in Hi as [_ Heq]. zfc_simple.
     }
     assert (HXP: ∀i ∈ I, ∀y ∈ X[i], <i, y> ∈ R). {
       intros i Hi y Hy. apply Hℱeq in Hi. rewrite Hi in Hy.

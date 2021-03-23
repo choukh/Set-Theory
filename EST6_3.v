@@ -458,11 +458,11 @@ Corollary aleph0_infinite : infinite ℵ₀.
 Proof with auto.
   apply cardGeq_aleph0_infinite... split...
 Qed.
-Hint Resolve aleph0_infinite : core.
+Global Hint Resolve aleph0_infinite : core.
 
 Corollary aleph0_is_infcard : infcard ℵ₀.
 Proof. split; auto. Qed.
-Hint Resolve aleph0_is_infcard : core.
+Global Hint Resolve aleph0_is_infcard : core.
 
 Fact cardAdd_aleph0_aleph0 : ℵ₀ + ℵ₀ = ℵ₀.
 Proof with neauto; try congruence.
@@ -479,10 +479,10 @@ Proof with neauto; try congruence.
   exists f. apply meta_bijective.
   - intros x Hx. apply BUnionE in Hx as [].
     + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
-      subst x. zfcrewrite. apply SingE in Hb.
+      subst x. zfc_simple. apply SingE in Hb.
       destruct (ixm (b = 0))... apply mul_ran...
     + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
-      subst x. zfcrewrite. apply SingE in Hb.
+      subst x. zfc_simple. apply SingE in Hb.
       destruct (ixm (b = 0)).
       * subst b. exfalso. eapply suc_neq_0...
       * apply add_ran... apply mul_ran...
@@ -493,7 +493,7 @@ Proof with neauto; try congruence.
     apply CProdE1 in H1 as [m [Hm [n [Hn H1]]]];
     apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]];
     apply SingE in Hn; apply SingE in Hq;
-    subst x1 x2 n q; zfcrewrite; apply op_iff.
+    subst x1 x2 n q; zfc_simple; apply op_iff.
     + destruct (ixm (Embed 0 = Embed 0))...
       split... apply mul_cancel' in Heq...
     + destruct (ixm (Embed 0 = Embed 0))...
@@ -519,10 +519,10 @@ Proof with neauto; try congruence.
   - intros y Hy. destruct (even_or_odd y Hy).
     + destruct H as [n [Hn Heqy]].
       exists <n, 0>. split. apply BUnionI1. apply CProdI...
-      zfcrewrite. destruct (ixm (Embed 0 = Embed 0))...
+      zfc_simple. destruct (ixm (Embed 0 = Embed 0))...
     + destruct H as [n [Hn Heqy]].
       exists <n, 1>. split. apply BUnionI2. apply CProdI...
-      zfcrewrite. destruct (ixm (Embed 1 = Embed 0))...
+      zfc_simple. destruct (ixm (Embed 1 = Embed 0))...
       exfalso. eapply suc_neq_0...
 Qed.
 

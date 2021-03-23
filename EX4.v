@@ -465,7 +465,7 @@ Proof with eauto; try congruence.
     intros y1 y2 H1 H2.
     apply SepE in H1 as [Hp [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [_  [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
-    apply CProdE2 in Hp as [Hxmn _]; zfcrewrite.
+    apply CProdE2 in Hp as [Hxmn _]; zfc_simple.
     - rewrite H21 in Hxm1. exfalso.
       assert (Hbw: b2 ∈ ω) by (eapply ω_trans; eauto).
       eapply (leq_iff_not_gt m Hm (m + b2))...
@@ -486,7 +486,7 @@ Proof with eauto; try congruence.
     apply SepE in H1 as [Hp1 [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [Hp2 [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
     apply CProdE2 in Hp1 as [Hxmn1 _];
-    apply CProdE2 in Hp2 as [Hxmn2 _]; zfcrewrite.
+    apply CProdE2 in Hp2 as [Hxmn2 _]; zfc_simple.
     + rewrite <- Hfd in Hxm1, Hxm2.
       eapply injectiveE; revgoals... split...
     + exfalso. rewrite <- Hfd in Hxm1. rewrite <- Hgd in Hb2.
@@ -509,7 +509,7 @@ Proof with eauto; try congruence.
     destruct (classic (x ∈ m)) as [Hxm|Hxm].
     + assert (Hxd := Hxm). rewrite <- Hfd in Hxd.
       apply domE in Hxd as [y Hp].
-      eapply domI. apply SepI; zfcrewrite.
+      eapply domI. apply SepI; zfc_simple.
       * apply CProdI... apply BUnionI1.
         rewrite <- Hfr. eapply ranI. apply Hp.
       * left. split... apply func_ap in Hp...
@@ -524,7 +524,7 @@ Proof with eauto; try congruence.
       assert (Hbn: b ∈ n) by congruence.
       rewrite <- Hn'eq, <- Hgd in Hb.
       apply domE in Hb as [c Hp].
-      eapply domI. apply SepI; zfcrewrite.
+      eapply domI. apply SepI; zfc_simple.
       * apply CProdI... apply BUnionI2.
         rewrite <- Hgr. eapply ranI...
       * right. exists b. split... split... apply func_ap in Hp...
@@ -535,14 +535,14 @@ Proof with eauto; try congruence.
     (* ran h ⊇ A ∪ B *)
     assert (Hy' := Hy). apply BUnionE in Hy' as [].
     + rewrite <- Hfr in H. apply ranE in H as [x Hp].
-      eapply ranI. apply SepI; zfcrewrite.
+      eapply ranI. apply SepI; zfc_simple.
       * apply CProdI... apply domI in Hp.
         rewrite Hfd in Hp. apply lt_add_enlarge...
       * left. split. apply domI in Hp... apply func_ap in Hp...
     + rewrite <- Hgr in H. apply ranE in H as [b Hp].
       apply domI in Hp as Hd. rewrite Hgd in Hd.
       assert (Hbw: b ∈ ω) by (eapply ω_trans; eauto).
-      eapply ranI. apply SepI; zfcrewrite.
+      eapply ranI. apply SepI; zfc_simple.
       * apply CProdI... rewrite add_comm...
         apply add_preserve_lt; revgoals...
       * right. exists b. split... split.
@@ -677,7 +677,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
     apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
-    zfcrewrite. rewrite Heq1 in Heq2.
+    zfc_simple. rewrite Heq1 in Heq2.
     assert (Hi1w: i1 ∈ ω) by (eapply ω_trans; eauto).
     assert (Hi2w: i2 ∈ ω) by (eapply ω_trans; eauto).
     assert (Hj1w: j1 ∈ ω) by (eapply ω_trans; eauto).
@@ -700,7 +700,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
     apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
-    zfcrewrite. rewrite Hy1 in Hy2.
+    zfc_simple. rewrite Hy1 in Hy2.
     apply op_iff in Hy2 as [Hequ Heqv].
     assert (Heqfi: f[i1] = f[i2]) by congruence.
     assert (Heqfj: g[j1] = g[j2]) by congruence.
@@ -716,10 +716,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     assert (Hid := Hi). assert (Hjd := Hj).
     rewrite <- Hfd in Hid. apply domE in Hid as [yf Hpf].
     rewrite <- Hgd in Hjd. apply domE in Hjd as [yg Hpg].
-    eapply domI. apply SepI; zfcrewrite.
+    eapply domI. apply SepI; zfc_simple.
     apply CProdI... apply CProdI.
     rewrite <- Hfr. eapply ranI...
-    rewrite <- Hgr. eapply ranI... zfcrewrite.
+    rewrite <- Hgr. eapply ranI... zfc_simple.
     exists i. split... exists j. split...
     apply func_ap in Hpf... apply func_ap in Hpg...
   - apply ExtAx. intros y. split; intros Hy.
@@ -733,7 +733,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     rewrite <- Hgr in Hv. apply ranE in Hv as [j Hpg].
     apply domI in Hpf as Hi. rewrite Hfd in Hi.
     apply domI in Hpg as Hj. rewrite Hgd in Hj.
-    eapply ranI. apply SepI; zfcrewrite.
+    eapply ranI. apply SepI; zfc_simple.
     apply CProdI... apply ex4_37_3...
     exists i. split... exists j. split...
     apply func_ap in Hpf... apply func_ap in Hpg...

@@ -3,6 +3,7 @@
 Require Import ZFC.EST7_6.
 Require Import ZFC.EX7_3.
 Require Import ZFC.EST8_4.
+Require Import ZFC.lib.LoStruct.
 
 Section EX8_1_and_2.
 Import 𝐎𝐍Operation.
@@ -114,7 +115,7 @@ Proof with auto; try congruence.
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]]. subst x.
     apply ordered_struct in Hp.
     apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
-    unfold ReplR. zfcrewrite.
+    unfold ReplR. zfc_simple.
     destruct (ixm (a = a₀)); destruct (ixm (b = a₀));
     apply CProdI; apply ReplAx; unfold ReplA.
     - exists a₀. split... destruct (ixm (a₀ = a₀))...
@@ -140,7 +141,7 @@ Proof with auto; try congruence.
     exists f. split...
     intros x Hx y Hy. split; intros.
     - apply ReplAx. exists <x, y>. split...
-      unfold ReplR. zfcrewrite.
+      unfold ReplR. zfc_simple.
       destruct (ixm (x = a₀)); destruct (ixm (y = a₀));
       apply op_iff; split; unfold f;
       rewrite meta_func_ap; auto; unfold ReplA;
@@ -148,7 +149,7 @@ Proof with auto; try congruence.
     - apply ReplAx in H as [p [Hp Heq]].
       apply ordered_struct in Hp as H.
       apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst p.
-      unfold ReplR in Heq. zfcrewrite.
+      unfold ReplR in Heq. zfc_simple.
       destruct (ixm (a = a₀)); destruct (ixm (b = a₀));
       apply op_iff in Heq as [Hfx Hfy]; unfold f in Hfx, Hfy;
       rewrite meta_func_ap in Hfx, Hfy; auto; unfold ReplA in Hfx, Hfy;
@@ -245,3 +246,157 @@ Qed.
 End EX8_10.
 
 (* ex8_11 see EST8_3 Lemma ot_disjointifiable *)
+
+(* ex8_12 *)
+Module AlternativeOtAdd.
+Import OrderType.
+Open Scope LoStruct_scope.
+
+(* 字典序 *)
+Definition LoAdd_R := λ S T, BinRel (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (λ p1 p2,
+  (π1 p1 <ᵣ π1 p2) (MemberRel 2) ∨
+  π1 p1 = π1 p2 ∧ (
+    π1 p1 = 0 ∧ (π2 p1 <ᵣ π2 p2) (R S) ∨
+    π1 p1 = 1 ∧ (π2 p1 <ᵣ π2 p2) (R T)
+  )
+).
+Notation "S ⨁' T" := (LoAdd_R S T) (at level 70) : LoStruct_scope.
+
+Lemma loAdd_is_binRel : ∀ S T,
+  is_binRel (S ⨁' T) (⎨0⎬ × A S ∪ ⎨1⎬ × A T).
+Proof with auto.
+  intros * x Hx.
+  apply binRelE1 in Hx as [s [Hs [t [Ht [Hx _]]]]];
+  apply BUnionE in Hs as [Hs|Hs];
+  apply BUnionE in Ht as [Ht|Ht];
+  apply CProdE1 in Hs as [a [Ha [b [Hb Hs]]]];
+  apply CProdE1 in Ht as [c [Hc [d [Hd Ht]]]];
+  apply SingE in Ha; apply SingE in Hc;
+  subst; zfc_simple; apply CProdI; solve [
+    apply BUnionI1; apply CProdI; auto|
+    apply BUnionI2; apply CProdI; auto].
+Qed.
+
+Local Lemma lt_0_0 : (0 <ᵣ 0) (MemberRel 2) → ⊥.
+Proof.
+  intros H. apply binRelE3 in H. exfalso0.
+Qed.
+
+Local Lemma lt_0_1 : (0 <ᵣ 1) (MemberRel 2).
+Proof with auto.
+  apply binRelI. apply BUnionI1. apply BUnionI2...
+  apply BUnionI2... apply BUnionI2...
+Qed.
+
+Local Lemma lt_1_0 : (1 <ᵣ 0) (MemberRel 2) → ⊥.
+Proof.
+  intros H. apply binRelE3 in H. exfalso0.
+Qed.
+
+Local Lemma lt_1_1 : (1 <ᵣ 1) (MemberRel 2) → ⊥.
+Proof.
+  intros H. apply binRelE3 in H.
+  eapply nat_irrefl; revgoals; neauto.
+Qed.
+
+Lemma loAdd_tranr : ∀ S T, tranr (S ⨁' T).
+Proof with eauto.
+  intros S T x y z Hxy Hyz.
+  pose proof lt_0_0 as H00.
+  pose proof lt_0_1 as H01.
+  pose proof lt_1_0 as H10.
+  pose proof lt_1_1 as H11.
+  apply binRelE2 in Hxy as [Hx [Hy [Hxy|[Heq1 [[H0 Hxy]|[H0 Hxy]]]]]];
+  apply binRelE2 in Hyz as [_  [Hz [Hyz|[Heq2 [[H1 Hyz]|[H1 Hyz]]]]]];
+  apply BUnionE in Hx as [Hx|Hx];
+  apply BUnionE in Hy as [Hy|Hy];
+  apply BUnionE in Hz as [Hz|Hz];
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply CProdE1 in Hz as [e [He [f [Hf Hz]]]];
+  apply SingE in Ha; apply SingE in Hc; apply SingE in He;
+  subst; zfc_simple; (apply binRelI; zfc_simple; [
+    solve [
+      apply BUnionI1; apply CProdI; auto|
+      apply BUnionI2; apply CProdI; auto
+    ]|
+    solve [
+      apply BUnionI1; apply CProdI; auto|
+      apply BUnionI2; apply CProdI; auto
+    ]|
+  ]).
+  left... left...
+  right; split... left; split...
+  eapply relLt_tranr; revgoals... apply lo.
+  right; split... right; split...
+  eapply relLt_tranr; revgoals... apply lo.
+Qed.
+
+Lemma loAdd_irrefl : ∀ S T, irrefl (S ⨁' T).
+Proof with neauto.
+  intros S T x H.
+  apply binRelE2 in H as [Hx [_ [Hlt|[Heq [[H0 Hlt]|[H1 Hlt]]]]]].
+  - apply binRelE3 in Hlt. eapply nat_irrefl; revgoals...
+    apply BUnionE in Hx as []; apply CProdE0 in H as [H _];
+    apply SingE in H; rewrite H...
+  - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
+  - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
+Qed.
+
+Lemma loAdd_connected : ∀ S T,
+  connected (S ⨁' T) (⎨0⎬ × A S ∪ ⎨1⎬ × A T).
+Proof with auto.
+  intros S T x Hx y Hy Hnq.
+  apply BUnionE in Hx as [Hx|Hx];
+  apply BUnionE in Hy as [Hy|Hy];
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply SingE in Ha; apply SingE in Hc; subst; zfc_simple.
+Admitted.
+
+Theorem loAdd_loset : ∀ S T,
+  loset (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (S ⨁' T).
+Proof.
+  intros S T.
+  apply loset_iff_connected_poset. repeat split.
+  - apply loAdd_connected.
+  - apply loAdd_is_binRel.
+  - eapply binRel_is_rel. apply loAdd_is_binRel.
+  - apply loAdd_tranr.
+  - apply loAdd_irrefl.
+Qed.
+
+Definition LoAdd := λ S T,
+  constr (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (S ⨁' T) (loAdd_loset S T).
+Notation "S +' T" := (LoAdd S T) (at level 50): LoStruct_scope.
+
+Lemma loAdd_well_defined : ∀ S S' T T',
+  S ≅ S' → T ≅ T' → S +' T ≅ S' +' T'.
+Proof with eauto; try congruence.
+  intros * [f [Hf Hopf]] [g [Hg Hopg]].
+Admitted.
+
+Definition OtAdd :=
+  λ ρ σ, ot (proj ρ +' proj σ).
+Notation "ρ +' σ" := (OtAdd ρ σ) : OrderType_scope.
+
+Open Scope OrderType_scope.
+
+Lemma otAdd_eq_ot_of_loAdd : ∀ S T, ot S +' ot T = ot (S +' T)%lo.
+Proof.
+  intros. apply ot_correct.
+  apply loAdd_well_defined; apply proj_ot_id.
+Qed.
+
+Theorem otAdd_well_defined : ∀ S S' T T',
+  S ≅ S' → T ≅ T' → ot S +' ot T = ot S' +' ot T'.
+Proof.
+  intros * HisoS HisoT. do 2 rewrite otAdd_eq_ot_of_loAdd.
+  apply ot_correct. apply loAdd_well_defined; auto.
+Qed.
+
+Fact alternative_otAdd_correct : ∀ S T,
+  ot S + ot T = ot S +' ot T.
+Admitted.
+
+End AlternativeOtAdd.

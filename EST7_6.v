@@ -168,7 +168,7 @@ Lemma rank_is_ord : ∀ A, grounded A → is_ord (rank A).
 Proof.
   intros A Hgnd. apply rank_spec_intro. apply Hgnd.
 Qed.
-Hint Immediate rank_is_ord : core.
+Global Hint Immediate rank_is_ord : core.
 
 Lemma grounded_in_rank : ∀ A, grounded A → A ⊆ V (rank A).
 Proof.

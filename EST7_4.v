@@ -200,7 +200,7 @@ Proof.
 Qed.
 
 End OrdDef.
-Hint Immediate ord_is_ord : core.
+Global Hint Immediate ord_is_ord : core.
 
 (* 序数的序满足三歧性 *)
 Theorem ord_trich : ∀ α β, is_ord α → is_ord β →
@@ -334,7 +334,7 @@ Proof.
   apply transitive_set_of_ords_is_ord.
   intros x Hx. exfalso0. intros x y _ Hy. exfalso0.
 Qed.
-Hint Resolve empty_is_ord : core.
+Global Hint Resolve empty_is_ord : core.
 
 (* 后继序数是序数 *)
 Corollary ord_suc_is_ord : ∀ α, is_ord α → is_ord α⁺.
@@ -346,7 +346,7 @@ Proof with eauto.
     + apply SingE in H. subst...
   - apply ex4_2. apply ord_trans...
 Qed.
-Hint Resolve ord_suc_is_ord : core.
+Global Hint Resolve ord_suc_is_ord : core.
 
 (* 序数集的并是序数 *)
 Corollary union_of_ords_is_ord : ∀ A, is_ords A → is_ord (⋃ A).
@@ -434,7 +434,7 @@ Proof.
   set (WoStruct.constr ω Lt Lt_wellOrder) as S.
   exists S. symmetry. apply α_ω.
 Qed.
-Hint Resolve ω_is_ord : core.
+Global Hint Resolve ω_is_ord : core.
 
 (* ω是序数集 *)
 Fact ω_is_ords : is_ords ω.
@@ -446,7 +446,7 @@ Proof. intros n Hn. apply ω_is_ords. apply Hn. Qed.
 
 Fact embed_is_ord : ∀ n : nat, is_ord n.
 Proof. intros. apply nat_is_ord. apply embed_ran. Qed.
-Hint Immediate embed_is_ord : number_hint.
+Global Hint Immediate embed_is_ord : number_hint.
 
 (* 有限序数的上确界是ω *)
 Fact sup_of_ω_is_ω : is_sup ω ω.
@@ -729,7 +729,7 @@ Proof with auto.
   - apply UnionAx. exists x⁺. split... apply ω_inductive...
   - apply trans_union_sub... apply ω_trans.
 Qed.
-Hint Resolve ω_is_limit : core.
+Global Hint Resolve ω_is_limit : core.
 
 (* 极限序数具有阿基米德性 *)
 Lemma limit_ord_archimedean : ∀ α, is_limit α → ord_archimedean α.

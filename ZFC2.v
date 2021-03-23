@@ -275,14 +275,14 @@ Proof.
   intros. exists x, y. reflexivity.
 Qed.
 
-Hint Immediate OPairI : core.
+Global Hint Immediate OPairI : core.
 Hint Rewrite π1_correct π2_correct : zfc_hint.
-Ltac zfcrewrite := autorewrite with zfc_hint in *; try congruence.
+Ltac zfc_simple := autorewrite with zfc_hint in *; try congruence.
 
 Lemma op_η : ∀ p, is_pair p ↔ p = <π1 p, π2 p>.
 Proof.
   split; intros.
-  - destruct H as [a [b H]]. rewrite H. zfcrewrite.
+  - destruct H as [a [b H]]. rewrite H. zfc_simple.
   - rewrite H. auto.
 Qed.
 
@@ -305,7 +305,7 @@ Qed.
 Lemma CProdE0 : ∀ p A B, p ∈ A × B → π1 p ∈ A ∧ π2 p ∈ B.
 Proof.
   intros. apply SepE in H as [_ [a [Ha [b [Hb Hp]]]]].
-  subst. zfcrewrite. split; auto.
+  subst. zfc_simple. split; auto.
 Qed.
 
 Lemma CProdE1 : ∀ p A B, p ∈ A × B → ∃a ∈ A, ∃b ∈ B, p = <a, b>.

@@ -76,7 +76,7 @@ Notation "⎨ x ⎬" := (Singleton x) (format "⎨ x ⎬") : ZFC_scope.
 
 Lemma SingI : ∀ x, x ∈ ⎨x⎬.
 Proof. unfold Singleton. intros. apply PairI1. Qed.
-Hint Immediate SingI : core.
+Global Hint Immediate SingI : core.
 
 Lemma SingE : ∀ x y, x ∈ ⎨y⎬ → x = y.
 Proof.

@@ -362,7 +362,7 @@ Lemma realAddI1 : ∀ p, ∀ x y ∈ ℝ,
 Proof with auto.
   intros p x Hx y Hy q Hqx r Hry Heq.
   apply ReplAx. exists <q, r>. split.
-  apply CProdI... zfcrewrite.
+  apply CProdI... zfc_simple.
 Qed.
 
 Lemma realAddI2 : ∀ x y ∈ ℝ,
@@ -370,7 +370,7 @@ Lemma realAddI2 : ∀ x y ∈ ℝ,
 Proof with auto.
   intros x Hx y Hy q Hqx r Hry.
   apply ReplAx. exists <q, r>. split.
-  apply CProdI... zfcrewrite.
+  apply CProdI... zfc_simple.
 Qed.
 
 Lemma realAddE : ∀ x y ∈ ℝ, ∀q ∈ x + y,
@@ -381,7 +381,7 @@ Proof with eauto.
   apply CProdE1 in Ht as [r [Hr [s [Hs Ht]]]].
   exists r. split. eapply real_sub_rat; revgoals...
   exists s. split. eapply real_sub_rat; revgoals...
-  subst. zfcrewrite. split...
+  subst. zfc_simple. split...
 Qed.
 
 Lemma realAdd_sub_rat : ∀ x y ∈ ℝ, x + y ∈ 𝒫 ℚ.
@@ -389,7 +389,7 @@ Proof with auto.
   intros x Hx y Hy. apply PowerAx. intros s Hs.
   apply ReplAx in Hs as [p [Hp Hs]].
   apply CProdE1 in Hp as [q [Hq [r [Hr Hp]]]].
-  subst. zfcrewrite. apply ratAdd_ran.
+  subst. zfc_simple. apply ratAdd_ran.
   apply (real_sub_rat _ Hx)... apply (real_sub_rat _ Hy)...
 Qed.
 
@@ -400,7 +400,7 @@ Proof with eauto.
   - apply realE0 in Hx as [q [_ Hq]].
     apply realE0 in Hy as [r [_ Hr]].
     apply EmptyNI. exists (q + r)%q. apply ReplAx.
-    exists <q, r>. split. apply CProdI... zfcrewrite.
+    exists <q, r>. split. apply CProdI... zfc_simple.
   - assert (Hx' := Hx). assert (Hy' := Hy).
     apply realE1' in Hx' as [q [Hq H1]]...
     apply realE1' in Hy' as [r [Hr H2]]...
@@ -482,7 +482,7 @@ Qed.
 
 Corollary real_n : ∀ n, Real n ∈ ℝ.
 Proof. intros. apply real_q; nauto. Qed.
-Hint Immediate real_n : number_hint.
+Global Hint Immediate real_n : number_hint.
 
 Theorem realAdd_ident : ∀ x ∈ ℝ, x + Real 0 = x.
 Proof with nauto.
@@ -830,7 +830,7 @@ Proof with neauto.
   apply H in H0. apply SepE in H0 as [_ H0].
   eapply ratLt_irrefl...
 Qed.
-Hint Immediate real_suc_neq_0 : number_hint.
+Global Hint Immediate real_suc_neq_0 : number_hint.
 
 Lemma realPos_sn : ∀ n, realPos (Real (S n)).
 Proof with nauto.
@@ -839,11 +839,11 @@ Proof with nauto.
     apply SepI... eapply ratLt_tranr. apply Hlt. apply ratPos_sn.
   - intros H. eapply real_suc_neq_0. rewrite H. reflexivity.
 Qed.
-Hint Immediate realPos_sn : number_hint.
+Global Hint Immediate realPos_sn : number_hint.
 
 Lemma realNeg_sn : ∀ n, realNeg (-Real (S n)).
 Proof. intros. apply realPos_neg. nauto. Qed.
-Hint Immediate realNeg_sn : number_hint.
+Global Hint Immediate realNeg_sn : number_hint.
 
 Notation " x ≥ y " := (y ≤ x) (only parsing, at level 70): Real_scope.
 

@@ -316,7 +316,7 @@ Proof with eauto; try congruence.
     destruct Hx; destruct Hy... exfalso.
     eapply ord_not_lt_gt; revgoals...
 Qed.
-Hint Immediate γ_functional : core.
+Global Hint Immediate γ_functional : core.
 
 (* 枚举元素是属于子类且与之前的元素都不同的最小序数 *)
 Lemma enum_spec : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
@@ -606,7 +606,7 @@ Definition Operation := λ y₀ G, Recursion (γ y₀ G).
 
 Lemma γ_functional : ∀ y₀ G f, ∃! y, γ y₀ G f y.
 Proof. intros. unfold γ. split; eauto; congruence. Qed.
-Hint Immediate γ_functional : core.
+Global Hint Immediate γ_functional : core.
 
 Theorem operation_0 : ∀ y₀ G, Operation y₀ G ∅ = y₀.
 Proof with auto.

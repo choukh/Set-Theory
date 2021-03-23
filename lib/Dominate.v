@@ -26,7 +26,7 @@ Proof.
   intros. exists (Ident A).
   apply bijection_is_injection. apply ident_bijective.
 Qed.
-Hint Immediate dominate_refl : core.
+Global Hint Immediate dominate_refl : core.
 
 (* 支配关系是传递的 *)
 Lemma dominate_tran : ∀ A B C, A ≼ B → B ≼ C → A ≼ C.
@@ -185,11 +185,11 @@ Proof with nauto.
     exists f. apply meta_injective.
     + intros p Hp.
       apply CProdE1 in Hp as [n [Hn [m [Hm Hp]]]].
-      subst p. zfcrewrite. apply mul_ran; apply exp_ran...
+      subst p. zfc_simple. apply mul_ran; apply exp_ran...
     + intros p1 H1 p2 H2 Heq.
       apply CProdE1 in H1 as [n [Hn [m [Hm H1]]]].
       apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]].
-      subst p1 p2. zfcrewrite.
+      subst p1 p2. zfc_simple.
       do 4 rewrite pow_isomorphic_ω in Heq...
       do 2 rewrite mul_isomorphic_ω in Heq...
       repeat rewrite embed_proj_id in Heq.

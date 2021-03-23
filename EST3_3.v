@@ -15,7 +15,7 @@ Lemma binRelI : ∀ A (P : set → set → Prop), ∀ a b ∈ A,
   P a b → <a, b> ∈ BinRel A P.
 Proof.
   intros * a Ha b Hb H. apply SepI.
-  apply CProdI; auto. zfcrewrite.
+  apply CProdI; auto. zfc_simple.
 Qed.
 
 Lemma binRelE1 : ∀ A P p,
@@ -23,14 +23,14 @@ Lemma binRelE1 : ∀ A P p,
 Proof with auto.
   intros. apply SepE in H as [Hp H].
   apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
-  zfcrewrite. exists a. split... exists b. split...
+  zfc_simple. exists a. split... exists b. split...
 Qed.
 
 Lemma binRelE2 : ∀ A P a b,
   <a, b> ∈ BinRel A P → a ∈ A ∧ b ∈ A ∧ P a b.
 Proof.
   intros. apply SepE in H as [Hp H].
-  apply CProdE2 in Hp as [Ha Hb]. zfcrewrite. split; auto.
+  apply CProdE2 in Hp as [Ha Hb]. zfc_simple. split; auto.
 Qed.
 
 Lemma binRelE3 : ∀ A P a b,

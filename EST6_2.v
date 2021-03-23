@@ -17,7 +17,7 @@ Definition is_card := λ 𝜅, ∃ K, 𝜅 = |K|.
 
 Lemma card_is_card : ∀ A, is_card (|A|).
 Proof. intros. exists A. reflexivity. Qed.
-Hint Immediate card_is_card : core.
+Global Hint Immediate card_is_card : core.
 
 (* 基数的基数等于自身 *)
 Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → 𝜅 = |𝜅|.
@@ -39,7 +39,7 @@ Proof. intros n Hn. exists n. apply (card_of_nat _ Hn). Qed.
 
 Lemma embed_is_card : ∀ n : nat, is_card n.
 Proof. intros. apply nat_is_card. apply embed_ran. Qed.
-Hint Immediate embed_is_card : number_hint.
+Global Hint Immediate embed_is_card : number_hint.
 
 (* 有限基数 *)
 Definition fincard := λ n, is_card n ∧ finite n.
@@ -155,17 +155,17 @@ Notation "𝜅 ^ 𝜆" := (CardExp 𝜅 𝜆) : Card_scope.
 (* 基数加法的和是基数 *)
 Lemma cardAdd_is_card : ∀ 𝜅 𝜆, is_card (𝜅 + 𝜆).
 Proof. intros. apply card_is_card. Qed.
-Hint Immediate cardAdd_is_card : core.
+Global Hint Immediate cardAdd_is_card : core.
 
 (* 基数乘法的积是基数 *)
 Lemma cardMul_is_card : ∀ 𝜅 𝜆, is_card (𝜅 ⋅ 𝜆).
 Proof. intros. apply card_is_card. Qed.
-Hint Immediate cardMul_is_card : core.
+Global Hint Immediate cardMul_is_card : core.
 
 (* 基数乘方的幂是基数 *)
 Lemma cardExp_is_card : ∀ 𝜅 𝜆, is_card (𝜅 ^ 𝜆).
 Proof. intros. apply card_is_card. Qed.
-Hint Immediate cardExp_is_card : core.
+Global Hint Immediate cardExp_is_card : core.
 
 (* 壹与单集的笛卡尔积 *)
 Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
@@ -276,13 +276,13 @@ Proof with eauto; try congruence.
   exists F. apply meta_bijective.
   - intros x Hx.
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-    subst x. zfcrewrite. apply CProdI.
+    subst x. zfc_simple. apply CProdI.
     eapply ap_ran... split... split...
     eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
     apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
-    subst. zfcrewrite. apply op_iff in Heq as [].
+    subst. zfc_simple. apply op_iff in Heq as [].
     apply injectiveE in H... apply injectiveE in H0...
   - intros y Hy.
     apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst y.
@@ -292,7 +292,7 @@ Proof with eauto; try congruence.
     apply domI in H2 as Hd2. apply ranI in H2 as Hr2.
     rewrite Hdf in Hd1. apply func_ap in H1...
     rewrite Hdg in Hd2. apply func_ap in H2...
-    exists <x1, x2>. split. apply CProdI... zfcrewrite.
+    exists <x1, x2>. split. apply CProdI... zfc_simple.
 Qed.
 
 (* 基数乘方良定义 *)
@@ -684,10 +684,10 @@ Proof with auto.
   - intros x1 Hx1 x2 Hx2 Heq.
     apply cprod_is_pairs in Hx1 as [a [b Hx1]].
     apply cprod_is_pairs in Hx2 as [c [d Hx2]].
-    apply op_iff in Heq as []. subst. zfcrewrite.
+    apply op_iff in Heq as []. subst. zfc_simple.
   - intros y Hy.
     apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst.
-    exists <b, a>. split. apply CProdI... zfcrewrite.
+    exists <b, a>. split. apply CProdI... zfc_simple.
 Qed.
 
 Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
@@ -826,14 +826,14 @@ Proof with eauto; try congruence.
     apply BUnionE in Hx as [Hx|Hx].
     + assert (HF: <x, f1[x]> ∈ Func s 𝜅 (λ x, f1[x])). {
         apply SepI. apply CProdI... apply Hr1.
-        apply BUnionI1... zfcrewrite.
+        apply BUnionI1... zfc_simple.
       }
-      rewrite H1 in HF. apply SepE in HF as [_ HF]. zfcrewrite.
+      rewrite H1 in HF. apply SepE in HF as [_ HF]. zfc_simple.
     + assert (HF: <x, f1[x]> ∈ Func t 𝜅 (λ x, f1[x])). {
         apply SepI. apply CProdI... apply Hr1.
-        apply BUnionI2... zfcrewrite.
+        apply BUnionI2... zfc_simple.
       }
-      rewrite H2 in HF. apply SepE in HF as [_ HF]. zfcrewrite.
+      rewrite H2 in HF. apply SepE in HF as [_ HF]. zfc_simple.
   - intros y Hy. apply CProdE1 in Hy as [g [Hg [h [Hh Heq]]]].
     apply arrow_iff in Hg as [Hgf [Hgd Hgr]].
     apply arrow_iff in Hh as [Hhf [Hhd Hhr]].
@@ -852,37 +852,37 @@ Proof with eauto; try congruence.
       apply ExtAx. intros p. split; intros Hp.
       - apply SepE in Hp as [H1 H2].
         apply CProdE1 in H1 as [x [Hx [y [_ Hp]]]].
-        subst p. zfcrewrite. subst y.
+        subst p. zfc_simple. subst y.
         assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
         apply func_correct in H... apply SepE in H as [_ H2].
-        zfcrewrite. destruct (ixm (x ∈ s))...
+        zfc_simple. destruct (ixm (x ∈ s))...
         rewrite H2. apply func_correct...
       - apply func_pair' in Hp as [x [y [Hp Heqp]]]...
         subst p. apply domI in Hp as Hx. apply func_ap in Hp...
         subst y. apply SepI.
         + apply CProdI... apply Hgr...
-        + zfcrewrite. rewrite Hgd in Hx.
+        + zfc_simple. rewrite Hgd in Hx.
           assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
           apply func_correct in H... apply SepE in H as [_ H].
-          zfcrewrite. destruct (ixm (x ∈ s))...
+          zfc_simple. destruct (ixm (x ∈ s))...
     } {
       apply ExtAx. intros p. split; intros Hp.
       - apply SepE in Hp as [H1 H2].
         apply CProdE1 in H1 as [x [Hx [y [_ Hp]]]].
-        subst p. zfcrewrite. subst y.
+        subst p. zfc_simple. subst y.
         assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
         apply func_correct in H... apply SepE in H as [_ H2].
-        zfcrewrite. destruct (ixm (x ∈ s))...
+        zfc_simple. destruct (ixm (x ∈ s))...
         + exfalso. eapply disjointE...
         + rewrite H2. apply func_correct...
       - apply func_pair' in Hp as [x [y [Hp Heqp]]]...
         subst p. apply domI in Hp as Hx. apply func_ap in Hp...
         subst y. apply SepI.
         + apply CProdI... apply Hhr...
-        + zfcrewrite. rewrite Hhd in Hx.
+        + zfc_simple. rewrite Hhd in Hx.
           assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
           apply func_correct in H... apply SepE in H as [_ H].
-          zfcrewrite. destruct (ixm (x ∈ s))...
+          zfc_simple. destruct (ixm (x ∈ s))...
           exfalso. eapply disjointE...
     }
 Qed.
@@ -906,14 +906,14 @@ Proof with eauto; try congruence.
   - intros p Hp. apply CProdE1 in Hp as [g [Hg [h [Hh Hp]]]].
     apply arrow_iff in Hg as [Hgf [Hgd Hgr]].
     apply arrow_iff in Hh as [Hhf [Hhd Hhr]].
-    subst p. zfcrewrite. apply SepI.
+    subst p. zfc_simple. apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
     + apply meta_maps_into. intros x Hx. apply CProdI.
       apply Hgr... apply Hhr...
   - intros p1 Hp1 p2 Hp2 Heq.
     apply CProdE1 in Hp1 as [g1 [Hg1 [h1 [Hh1 H1]]]].
     apply CProdE1 in Hp2 as [g2 [Hg2 [h2 [Hh2 H2]]]].
-    subst p1 p2. zfcrewrite. apply op_iff.
+    subst p1 p2. zfc_simple. apply op_iff.
     cut (∀x ∈ 𝜇, <g1[x], h1[x]> = <g2[x], h2[x]>). {
       apply arrow_iff in Hg1 as [Hg1 [Hdg1 _]].
       apply arrow_iff in Hh1 as [Hh1 [Hdh1 _]].
@@ -929,12 +929,12 @@ Proof with eauto; try congruence.
     cut (∀ g h, g ∈ 𝜇 ⟶ 𝜅 → h ∈ 𝜇 ⟶ 𝜆 →
       <x, <g[x], h[x]>> ∈ Func 𝜇 (𝜅 × 𝜆) (λ x, <g[x], h[x]>)). {
       intros H. pose proof (H _ _ Hg1 Hh1).
-      rewrite Heq in H0. apply SepE in H0 as [_ H0]. zfcrewrite.
+      rewrite Heq in H0. apply SepE in H0 as [_ H0]. zfc_simple.
     }
     intros g h Hg Hh.
     apply arrow_iff in Hg as [Hg [Hdg Hrg]].
     apply arrow_iff in Hh as [Hh [Hdh Hrh]].
-    apply SepI; zfcrewrite. apply CProdI... apply CProdI.
+    apply SepI; zfc_simple. apply CProdI... apply CProdI.
     apply Hrg... apply Hrh...
   - intros f Hf. apply SepE in Hf as [_ Hf].
     assert (Hf' := Hf). destruct Hf' as [Hff [Hdf Hrf]].
@@ -964,16 +964,16 @@ Proof with eauto; try congruence.
       apply CProdE1 in Hfx as [a [Ha [b [Hb Hfx]]]].
       rewrite Hfx. apply op_iff.
       split; symmetry; apply func_ap; auto; (apply SepI;
-      [apply CProdI; congruence|zfcrewrite; rewrite Hfx; zfcrewrite]).
+      [apply CProdI; congruence|zfc_simple; rewrite Hfx; zfc_simple]).
     }
     apply ExtAx. intros p. split; intros Hp.
     + apply SepE in Hp as [Hp Heq].
       apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
-      subst p. zfcrewrite. subst y. apply Hfx in Hx as Hap.
+      subst p. zfc_simple. subst y. apply Hfx in Hx as Hap.
       rewrite <- Hap. apply func_correct...
     + apply func_pair' in Hp as [x [y [Hp Heqp]]]...
       subst p. apply domI in Hp as Hx. apply ranI in Hp as Hy.
-      apply Hrf in Hy. apply SepI; zfcrewrite. apply CProdI...
+      apply Hrf in Hy. apply SepI; zfc_simple. apply CProdI...
       rewrite Hdf in Hx. apply Hfx in Hx as Hap.
       rewrite <- Hap. symmetry. apply func_ap...
 Qed.
@@ -1011,15 +1011,15 @@ Proof with eauto; try congruence.
     remember (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, f1[<x, y>]))) as F1.
     cut (<b, Func 𝜆 𝜅 (λ x, f1[<x, b>])> ∈ F1). {
       intros H1. rewrite Heq in H1.
-      apply SepE in H1 as [_ H1]. zfcrewrite.
+      apply SepE in H1 as [_ H1]. zfc_simple.
       cut (<a, f1[<a, b>]> ∈ Func 𝜆 𝜅 (λ x, f1[<x, b>])). {
         intros H2. rewrite H1 in H2.
-        apply SepE in H2 as [_ H2]. zfcrewrite.
+        apply SepE in H2 as [_ H2]. zfc_simple.
       }
-      apply SepI; zfcrewrite.
+      apply SepI; zfc_simple.
       apply CProdI... apply Hrf1. apply CProdI...
     }
-    subst F1. apply SepI; zfcrewrite.
+    subst F1. apply SepI; zfc_simple.
     apply CProdI... apply SepI. {
       apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
@@ -1035,21 +1035,21 @@ Proof with eauto; try congruence.
       - apply ExtAx. intros y. split; intros Hy.
         + eapply domI. apply SepI.
           * apply CProdI... apply Hhr. rewrite <- Hhd. apply Hy.
-          * zfcrewrite. symmetry.
+          * zfc_simple. symmetry.
             apply func_ap. apply func_is_func.
-            apply SepI; zfcrewrite. apply CProdI.
+            apply SepI; zfc_simple. apply CProdI.
             apply CProdI... apply Hhr...
         + apply domE in Hy as [z Hp]. apply SepE in Hp as [Hy _].
           apply CProdE2 in Hy as [Hy _]...
       - intros y Hy. symmetry. apply func_ap.
-        apply func_is_func. apply SepI; zfcrewrite.
+        apply func_is_func. apply SepI; zfc_simple.
         + apply CProdI... apply Hhr...
         + symmetry. apply func_ap. apply func_is_func.
-          apply SepI; zfcrewrite. apply CProdI.
+          apply SepI; zfc_simple. apply CProdI.
           apply CProdI... apply Hhr...
     }
     assert (H2: ∀x ∈ dom f, <x, f[x]> ∈ (Func 𝜇 (𝜆 ⟶ 𝜅) (λ b, Func 𝜆 𝜅 (λ a, g[<a, b>])))). {
-      intros x Hx. apply SepI; zfcrewrite.
+      intros x Hx. apply SepI; zfc_simple.
       - apply CProdI. rewrite <- Hdf... apply Hrf.
         eapply ap_ran... split...
       - apply H1...
@@ -1066,7 +1066,7 @@ Proof with eauto; try congruence.
       }
       apply meta_maps_into. intros p Hp.
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-      subst p. zfcrewrite. rewrite <- Hdf in Hb.
+      subst p. zfc_simple. rewrite <- Hdf in Hb.
       apply func_correct in Hb... apply ranI in Hb. apply Hrf in Hb.
       apply arrow_iff in Hb as [_ [_ Hr]]. apply Hr...
     + apply func_ext_intro... apply func_is_func.

@@ -2,6 +2,11 @@
 
 本项目为集合论教材Elements of Set Theory - Herbert B. Enderton的Coq形式化。基本按教材顺序编写，而没有考虑模块化。仅适合作为集合论教学的辅助，而不适合作为一个通用的数学库。
 
+## 系统要求
+```
+Coq 8.13.1
+```
+
 ## 编译
 ```
 ./build_all.sh

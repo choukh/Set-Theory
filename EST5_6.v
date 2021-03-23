@@ -181,8 +181,8 @@ Lemma realNonNegMulI1 : ∀ x y ∈ ℝ, ∀q ∈ x, ∀r ∈ y,
 Proof with auto.
   intros x Hx y Hy q Hqx r Hry Hnnq Hnnr.
   apply BUnionI2. apply ReplAx.
-  exists <q, r>. split; zfcrewrite. apply SepI.
-  apply CProdI... zfcrewrite. split...
+  exists <q, r>. split; zfc_simple. apply SepI.
+  apply CProdI... zfc_simple. split...
 Qed.
 
 Lemma realNonNegMulE : ∀ x y ∈ ℝ, ∀s ∈ x ⋅₊ y, s ∈ Real 0 ∨
@@ -194,7 +194,7 @@ Proof with auto.
   apply ReplAx in H as [p [Hp Hs]].
   apply SepE in Hp as [Hp [H1 H2]].
   apply CProdE1 in Hp as [q [Hq [r [Hr Hp]]]].
-  subst. zfcrewrite.
+  subst. zfc_simple.
   exists q. split... apply (real_sub_rat _ Hx)...
   exists r. split... apply (real_sub_rat _ Hy)...
 Qed.
@@ -434,7 +434,7 @@ Lemma realAddE_nonNeg : ∀ x y ∈ ℝ, ∀q ∈ ℚ,
 Proof with neauto.
   intros x Hx y Hy q Hqq Hpx Hpy Hnnq Hq.
   apply ReplAx in Hq as [t [Ht Heq]]. apply CProdE1 in Ht
-    as [r [Hr [s [Hs Ht]]]]. subst. zfcrewrite.
+    as [r [Hr [s [Hs Ht]]]]. subst. zfc_simple.
   assert (Hrq: r ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
   assert (Hsq: s ∈ ℚ) by (eapply real_sub_rat; revgoals; eauto).
   destruct (classic (ratNeg r)); destruct (classic (ratNeg s)).

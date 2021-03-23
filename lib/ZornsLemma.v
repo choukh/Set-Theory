@@ -585,14 +585,14 @@ Proof with eauto; try congruence.
     set (⋃ {π1 | w ∊ 𝓒}) as U.
     set (BinRel U (λ s t, ∃ C RC, (s <ᵣ t) RC ∧ <C, RC> ∈ 𝓒)) as RU.
     assert (HU: <U, RU> ∈ 𝓦). {
-      apply SepI; zfcrewrite. {
+      apply SepI; zfc_simple. {
         apply CProdI.
         - apply PowerAx. intros x Hx.
           apply UnionAx in Hx as [A [HA Hx]].
           apply ReplAx in HA as [p [Hp Heq]].
           apply Hsub in Hp. apply SepE1 in Hp.
           apply CProdE1 in Hp as [A' [HA [R [_ Hp]]]].
-          subst p. zfcrewrite. subst A'.
+          subst p. zfc_simple. subst A'.
           apply PowerAx in HA. apply HA...
         - apply PowerAx. intros p Hp.
           apply binRelE1 in Hp as [a [Ha [b [Hb [Heq [C [RC [Hlt Hp]]]]]]]].
@@ -613,7 +613,7 @@ Proof with eauto; try congruence.
           subst. apply Hsub in HpC.
           apply SepE in HpC as [Hp Hwo].
           apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
-          subst. zfcrewrite.
+          subst. zfc_simple.
           eapply lo_connected in Hnq as [];
           [left|right|apply Hwo|auto..]; apply binRelI...
         }
@@ -624,7 +624,7 @@ Proof with eauto; try congruence.
         apply SepE in Hq as [Hq HwoB];
         apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]];
         apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
-        subst; zfcrewrite; [apply HAB in Ha|apply HAB in Hb];
+        subst; zfc_simple; [apply HAB in Ha|apply HAB in Hb];
         (eapply lo_connected in Hnq as [];
         [left|right|apply HwoB|auto..]; apply binRelI)...
       - (* poset U RU *)
@@ -636,7 +636,7 @@ Proof with eauto; try congruence.
           apply binRelE2 in Hvw as [_ [Hw [D [RD [Hvw HD]]]]].
           destruct (classic (<C, RC> = <D, RD>)). {
             apply op_iff in H as []; subst.
-            apply Hsub in HC. apply SepE2 in HC. zfcrewrite.
+            apply Hsub in HC. apply SepE2 in HC. zfc_simple.
             apply binRelI... exists D, RD. split...
             eapply relLt_tranr... apply HC.
           }
@@ -649,13 +649,13 @@ Proof with eauto; try congruence.
           apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
           apply op_iff in Hp as [];
           apply op_iff in Hq as [];
-          subst; zfcrewrite; apply binRelI; auto;
+          subst; zfc_simple; apply binRelI; auto;
           exists B, RB; split; auto; [
             rewrite H in Huv; apply SepE1 in Huv|
             rewrite H in Hvw; apply SepE1 in Hvw
           ]; eapply relLt_tranr; eauto; apply HwoB.
         + intros u Hp. apply binRelE3 in Hp as [C [RC [Hlt Hp]]].
-          apply Hsub in Hp. apply SepE2 in Hp. zfcrewrite.
+          apply Hsub in Hp. apply SepE2 in Hp. zfc_simple.
           eapply lo_irrefl. apply Hp. apply Hlt.
       - (* has min *)
         intros A [a Ha] HAU.
@@ -665,7 +665,7 @@ Proof with eauto; try congruence.
         apply Hsub in HpC as Hp.
         apply SepE in Hp as [Hp [_ Hmin]].
         apply CProdE1 in Hp as [C' [_ [RC [_ Hp]]]].
-        subst p. zfcrewrite. subst C'.
+        subst p. zfc_simple. subst C'.
         pose proof (Hmin (A ∩ C)) as [m [Hm Hle]].
         + exists a. apply BInterI...
         + intros x Hx. apply BInterE in Hx as []...
@@ -683,13 +683,13 @@ Proof with eauto; try congruence.
           apply Hsub in HqC as Hq.
           apply SepE in Hq as [Hq Hwo].
           apply CProdE1 in Hq as [D' [_ [RD [_ Hq]]]].
-          subst q. zfcrewrite. subst D'.
+          subst q. zfc_simple. subst D'.
           destruct (classic (<C, RC> = <D, RD>)) as [|Hnq]. {
             apply op_iff in H as []; subst...
           }
           eapply lo_connected in Hnq as [];
           [| |apply Hlo|auto..]; apply SepE1 in H;
-          apply binRelE3 in H as [H1 [_ H3]]; zfcrewrite.
+          apply binRelE3 in H as [H1 [_ H3]]; zfc_simple.
           * exists D, RD. split... apply H3... apply SepI...
           * apply H1 in Hx...
     }
@@ -700,10 +700,10 @@ Proof with eauto; try congruence.
     apply Hsub in HpC as Hp.
     apply SepE in Hp as [Hp Hwo].
     apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
-    subst. zfcrewrite.
+    subst. zfc_simple.
     assert (HAU: A ⊆ U). {
       apply union_is_ub. apply ReplAx.
-      exists <A, RA>. split... zfcrewrite.
+      exists <A, RA>. split... zfc_simple.
     }
     assert (HeqR: RA = RU ⥏ A). {
       destruct Hwo as [[Hbr _] _].
@@ -720,7 +720,7 @@ Proof with eauto; try congruence.
         }
         eapply lo_connected in H as [];
         [| |apply Hlo|auto..]; apply SepE1 in H;
-        apply binRelE3 in H as [_ [H2 _]]; zfcrewrite.
+        apply binRelE3 in H as [_ [H2 _]]; zfc_simple.
         * rewrite H2. apply SepI... apply CProdI...
         * rewrite H2 in Hlt. apply SepE1 in Hlt...
     }
@@ -737,13 +737,13 @@ Proof with eauto; try congruence.
       apply Hsub in HqC as Hq.
       apply SepE in Hq as [Hq HwoB].
       apply CProdE1 in Hq as [B' [_ [RB [_ Hq]]]].
-      subst q. zfcrewrite. subst B'.
+      subst q. zfc_simple. subst B'.
       destruct (classic (<A, RA> = <B, RB>)). {
         apply op_iff in H as []; subst...
       }
       eapply lo_connected in H as [];
       [| |apply Hlo|auto..]; apply SepE1 in H;
-      apply binRelE3 in H as [H1 [_ H3]]; zfcrewrite;
+      apply binRelE3 in H as [H1 [_ H3]]; zfc_simple;
       exists B, RB; split...
       * apply H3... apply SepI...
       * apply H1 in Hb...
@@ -751,7 +751,7 @@ Proof with eauto; try congruence.
   (* by contradiction show that M = X and RM is the desired well order *)
   apply SepE in H𝓜 as H. destruct H as [Hp Hwo].
   apply CProdE1 in Hp as [M [Hsub [RM [_ Hp]]]].
-  subst. zfcrewrite. apply PowerAx in Hsub.
+  subst. zfc_simple. apply PowerAx in Hsub.
   exists RM. replace X with M...
   destruct (classic (M = X)) as [|HMX]... exfalso.
   assert (Hpsub: M ⊂ X). split...
@@ -771,7 +771,7 @@ Proof with eauto; try congruence.
     apply Hsub... apply SingE in H...
   }
   assert (HM': <M', RM'> ∈ 𝓦). {
-    apply SepI; zfcrewrite.
+    apply SepI; zfc_simple.
     apply CProdI; apply PowerAx...
     intros p Hp. apply SepE1 in Hp.
     apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
@@ -851,7 +851,7 @@ Proof with eauto; try congruence.
     apply Hs'. rewrite <- H. apply BUnionI2...
   }
   apply H. apply binRelI...
-  repeat split; zfcrewrite...
+  repeat split; zfc_simple...
   - intros x Hx. apply BUnionI1...
   - intros Heq. apply Hs'. rewrite Heq. apply BUnionI2...
   - apply ExtAx. split; intros Hx.

@@ -73,12 +73,12 @@ Proof with eauto.
     - rewrite HdF. rewrite inv_dom.
       apply ExtAx. intros y. split; intros Hy.
       + apply ranE in Hy as [x Hp].
-        apply SepE in Hp as [_ [_ Hy]]. zfcrewrite.
+        apply SepE in Hp as [_ [_ Hy]]. zfc_simple.
       + pose proof (Hpr _ Hy) as [x [Hx Hp]].
-        eapply ranI. apply SepI. apply Hp. zfcrewrite...
+        eapply ranI. apply SepI. apply Hp. zfc_simple...
     - intros y Hy. apply ranE in Hy as [x Hp].
       apply HsF in Hp. apply inv_op in Hp.
-      apply SepE in Hp as [_ [Hx _]]. zfcrewrite.
+      apply SepE in Hp as [_ [Hx _]]. zfc_simple.
   }
   pose proof (ω_recursion _ _ _ HF Ha) as [f [Hf [Hf0 Heq]]].
   exists f. split... intros n Hn. rewrite Heq...
@@ -158,7 +158,7 @@ Example seg_of_nat : ∀n ∈ ω, seg n Lt = n.
 Proof with eauto.
   intros n Hn. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ Hp].
-    apply SepE in Hp as [_ H]. zfcrewrite.
+    apply SepE in Hp as [_ H]. zfc_simple.
   - assert (Hxw: x ∈ ω). { eapply ω_trans... }
     apply SepI. eapply domI. apply (binRelI _ _ x Hxw (x⁺))...
     apply ω_inductive... apply binRelI...

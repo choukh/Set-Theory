@@ -4,6 +4,11 @@
 
 This project is a Coq formalization of the textbook Elements of Set Theory - Herbert B. Enderton. It is basically written in the order of the textbook, without considering modularity. It is suitable as an aid to the learning of set theory, not as a general mathematical library.
 
+## Requirement
+```
+Coq 8.13.1
+```
+
 ## Build
 ```
 ./build_all.sh

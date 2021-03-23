@@ -19,13 +19,13 @@ Lemma card_is_ord : ∀ 𝜅, is_card 𝜅 → is_ord 𝜅.
 Proof.
   intros 𝜅 [k Hk]. subst. apply card_is_initial_ord.
 Qed.
-Hint Resolve card_is_ord : core.
+Global Hint Resolve card_is_ord : core.
 
 (* == implicit AC == *)
 (* 无限基数是序数 *)
 Lemma infcard_is_ord : ∀ 𝜅, infcard 𝜅 → is_ord 𝜅.
 Proof. intros 𝜅 [H _]. auto. Qed.
-Hint Immediate infcard_is_ord : core.
+Global Hint Immediate infcard_is_ord : core.
 
 (* == implicit AC == *)
 (* 基数集是良序集 *)
@@ -140,14 +140,14 @@ Proof with eauto.
   }
   apply Hleast in H... eapply ord_not_leq_gt; revgoals...
 Qed.
-Hint Immediate card_suc_is_card : core.
+Global Hint Immediate card_suc_is_card : core.
 
 (* 后继基数是序数 *)
 Corollary card_suc_is_ord : ∀ A, is_ord A₊.
 Proof.
   intros. apply card_is_ord. apply card_suc_is_card.
 Qed.
-Hint Immediate card_suc_is_ord : core.
+Global Hint Immediate card_suc_is_ord : core.
 
 (* 集合的基数小于其后继 *)
 Lemma card_suc_has_card : ∀ A, |A| ∈ A₊.

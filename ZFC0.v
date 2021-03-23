@@ -147,7 +147,7 @@ Notation "A ⊈ B" := (¬Sub A B) (at level 70) : ZFC_scope.
 (* 子集关系是自反的 *)
 Lemma sub_refl : ∀ A, A ⊆ A.
 Proof. unfold Sub. intros A x H. apply H. Qed.
-Hint Immediate sub_refl : core.
+Global Hint Immediate sub_refl : core.
 
 (* 子集关系是传递的 *)
 Lemma sub_tran : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
@@ -309,8 +309,8 @@ Qed.
 (* 存在唯一 *)
 Definition exu: (set → Prop) → Prop :=
   λ P, (∃ x, P x) ∧ (∀ x y, P x → P y → x = y).
-Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x ident).
-Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x ident).
+Notation "∃! x , p" := (exu (λ x, p)) (at level 200, x name).
+Notation "∄! x , p" := (¬ exu (λ x, p)) (at level 200, x name).
 
 (**=== 公理5: 替代公理（模式） ===**)
 (* 给定二元谓词P，如果对任意集合x有唯一集合y使得P x y成立，

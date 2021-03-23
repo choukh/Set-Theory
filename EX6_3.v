@@ -347,7 +347,7 @@ Proof with eauto; try congruence.
     intros x Hx. apply Hf'ap in Hx.
     apply BUnionE in Hx as [];
     apply CProdE1 in H as [a [Ha [b [_ H]]]];
-    rewrite H; zfcrewrite.
+    rewrite H; zfc_simple.
   }
   assert (Hpair: ∀x ∈ A, is_pair f⁻¹[x]). {
     intros x Hx. apply Hf'ap in Hx.
@@ -358,9 +358,9 @@ Proof with eauto; try congruence.
     apply func_correct in Hx... apply ranI in Hx.
     rewrite Hrf' in Hx. apply BUnionE in Hx as [].
     - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
-      apply SingE in Hb. rewrite H in H0. zfcrewrite.
+      apply SingE in Hb. rewrite H in H0. zfc_simple.
     - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
-      apply SingE in Hb. rewrite H. zfcrewrite.
+      apply SingE in Hb. rewrite H. zfc_simple.
   }
   assert (Hg: g: A ⟺ A). {
     apply meta_bijective.
@@ -409,8 +409,8 @@ Proof with eauto; try congruence.
           }
           destruct (ixm (π2 f⁻¹[f[<a, 1>]] = 0)).
           + rewrite inv_dom_reduction in e...
-            zfcrewrite. exfalso. eapply suc_neq_0...
-          + rewrite inv_dom_reduction... zfcrewrite.
+            zfc_simple. exfalso. eapply suc_neq_0...
+          + rewrite inv_dom_reduction... zfc_simple.
             rewrite <- H, inv_ran_reduction...
       } {
         exists (f[<a, 0>]). split.
@@ -419,9 +419,9 @@ Proof with eauto; try congruence.
             rewrite Hdf. apply BUnionI1. apply CProdI...
           }
           destruct (ixm (π2 f⁻¹[f[<a, 0>]] = 0)).
-          + rewrite inv_dom_reduction... zfcrewrite.
+          + rewrite inv_dom_reduction... zfc_simple.
             rewrite <- H, inv_ran_reduction...
-          + rewrite inv_dom_reduction in n... zfcrewrite.
+          + rewrite inv_dom_reduction in n... zfc_simple.
       }
   }
   exists g. apply shuffle_iff. split...
@@ -430,11 +430,11 @@ Proof with eauto; try congruence.
   destruct (ixm (π2 f⁻¹[a] = 0)).
   - assert (f⁻¹[a] = f⁻¹[f[<π1 f⁻¹[a], 1>]])...
     rewrite inv_dom_reduction in H...
-    + rewrite H in e. zfcrewrite. eapply suc_neq_0...
+    + rewrite H in e. zfc_simple. eapply suc_neq_0...
     + rewrite Hdf. apply BUnionI2. apply CProdI... apply Hπ1...
   - assert (f⁻¹[a] = f⁻¹[f[<π1 f⁻¹[a], 0>]])...
     rewrite inv_dom_reduction in H...
-    + rewrite H in n. zfcrewrite.
+    + rewrite H in n. zfc_simple.
     + rewrite Hdf. apply BUnionI1. apply CProdI... apply Hπ1...
 Qed.
 

@@ -417,7 +417,7 @@ Lemma nzRealI1 : ∀ n : nat, Real (S n) ∈ ℝ'.
 Proof with neauto.
   intros. apply CompI... apply SingNI...
 Qed.
-Hint Immediate nzRealI1 : number_hint.
+Global Hint Immediate nzRealI1 : number_hint.
 
 Lemma nzRealE : ∀x ∈ ℝ', x ∈ ℝ ∧ x ≠ Real 0.
 Proof with auto.
@@ -430,7 +430,7 @@ Proof.
   intros. apply CompI; nauto.
   apply SingNI. apply real_suc_neq_0.
 Qed.
-Hint Immediate real_sn : number_hint.
+Global Hint Immediate real_sn : number_hint.
 
 Lemma realPosMulInv_ran' : ∀x ∈ ℝ, realPos x → (x⁻¹⁺)%r ∈ ℝ'.
 Proof with nauto.

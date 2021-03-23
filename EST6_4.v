@@ -336,14 +336,14 @@ Proof with eauto; try congruence.
   - intros p1 Hp1 p2 Hp2 Heq.
     apply CProdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
     apply CProdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
-    apply SingE in Hb. apply SingE in Hd. subst. zfcrewrite.
+    apply SingE in Hb. apply SingE in Hd. subst. zfc_simple.
     apply op_iff in Heq as [Heq _]. apply op_iff.
     split... eapply injectiveE...
   - intros y Hy. destruct H as [Hf _].
     apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
     apply ranE in Ha as [x Hp].
     apply domI in Hp as Hx. apply func_ap in Hp as Hap...
-    exists <x, b>. split. apply CProdI... subst y. zfcrewrite.
+    exists <x, b>. split. apply CProdI... subst y. zfc_simple.
     apply op_iff. apply SingE in Hb. split...
 Qed.
 
@@ -360,13 +360,13 @@ Proof with eauto.
   apply func_pair in Hpf as Heqp... rewrite Heqp in Hpf.
   apply domI in Hpf as Hdf. apply ranI in Hpf as Hrf.
   assert (<<π1 p, i>, <π2 p, i>> ∈ FuncDisjointify i f). {
-    apply SepI. apply CProdI; apply CProdI... zfcrewrite.
+    apply SepI. apply CProdI; apply CProdI... zfc_simple.
     apply op_iff. split... symmetry. apply func_ap...
   }
   rewrite Heq in H. apply SepE in H as [Hpg Hap].
   apply CProdE2 in Hpg as [Hdg Hrg].
   apply CProdE2 in Hdg as [Hdg _].
-  apply CProdE2 in Hrg as [Hrg _]. zfcrewrite.
+  apply CProdE2 in Hrg as [Hrg _]. zfc_simple.
   apply op_iff in Hap as [Hap _]. symmetry in Hap.
   rewrite Heqp. apply func_point...
 Qed.
@@ -413,7 +413,7 @@ Proof with eauto; try congruence.
       apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
       apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 _].
       apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 _].
-      zfcrewrite. destruct (classic (i1 = i2)). {
+      zfc_simple. destruct (classic (i1 = i2)). {
         cut (f1 = f2). { intros Heqf. subst. apply op_iff... }
         apply (funcDisjointify_injective i1)...
         destruct Hf1 as [[]]... destruct Hf2 as [[]]...
@@ -430,8 +430,8 @@ Proof with eauto; try congruence.
     apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 Hy2].
     apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
     apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
-    apply SingE in Hb. apply SingE in Hd. zfcrewrite. subst x1 x2.
-    zfcrewrite. destruct (classic (i1 = i2)). {
+    apply SingE in Hb. apply SingE in Hd. zfc_simple. subst x1 x2.
+    zfc_simple. destruct (classic (i1 = i2)). {
       cut (f1 = f2). {
         intros Heqf. subst. apply op_iff in H2 as [Hap Hi].
         apply op_iff. split... eapply injectiveE... destruct Hf2...
@@ -547,8 +547,8 @@ Proof with eauto; try congruence.
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (∀i ∈ I, g[F_ i][x1[i]] = g[F_ i][x2[i]]). {
       intros i Hi. eapply func_sv. apply HG... rewrite <- Heq.
-      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
-      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+      - apply SepI. apply CProdI... apply HgFx'... zfc_simple.
+      - apply SepI. apply CProdI... apply HgFx'... zfc_simple.
     }
     apply InfCProdE in Hx1 as [Hx1 Hxi1].
     apply InfCProdE in Hx2 as [Hx2 Hxi2].
@@ -571,7 +571,7 @@ Proof with eauto; try congruence.
         apply SepE in Hp as [Hp _].
         apply CProdE2 in Hp as [Hi _]...
       - eapply domI. apply SepI. apply CProdI...
-        apply HgFx'... zfcrewrite.
+        apply HgFx'... zfc_simple.
     }
     exists (G' y). split... apply func_ext_intro...
     + apply meta_maps_into. intros i Hi. apply HgFx'...
@@ -628,7 +628,7 @@ Proof with eauto; try congruence.
       apply HgF in Hi2 as [f2 [Hf2 Heq2]]. rewrite Heq2 in Hp2.
       apply SepE in Hp1 as [Hp1 H1]. apply CProdE2 in Hp1 as [Hx1 _].
       apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 _].
-      zfcrewrite. destruct (classic (i1 = i2)). {
+      zfc_simple. destruct (classic (i1 = i2)). {
         cut (f1 = f2). { intros Heqf. subst. apply op_iff... }
         apply (funcDisjointify_injective i1)...
         destruct Hf1 as [[]]... destruct Hf2 as [[]]...
@@ -645,8 +645,8 @@ Proof with eauto; try congruence.
     apply SepE in Hp2 as [Hp2 H2]. apply CProdE2 in Hp2 as [Hx2 Hy2].
     apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
     apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
-    apply SingE in Hb. apply SingE in Hd. zfcrewrite. subst x1 x2.
-    zfcrewrite. destruct (classic (i1 = i2)). {
+    apply SingE in Hb. apply SingE in Hd. zfc_simple. subst x1 x2.
+    zfc_simple. destruct (classic (i1 = i2)). {
       cut (f1 = f2). {
         intros Heqf. subst. apply op_iff in H2 as [Hap Hi].
         apply op_iff. split... eapply injectiveE... destruct Hf2...
@@ -736,8 +736,8 @@ Proof with eauto; try congruence.
   - intros x1 Hx1 x2 Hx2 Heq.
     assert (∀i ∈ I, g[F_ i][x1[i]] = g[F_ i][x2[i]]). {
       intros i Hi. eapply func_sv. apply HG... rewrite <- Heq.
-      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
-      - apply SepI. apply CProdI... apply HgFx'... zfcrewrite.
+      - apply SepI. apply CProdI... apply HgFx'... zfc_simple.
+      - apply SepI. apply CProdI... apply HgFx'... zfc_simple.
     }
     apply InfCProdE in Hx1 as [Hx1 Hxi1].
     apply InfCProdE in Hx2 as [Hx2 Hxi2].
@@ -780,18 +780,18 @@ Proof with eauto.
   exists f. apply meta_bijective.
   - intros x Hx. apply FUnionE in Hx as [i [Hi Hx]].
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-    subst x. zfcrewrite. eapply FUnionI...
+    subst x. zfc_simple. eapply FUnionI...
   - intros x1 H1 x2 H2 Heq.
     apply FUnionE in H1 as [i [Hi H1]].
     apply FUnionE in H2 as [j [Hj H2]].
     apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
     apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
     apply SingE in Hb. apply SingE in Hd.
-    subst. zfcrewrite. apply op_iff. split...
+    subst. zfc_simple. apply op_iff. split...
     destruct (classic (i = j))... exfalso.
     apply Hdj in H... eapply disjointE... congruence.
   - intros y Hy. apply FUnionE in Hy as [i [Hi Hx]].
-    exists <y, i>. split; zfcrewrite.
+    exists <y, i>. split; zfc_simple.
     eapply FUnionI... apply CProdI...
 Qed.
 

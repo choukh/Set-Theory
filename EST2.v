@@ -50,7 +50,7 @@ Lemma comp_sub : ∀ A B, A - B ⊆ A.
 Proof.
   intros A B x Hx. apply CompE in Hx as []; auto.
 Qed.
-Hint Immediate comp_sub : core.
+Global Hint Immediate comp_sub : core.
 
 (* 空集的补集是原集合 *)
 Lemma comp_empty : ∀ A, A - ∅ = A.

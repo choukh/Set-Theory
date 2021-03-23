@@ -155,11 +155,11 @@ Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hlt Hp].
     apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
-    apply SepI... apply CProdI... zfcrewrite.
+    apply SepI... apply CProdI... zfc_simple.
     rewrite ident_ap, ident_ap...
   - apply SepE in Hx as [Hp Hlt].
     apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
-    zfcrewrite. rewrite ident_ap, ident_ap in Hlt...
+    zfc_simple. rewrite ident_ap, ident_ap in Hlt...
     apply SepI... apply CProdI...
 Qed.
 
@@ -225,7 +225,7 @@ Record WoStruct : Type := constr {
   R : set;
   wo : woset A R;
 }.
-Hint Immediate wo : core.
+Global Hint Immediate wo : core.
 
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.

@@ -11,7 +11,7 @@ Notation Class := (set → Prop).
 (* 类成员 *)
 Definition InClass := λ x (C : Class), C x.
 Notation "x ⋵ C" := (InClass x C) (at level 70) : Class_scope.
-Hint Unfold InClass : core.
+Global Hint Unfold InClass : core.
 
 Definition all_in_class `(A : Class, P : set → Prop) : set → Prop :=
   λ x, x ⋵ A → P x.
@@ -33,7 +33,7 @@ Definition is_set := λ C, ∃ A, ∀ x, x ∈ A ↔ x ⋵ C.
 (* 子类 *)
 Definition Subclass := λ C D : Class, ∀ x, C x → D x.
 Notation "C ⫃ D" := (Subclass C D) (at level 70) : Class_scope.
-Hint Unfold Subclass : core.
+Global Hint Unfold Subclass : core.
 
 (* 类函数 *)
 Definition class_func := λ F D R, ∀x ⋵ D, F x ⋵ R.

@@ -129,7 +129,7 @@ Qed.
 (* 所有的单集等势 *)
 Lemma all_single_eqnum : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
 Proof. intros. now repeat rewrite eqnum_single. Qed.
-Hint Immediate all_single_eqnum : core.
+Global Hint Immediate all_single_eqnum : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
 Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
@@ -150,15 +150,15 @@ Proof with auto.
   exists F. apply meta_bijective.
   - intros x Hx.
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-    subst. zfcrewrite. apply CProdI...
+    subst. zfc_simple. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
     apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
-    subst. zfcrewrite.
+    subst. zfc_simple.
     apply op_iff in Heq as []. congruence.
   - intros y Hy.
     apply CProdE1 in Hy as [a [Ha [c [Hc Hy]]]].
-    exists <c, a>. split. apply CProdI... zfcrewrite.
+    exists <c, a>. split. apply CProdI... zfc_simple.
 Qed.
 
 (* 笛卡尔积在等势意义下满足结合律 *)
@@ -172,18 +172,18 @@ Proof with auto.
   - intros x Hx.
     apply CProdE1 in Hx as [d [Hd [c [Hc H1]]]].
     apply CProdE1 in Hd as [a [Ha [b [Hb H2]]]].
-    subst. zfcrewrite. apply CProdI... apply CProdI...
+    subst. zfc_simple. apply CProdI... apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply CProdE1 in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
     apply CProdE1 in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
     apply CProdE1 in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
     apply CProdE1 in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
     apply op_iff in Heq as [H1 H2].
-    apply op_iff in H2 as [H2 H3]. subst. zfcrewrite.
+    apply op_iff in H2 as [H2 H3]. subst. zfc_simple.
   - intros y Hy.
     apply CProdE1 in Hy as [a [Ha [d [Hd H1]]]].
     apply CProdE1 in Hd as [b [Hb [c [Hc H2]]]].
-    exists <a, b, c>. split. apply CProdI... apply CProdI... zfcrewrite.
+    exists <a, b, c>. split. apply CProdI... apply CProdI... zfc_simple.
 Qed.
 
 (* 任意集合的幂集与该集合到贰的所有函数的集合等势 *)
@@ -208,35 +208,35 @@ Proof with neauto.
       * destruct (classic (x ∈ B)). {
           eapply domI. apply SepI.
           - apply CProdI. apply Hx. apply H1_2.
-          - zfcrewrite. destruct (ixm (x ∈ B))... exfalso...
+          - zfc_simple. destruct (ixm (x ∈ B))... exfalso...
         } {
           eapply domI. apply SepI.
           - apply CProdI. apply Hx. apply H0_2.
-          - zfcrewrite. destruct (ixm (x ∈ B))... exfalso...
+          - zfc_simple. destruct (ixm (x ∈ B))... exfalso...
         }
     + intros x Hx. destruct (classic (x ∈ B)).
       * cut ((ℱ B)[x] = 1). congruence.
         apply func_ap... apply func_is_func.
-        apply SepI. apply CProdI... zfcrewrite.
+        apply SepI. apply CProdI... zfc_simple.
         destruct (ixm (x ∈ B))... exfalso...
       * cut ((ℱ B)[x] = 0). congruence.
         apply func_ap... apply func_is_func.
-        apply SepI. apply CProdI... zfcrewrite.
+        apply SepI. apply CProdI... zfc_simple.
         destruct (ixm (x ∈ B))... exfalso...
   - intros B1 H1 B2 H2 Heq.
     apply PowerAx in H1. apply PowerAx in H2.
     apply ExtAx. intros a. split; intros Hab.
     + assert (Hp: <a, 1> ∈ ℱ B1). {
-        apply SepI. apply CProdI... apply H1... zfcrewrite.
+        apply SepI. apply CProdI... apply H1... zfc_simple.
         destruct (ixm (a ∈ B1))... exfalso...
       }
-      rewrite Heq in Hp. apply SepE2 in Hp. zfcrewrite.
+      rewrite Heq in Hp. apply SepE2 in Hp. zfc_simple.
       destruct (ixm (a ∈ B2))... exfalso. eapply suc_neq_0...
     + assert (Hp: <a, 1> ∈ ℱ B2). {
-        apply SepI. apply CProdI... apply H2... zfcrewrite.
+        apply SepI. apply CProdI... apply H2... zfc_simple.
         destruct (ixm (a ∈ B2))... exfalso...
       }
-      rewrite <- Heq in Hp. apply SepE2 in Hp. zfcrewrite.
+      rewrite <- Heq in Hp. apply SepE2 in Hp. zfc_simple.
       destruct (ixm (a ∈ B1))... exfalso. eapply suc_neq_0...
   - intros y Hy. set {x ∊ A | λ x, y[x] = 1} as B.
     exists B. split. apply PowerAx. apply sep_sub.
@@ -244,7 +244,7 @@ Proof with neauto.
     apply ExtAx. intros x. split; intros Hxy.
     + apply SepE in Hxy as [Hx Heq].
       apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-      subst x. zfcrewrite. rewrite <- Hdy in Ha.
+      subst x. zfc_simple. rewrite <- Hdy in Ha.
       destruct (ixm (a ∈ B)) as [H|H]; subst b.
       * apply SepE in H as [].
         rewrite <- H0. apply func_correct...
@@ -258,7 +258,7 @@ Proof with neauto.
         }
     + apply Hy in Hxy as Hxp. apply SepI...
       apply CProdE1 in Hxp as [a [Ha [b [Hb Hx]]]].
-      subst x. zfcrewrite. destruct (ixm (a ∈ B)) as [H|H].
+      subst x. zfc_simple. destruct (ixm (a ∈ B)) as [H|H].
       * apply SepE2 in H as Hap. rewrite <- Hap.
         symmetry. apply func_ap...
       * rewrite two in Hb. apply TwoE in Hb as []...
@@ -344,13 +344,13 @@ Proof with neauto; try congruence.
   destruct (classic (x = k)) as [Hxk|Hxk]].
   - subst x. rewrite <- Hd' in Hpd.
     apply domE in Hpd as [y Hpr]. apply func_ap in Hpr as Hap...
-    rewrite Heqf' in Hpr. apply SepE in Hpr as [_ Hpr]. zfcrewrite.
+    rewrite Heqf' in Hpr. apply SepE in Hpr as [_ Hpr]. zfc_simple.
     destruct (ixm (p = p))...
   - subst x. exfalso. eapply nat_irrefl...
   - assert (Hxd: x ∈ dom f) by (rewrite Hd; apply BUnionI1; auto).
     assert (Hxd': x ∈ dom f') by (rewrite Hd'; apply BUnionI1; auto).
     apply domE in Hxd' as [y Hpr]. apply func_ap in Hpr as Hap...
-    rewrite Heqf' in Hpr. apply SepE in Hpr as [_ Hpr]. zfcrewrite.
+    rewrite Heqf' in Hpr. apply SepE in Hpr as [_ Hpr]. zfc_simple.
     destruct (ixm (x = p))... destruct (ixm (x = k))...
     subst y. rewrite Hap. clear Hap n n0 Hx Hxk.
     apply domE in Hxd as [y Hpr].
@@ -432,12 +432,12 @@ Definition infinite : set → Prop := λ A, ¬finite A.
 (* 空集是有限集 *)
 Fact empty_finite : finite ∅.
 Proof. exists ∅. now split; nauto. Qed.
-Hint Resolve empty_finite : core.
+Global Hint Resolve empty_finite : core.
 
 (* 单集是有限集 *)
 Fact single_finite : ∀ a, finite ⎨a⎬.
 Proof. exists 1. split. nauto. apply eqnum_single. Qed.
-Hint Resolve single_finite : core.
+Global Hint Resolve single_finite : core.
 
 (* 配对是有限集 *)
 Fact pair_finite : ∀ a b, a ≠ b → finite {a, b}.
@@ -754,7 +754,7 @@ Proof with eauto; try congruence.
   apply (bijection_swap_value _ _ _ _ Ha _ Hb) in Hf as Hg.
   assert (Hga: g[a] = b). {
     apply func_ap... destruct Hg as [[Hg _] _]...
-    apply SepI. apply CProdI... zfcrewrite.
+    apply SepI. apply CProdI... zfc_simple.
     destruct (ixm (a = a))... rewrite inv_ran_reduction... 
   }
   clear Hf Hi Hd Hr Ha Hbr Hb.

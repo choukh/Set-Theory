@@ -64,7 +64,7 @@ Proof with eauto.
       apply CProdE2 in Hp as [Hi _]...
     - apply Hxi in Hi as Hx. destruct Hx.
       eapply domI. apply SepI. apply CProdI...
-      eapply FUnionI... zfcrewrite.
+      eapply FUnionI... zfc_simple.
   }
   exists f. apply InfCProdI.
   - split... split... intros y Hy.
@@ -73,7 +73,7 @@ Proof with eauto.
     apply CProdE2 in Hp as [_ Hy]...
   - intros i Hi. rewrite <- Hdeq2 in Hi.
     apply func_correct in Hi... apply Hsub in Hi.
-    apply SepE in Hi as [_ Hy]. zfcrewrite.
+    apply SepE in Hi as [_ Hy]. zfc_simple.
 Qed.
 
 Theorem AC_I_iff_I' : AC_I ↔ AC_I'.
@@ -90,7 +90,7 @@ Proof with eauto; try congruence.
         apply SepE in Hp as [Hp _].
         apply CProdE2 in Hp as [Hx _]...
       - assert (Hu := Hx). apply UnionAx in Hx as [a [Ha Hx]].
-        eapply domI. apply SepI. apply CProdI... zfcrewrite.
+        eapply domI. apply SepI. apply CProdI... zfc_simple.
     }
     exists f. split; [split; [|split]|]...
     + intros y Hy. apply ranE in Hy as [x Hp].
@@ -98,7 +98,7 @@ Proof with eauto; try congruence.
       apply CProdE2 in Hp as [_ Hy]...
     + intros x Hx. apply domE in Hx as [y Hp].
       apply func_ap in Hp as Hap... rewrite Hap.
-      apply Hsub in Hp. apply SepE in Hp as [_ H]. zfcrewrite.
+      apply Hsub in Hp. apply SepE in Hp as [_ H]. zfc_simple.
   - intros AC1' R Hrel.
     specialize AC1' with R as [f [[Hf [Hd Hr]] Hin]].
     assert (Hdf: ∀x ∈ dom R, ⎨x⎬ ∈ dom f). {
@@ -117,15 +117,15 @@ Proof with eauto; try congruence.
     assert (Hg: is_function g). {
       apply meta_maps_into. intros x Hx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
-      rewrite Hfx. zfcrewrite. eapply ranI...
+      rewrite Hfx. zfc_simple. eapply ranI...
     }
     exists g. split; [|split]...
     + intros p Hp. apply SepE in Hp as [Hp Heq].
       apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
-      subst p. zfcrewrite. subst y.
+      subst p. zfc_simple. subst y.
       apply Hdf in Hx as Hsx. apply Hin in Hsx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
-      rewrite Hfx in *. zfcrewrite.
+      rewrite Hfx in *. zfc_simple.
       apply PairE in Hsx as [].
       * apply single_injective in H...
       * apply single_eq_pair in H as [H1 H2]...
@@ -134,7 +134,7 @@ Proof with eauto; try congruence.
         apply CProdE2 in Hp as [Hx _]...
       * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
         apply ranI in Hp. eapply domI. apply SepI. apply CProdI...
-        zfcrewrite. rewrite Hfx. zfcrewrite.
+        zfc_simple. rewrite Hfx. zfc_simple.
 Qed.
 
 Theorem AC_II_to_IV : AC_II → AC_IV.
@@ -278,7 +278,7 @@ Proof with auto.
   exists F. split; [|split]...
   intros p Hp. apply SepE in Hp as [H1 H2].
   apply CProdE1 in H1 as [a [Ha [b [Hb Hp]]]].
-  subst. zfcrewrite. subst. apply Hstar...
+  subst. zfc_simple. subst. apply Hstar...
 Qed.
 
 Theorem AC_VI_to_I : AC_VI → AC_I.
@@ -584,7 +584,7 @@ Proof with eauto.
       apply CProdE2 in Hp as [Hx _]...
     - apply Hs2 in Hx as Hxb.
       apply UnionAx in Hxb as [B [HB Hxb]].
-      eapply domI. apply SepI. apply CProdI... zfcrewrite.
+      eapply domI. apply SepI. apply CProdI... zfc_simple.
   }
   assert (Hsub: ran F ⊆ ℬ). {
     intros y Hy. apply ranE in Hy as [x Hp].
@@ -600,7 +600,7 @@ Proof with eauto.
   - exists M. split. apply Hsub...
     intros x Hx. rewrite <- HdF in Hx. apply domE in Hx as [B Hp].
     apply ranI in Hp as Hr. apply func_ap in Hp as Hap... subst B.
-    apply HsF in Hp. apply SepE in Hp as [_ Hx]. zfcrewrite.
+    apply HsF in Hp. apply SepE in Hp as [_ Hx]. zfc_simple.
     destruct (Hmax (F[x])); auto; [|subst M]...
     apply Hsub in Hr. apply Hsub in HM.
     pose proof (Hchn M HM (F[x]) Hr) as [].

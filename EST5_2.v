@@ -48,7 +48,7 @@ Proof with auto.
   eapply func_ap. destruct preIntMul_maps_onto...
   apply SepI. apply CProdI; apply CProdI;
     try apply CProdI; try apply add_ran; try apply mul_ran...
-  zfcrewrite...
+  zfc_simple...
 Qed.
 
 Lemma preIntMul_binCompatible :
@@ -65,7 +65,7 @@ Proof with auto.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntMul_m_n_p_q, preIntMul_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI;
-    apply add_ran; apply mul_ran... zfcrewrite. simpl.
+    apply add_ran; apply mul_ran... zfc_simple. simpl.
   unfold IntEq in *.
   assert (H3: (m+n')⋅p = (m'+n)⋅p) by congruence.
   rewrite mul_distr', mul_distr' in H3; [|auto..].
@@ -241,7 +241,7 @@ Proof with neauto.
   intros n H. apply int_ident in H...
   rewrite add_ident, add_ident in H... eapply suc_neq_0...
 Qed.
-Hint Immediate int_suc_neq_0 : number_hint.
+Global Hint Immediate int_suc_neq_0 : number_hint.
 
 Theorem int_no_0_div : ∀ a b ∈ ℤ,
   (a ⋅ b = Int 0)%z → a = Int 0 ∨ b = Int 0.
@@ -379,7 +379,7 @@ Proof with auto.
   pose proof (intProj p Hp q Hq)
     as [p' [Hp' [q' [Hq' [H21 H22]]]]].
   pose proof intEquiv_equiv as [_ [_ [Hsym _]]].
-  rewrite H11, H21. simpl. zfcrewrite. eapply int_orderable.
+  rewrite H11, H21. simpl. zfc_simple. eapply int_orderable.
   apply Hsym. apply H12. apply Hsym. apply H22. apply Hlt.
 Qed.
 
@@ -387,14 +387,14 @@ Lemma intLtE : ∀ a b, a <𝐳 b → ∃ m n p q ∈ ω,
   a = [<m, n>]~ ∧ b = [<p, q>]~ ∧ m + q ∈ p + n.
 Proof with auto.
   intros a b Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE2 in H1 as [Ha Hb]. zfcrewrite.
+  apply CProdE2 in H1 as [Ha Hb]. zfc_simple.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst.
   exists m. split... exists n. split...
   exists p. split... exists q. split... split... split...
   pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 H12]]]]].
   pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
-  rewrite H11, H21 in H2. simpl in H2. zfcrewrite.
+  rewrite H11, H21 in H2. simpl in H2. zfc_simple.
   eapply int_orderable; eauto.
 Qed.
 
@@ -403,10 +403,10 @@ Lemma intLt : ∀ m n p q ∈ ω,
 Proof.
   intros m Hm n Hn p Hp q Hq. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE2 in H1 as [Ha Hb]. zfcrewrite.
+    apply CProdE2 in H1 as [Ha Hb]. zfc_simple.
     pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 H12]]]]].
     pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
-    rewrite H11, H21 in H2. simpl in H2. zfcrewrite.
+    rewrite H11, H21 in H2. simpl in H2. zfc_simple.
     eapply int_orderable; eauto.
   - apply intLtI; auto.
 Qed.

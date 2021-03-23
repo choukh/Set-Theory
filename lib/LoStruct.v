@@ -14,7 +14,7 @@ Record LoStruct : Type := constr {
   R : set;
   lo : loset A R;
 }.
-Hint Immediate lo : core.
+Global Hint Immediate lo : core.
 
 Lemma empty_loset : loset ∅ ∅.
 Proof with auto.

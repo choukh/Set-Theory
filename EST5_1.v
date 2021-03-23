@@ -35,7 +35,7 @@ Proof with eauto.
     apply op_iff in Heq1 as [H1 H2].
     apply CProdE1 in Ha1 as [a [Ha [b [Hb Ha1]]]].
     apply CProdE1 in Ha2 as [c [Hc [d [Hd Ha2]]]].
-    subst. zfcrewrite.
+    subst. zfc_simple.
     eapply eqvc_ident in H1...
     eapply eqvc_ident in H2...
     assert (<F[<a, b>], F[<c, d>]> ∈ R) by (apply Hcom; eauto).
@@ -50,12 +50,12 @@ Proof with eauto.
     + apply domE in Hx as [y Hp]. apply ReplAx in Hp as [a [Hp Heq]].
       apply op_iff in Heq as [Heq _]. subst x.
       apply CProdE1 in Hp as [c [Hc [d [Hd Ha]]]].
-      subst. zfcrewrite. apply CProdI; apply quotI...
+      subst. zfc_simple. apply CProdI; apply quotI...
     + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       apply quotE in Ha as [c [Hc Heqa]].
       apply quotE in Hb as [d [Hd Heqb]].
       eapply domI. apply ReplAx. exists <c, d>. split.
-      apply CProdI... zfcrewrite. apply op_iff...
+      apply CProdI... zfc_simple. apply op_iff...
       split. rewrite Hx. apply op_iff... reflexivity.
   - (* ran F' ⊆ A/R *)
     intros y Hy. apply ranE in Hy as [].
@@ -160,7 +160,7 @@ Lemma planeEquivI : ∀ A B (Eq : PlaneEq),
   Eq m n p q → (<m, n> ~ <p, q>) A B Eq.
 Proof with auto.
   intros * m Hm n Hn p Hp q Hq Heq.
-  apply SepI. apply CProdI; apply CProdI... zfcrewrite...
+  apply SepI. apply CProdI; apply CProdI... zfc_simple...
 Qed.
 
 Lemma planeEquivE1 : ∀ A B Eq, ∀ x y, (x ~ y) A B Eq →
@@ -170,7 +170,7 @@ Proof with auto.
   intros * Hqv. apply SepE in Hqv as [Hxy Heq].
   apply plane2E in Hxy as [m [Hm [n [Hn [p [Hp [q [Hq Hxy]]]]]]]].
   apply op_iff in Hxy as []; subst.
-  zfcrewrite. simpl in Heq.
+  zfc_simple. simpl in Heq.
   exists m. split... exists n. split...
   exists p. split... exists q. split...
 Qed.
@@ -209,11 +209,11 @@ Proof with eauto.
   - intros x Hx. apply SepE1 in Hx...
   - intros x Hx. apply SepI. apply CProdI...
     apply CProdE1 in Hx as [a [Ha [b [Hb Heq]]]].
-    subst x. zfcrewrite...
+    subst x. zfc_simple...
   - intros x y Hqv. apply planeEquivE1 in Hqv
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy Heq]]]]]]]]]].
     subst. apply SepI. apply CProdI; apply CProdI...
-    zfcrewrite. simpl in *. apply Hsymm...
+    zfc_simple. simpl in *. apply Hsymm...
   - intros x y z H1 H2.
     apply planeEquivE1 in H1
       as [m [Hm [n [Hn [p [Hp [q [Hq [Hx [Hy H1]]]]]]]]]]. subst.
@@ -221,7 +221,7 @@ Proof with eauto.
       as [p' [_ [q' [_ [r [Hr [s [Hs [Hx [Hy H2]]]]]]]]]]. subst.
     apply op_iff in Hx as []; subst p' q'.
     apply SepI. apply CProdI; apply CProdI...
-    zfcrewrite. simpl in *. eapply Htran; revgoals...
+    zfc_simple. simpl in *. eapply Htran; revgoals...
 Qed.
 
 (* 平面上的商集 *)
@@ -270,7 +270,7 @@ Proof with auto.
   intros * Hxy. apply SepE in Hxy as [Hxy Heq].
   apply CProdE2 in Hxy as [Hx _].
   apply plane2E in Hx as [m [Hm [n [Hn [p [Hp [q [Hq Hx]]]]]]]].
-  subst x. zfcrewrite. simpl in Heq.
+  subst x. zfc_simple. simpl in Heq.
   exists m. split... exists n. split...
   exists p. split... exists q. split...
 Qed.
@@ -300,7 +300,7 @@ Proof with eauto.
       apply plane2E in Hx' as [m [Hm [n [Hn [p [Hp [q [Hq Hx']]]]]]]].
       eapply domI. apply SepI. apply CProdI...
       apply HF1. apply Hm. apply Hn. apply Hp. apply Hq.
-      subst x. zfcrewrite. simpl. reflexivity.
+      subst x. zfc_simple. simpl. reflexivity.
   - (* ran planeArith = A² *)
     apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
@@ -311,7 +311,7 @@ Proof with eauto.
       apply Ha. apply Hb. eapply ranI. apply SepI.
       apply CProdI... apply CProdI; apply CProdI.
       apply Hm. apply Hn. apply Hp. apply Hq.
-      subst. zfcrewrite. simpl. congruence.
+      subst. zfc_simple. simpl. congruence.
 Qed.
 
 Close Scope PlaneEquiv_scope.
@@ -395,7 +395,7 @@ Proof with auto.
   intros m Hm n Hn p Hp q Hq.
   eapply func_ap. destruct preIntAdd_maps_onto...
   apply SepI. apply CProdI; apply CProdI;
-    try apply CProdI; try apply add_ran... zfcrewrite...
+    try apply CProdI; try apply add_ran... zfc_simple...
 Qed.
 
 Lemma preIntAdd_binCompatible :
@@ -412,7 +412,7 @@ Proof with eauto.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntAdd_m_n_p_q, preIntAdd_m_n_p_q...
   apply SepI. apply CProdI; apply CProdI; apply add_ran...
-  zfcrewrite. simpl. unfold IntEq in *.
+  zfc_simple. simpl. unfold IntEq in *.
   rewrite (add_comm m), <- add_assoc, (add_comm (p+m+n')),
     <- add_assoc, <- add_assoc, add_assoc, (add_comm q');
     try repeat apply add_ran...
@@ -463,11 +463,11 @@ Definition Int : nat → set := λ n, [<n, 0>]~.
 
 Lemma intI : ∀ m n : nat, [<m, n>]~ ∈ ℤ.
 Proof. intros. apply pQuotI; nauto. Qed.
-Hint Immediate intI : number_hint.
+Global Hint Immediate intI : number_hint.
 
 Lemma int_n : ∀ n, Int n ∈ ℤ.
 Proof. intros. unfold Int. nauto. Qed.
-Hint Immediate int_n : number_hint.
+Global Hint Immediate int_n : number_hint.
 
 Example intAdd_1_2 : Int 1 + Int 2 = Int 3.
 Proof with nauto.
@@ -539,7 +539,7 @@ Lemma preIntProjI1 : ∀ m n p ∈ ω,
 Proof with nauto.
   intros m Hm n Hn p Hp Heq.
   apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
-  rewrite add_ident... subst. rewrite add_comm... zfcrewrite...
+  rewrite add_ident... subst. rewrite add_comm... zfc_simple...
 Qed.
 
 Lemma preIntProjI2 : ∀ m n q ∈ ω,
@@ -547,7 +547,7 @@ Lemma preIntProjI2 : ∀ m n q ∈ ω,
 Proof with nauto.
   intros m Hm n Hn q Hq Heq.
   apply SepI. apply eqvcI. apply planeEquivI... unfold IntEq.
-  rewrite add_ident'... zfcrewrite...
+  rewrite add_ident'... zfc_simple...
 Qed.
 
 Lemma preIntProjE : ∀ m n ∈ ω, ∀x ∈ PreIntProj ([<m, n>]~),
@@ -559,7 +559,7 @@ Proof with auto.
   assert (Hx' := Hx). apply planeEquivE1 in Hx'
     as [m' [Hm' [n' [Hn' [p [Hp [q [Hq [H1 [H2 _]]]]]]]]]].
   apply op_iff in H1 as []; subst m' n'.
-  subst x. zfcrewrite. destruct H0; subst.
+  subst x. zfc_simple. destruct H0; subst.
   exists 0. split... exists q... split...
   exists p. split... exists 0... split...
 Qed.
@@ -647,12 +647,12 @@ Proof with eauto.
   pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 H2]]]]].
   destruct intEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
-  - apply eqvcE in Hx. rewrite H1 in Hx. zfcrewrite.
+  - apply eqvcE in Hx. rewrite H1 in Hx. zfc_simple.
     apply eqvcI. cut (<n, m> ~ <q, p>). intros. eapply Htr...
     apply planeEquivI... unfold IntEq.
     apply planeEquiv in H2... unfold IntEq in H2.
     rewrite (add_comm n), (add_comm q)...
-  - apply eqvcI. rewrite H1. zfcrewrite.
+  - apply eqvcI. rewrite H1. zfc_simple.
     apply eqvcE in Hx. cut (<q, p> ~ <n, m>). intros. eapply Htr...
     apply planeEquivI... unfold IntEq.
     apply planeEquiv in H2... unfold IntEq in H2.
@@ -677,7 +677,7 @@ Lemma neg_int_n : ∀ n, -Int n ∈ ℤ.
 Proof with nauto.
   intros. apply intAddInv_ran...
 Qed.
-Hint Immediate neg_int_n : number_hint.
+Global Hint Immediate neg_int_n : number_hint.
 
 Lemma intAddInv_0 : -Int 0 = Int 0.
 Proof. unfold Int. rewrite intAddInv; nauto. Qed.

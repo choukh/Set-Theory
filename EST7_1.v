@@ -211,7 +211,7 @@ Proof.
   intros * Hbr p Hp.
   apply SepE in Hp as [H [_ Hp]].
   apply CProdE1 in H as [a [_ [b [_ Heq]]]].
-  subst p. zfcrewrite. apply Hbr in Hp.
+  subst p. zfc_simple. apply Hbr in Hp.
   apply CProdE2 in Hp as [Ha Hb]. apply CProdI; auto.
 Qed.
 

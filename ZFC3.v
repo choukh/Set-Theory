@@ -12,7 +12,7 @@ Notation "a ⁺" := (Suc a) (at level 8) : ZFC_scope.
 
 Lemma suc_has_n : ∀ n, n ∈ n⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.
-Hint Immediate suc_has_n : core.
+Global Hint Immediate suc_has_n : core.
 
 Lemma suc_inc_n : ∀ n, n ⊆ n⁺.
 Proof. intros n x Hx. apply BUnionI1. apply Hx. Qed.
@@ -21,7 +21,7 @@ Lemma suc_neq_0 : ∀ n, n⁺ ≠ ∅.
 Proof.
   intros n H. eapply EmptyE in H. apply H. apply suc_has_n.
 Qed.
-Hint Immediate suc_neq_0 : core.
+Global Hint Immediate suc_neq_0 : core.
 
 (* 归纳集 *)
 Definition inductive : set → Prop := λ A,

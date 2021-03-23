@@ -32,7 +32,7 @@ Local Lemma A_in_𝒜 {T} {F : F T} {R : R T} :
 Proof with auto.
   intros. apply SepI... exists t. split... apply H.
 Qed.
-Hint Resolve A_in_𝒜 : core.
+Local Hint Resolve A_in_𝒜 : core.
 
 Local Lemma μ_is_min {T} {F : F T} {R : R T} :
   Equivalence R → ∀ t, μ F R t ∈ Ω F R t ∧
@@ -49,7 +49,7 @@ Proof.
   intros. destruct (@μ_is_min T F R H t) as [Hμ _].
   apply SepE1 in Hμ. eapply ord_is_ords; revgoals; eauto.
 Qed.
-Hint Resolve μ_is_ord : core.
+Local Hint Resolve μ_is_ord : core.
 
 Local Fact μ_is_suc {T} {F : F T} {R : R T} :
   Equivalence R → ∀ t, is_suc (μ F R t).

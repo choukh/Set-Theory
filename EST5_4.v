@@ -20,11 +20,11 @@ Proof with nauto.
   intros. apply intLt... rewrite add_ident, add_ident...
   apply suc_has_0. apply embed_ran.
 Qed.
-Hint Immediate intPos_sn : number_hint.
+Global Hint Immediate intPos_sn : number_hint.
 
 Lemma intNeg_sn : ∀ n, intNeg (-Int (S n)).
 Proof. intros. apply intPos_neg. nauto. Qed.
-Hint Immediate intNeg_sn : number_hint.
+Global Hint Immediate intNeg_sn : number_hint.
 
 Lemma intMul_pos_prod : ∀a b ∈ ℤ,
   intPos a → intPos b → intPos (a ⋅ b).
@@ -127,7 +127,7 @@ Proof with eauto.
   pose proof (ratProj c Hc d Hd)
     as [c' [Hc' [d' [Hd' [H21 [H22 [_ Hpd']]]]]]].
   pose proof ratEquiv_equiv as [_ [_ [Hsym _]]].
-  rewrite H11, H21. simpl. zfcrewrite.
+  rewrite H11, H21. simpl. zfc_simple.
   eapply rat_orderable; revgoals...
 Qed.
 
@@ -136,7 +136,7 @@ Lemma ratLtE : ∀ r s, r <𝐪 s → ∃a ∈ ℤ, ∃b ∈ ℤ', ∃c ∈ ℤ,
   r = [<a, b>]~ ∧ s = [<c, d>]~ ∧ a ⋅ d <𝐳 c ⋅ b.
 Proof with eauto.
   intros r s Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE2 in H1 as [Hr Hs]. zfcrewrite.
+  apply CProdE2 in H1 as [Hr Hs]. zfc_simple.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]]. subst.
   exists a. split... exists b. split...
@@ -145,7 +145,7 @@ Proof with eauto.
     as [a' [Ha' [b' [Hb' [H11 [H12 [_ Hpb']]]]]]].
   pose proof (ratProj c Hc d Hd)
     as [c' [Hc' [d' [Hd' [H21 [H22 [_ Hpd']]]]]]].
-  rewrite H11, H21 in H2. simpl in H2. zfcrewrite.
+  rewrite H11, H21 in H2. simpl in H2. zfc_simple.
   eapply rat_orderable; revgoals...
 Qed.
 
@@ -155,12 +155,12 @@ Lemma ratLt : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
 Proof with eauto.
   intros a Ha b Hb c Hc d Hd Hpb Hpd. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE2 in H1 as [Hr Hs]. zfcrewrite.
+    apply CProdE2 in H1 as [Hr Hs]. zfc_simple.
     pose proof (ratProj a Ha b Hb)
       as [a' [Ha' [b' [Hb' [H11 [H12 [_ Hpb']]]]]]].
     pose proof (ratProj c Hc d Hd)
       as [c' [Hc' [d' [Hd' [H21 [H22 [_ Hpd']]]]]]].
-    rewrite H11, H21 in H2. simpl in H2. zfcrewrite.
+    rewrite H11, H21 in H2. simpl in H2. zfc_simple.
     eapply rat_orderable; revgoals...
   - apply ratLtI...
 Qed.
@@ -326,19 +326,19 @@ Proof with nauto.
   intros. apply ratLt...
   rewrite intMul_0_l, intMul_ident... apply intPos_sn.
 Qed.
-Hint Immediate ratPos_sm_sn : number_hint.
+Global Hint Immediate ratPos_sm_sn : number_hint.
 
 Lemma ratPos_sn : ∀ n, ratPos (Rat (S n)).
 Proof. intros. unfold Rat. nauto. Qed.
-Hint Immediate ratPos_sn : number_hint.
+Global Hint Immediate ratPos_sn : number_hint.
 
 Lemma ratNeg_sn : ∀ n, ratNeg (-Rat (S n)).
 Proof. intros. apply ratPos_neg. nauto. Qed.
-Hint Immediate ratNeg_sn : number_hint.
+Global Hint Immediate ratNeg_sn : number_hint.
 
 Lemma ratPos_r_sn : ∀ n, ratPos (Rat (S n))⁻¹.
 Proof. intros n. unfold Rat. rewrite ratMulInv; nauto. Qed.
-Hint Immediate ratPos_r_sn : number_hint.
+Global Hint Immediate ratPos_r_sn : number_hint.
 
 Notation "r ≤ s" := (r <𝐪 s ∨ r = s) (at level 70) : Rat_scope.
 Notation "r ≥ s" := (s ≤ r) (only parsing, at level 70): Rat_scope.

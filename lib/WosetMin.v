@@ -14,7 +14,7 @@ Lemma minE : ∀ R B m, <B, m> ∈ Min R →
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
   apply CProdE2 in Hp as [HN _].
-  zfcrewrite. repeat split; auto.
+  zfc_simple. repeat split; auto.
 Qed.
 
 Lemma min_maps_into : ∀ A R, woset A R → (fld R) = A →
@@ -38,7 +38,7 @@ Proof with eauto.
       pose proof (Hmin B Hne Hsub) as [a [Ha Hle]].
       apply (domI _ _ a). apply SepI.
       * apply CProdI. apply SepI... apply Hsub...
-      * split. zfcrewrite. intros m Hm. zfcrewrite. apply Hle...
+      * split. zfc_simple. intros m Hm. zfc_simple. apply Hle...
   - intros a Ha. apply ranE in Ha as [B Hp].
     apply minE in Hp as [HB [Ha _]]. apply SepE in HB as [HB _].
     apply PowerAx in HB. apply HB...
@@ -207,7 +207,7 @@ Lemma minE : ∀ A R B m, <B, m> ∈ Min A R →
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
   apply CProdE2 in Hp as [HN _].
-  zfcrewrite. repeat split; auto.
+  zfc_simple. repeat split; auto.
 Qed.
 
 Lemma min_maps_into : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
@@ -230,7 +230,7 @@ Proof with eauto.
       pose proof (Hmin B Hne Hsub) as [a [Ha Hle]].
       apply (domI _ _ a). apply SepI.
       * apply CProdI. apply SepI... apply Hsub...
-      * split. zfcrewrite. intros m Hm. zfcrewrite. apply Hle...
+      * split. zfc_simple. intros m Hm. zfc_simple. apply Hle...
   - intros a Ha. apply ranE in Ha as [B Hp].
     apply minE in Hp as [HB [Ha _]]. apply SepE in HB as [HB _].
     apply PowerAx in HB. apply HB...

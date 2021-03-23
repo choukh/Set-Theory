@@ -127,7 +127,7 @@ Proof with eauto; try congruence.
     apply meta_surjective.
     - intros p Hp.
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-      subst p. zfcrewrite. apply UnionAx.
+      subst p. zfc_simple. apply UnionAx.
       exists (g[b]). split. apply Hgm... apply (ap_ran ω)...
       apply surjection_is_func. apply HFm...
     - intros y Hy. apply UnionAx in Hy as [A [HA Hy]].
@@ -137,7 +137,7 @@ Proof with eauto; try congruence.
       pose proof (HFm b Hb) as [HfF [HdF HrF]].
       rewrite <- Hgb, <- HrF in Hy. apply ranE in Hy as [a HFb].
       apply domI in HFb as Ha. apply func_ap in HFb...
-      exists <a, b>. split. apply CProdI... zfcrewrite.
+      exists <a, b>. split. apply CProdI... zfc_simple.
   }
   destruct ω_eqnum_ω_cp_ω as [i Hi].
   apply (countable_if_mapped_onto_by_ω _ (f ∘ i)).
@@ -200,9 +200,9 @@ Proof with neauto.
     * exists 1. split... apply meta_maps_into. intros _ _...
   + intros x1 Hx1 x2 Hx2 Heq.
     assert (<∅, x1> ∈ Func 1 A (λ _, x1)). {
-      apply SepI. apply CProdI... apply suc_has_0... zfcrewrite.
+      apply SepI. apply CProdI... apply suc_has_0... zfc_simple.
     }
-    rewrite Heq in H. apply SepE in H as [_ H]. zfcrewrite.
+    rewrite Heq in H. apply SepE in H as [_ H]. zfc_simple.
 Qed.
 
 (* 有限序列集是函数空间的并的子集 *)
@@ -324,14 +324,14 @@ Proof with auto; try congruence.
     apply meta_surjective.
     - intros p Hp.
       apply CProdE1 in Hp as [A [HA [k [Hk Hp]]]].
-      subst p. zfcrewrite. apply UnionAx.
+      subst p. zfc_simple. apply UnionAx.
       exists A. split... apply (ap_ran K)...
       apply surjection_is_func. apply HFA...
     - intros a Ha. apply UnionAx in Ha as [A [HA Ha]].
       pose proof (HFA A HA) as [HfF [HdF HrF]].
       rewrite <- HrF in Ha. apply ranE in Ha as [k HFAk].
       apply domI in HFAk as Ha. apply func_ap in HFAk...
-      exists <A, k>. split. apply CProdI... zfcrewrite.
+      exists <A, k>. split. apply CProdI... zfc_simple.
   }
   eapply domain_of_surjection_dominate_range... apply Hf.
 Qed.
