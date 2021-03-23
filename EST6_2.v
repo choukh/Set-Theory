@@ -517,7 +517,7 @@ Lemma cardAdd_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 + 0 = 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. apply card_of_card in Hcd.
   rewrite Hcd at 2. apply CardAx1.
-  rewrite cprod_0_x, bunion_empty. symmetry.
+  rewrite cprod_0_l, bunion_empty. symmetry.
   set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
   exists F. apply meta_bijective.
   - intros x Hx. apply CProdI...
@@ -610,7 +610,7 @@ Lemma arrow_from_empty : ∀ A, 0 ⟶ A = 1.
 Proof with nauto.
   intros. apply ExtAx. intros p. split; intros Hp.
   - apply SepE in Hp as [Hp _].
-    rewrite PowerAx, cprod_0_x, sub_empty in Hp.
+    rewrite PowerAx, cprod_0_l, sub_empty in Hp.
     subst. apply suc_has_0...
   - apply BUnionE in Hp as []. exfalso0.
     apply SingE in H. subst. rewrite <- ident_empty.

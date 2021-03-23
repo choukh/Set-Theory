@@ -326,14 +326,14 @@ Proof.
   subst p. exists a, b. auto.
 Qed.
 
-Fact cprod_0_x : ∀ B, ∅ × B = ∅.
+Fact cprod_0_l : ∀ B, ∅ × B = ∅.
 Proof.
   intros. apply ExtAx. split; intros Hx.
   - apply CProdE1 in Hx as [a [Ha _]]. exfalso0.
   - exfalso0.
 Qed.
 
-Fact cprod_x_0 : ∀ A, A × ∅ = ∅.
+Fact cprod_0_r : ∀ A, A × ∅ = ∅.
 Proof.
   intros. apply sub_empty. intros x H.
   apply CProdE1 in H as [_ [_ [b [Hb _]]]]. exfalso0.

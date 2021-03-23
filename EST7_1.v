@@ -59,6 +59,18 @@ Definition asym := λ R, ∀ x y, (x <ᵣ y) R → ¬(y <ᵣ x) R.
 (* 反对称性 *)
 Definition antisym := λ R, ∀ x y, (x <ᵣ y) R → (y <ᵣ x) R → x = y.
 
+Fact asym_iff_antisym_and_irrefl :
+  ∀ R, asym R ↔ antisym R ∧ irrefl R.
+Proof with auto.
+  intro R. split.
+  - intros Hasym. split.
+    + intros x y Hxy Hyx. apply Hasym in Hyx. exfalso...
+    + intros x Hx. apply Hasym in Hx as Hx'...
+  - intros [Hanti Hir] x y Hxy Hyx.
+    assert (x = y). apply Hanti...
+    rewrite H in Hxy. apply (Hir y)...
+Qed.
+
 (* 偏序具有非对称性 *)
 Fact po_asym : ∀ R, partialOrder R → asym R.
 Proof.
@@ -634,7 +646,7 @@ Lemma subRel_empty : ∀ R, R ⥏ ∅ = ∅.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [_ Hx].
-    rewrite cprod_0_x in Hx. exfalso0.
+    rewrite cprod_0_l in Hx. exfalso0.
   - exfalso0.
 Qed.
 

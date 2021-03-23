@@ -181,9 +181,9 @@ Fact sq_empty : 𝗦𝗾 ∅ = 1.
 Proof with nauto.
   apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hx _].
-    rewrite cprod_x_0, power_empty, <- one in Hx...
+    rewrite cprod_0_r, power_empty, <- one in Hx...
   - rewrite one in Hx. apply SingE in Hx. subst. apply SepI.
-    + rewrite cprod_x_0, power_empty. apply SingI.
+    + rewrite cprod_0_r, power_empty. apply SingI.
     + exists 0. split... apply injection_is_func.
       apply empty_injective.
 Qed.

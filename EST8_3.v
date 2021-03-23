@@ -278,7 +278,7 @@ Proof with auto.
     right. apply BUnionI1. apply BUnionI2...
 Qed.
 
-Lemma loAdd_loset : ∀ S T,
+Theorem loAdd_loset : ∀ S T,
   let S' := LoDisj S 0 in
   let T' := LoDisj T 1 in
   loset (A S' ∪ A T') (S' ⨁ T').
@@ -465,7 +465,8 @@ Proof with neauto; try congruence.
     intros a Ha b Hb. apply leq_iff_not_gt... apply add_ran...
     apply leq_add_enlarge...
   }
-  set (LoDisj_A (LOⁿ n) 0 ∪ LoDisj_A (LOⁿ m) 1) as Dom.
+  unfold LoDisj_A. simpl.
+  set (n × ⎨0⎬ ∪ m × ⎨1⎬) as Dom.
   set (n + m)%n as Ran.
   set (Func Dom Ran (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
@@ -563,8 +564,8 @@ Proof with neauto; try congruence.
   apply ot_correct. unfold otⁿ.
   erewrite loAdd_well_defined; revgoals.
   apply proj_ot_id. apply proj_ot_id.
-  unfold LoAdd. simpl.
-  set (LoDisj_A (LOⁿ 1) 0 ∪ LoDisj_A (LOᵒ ω ω_is_ord) 1) as Dom.
+  unfold LoAdd. simpl. unfold LoDisj_A. simpl.
+  set (1 × ⎨0⎬ ∪ ω × ⎨1⎬) as Dom.
   set (Func Dom ω (λ x, match (ixm (π2 x = 0)) with
     | inl _ => 0
     | inr _ => (π1 x)⁺
@@ -644,8 +645,8 @@ Proof with neauto; try congruence.
   apply ot_correct. unfold otⁿ.
   erewrite loAdd_well_defined; revgoals.
   apply proj_ot_id. apply proj_ot_id.
-  unfold LoAdd. simpl.
-  set (LoDisj_A (LOᵒ ω ω_is_ord) 0 ∪ LoDisj_A (LOⁿ 1) 1) as Dom.
+  unfold LoAdd. simpl. unfold LoDisj_A. simpl.
+  set (ω × ⎨0⎬ ∪ 1 × ⎨1⎬) as Dom.
   set (Func Dom ω⁺ (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
     | inr _ => ω

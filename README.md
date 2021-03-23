@@ -199,7 +199,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 - Order types
 - Addition of order types
 
-## EST8_4.v (TODO)
+## EST8_4.v
 - Multiplication of order types
 - Laws of order type arithmetic
 
