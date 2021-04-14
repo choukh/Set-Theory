@@ -205,8 +205,8 @@ Proof with auto.
   apply po_asym in Hpo. firstorder.
 Qed.
 
-(* 逆关系 *)
-Lemma inv_is_binRel : ∀ A R, is_binRel R A → is_binRel R⁻¹ A.
+(* 二元关系的逆仍是二元关系 *)
+Lemma inv_binRel : ∀ A R, is_binRel R A → is_binRel R⁻¹ A.
 Proof.
   intros * Hbr p Hp.
   apply SepE in Hp as [H [_ Hp]].
@@ -215,13 +215,41 @@ Proof.
   apply CProdE2 in Hp as [Ha Hb]. apply CProdI; auto.
 Qed.
 
+(* 传递关系的逆仍是传递关系 *)
+Lemma inv_tranr : ∀ R, tranr R → tranr R⁻¹.
+Proof.
+  intros R Htr x y z Hxy Hyz. rewrite <- inv_op in *. firstorder.
+Qed.
+
+(* 反自反关系的逆仍是反自反关系 *)
+Lemma inv_irrefl : ∀ R, irrefl R → irrefl R⁻¹.
+Proof.
+  intros R Htr x Hx. rewrite <- inv_op in Hx. firstorder.
+Qed.
+
+(* 连通关系的逆仍是连通关系 *)
+Lemma inv_connected : ∀ R A, connected R A → connected R⁻¹ A.
+Proof.
+  intros R A Hcon x Hx y Hy Hnq.
+  apply Hcon in Hnq as []; auto; [right|left];
+  rewrite <- inv_op; auto.
+Qed.
+
 (* 偏序的逆仍是偏序 *)
-Fact inv_partialOrder : ∀ R, partialOrder R → partialOrder R⁻¹.
+Fact inv_po : ∀ R, partialOrder R → partialOrder R⁻¹.
 Proof with auto.
   intros R [Hrl [Htr Hir]]. split; [|split].
-  - apply inv_rel.
-  - intros x y z Hxy Hyz. rewrite <- inv_op in *. firstorder.
-  - intros x Hx. rewrite <- inv_op in Hx. firstorder.
+  apply inv_rel. apply inv_tranr... apply inv_irrefl...
+Qed.
+
+(* 线序的逆仍是线序 *)
+Fact inv_lo : ∀ A R, loset A R → loset A R⁻¹.
+Proof with auto.
+  intros A R Hlo.
+  apply loset_iff_connected_poset. split.
+  apply inv_connected. apply lo_connected...
+  split. apply inv_binRel. apply Hlo.
+  apply inv_po. apply (loset_iff_connected_poset A)...
 Qed.
 
 (* 极小元在逆关系下是极大元 *)

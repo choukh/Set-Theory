@@ -154,3 +154,13 @@ Proof with auto; try congruence.
 Qed.
 
 End RecursionOnOrdinals.
+
+Lemma count_by_ord :
+  ∀ A, countable A → ∃ α, is_ord α ∧ α ⋸ ω ∧ ∃ f, f: α ⟺ A.
+Proof with auto.
+  intros A Hcnt.
+  apply countable_iff in Hcnt as [[n [Hn Hqn]]|Hqn];
+  symmetry in Hqn; destruct Hqn as [f Hf].
+  - exists n. repeat split... apply nat_is_ord... exists f...
+  - exists ω. repeat split... exists f...
+Qed.

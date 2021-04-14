@@ -431,8 +431,7 @@ Qed.
 (* ω是序数 *)
 Fact ω_is_ord : is_ord ω.
 Proof.
-  set (WoStruct.constr ω Lt Lt_wellOrder) as S.
-  exists S. symmetry. apply α_ω.
+  exists 𝛚. symmetry. apply α_ω.
 Qed.
 Global Hint Resolve ω_is_ord : core.
 

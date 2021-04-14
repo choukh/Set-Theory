@@ -400,6 +400,23 @@ Proof.
   eapply ranI. apply Hp.
 Qed.
 
+Fact img_empty : ∀ f, f⟦∅⟧ = ∅.
+Proof.
+  intros. apply ExtAx. intros p. split; intros Hp.
+  apply imgE in Hp as [x [Hx _]]. exfalso0. exfalso0.
+Qed.
+
+Fact img_single : ∀ f, is_function f → ∀x ∈ dom f, f⟦⎨x⎬⟧ = ⎨f[x]⎬.
+Proof with auto.
+  intros f Hf x Hx.
+  apply ExtAx. intros y. split; intros Hy.
+  - apply imgE in Hy as [w [Hw Hp]].
+    apply SingE in Hw; subst.
+    apply func_ap in Hp... subst...
+  - apply SingE in Hy; subst.
+    eapply imgI... apply func_correct...
+Qed.
+
 Lemma img_correct : ∀ F A,
   is_function F → A ⊆ dom F → F⟦A⟧ = {λ a, F[a] | a ∊ A}.
 Proof with eauto.

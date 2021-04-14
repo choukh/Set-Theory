@@ -83,7 +83,7 @@ Proof with auto.
 Qed.
 
 (* 集合论自然数与元语言自然数同构 *)
-Lemma embed_proj_id : ∀ n : nat, Proj n = n. 
+Lemma proj_embed_id : ∀ n : nat, Proj n = n. 
 Proof.
   intros. unfold Proj.
   destruct (dit (sig (λ k, iter k Suc ∅ = Embed n))).
@@ -91,10 +91,10 @@ Proof.
   - exfalso. apply f. exists n. reflexivity.
 Qed.
 
-Lemma proj_embed_id : ∀n ∈ ω, Embed n = n.
+Lemma embed_proj_id : ∀n ∈ ω, Embed n = n.
 Proof.
   intros n Hn. destruct (proj n Hn) as [m Heq].
-  subst. rewrite embed_proj_id. reflexivity.
+  subst. rewrite proj_embed_id. reflexivity.
 Qed.
 
 (* 投射是单射 *)
@@ -102,7 +102,7 @@ Lemma proj_injective : ∀ n m ∈ ω, Proj n = Proj m → n = m.
 Proof.
   intros n Hn m Hm Heq.
   assert (Embed n = Embed m) by auto.
-  do 2 rewrite proj_embed_id in H; auto.
+  do 2 rewrite embed_proj_id in H; auto.
 Qed.
 
 (** 自然数算术 **)

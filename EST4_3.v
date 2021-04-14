@@ -307,6 +307,26 @@ Proof with eauto.
   eapply nat_trans... apply add_ran...
 Qed.
 
+Corollary mul_preserve_lt_tran : ∀ m n p q ∈ ω,
+  m ∈ n → p ∈ q → m ⋅ p ∈ n ⋅ q.
+Proof with eauto.
+  intros m Hm n Hn p Hp q Hq H1 H2.
+  ω_destruct n. subst. exfalso0.
+  ω_destruct q. subst. exfalso0.
+  ω_destruct p. {
+    subst. rewrite mul_0_r...
+    rewrite mul_m_n, add_comm, add_m_n...
+    apply suc_has_0. apply add_ran...
+    apply mul_ran... apply mul_ran... apply mul_ran...
+  }
+  apply (mul_preserve_lt m Hm n Hn p Hp) in H1.
+  apply (mul_preserve_lt p Hp q Hq n Hn) in H2.
+  rewrite (mul_comm p), (mul_comm q) in H2...
+  eapply nat_trans... apply mul_ran...
+  subst n. apply suc_neq_0.
+  subst p. apply suc_neq_0.
+Qed.
+
 Corollary add_cancel : ∀ m n p ∈ ω, m + p = n + p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Heq.

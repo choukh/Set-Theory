@@ -46,10 +46,10 @@ Proof. unfold Sub. exact SepE1. Qed.
 Lemma sep_power : ∀ A P, {x ∊ A | P} ∈ 𝒫 A.
 Proof. intros. apply PowerAx. apply sep_sub. Qed.
 
-Lemma sep_0 : ∀ P, {x ∊ ∅ | P} = ∅.
+Lemma sep_empty : ∀ P, {x ∊ ∅ | P} = ∅.
 Proof. intros. apply sub_empty. apply sep_sub. Qed.
 
-Lemma sep_0_inv : ∀ A P, {x ∊ A | P} = ∅ -> ∀x ∈ A, ¬P x.
+Lemma sep_empty_inv : ∀ A P, {x ∊ A | P} = ∅ -> ∀x ∈ A, ¬P x.
 Proof.
   intros A P H x Hx HP.
   cut (x ∈ ∅). intros. exfalso0.
@@ -63,7 +63,7 @@ Proof with auto.
   intros. pose proof (sep_sub ⎨x⎬ P).
   apply subset_of_single in H. destruct H.
   - rewrite H. right. split...
-    eapply sep_0_inv. apply H... apply SingI.
+    eapply sep_empty_inv. apply H... apply SingI.
   - rewrite H. left. split...
     apply (SepE2 ⎨x⎬). rewrite H...
 Qed.
@@ -107,11 +107,11 @@ Qed.
 
 Fact inter_0 : ⋂ ∅ = ∅.
 Proof.
-  unfold Inter. rewrite union_empty. rewrite sep_0. reflexivity.
+  unfold Inter. rewrite union_empty. rewrite sep_empty. reflexivity.
 Qed.
 
 (** 二元交 **)
-Definition BInter : set → set → set := λ X Y, ⋂{X, Y}.
+Definition BInter := λ X Y, ⋂{X, Y}.
 Notation "X ∩ Y" := (BInter X Y) (at level 49) : ZFC_scope.
 
 Lemma BInterI : ∀ x X Y, x ∈ X → x ∈ Y → x ∈ X ∩ Y.
@@ -145,7 +145,7 @@ Proof.
 Qed.
 
 (* 不交 *)
-Definition disjoint : set → set → Prop := λ X Y, X ∩ Y = ∅.
+Definition disjoint := λ X Y, X ∩ Y = ∅.
 
 Lemma disjointI : ∀ A B, (¬ ∃ x, x ∈ A ∧ x ∈ B) → disjoint A B.
 Proof.
@@ -268,7 +268,7 @@ Proof.
   - destruct H. subst. reflexivity.
 Qed.
 
-Definition is_pair : set -> Prop := λ p, ∃ x y, p = <x, y>.
+Definition is_pair := λ p, ∃ x y, p = <x, y>.
 
 Lemma OPairI : ∀ x y, is_pair <x, y>.
 Proof.
@@ -287,7 +287,7 @@ Proof.
 Qed.
 
 (** 笛卡儿积 **)
-Definition CProd : set → set → set := λ A B,
+Definition CProd := λ A B,
   {p ∊ 𝒫 𝒫 (A ∪ B) | λ p, ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
 Notation "A × B" := (CProd A B) (at level 40) : ZFC_scope.
 
@@ -328,15 +328,24 @@ Qed.
 
 Fact cprod_0_l : ∀ B, ∅ × B = ∅.
 Proof.
-  intros. apply ExtAx. split; intros Hx.
-  - apply CProdE1 in Hx as [a [Ha _]]. exfalso0.
-  - exfalso0.
+  intros. apply sub_empty. intros x H.
+  apply CProdE1 in H as [a [Ha _]]. exfalso0.
 Qed.
 
 Fact cprod_0_r : ∀ A, A × ∅ = ∅.
 Proof.
   intros. apply sub_empty. intros x H.
   apply CProdE1 in H as [_ [_ [b [Hb _]]]]. exfalso0.
+Qed.
+
+Fact cprod_to_0 : ∀ A B, A × B = ∅ → A = ∅ ∨ B = ∅.
+Proof with eauto.
+  intros.
+  destruct (classic (A = ∅))...
+  destruct (classic (B = ∅))... exfalso.
+  apply EmptyNE in H0 as [a Ha].
+  apply EmptyNE in H1 as [b Hb].
+  eapply EmptyE in H. apply H. apply CProdI...
 Qed.
 
 Fact cprod_single_single : ∀ x, ⎨x⎬ × ⎨x⎬ = ⎨<x, x>⎬.

@@ -38,7 +38,7 @@ Qed.
 
 (* 结构投射 *)
 Definition proj :=
-  λ x, epsilon (inhabits EmptyStruct) (λ S, ot S = x).
+  λ x, epsilon (inhabits ø) (λ S, ot S = x).
 
 Definition is_ot := λ ρ, ∃ S, ρ = ot S.
 
@@ -505,7 +505,7 @@ Proof with neauto; try congruence.
         zfc_simple. destruct (ixm (Embed 1 = 0))...
   }
   apply bijection_is_func in Hbi as HF. destruct HF as [HF _].
-  exists F. split; simpl; (rewrite proj_embed_id; [|apply add_ran])...
+  exists F. split; simpl; (rewrite embed_proj_id; [|apply add_ran])...
   intros x Hx y Hy. unfold F.
   rewrite meta_func_ap, meta_func_ap...
   split; intros Hxy;

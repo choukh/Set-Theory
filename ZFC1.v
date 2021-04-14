@@ -6,6 +6,7 @@ Require Export ZFC.ZFC0.
 
 (*** ZFC集合论1：配对，单集，二元并，集族的并 ***)
 
+(* 双元集：{∅, {∅}} *)
 Definition Doubleton : set := 𝒫 𝒫 ∅.
 
 Lemma DoubletonI1 : ∅ ∈ Doubleton.
@@ -18,6 +19,7 @@ Proof.
   subst. apply empty_in_all_power.
 Qed.
 
+(* 把双元集里的x按如下规则替换成a或b *)
 Definition PairRepl : set → set → set → set := λ a b x,
   match (ixm (∅ ∈ x)) with
   | inl _ => b
@@ -25,8 +27,7 @@ Definition PairRepl : set → set → set → set := λ a b x,
   end.
 
 (** 配对 **)
-Definition Pair : set → set → set := λ x y,
-  {PairRepl x y | w ∊ Doubleton}.
+Definition Pair := λ x y, {PairRepl x y | w ∊ Doubleton}.
 Notation "{ x , y }" := (Pair x y) : ZFC_scope.
 
 Lemma PairI1 : ∀ x y, x ∈ {x, y}.
@@ -299,24 +300,24 @@ Lemma power_one : 𝒫 1 = 2.
 Proof. exact (power_single ∅). Qed.
 
 (** 二元并 **)
-Definition BUnion : set → set → set := λ X Y, ⋃{X, Y}.
+Definition BUnion := λ X Y, ⋃{X, Y}.
 Notation "X ∪ Y" := (BUnion X Y) (at level 50) : ZFC_scope.
 
-Lemma BUnionI1 : ∀ w X Y, w∈X → w ∈ X∪Y.
+Lemma BUnionI1 : ∀ w X Y, w ∈ X → w ∈ X ∪ Y.
 Proof.
   intros. apply UnionI with X.
   - apply PairI1.
   - apply H.
 Qed.
 
-Lemma BUnionI2 : ∀ w X Y, w∈Y → w ∈ X∪Y.
+Lemma BUnionI2 : ∀ w X Y, w ∈ Y → w ∈ X ∪ Y.
 Proof.
   intros. apply UnionI with Y.
   - apply PairI2.
   - apply H.
 Qed.
 
-Lemma BUnionE : ∀ w X Y, w ∈ X∪Y → w∈X ∨ w∈Y.
+Lemma BUnionE : ∀ w X Y, w ∈ X ∪ Y → w ∈ X ∨ w ∈ Y.
 Proof.
   intros. apply UnionAx in H.
   destruct H as [z [H1 H2]].

@@ -22,7 +22,7 @@ Qed.
 Lemma nat_IFUnionI : ∀ F : nat → set, ∀ n : nat, F n ⊆ ⋃ᵢ F.
 Proof.
   intros * x Hx. eapply FUnionI. apply (embed_ran n).
-  rewrite embed_proj_id. apply Hx.
+  rewrite proj_embed_id. apply Hx.
 Qed.
 
 Lemma nat_IFUnionE : ∀ F : nat → set, ∀x ∈ ⋃ᵢ F, ∃ n, x ∈ F n.

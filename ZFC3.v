@@ -7,8 +7,8 @@ Require Export ZFC.ZFC2.
 (*** ZFC集合论3：无穷公理，选择公理，正则公理 ***)
 
 (* 后续运算 *)
-Definition Suc : set → set := λ a, a ∪ ⎨a⎬.
-Notation "a ⁺" := (Suc a) (at level 8) : ZFC_scope.
+Definition Suc := λ a, a ∪ ⎨a⎬.
+Notation "a ⁺" := (Suc a) (at level 8, format "a ⁺") : ZFC_scope.
 
 Lemma suc_has_n : ∀ n, n ∈ n⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.
@@ -24,8 +24,7 @@ Qed.
 Global Hint Immediate suc_neq_0 : core.
 
 (* 归纳集 *)
-Definition inductive : set → Prop := λ A,
-  ∅ ∈ A ∧ ∀a ∈ A, a⁺ ∈ A.
+Definition inductive := λ A, ∅ ∈ A ∧ ∀a ∈ A, a⁺ ∈ A.
 
 (**=== 公理6: 无穷公理 ===**)
 Parameter 𝐈 : set. 

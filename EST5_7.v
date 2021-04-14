@@ -896,7 +896,7 @@ Proof with neauto.
         <- ratMul_assoc... apply ratMul_preserve_lt...
       apply ratMul_ran... apply ratPos_mulInv...
     }
-    apply ratDense in H1 as [p [Hp [Hp1 Hp2]]]...
+    apply rat_dense in H1 as [p [Hp [Hp1 Hp2]]]...
     assert (Hpp: ratPos p) by (eapply ratLt_tranr; eauto).
     assert (Hp': p ∈ ℚ'). { apply nzRatI0... apply rat_neq_0... }
     assert (Hrp: p⁻¹ ∈ ℚ). { apply nzRatE1. apply ratMulInv_ran... }
@@ -1122,7 +1122,7 @@ Proof with neauto.
   apply Hle. apply ReplAx. exists (a + Int 1)%z. split...
 Qed.
 
-Theorem realDense : ∀ x y ∈ ℝ, x <𝐫 y →
+Theorem real_dense : ∀ x y ∈ ℝ, x <𝐫 y →
   ∃r ∈ ℚ, x <𝐫 RatEmbed[r] ∧ RatEmbed[r] <𝐫 y.
 Proof with neauto.
   intros x Hx y Hy Hxy.

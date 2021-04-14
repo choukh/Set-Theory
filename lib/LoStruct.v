@@ -24,7 +24,8 @@ Proof with auto.
   - intros x H. exfalso0.
 Qed.
 
-Definition EmptyStruct := constr ∅ ∅ empty_loset.
+Notation ø := (constr ∅ ∅ empty_loset).
+Notation 𝛚 := (constr ω Lt (proj1 Lt_wellOrder)).
 
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.
@@ -43,6 +44,9 @@ Definition isomorphic : relation LoStruct :=
 
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : LoStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : LoStruct_scope.
+
+Definition SubStruct := λ S T, A S ⊆ A T ∧ R S = R T ⥏ A S.
+Notation "S ⊑ T" := (SubStruct S T) (at level 70) : LoStruct_scope.
 
 Local Lemma loset_is_binRel : ∀ A R, loset A R → is_binRel R A.
 Proof. intros. apply H. Qed.

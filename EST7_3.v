@@ -227,6 +227,8 @@ Record WoStruct : Type := constr {
 }.
 Global Hint Immediate wo : core.
 
+Notation 𝛚 := (constr ω Lt Lt_wellOrder).
+
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.
   intros S T HA HR. destruct S. destruct T.
@@ -245,8 +247,8 @@ Definition isomorphic : relation WoStruct :=
 Notation "S ≅ T" := ( isomorphic S T) (at level 60) : WoStruct_scope.
 Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : WoStruct_scope.
 
-Definition subS := λ S T, A S ⊆ A T ∧ R S = R T ⥏ A S.
-Notation "S ⊑ T" := (subS S T) (at level 70) : WoStruct_scope.
+Definition SubStruct := λ S T, A S ⊆ A T ∧ R S = R T ⥏ A S.
+Notation "S ⊑ T" := (SubStruct S T) (at level 70) : WoStruct_scope.
 
 Local Lemma woset_is_binRel : ∀ A R, woset A R → is_binRel R A.
 Proof. intros. apply H. Qed.
@@ -634,12 +636,10 @@ End EpsilonImage.
 (* Examples *)
 Module Export EpsilonImageOfNats.
 
-Definition ωLt := constr ω Lt Lt_wellOrder.
-
-Example e_ω_nat : ∀n ∈ ω, (E ωLt)[n] = n.
+Example e_ω_nat : ∀n ∈ ω, (E 𝛚)[n] = n.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, (E ωLt)[n] = n} as N.
+  set {n ∊ ω | λ n, (E 𝛚)[n] = n} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
     + apply e_elim in Hx as [k [_ [Hk _]]]...
@@ -658,30 +658,30 @@ Proof with neauto.
         apply e_elim in H as [k [Hk [Hkm [Heqx Hx]]]]...
         apply binRelE3 in Hkm.
         eapply e_intro... apply binRelI... apply BUnionI1...
-      * apply (e_intro ωLt x m)... apply binRelI... congruence.
+      * apply (e_intro 𝛚 x m)... apply binRelI... congruence.
 Qed.
 
-Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m ωLt))[n] = n.
+Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m 𝛚))[n] = n.
 Proof with neauto.
   intros n Hn p Hp.
-  set {n ∊ ω | λ n, n ∈ p → (E (Seg p ωLt))[n] = n} as N.
+  set {n ∊ ω | λ n, n ∈ p → (E (Seg p 𝛚))[n] = n} as N.
   ω_induction N Hn; intros Hnp.
   - apply ExtAx. split; intros Hx; [|exfalso0].
-    apply (e_elim (Seg p ωLt)) in Hx as [k [_ [Hk _]]].
+    apply (e_elim (Seg p 𝛚)) in Hx as [k [_ [Hk _]]].
     + apply SepE in Hk as [Hk _].
       apply binRelE3 in Hk. exfalso0.
     + apply SepI... apply binRelI...
   - assert (Hp': p⁺ ∈ ω) by (apply ω_inductive; auto).
     assert (Hm': m⁺ ∈ ω) by (apply ω_inductive; auto).
     assert (Hmp: m ∈ p). { apply (nat_trans p Hp m m⁺)... }
-    assert (Hmseg: m ∈ A (Seg p ωLt)). {
+    assert (Hmseg: m ∈ A (Seg p 𝛚)). {
       apply SepI... apply binRelI...
     }
-    assert (Hm'seg: m⁺ ∈ A (Seg p ωLt)). {
+    assert (Hm'seg: m⁺ ∈ A (Seg p 𝛚)). {
       apply SepI... apply binRelI...
     }
     apply ExtAx. split; intros Hx.
-    + apply (e_elim (Seg p ωLt)) in Hx as [k [Hk [Hkm [Heqx Hx]]]]...
+    + apply (e_elim (Seg p 𝛚)) in Hx as [k [Hk [Hkm [Heqx Hx]]]]...
       apply SepE in Hkm as [Hkm _].
       apply binRelE2 in Hkm as [Hkw [_ Hkm]].
       apply leq_iff_lt_suc in Hkm as []...
@@ -690,26 +690,26 @@ Proof with neauto.
       * apply BUnionI2. subst. rewrite <- IH at 2...
     + apply leq_iff_lt_suc in Hx as []; [| |eapply ω_trans|]...
       * rewrite <- IH in H...
-        apply (e_elim (Seg p ωLt)) in H as [k [Hk [Hkm [Heqx Hx]]]]...
+        apply (e_elim (Seg p 𝛚)) in H as [k [Hk [Hkm [Heqx Hx]]]]...
         apply SepE in Hkm as [Hkm _].
         apply binRelE2 in Hkm as [Hkw [_ Hkm]].
-        eapply (e_intro (Seg p ωLt))...
+        eapply (e_intro (Seg p 𝛚))...
         apply seg_lt; apply binRelI... apply BUnionI1...
-      * apply (e_intro (Seg p ωLt) x m)...
+      * apply (e_intro (Seg p 𝛚) x m)...
         apply seg_lt; apply binRelI... rewrite IH...
 Qed.
 
-Example α_nat : ∀n ∈ ω, α (Seg n ωLt) = n.
+Example α_nat : ∀n ∈ ω, α (Seg n 𝛚) = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | λ n, α (Seg n ωLt) = n} as N.
+  set {n ∊ ω | λ n, α (Seg n 𝛚) = n} as N.
   ω_induction N Hn.
-  - unfold α. replace (E (Seg ∅ ωLt)) with ∅.
+  - unfold α. replace (E (Seg ∅ 𝛚)) with ∅.
     apply ran_of_empty. symmetry. apply e_empty.
     apply ExtAx. split; intros Hx; [|exfalso0].
     apply SepE2 in Hx. apply binRelE3 in Hx...
   - assert (Hm': m⁺ ∈ ω) by (apply ω_inductive; auto).
-    destruct (e_spec (Seg m⁺ ωLt)) as [Hf [Hd _]]...
+    destruct (e_spec (Seg m⁺ 𝛚)) as [Hf [Hd _]]...
     apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp]. apply domI in Hp as Hx.
       rewrite Hd in Hx. apply SepE2 in Hx.
@@ -721,9 +721,9 @@ Proof with neauto; try congruence.
       * rewrite seg_e_ap... apply e_ω_nat... apply binRelI...
 Qed.
 
-Example α_ω : α ωLt = ω.
+Example α_ω : α 𝛚 = ω.
 Proof with auto.
-  destruct (e_spec ωLt) as [Hf [Hd _]].
+  destruct (e_spec 𝛚) as [Hf [Hd _]].
   apply ExtAx. intros m. split; intros Hm.
   - apply ranE in Hm as [n Hp]. apply domI in Hp as Hn.
     rewrite Hd in Hn. apply func_ap in Hp...

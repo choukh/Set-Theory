@@ -6,7 +6,7 @@ Require Import ZFC.lib.LoStruct.
 
 (*** EST第八章4：序类型乘法，序类型算术定律 ***)
 
-(* 反向字典序 *)
+(* 字典序 *)
 Definition LoMul_R := λ S T, BinRel (A S × A T) (λ p1 p2,
   (π2 p1 <ᵣ π2 p2) (R T) ∨
   (π1 p1 <ᵣ π1 p2) (R S) ∧ π2 p1 = π2 p2

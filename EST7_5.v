@@ -45,6 +45,7 @@ Proof with auto.
   pose proof (iso_epsilon S) as [f [Hf _]]. exists f...
 Qed.
 
+(* α是不被A支配的最小序数 *)
 Definition hartog_spec := λ A α, is_ord α ∧ ¬ α ≼ A ∧
   ∀ β, is_ord β → ¬ β ≼ A → α ⋸ β.
 
@@ -368,9 +369,9 @@ Qed.
 (* 基数：与给定集合等势的最小序数 *)
 Definition card := λ A,
   let α := HartogsNumber A in
-  (OrdMin α (λ ξ, ξ ≈ A)).
+  OrdMin α (λ ξ, ξ ≈ A).
 
-Notation "| A |" := (card A) (at level 40) : ZFC_scope.
+Notation "| A |" := (card A) (at level 40, format "| A |") : ZFC_scope.
 
 (* ==需要选择公理== *)
 Lemma card_well_defined : AC_III →

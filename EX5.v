@@ -85,18 +85,19 @@ Proof with nauto.
   apply mul_ran... apply mul_ran...
 Qed.
 
-Example ex5_14: ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
+Example ex5_14: ∀ p s ∈ ℚ, ∃r ∈ ℚ, p <𝐪 s → p <𝐪 r ∧ r <𝐪 s.
 Proof with neauto.
-  intros p Hp s Hs Hlt.
+  intros p Hp s Hs.
   apply pQuotE_ratPosDenom in Hp as [a [Ha [b [Hb [Hp Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]].
-  subst p s. apply ratLt in Hlt...
+  subst p s.
   exists ([<a⋅d + c⋅b, Int 2 ⋅ b ⋅ d>]~). split.
   apply pQuotI; [amr;nz|nzmr; nzmr].
   assert (Hpp: intPos ((Int 2 ⋅ b) ⋅ d)). {
     apply intMul_pos_prod; nz... mr;nz.
     apply intMul_pos_prod; nz...
   }
+  intros Hlt. apply ratLt in Hlt...
   split; (apply ratLt; try timeout 1 auto; [amr;nz|nzmr; nzmr|]).
   rewrite
     <- (intMul_assoc a), <- (intMul_assoc a), (intMul_comm a),
@@ -261,11 +262,15 @@ Qed.
 
 (* ex5_19 see EST5_5 Lemma ex5_19 *)
 (* ex5_20 see EST5_6 Theorem realAbs_nonNeg *)
-(* ex5_21 see EST5_7 Theorem realDense *)
+(* ex5_21 see EST5_7 Theorem real_dense *)
 (* ex5_22 see EST5_6 Lemma realAbs_ran *)
 
-Lemma ratDense : ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
-Proof. exact ex5_14. Qed.
+Lemma rat_dense : ∀ p s ∈ ℚ, p <𝐪 s → ∃r ∈ ℚ, p <𝐪 r ∧ r <𝐪 s.
+Proof.
+  intros p Hp s Hs Hps.
+  pose proof (ex5_14 p Hp s Hs) as [r [Hr H]].
+  apply H in Hps. exists r. split; auto.
+Qed.
 
 Lemma rat_archimedean : ∀q ∈ ℚ, ∃r ∈ ℚ, q <𝐪 r.
 Proof with nauto.

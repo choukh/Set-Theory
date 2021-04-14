@@ -253,17 +253,17 @@ Import OrderType.
 Open Scope LoStruct_scope.
 
 (* 字典序 *)
-Definition LoAdd_R := λ S T, BinRel (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (λ p1 p2,
-  (π1 p1 <ᵣ π1 p2) (MemberRel 2) ∨
-  π1 p1 = π1 p2 ∧ (
-    π1 p1 = 0 ∧ (π2 p1 <ᵣ π2 p2) (R S) ∨
-    π1 p1 = 1 ∧ (π2 p1 <ᵣ π2 p2) (R T)
+Definition LoAdd_R := λ S T, BinRel (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (λ p1 p2,
+  (π2 p1 <ᵣ π2 p2) (MemberRel 2) ∨
+  π2 p1 = π2 p2 ∧ (
+    π2 p1 = 0 ∧ (π1 p1 <ᵣ π1 p2) (R S) ∨
+    π2 p1 = 1 ∧ (π1 p1 <ᵣ π1 p2) (R T)
   )
 ).
 Notation "S ⨁' T" := (LoAdd_R S T) (at level 70) : LoStruct_scope.
 
 Lemma loAdd_is_binRel : ∀ S T,
-  is_binRel (S ⨁' T) (⎨0⎬ × A S ∪ ⎨1⎬ × A T).
+  is_binRel (S ⨁' T) (A S × ⎨0⎬ ∪ A T × ⎨1⎬).
 Proof with auto.
   intros * x Hx.
   apply binRelE1 in Hx as [s [Hs [t [Ht [Hx _]]]]];
@@ -271,7 +271,7 @@ Proof with auto.
   apply BUnionE in Ht as [Ht|Ht];
   apply CProdE1 in Hs as [a [Ha [b [Hb Hs]]]];
   apply CProdE1 in Ht as [c [Hc [d [Hd Ht]]]];
-  apply SingE in Ha; apply SingE in Hc;
+  apply SingE in Hb; apply SingE in Hd;
   subst; zfc_simple; apply CProdI; solve [
     apply BUnionI1; apply CProdI; auto|
     apply BUnionI2; apply CProdI; auto].
@@ -314,7 +314,7 @@ Proof with eauto.
   apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
   apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
   apply CProdE1 in Hz as [e [He [f [Hf Hz]]]];
-  apply SingE in Ha; apply SingE in Hc; apply SingE in He;
+  apply SingE in Hb; apply SingE in Hd; apply SingE in Hf;
   subst; zfc_simple; (apply binRelI; zfc_simple; [
     solve [
       apply BUnionI1; apply CProdI; auto|
@@ -337,25 +337,43 @@ Proof with neauto.
   intros S T x H.
   apply binRelE2 in H as [Hx [_ [Hlt|[Heq [[H0 Hlt]|[H1 Hlt]]]]]].
   - apply binRelE3 in Hlt. eapply nat_irrefl; revgoals...
-    apply BUnionE in Hx as []; apply CProdE0 in H as [H _];
+    apply BUnionE in Hx as []; apply CProdE0 in H as [_ H];
     apply SingE in H; rewrite H...
   - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
   - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
 Qed.
 
 Lemma loAdd_connected : ∀ S T,
-  connected (S ⨁' T) (⎨0⎬ × A S ∪ ⎨1⎬ × A T).
-Proof with auto.
+  connected (S ⨁' T) (A S × ⎨0⎬ ∪ A T × ⎨1⎬).
+Proof with eauto; try congruence.
   intros S T x Hx y Hy Hnq.
   apply BUnionE in Hx as [Hx|Hx];
   apply BUnionE in Hy as [Hy|Hy];
   apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
   apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
-  apply SingE in Ha; apply SingE in Hc; subst; zfc_simple.
-Admitted.
+  apply SingE in Hb; apply SingE in Hd; subst; zfc_simple.
+  - destruct (classic (a = c)). subst...
+    eapply lo_connected in H; revgoals... apply lo.
+    destruct H; [left|right]; (
+      apply binRelI; [apply BUnionI1; apply CProdI; auto..|]
+    ); zfc_simple...
+  - left. apply binRelI.
+    apply BUnionI1. apply CProdI...
+    apply BUnionI2. apply CProdI...
+    zfc_simple. left. apply lt_0_1.
+  - right. apply binRelI.
+    apply BUnionI1. apply CProdI...
+    apply BUnionI2. apply CProdI...
+    zfc_simple. left. apply lt_0_1.
+  - destruct (classic (a = c)). subst...
+      eapply lo_connected in H; revgoals... apply lo.
+    destruct H; [left|right]; (
+      apply binRelI; [apply BUnionI2; apply CProdI; auto..|]
+    ); zfc_simple...
+Qed.
 
 Theorem loAdd_loset : ∀ S T,
-  loset (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (S ⨁' T).
+  loset (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (S ⨁' T).
 Proof.
   intros S T.
   apply loset_iff_connected_poset. repeat split.
@@ -367,14 +385,70 @@ Proof.
 Qed.
 
 Definition LoAdd := λ S T,
-  constr (⎨0⎬ × A S ∪ ⎨1⎬ × A T) (S ⨁' T) (loAdd_loset S T).
+  constr (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (S ⨁' T) (loAdd_loset S T).
 Notation "S +' T" := (LoAdd S T) (at level 50): LoStruct_scope.
+
+Lemma alternative_loAdd_R_correct : ∀ S T,
+  (S ⨁' T) = (LoDisj S 0 ⨁ LoDisj T 1).
+Proof with auto.
+  intros.
+  pose proof lt_0_0 as H00.
+  pose proof lt_0_1 as H01.
+  pose proof lt_1_0 as H10.
+  pose proof lt_1_1 as H11.
+  apply ExtAx. split; intros Hx.
+  - apply binRelE1 in Hx as [a [Ha [b [Hb [Hx [Hlt|[Heq [[H0 Hlt]|[H1 Hlt]]]]]]]]];
+    apply BUnionE in Ha as [Ha|Ha];
+    apply BUnionE in Hb as [Hb|Hb];
+    apply CProdE1 in Ha as [s [Hs [t [Ht Ha]]]];
+    apply CProdE1 in Hb as [u [Hu [v [Hv Hb]]]];
+    apply SingE in Ht; apply SingE in Hv; subst; zfc_simple.
+    + apply BUnionI2. apply CProdI; apply CProdI...
+    + apply BUnionI1. apply BUnionI1. apply ReplAx.
+      exists <s, u>. split; zfc_simple...
+    + apply BUnionI1. apply BUnionI2. apply ReplAx.
+      exists <s, u>. split; zfc_simple...
+  - apply BUnionE in Hx as [Hx|Hx].
+    + destruct (lo S) as [HbrS _].
+      destruct (lo T) as [HbrT _].
+      apply BUnionE in Hx as [Hx|Hx];
+      apply ReplAx in Hx as [p [Hp Heq]];
+      [apply HbrS in Hp as H|apply HbrT in Hp as H];
+      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
+      subst; zfc_simple; apply binRelI; zfc_simple...
+      * apply BUnionI1; apply CProdI...
+      * apply BUnionI1; apply CProdI...
+      * apply BUnionI2; apply CProdI...
+      * apply BUnionI2; apply CProdI...
+    + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CProdE1 in Ha as [s [Hs [t [Ht Ha]]]].
+      apply CProdE1 in Hb as [u [Hu [v [Hv Hb]]]].
+      apply SingE in Ht. apply SingE in Hv.
+      subst. zfc_simple. apply binRelI; zfc_simple...
+      apply BUnionI1; apply CProdI...
+      apply BUnionI2; apply CProdI...
+Qed.
+
+Lemma alternative_loAdd_correct : ∀ S T, S + T ≅ S +' T.
+Proof with auto.
+  intros. replace (S + T) with (S +' T). reflexivity.
+  apply eq_intro... simpl. apply alternative_loAdd_R_correct.
+Qed.
+
+(* ex8_12 *)
+Lemma alternative_otAdd_correct : ∀ S T,
+  (ot S + ot T)%ot = ot (S +' T).
+Proof with auto.
+  intros. rewrite (otAdd_eq_ot_of_loAdd S T).
+  apply ot_correct. apply alternative_loAdd_correct.
+Qed.
 
 Lemma loAdd_well_defined : ∀ S S' T T',
   S ≅ S' → T ≅ T' → S +' T ≅ S' +' T'.
-Proof with eauto; try congruence.
-  intros * [f [Hf Hopf]] [g [Hg Hopg]].
-Admitted.
+Proof.
+  intros * HS HT. do 2 rewrite <- alternative_loAdd_correct.
+  apply EST8_3.loAdd_well_defined; auto.
+Qed.
 
 Definition OtAdd :=
   λ ρ σ, ot (proj ρ +' proj σ).
@@ -395,8 +469,35 @@ Proof.
   apply ot_correct. apply loAdd_well_defined; auto.
 Qed.
 
-Fact alternative_otAdd_correct : ∀ S T,
-  ot S + ot T = ot S +' ot T.
-Admitted.
-
 End AlternativeOtAdd.
+
+(* ex8_13 see EST8_3 Theorem otAdd_well_defined and
+  EST8_4 Theorem otMul_well_defined *)
+
+Import OrderType.
+Import StructureCasting.
+
+Example ex8_14 : ∀ ρ σ, is_ot ρ → is_ot σ →
+  ρ ⋅ σ = otⁿ 0 → ρ = otⁿ 0 ∨ σ = otⁿ 0.
+Proof with auto.
+  intros * [S HS] [T HT] H0. subst. unfold OtMul, otⁿ in H0.
+  apply ot_correct in H0 as [f [Hf _]]. simpl in Hf.
+  apply bijection_to_empty in Hf.
+  apply cprod_to_0 in Hf as []; [left|right];
+  apply ot_correct.
+  - replace (LOⁿ 0) with (proj (ot S)).
+    symmetry. apply proj_ot_id. apply eq_intro...
+    apply ExtAx. split; intros Hx.
+    + destruct (lo (proj (ot S))) as [Hbr _].
+      apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
+    + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
+  - replace (LOⁿ 0) with (proj (ot T)).
+    symmetry. apply proj_ot_id. apply eq_intro...
+    apply ExtAx. split; intros Hx.
+    + destruct (lo (proj (ot T))) as [Hbr _].
+      apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
+    + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
+Qed.
+
+(* ex8_15 (ℕ̅ + 1) ⋅ 2 = ℕ̅ 0 ℕ̅ 0 ≠ ℕ̅ ℕ̅ 0 0 = (ℕ̅ ⋅ 2) + (1 ⋅ 2) *)
+(* ex8_16 see EST8_4 Theorem otAdd_ident, otMul_ident, otMul_0 *)

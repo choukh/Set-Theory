@@ -124,7 +124,7 @@ Proof.
 Qed.
 
 (* 后继基数 *)
-Notation "A ₊" := (HartogsNumber A) (at level 8) : ZFC_scope.
+Notation "A ₊" := (HartogsNumber A) (at level 8, format "A ₊") : ZFC_scope.
 
 (* 后继基数是基数 *)
 Lemma card_suc_is_card : ∀ A, is_card A₊.

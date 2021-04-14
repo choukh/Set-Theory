@@ -534,6 +534,14 @@ Proof with nauto.
       eapply ranI. apply ReplAx. exists n'. split...
 Qed.
 
+(* 与自然数等势的集合是无限集 *)
+Corollary eqnum_to_ω_impl_infinite : ∀ A, A ≈ ω → infinite A.
+Proof.
+  intros A H1 [n [Hn H2]].
+  apply ω_infinite. exists n. split. apply Hn.
+  rewrite <- H1, <- H2. reflexivity.
+Qed.
+
 (* 有限集与唯一自然数等势 *)
 Corollary fin_set_eqnum_unique_nat : ∀ A, finite A →
   ∃! n, n ∈ ω ∧ A ≈ n.

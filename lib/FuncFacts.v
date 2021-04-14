@@ -235,6 +235,17 @@ Proof with auto.
   - apply ran_of_single_pair.
 Qed.
 
+(* 单点函数应用 *)
+Lemma single_pair_ap: ∀ a b, ∀x ∈ ⎨a⎬, ⎨<a, b>⎬[x] = b.
+Proof with auto.
+  intros a b x Hx.
+  apply SingE in Hx; subst.
+  pose proof (single_pair_bijective a b) as [[Hf _] [Hd Hr]].
+  assert (Ha: a ∈ dom ⎨<a, b>⎬). rewrite Hd...
+  apply func_correct in Ha... apply ranI in Ha.
+  rewrite Hr in Ha. apply SingE in Ha...
+Qed.
+
 (** inv, compo, restr **)
 
 (* 双射的逆仍是双射 *)
@@ -392,6 +403,26 @@ Proof with eauto.
   apply injection_is_func in Hf as [Hf Hinj].
   apply injection_is_func. split.
   eapply restr_maps_into... apply restr_injective...
+Qed.
+
+(* 限制于A的值域等于A的像 *)
+Lemma restr_ran_eq_img : ∀ f A, ran (f ↾ A) = f⟦A⟧.
+Proof with eauto.
+  intros. apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply restrE2 in Hp as [Hp Hx]. eapply imgI...
+  - apply imgE in Hy as [x [Hx Hp]].
+    eapply ranI. apply restrI...
+Qed.
+
+(* 双射的限制 *)
+Lemma restr_bijection : ∀ f A B C, C ⊆ A → f: A ⟺ B → f ↾ C: C ⟺ f⟦C⟧.
+Proof with eauto.
+  intros * Hsub Hf.
+  destruct Hf as [Hinj [Hd Hr]].
+  split. apply restr_injective...
+  split. apply restr_dom. apply Hinj. rewrite Hd...
+  apply restr_ran_eq_img.
 Qed.
 
 (** bunion **)
@@ -607,6 +638,39 @@ Proof with eauto.
       eapply ranI. apply BUnionI1...
     + rewrite <- Hrs in H. eapply ranE in H as [x Hp]. 
       eapply ranI. apply BUnionI2...
+Qed.
+
+(* 函数加点的应用 *)
+Lemma add_point_func_ap : ∀ F A B a b, F: A ⟺ B →
+  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ →
+  (∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
+  ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x].
+Proof with eauto.
+  intros * HF Hdj1 Hdj2.
+  eapply bunion_func_ap.
+  - apply bijection_is_func...
+  - apply bijection_is_func. apply single_pair_bijective.
+  - intros x Hx. exfalso. apply BInterE in Hx as [].
+    apply (disjointE A ⎨a⎬ x)...
+  - intros x Hx. exfalso. apply BInterE in Hx as [].
+    apply (disjointE B ⎨b⎬ x)...
+Qed.
+
+(* 函数加点的应用 *)
+Lemma add_point_func_ap' : ∀ F A B a b, F: A ⟺ B →
+  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ → ∀x ∈ A ∪ ⎨a⎬,
+  x ∈ A ∧ (F ∪ ⎨<a, b>⎬)[x] = F[x] ∨
+  x = a ∧ (F ∪ ⎨<a, b>⎬)[x] = b.
+Proof with eauto.
+  intros * HF Hdj1 Hdj2.
+  assert ((∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
+    ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x])
+    by (eapply add_point_func_ap; eauto).
+  destruct H as [H1 H2]. intros x Hx.
+  apply BUnionE in Hx as [].
+  - left. rewrite H1...
+  - right. split. apply SingE in H...
+    rewrite H2, single_pair_ap...
 Qed.
 
 (** replace value **)
