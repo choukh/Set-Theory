@@ -10,7 +10,7 @@ Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.NatIsomorphism.
 Require Import ZFC.lib.IndexedFamilyUnion.
 
-(** EX8_18 ~ EX8_19 **)
+(** EX8_18 **)
 (** Back-and-forth method **)
 (** 来回嵌入法 **)
 

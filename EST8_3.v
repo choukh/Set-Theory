@@ -85,10 +85,15 @@ Import ZFC.lib.Real.
 Lemma Lt_linearOrder : linearOrder Lt ω.
 Proof. apply Lt_wellOrder. Qed.
 
-Notation "ℕ̅" := (ot (constr ω Lt Lt_linearOrder)).
-Notation "ℤ̅" := (ot (constr ℤ IntLt intLt_linearOrder)).
-Notation "ℚ̅" := (ot (constr ℚ RatLt ratLt_linearOrder)).
-Notation "ℝ̅" := (ot (constr ℝ RealLt realLt_linearOrder)).
+Notation "ℕ̃" := (constr ω Lt Lt_linearOrder).
+Notation "ℤ̃" := (constr ℤ IntLt intLt_linearOrder).
+Notation "ℚ̃" := (constr ℚ RatLt ratLt_linearOrder).
+Notation "ℝ̃" := (constr ℝ RealLt realLt_linearOrder).
+
+Notation "ℕ̅" := (ot ℕ̃).
+Notation "ℤ̅" := (ot ℤ̃).
+Notation "ℚ̅" := (ot ℚ̃).
+Notation "ℝ̅" := (ot ℝ̃).
 
 End OrderType.
 
