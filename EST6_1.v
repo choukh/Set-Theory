@@ -19,7 +19,7 @@ Notation "A ≉ B" := (¬equinumerous A B) (at level 70).
 Lemma eqnum_equiv : Equivalence equinumerous.
 Proof.
   split.
-  - intros A. exists (Ident A). apply ident_bijective.
+  - intros A. exists (Ident A). apply ident_bijection.
   - intros A B [f H]. exists (f⁻¹). apply inv_bijection. auto.
   - intros A B C [f Hf] [g Hg]. exists (g ∘ f).
     eapply compo_bijection; eauto...
@@ -37,7 +37,7 @@ Qed.
 Lemma eqnum_single : ∀ a, ⎨a⎬ ≈ 1.
 Proof with auto.
   intros. set (Func ⎨a⎬ 1 (λ _, 0)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros _ _. apply suc_has_n.
   - intros x1 H1 x2 H2 Heq.
     apply SingE in H1. apply SingE in H2. subst...
@@ -53,7 +53,7 @@ Proof with eauto; try congruence.
     | inl _ => 0
     | inr _ => 1
   end)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. destruct (ixm (x = a))...
     apply BUnionI1... apply BUnionI2...
   - intros x1 H1 x2 H2 Heq.
@@ -115,7 +115,7 @@ Proof with eauto; try congruence.
   end)) as F.
   assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. destruct (ixm (x = a))...
   - intros x1 Hx1 x2 Hx2 Heq.
     destruct (ixm (x1 = a)); destruct (ixm (x2 = a));
@@ -135,7 +135,7 @@ Global Hint Immediate all_single_eqnum : core.
 Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
 Proof with auto.
   intros. set (Func A (A × ⎨ a ⎬) (λ x, <x, a>)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply op_iff in Heq as []...
@@ -147,7 +147,7 @@ Qed.
 Lemma eqnum_cprod_comm : ∀ A B, A × B ≈ B × A.
 Proof with auto.
   intros. set (Func (A × B) (B × A) (λ x, <π2 x, π1 x>)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx.
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     subst. zfc_simple. apply CProdI...
@@ -168,7 +168,7 @@ Proof with auto.
   set (Func ((A × B) × C) (A × (B × C)) (λ x,
     <π1 (π1 x), <π2 (π1 x), π2 x>>
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx.
     apply CProdE1 in Hx as [d [Hd [c [Hc H1]]]].
     apply CProdE1 in Hd as [a [Ha [b [Hb H2]]]].
@@ -199,7 +199,7 @@ Proof with neauto.
   set (Func (𝒫 A) (A ⟶ 2) (λ B, ℱ B)) as G.
   assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
-  exists G. apply meta_bijective.
+  exists G. apply meta_bijection.
   - intros B HB. apply arrow_iff. split...
     apply func_is_func. split.
     + apply ExtAx. intros x. split; intros Hx.
@@ -370,7 +370,7 @@ Proof with eauto; try congruence.
   set (λ y, {n ∊ ω | λ n, f[n] = y}) as 𝒩.
   set (Func n n (λ y, (Min Lt)[𝒩 y])) as g.
   assert (Hg: g: n ⇒ n). {
-    apply meta_maps_into.
+    apply meta_function.
     intros y Hy. rewrite <- Hr in Hy.
     apply ranE in Hy as [x Hp]. apply domI in Hp as Hx.
     rewrite Hd in Hx. apply func_ap in Hp...
@@ -515,7 +515,7 @@ Proof with nauto.
     exists 0. split...
   }
   eapply infinite_if_eqnum_proper_sub. apply Hsub.
-  destruct σ_maps_into as [Hf [Hd _]].
+  destruct σ_function as [Hf [Hd _]].
   exists σ. split; split...
   - split. apply ranE in H...
     intros x1 x2 H1 H2.
@@ -667,11 +667,9 @@ Proof with neauto.
       apply suc_preserve_lt in Hmk...
       exists (f ∪ ⎨<k, m>⎬). rewrite HC.
       apply bijection_add_point...
-      * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
-        subst x. apply BInterE in H1 as [_ H].
+      * intros H. apply BInterE in H as [_ H].
         eapply nat_irrefl; revgoals...
-      * apply disjointI. intros [x [H1 H2]]. apply SingE in H2.
-        subst m. eapply nat_irrefl...
+      * eapply nat_irrefl...
 Qed.
 
 (* 单射的定义域与该单射的像等势 *)

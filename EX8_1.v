@@ -130,7 +130,7 @@ Proof with auto; try congruence.
   set (constr A' R' Hbr) as T.
   set (Func (A S) (A T) ReplA) as f.
   assert (Hbi: f: A S ⟺ A T). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. eapply ReplI...
     - intros x1 H1 x2 H2 Heq. unfold ReplA in Heq.
       destruct (ixm (x1 = a₀)); destruct (ixm (x2 = a₀))...

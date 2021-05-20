@@ -133,7 +133,7 @@ Proof with auto.
   intros * [b Hb] Hfin.
   apply (dominated_by_finite_is_finite _ (A × B))...
   set (Func A (A × B) (λ x, <x, b>)) as f.
-  exists f. apply meta_injective.
+  exists f. apply meta_injection.
   - intros x Hx. apply CProdI...
   - intros x1 H1 x2 H2 Heq.
     apply op_iff in Heq as []; subst...
@@ -145,7 +145,7 @@ Proof with auto.
   intros * [a Ha] Hfin.
   apply (dominated_by_finite_is_finite _ (A × B))...
   set (Func B (A × B) (λ x, <a, x>)) as f.
-  exists f. apply meta_injective.
+  exists f. apply meta_injection.
   - intros x Hx. apply CProdI...
   - intros x1 H1 x2 H2 Heq.
     apply op_iff in Heq as []; subst...
@@ -212,11 +212,11 @@ Proof with nauto.
   end)) as G.
   set (Func A (A ⟶ B) (λ a, G a)) as g.
   assert (HG: ∀a ∈ A, G a: A ⇒ B). {
-    intros a Ha. apply meta_maps_into. intros x Hx.
+    intros a Ha. apply meta_function. intros x Hx.
     destruct (ixm (x = a)); apply Hrf; eapply ranI;
     apply func_correct; auto; rewrite Hdf...
   }
-  exists g. apply meta_injective.
+  exists g. apply meta_injection.
   - intros a Ha. apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
     + apply HG...
@@ -236,9 +236,9 @@ Proof with auto.
   set (λ b, Func A B (λ x, b)) as F.
   set (Func B (A ⟶ B) (λ b, F b)) as f.
   assert (HF: ∀b ∈ B, F b: A ⇒ B). {
-    intros b Hb. apply meta_maps_into. intros _ _...
+    intros b Hb. apply meta_function. intros _ _...
   }
-  exists f. apply meta_injective.
+  exists f. apply meta_injection.
   - intros b Hb. apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
     + apply HF...

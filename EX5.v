@@ -50,31 +50,6 @@ Proof with eauto.
   apply intAddInv_ran... apply intAddInv_ran...
 Qed.
 
-Close Scope Int_scope.
-Open Scope Nat_scope.
-
-Lemma add_1_1 : 1 + 1 = 2.
-Proof with auto.
-  rewrite pred, add_m_n, add_m_n', add_ident;
-    auto; repeat apply ω_inductive.
-Qed.
-
-Lemma mul_2_l : ∀m ∈ ω, 2 ⋅ m = m + m.
-Proof with nauto.
-  intros n Hn.
-  set {n ∊ ω | λ n, 2 ⋅ n = n + n} as N.
-  ω_induction N Hn.
-  - rewrite mul_0_r, add_ident...
-  - rewrite mul_m_n, IH...
-    assert (Hmm: m + m ∈ ω) by (apply add_ran; auto).
-    rewrite add_m_n, add_m_n', add_suc, add_suc...
-    rewrite (add_assoc (m + m)), (add_comm 2), add_1_1...
-    apply ω_inductive... apply ω_inductive...
-Qed.
-
-Close Scope Nat_scope.
-Open Scope Int_scope.
-
 Lemma intMul_2_a : ∀a ∈ ℤ, Int 2 ⋅ a = a + a.
 Proof with nauto.
   intros a Ha. unfold Int.

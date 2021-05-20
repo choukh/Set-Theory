@@ -15,7 +15,7 @@ Definition binCompatible : set → set → set → Prop := λ R A F,
 Definition QuotionFunc : set → set → set → set := λ R A F,
   {λ p, <<[π1 p]R, [π2 p]R>, [F[<π1 p, π2 p>]]R> | p ∊ A × A}.
 
-Lemma quotionFunc_maps_into : ∀ R A F,
+Lemma quotionFunc_function : ∀ R A F,
   binCompatible R A F →
   (QuotionFunc R A F): (A/R) × (A/R) ⇒ A/R.
 Proof with eauto.
@@ -71,7 +71,7 @@ Lemma quotionFunc_maps_onto : ∀ R A F,
   (QuotionFunc R A F): (A/R) × (A/R) ⟹ A/R.
 Proof with eauto.
   intros * Hc [Hf [Hdf Hrf]].
-  pose proof (quotionFunc_maps_into) as [Hf' [Hdf' Hrf']]...
+  pose proof (quotionFunc_function) as [Hf' [Hdf' Hrf']]...
   split... split... apply sub_antisym...
   intros y Hy. apply quotE in Hy as [p [Hp Heq]].
   rewrite <- Hrf in Hp. apply ranE in Hp as [x Hp].
@@ -88,7 +88,7 @@ Lemma binCompatibleE: ∀ R A F,
   ∀ x y ∈ A, F'[<[x]R, [y]R>] = [F[<x, y>]]R.
 Proof with eauto.
   intros * Hc F' x Hx y Hy.
-  pose proof (quotionFunc_maps_into) as [Hf' [Hdf' Hrf']]...
+  pose proof (quotionFunc_function) as [Hf' [Hdf' Hrf']]...
   destruct Hc as [Hqv [[Hf [Hdf Hrf]] Hc]].
   assert (Hdx: [x]R ∈ A/R) by (apply quotI; auto).
   assert (Hdy: [y]R ∈ A/R) by (apply quotI; auto).
@@ -114,7 +114,7 @@ Theorem quotionFunc_unique: ∀ R A F,
 Proof with eauto.
   intros * Hcom. split.
   exists (QuotionFunc R A F). split.
-  apply quotionFunc_maps_into...
+  apply quotionFunc_function...
   apply binCompatibleE...
   intros F1 F2 [[HF1 [Hd1 Hr1]] H1] [[HF2 [Hd2 Hr2]] H2].
   apply func_ext_intro... rewrite Hd1, Hd2...

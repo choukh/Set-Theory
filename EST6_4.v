@@ -116,7 +116,7 @@ Proof with neauto; try congruence.
   set {B ∊ 𝒫 A | λ B, finite B} as 𝒜.
   set (Func 𝒜 𝒜 (λ B, B ∪ ⎨F[A - B]⎬)) as ℋ.
   assert (Hℋ: ℋ: 𝒜 ⇒ 𝒜). {
-    apply meta_maps_into. intros B HB.
+    apply meta_function. intros B HB.
     apply SepE in HB as [Hsub Hfin].
     apply PowerAx in Hsub. apply SepI.
     - apply PowerAx. intros x Hx.
@@ -141,7 +141,7 @@ Proof with neauto; try congruence.
       apply SepE2 in H...
   }
   set (Func ω A (λ n, F[A - h[n]])) as g.
-  exists g. apply meta_injective.
+  exists g. apply meta_injection.
   - intros n Hn. assert (Hsub: A - h[n] ⊆ A) by auto.
     apply Hsub. apply Hch... apply Hne...
   - cut (∀ m n ∈ ω, m ∈ n → F [A - h[m]] ≠ F [A - h[n]]). {
@@ -271,7 +271,7 @@ Proof with neauto; try congruence.
     assert (Hf0: f[0] ∈ A)by (eapply ap_ran; neauto).
     rewrite <- Heq in Hf0. apply SepE in Hf0 as [_ H]. apply H...
   }
-  exists g. apply meta_bijective.
+  exists g. apply meta_bijection.
   - intros x Hx. destruct (ixm (x ∈ ran f)).
     + apply SepI.
       * eapply ap_ran... apply ω_inductive. eapply ap_ran...
@@ -330,7 +330,7 @@ Definition FuncDisjointify := λ i F,
 Lemma bijection_disjointify : ∀ F i, injective F →
   (FuncDisjointify i F): dom F × ⎨i⎬ ⟺ ran F × ⎨i⎬.
 Proof with eauto; try congruence.
-  intros. apply meta_bijective.
+  intros. apply meta_bijection.
   - intros x Hx. apply CProdI... eapply ap_ran.
     split. destruct H... split... apply CProdE0 in Hx as [H1 _]...
   - intros p1 Hp1 p2 Hp2 Heq.
@@ -524,7 +524,7 @@ Proof with eauto; try congruence.
     intros i Hi x Hx. eapply HBi... apply HgFx...
   }
   assert (HG: ∀x ∈ InfCProd I A, G x: I ⇒ ℬ). {
-    intros x Hx. apply meta_maps_into. intros i Hi.
+    intros x Hx. apply meta_function. intros i Hi.
     eapply HBi... apply HgFx...
   }
   assert (HAi: ∀i ∈ I, A i ⊆ 𝒜). {
@@ -535,11 +535,11 @@ Proof with eauto; try congruence.
     intros i Hi x Hx. eapply HAi... apply HgFy...
   }
   assert (HG': ∀y ∈ InfCProd I B, G' y: I ⇒ 𝒜). {
-    intros y Hy. apply meta_maps_into. intros i Hi.
+    intros y Hy. apply meta_function. intros i Hi.
     eapply HAi... apply HgFy...
   }
   set (Func (InfCProd I A) (InfCProd I B) G) as h.
-  apply CardAx1. exists h. apply meta_bijective.
+  apply CardAx1. exists h. apply meta_bijection.
   - intros x Hx. apply SepI.
     + apply arrowI. apply HG...
     + intros i Hi. unfold G. rewrite meta_func_ap...
@@ -574,7 +574,7 @@ Proof with eauto; try congruence.
         apply HgFx'... zfc_simple.
     }
     exists (G' y). split... apply func_ext_intro...
-    + apply meta_maps_into. intros i Hi. apply HgFx'...
+    + apply meta_function. intros i Hi. apply HgFx'...
     + apply InfCProdE in Hy as [[]]...
     + apply InfCProdE in Hy as [[_ [Hd _]]]...
     + intros i Hi. rewrite Heqd in Hi. unfold G, G'.
@@ -582,8 +582,8 @@ Proof with eauto; try congruence.
       rewrite meta_func_ap... rewrite meta_func_ap...
       rewrite inv_ran_reduction...
       * rewrite Hr. eapply InfCProdE...
-      * apply meta_maps_into. intros j Hj. apply HgFy'...
-      * apply meta_maps_into. intros j Hj. apply HgFx'...
+      * apply meta_function. intros j Hj. apply HgFy'...
+      * apply meta_function. intros j Hj. apply HgFx'...
 Qed.
 
 (* ==需要选择公理== *)
@@ -724,11 +724,11 @@ Proof with eauto; try congruence.
     intros i Hi x Hx. eapply HBi... apply HgFx...
   }
   assert (HG: ∀x ∈ InfCProd I A, G x: I ⇒ ℬ). {
-    intros x Hx. apply meta_maps_into. intros i Hi.
+    intros x Hx. apply meta_function. intros i Hi.
     eapply HBi... apply HgFx...
   }
   set (Func (InfCProd I A) (InfCProd I B) G) as h.
-  apply cardLeq_iff. exists h. apply meta_injective.
+  apply cardLeq_iff. exists h. apply meta_injection.
   - intros x Hx. apply SepI.
     + apply arrowI. apply HG...
     + intros i Hi. unfold G. rewrite meta_func_ap...
@@ -777,7 +777,7 @@ Proof with eauto.
   set (⋃{λ i, ℱ i × ⎨i⎬ | i ∊ I}) as X.
   set (⋃{ℱ | i ∊ I}) as Y.
   set (Func X Y π1) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros x Hx. apply FUnionE in Hx as [i [Hi Hx]].
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     subst x. zfc_simple. eapply FUnionI...
@@ -800,7 +800,7 @@ Proof with nauto.
   rewrite (card_of_nat 1)... apply CardAx1.
   set (⋃ᵢ λ i, 0 ^ i × ⎨i⎬) as A.
   set (Func A 1 (λ _, 0)) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros _ _. apply suc_has_0...
   - intros x1 H1 x2 H2 _.
     apply IFUnionE in H1 as [n [Hn H1]].

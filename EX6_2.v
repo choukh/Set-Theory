@@ -29,11 +29,11 @@ Proof with neauto; try congruence.
   end) as ℱ.
   set (Func A (A ⟶ 2) (λ x, Func A 2 (ℱ x))) as F.
   assert (HF: ∀x ∈ A, Func A 2 (ℱ x): A ⇒ 2). {
-    intros x Hx. apply meta_maps_into. intros y Hy.
+    intros x Hx. apply meta_function. intros y Hy.
     unfold ℱ. destruct (ixm (x = y))...
     apply suc_has_0; apply ω_inductive... apply suc_has_n.
   }
-  exists F. apply meta_injective.
+  exists F. apply meta_injection.
   - intros x Hx. apply SepI.
     + apply PowerAx. intros f Hf. apply SepE1 in Hf...
     + apply HF...
@@ -53,7 +53,7 @@ Proof with neauto; try congruence.
     | inr _ => 0
   end)) as g.
   assert (Hgf: g: A ⇒ 2). {
-    apply meta_maps_into. intros x Hx.
+    apply meta_function. intros x Hx.
     destruct (ixm (F[x][x] = 0)). apply suc_has_n.
     apply suc_has_0; apply ω_inductive...
   }
@@ -106,7 +106,7 @@ Proof with eauto; try congruence.
   - apply eqnum_empty in Hqn. rewrite Hqn.
     exists ∅. apply SepI.
     + apply SepI. apply empty_in_all_power.
-      apply injection_is_func. apply empty_injective.
+      apply injection_is_func. apply empty_injection.
     + intros i Hi. exfalso0.
   - apply set_eqnum_suc_nonempty in Hqn as HneI...
     destruct HneI as [j Hj]. apply split_one_element in Hj as HeqI.
@@ -292,7 +292,7 @@ Proof with neauto; try congruence.
       apply (dominated_by_finite_is_finite _ M)...
       set (Func M C (λ x, g x)) as f.
       apply (domain_of_surjection_dominate_range ac1 _ _ f).
-      apply meta_surjective.
+      apply meta_surjection.
       - intros x Hx. apply ReplAx. exists x. split...
       - intros y Hy. apply ReplAx in Hy as [x [Hx Heqy]].
         exists x. split...

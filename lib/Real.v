@@ -32,7 +32,7 @@ Qed.
 
 Lemma intAddInv_bijective : Func ℤ ℤ IntAddInv : ℤ ⟺ ℤ.
 Proof with auto.
-  apply meta_bijective.
+  apply meta_bijection.
   - apply intAddInv_ran.
   - apply intAddInv_injective.
   - intros y Hy. exists (-y)%z. split.
@@ -48,7 +48,7 @@ Qed.
 
 Lemma ratAddInv_bijective : Func ℚ ℚ RatAddInv : ℚ ⟺ ℚ.
 Proof with auto.
-  apply meta_bijective.
+  apply meta_bijection.
   - apply ratAddInv_ran.
   - apply ratAddInv_injective.
   - intros y Hy. exists (-y)%q. split.
@@ -64,7 +64,7 @@ Qed.
 
 Lemma realAddInv_bijective : Func ℝ ℝ RealAddInv : ℝ ⟺ ℝ.
 Proof with auto.
-  apply meta_bijective.
+  apply meta_bijection.
   - apply realAddInv_ran.
   - apply realAddInv_injective.
   - intros y Hy. exists (-y)%r. split.

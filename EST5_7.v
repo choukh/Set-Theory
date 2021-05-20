@@ -738,15 +738,15 @@ Qed.
 (** 有理数嵌入 **)
 Definition RatEmbed := Func ℚ ℝ (λ q, Realq q).
 
-Theorem ratEmbed_maps_into : RatEmbed: ℚ ⇒ ℝ.
+Theorem ratEmbed_function : RatEmbed: ℚ ⇒ ℝ.
 Proof.
-  apply meta_maps_into.
+  apply meta_function.
   intros x Hx. apply real_q; nauto.
 Qed.
 
 Corollary ratEmbed_ran : ∀q ∈ ℚ, RatEmbed[q] ∈ ℝ.
 Proof with auto.
-  pose proof ratEmbed_maps_into as [Hf [Hd Hr]].
+  pose proof ratEmbed_function as [Hf [Hd Hr]].
   intros q Hq. apply Hr. eapply ranI.
   apply func_correct... rewrite Hd...
 Qed.
@@ -754,7 +754,7 @@ Qed.
 Lemma ratEmbed_q : ∀q ∈ ℚ, RatEmbed[q] = Realq q.
 Proof with nauto.
   intros q Hq. unfold RatEmbed. rewrite meta_func_ap...
-  apply ratEmbed_maps_into.
+  apply ratEmbed_function.
 Qed.
 
 Theorem ratEmbed : ∀ n : nat, RatEmbed[Rat n] = Real n.
@@ -810,7 +810,7 @@ Qed.
 
 Theorem ratEmbed_injective : injective RatEmbed.
 Proof with auto.
-  apply meta_injective. intros x Hx. apply real_q...
+  apply meta_injection. intros x Hx. apply real_q...
   intros x1 Hx1 x2 Hx2 Heq. apply realq_injective in Heq...
 Qed.
 

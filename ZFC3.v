@@ -8,7 +8,7 @@ Require Export ZFC.ZFC2.
 
 (* 后续运算 *)
 Definition Suc := λ a, a ∪ ⎨a⎬.
-Notation "a ⁺" := (Suc a) (at level 8, format "a ⁺") : ZFC_scope.
+Notation "a ⁺" := (Suc a) (at level 6, format "a ⁺") : ZFC_scope.
 
 Lemma suc_has_n : ∀ n, n ∈ n⁺.
 Proof. intros. apply BUnionI2. apply SingI. Qed.

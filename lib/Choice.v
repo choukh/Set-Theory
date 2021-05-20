@@ -115,7 +115,7 @@ Proof with eauto; try congruence.
     }
     set (Func (dom R) (ran R) (λ x, π2 f[⎨x⎬])) as g.
     assert (Hg: is_function g). {
-      apply meta_maps_into. intros x Hx.
+      apply meta_function. intros x Hx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
       rewrite Hfx. zfc_simple. eapply ranI...
     }
@@ -271,7 +271,7 @@ Proof with auto.
     apply SepI... intros z Hz. apply SepE1 in Hz...
   }
   assert (Hf: F: dom R ⇒ ran R). {
-    apply meta_maps_into. intros x Hx.
+    apply meta_function. intros x Hx.
     eapply ranI. apply Hstar...
   }
   destruct Hf as [Hff [Hfd _]].

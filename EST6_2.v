@@ -187,7 +187,7 @@ Proof with neauto; try congruence.
     | inr _ => 1
     end
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. destruct (ixm (x = <0, 0>))...
     apply BUnionI1. apply BUnionI2... apply BUnionI2...
   - intros x1 Hx1 x2 Hx2 Heq.
@@ -227,7 +227,7 @@ Proof with eauto; try congruence.
     | inr _ => g[x]
     end
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. destruct (ixm (x ∈ K₁)).
     + apply BUnionI1. eapply ap_ran... split... split...
     + apply BUnionE in Hx as []... apply BUnionI2.
@@ -273,7 +273,7 @@ Proof with eauto; try congruence.
   set (Func (K₁ × L₁) (K₂ × L₂) (λ x,
     <f[π1 x], g[π2 x]>
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx.
     apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     subst x. zfc_simple. apply CProdI.
@@ -305,7 +305,7 @@ Proof with eauto; try congruence.
   assert (Hf': is_function f⁻¹) by (apply inv_func_iff_sr; auto).
   assert (Hg': is_function g⁻¹) by (apply inv_func_iff_sr; auto).
   set (Func (L₁ ⟶ K₁) (L₂ ⟶ K₂) (λ x, f ∘ x ∘ g⁻¹ )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros j Hj. apply arrow_iff in Hj as [Hfj [Hdj Hrj]].
     assert (Hffj: is_function (f ∘ j)) by (apply compo_func; auto).
     apply arrow_iff. split; [|split].
@@ -519,7 +519,7 @@ Proof with auto.
   rewrite Hcd at 2. apply CardAx1.
   rewrite cprod_0_l, bunion_empty. symmetry.
   set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq. apply op_iff in Heq as []...
   - intros y Hy. apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
@@ -546,9 +546,9 @@ Lemma arrow_from_one : ∀ A, 1 ⟶ A ≈ A.
 Proof with neauto; try congruence.
   intros. symmetry.
   set (Func A (1 ⟶ A) (λ x, ⎨<0, x>⎬)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx.
-    destruct (single_pair_bijective 0 x) as [[Hf Hi] [Hd Hr]].
+    destruct (single_pair_bijection 0 x) as [[Hf Hi] [Hd Hr]].
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
     eapply single_of_member_is_subset...
@@ -582,7 +582,7 @@ Proof with nauto.
   intros. rewrite (card_of_nat 1) at 2...
   apply CardAx1.
   set (Func (𝜅 ⟶ 1) 1 (λ _, 0)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. apply suc_has_n.
   - intros f1 Hf1 f2 Hf2 Heq.
     cut (∀ g1 g2 𝜆, g1 ∈ 𝜆 ⟶ 1 → g2 ∈ 𝜆 ⟶ 1 → g1 ⊆ g2). {
@@ -602,7 +602,7 @@ Proof with nauto.
     set (Func 𝜅 1 (λ _, 0)) as G.
     exists G. split... apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
-    + apply meta_maps_into. intros _ _. apply suc_has_n.
+    + apply meta_function. intros _ _. apply suc_has_n.
 Qed.
 
 (* 空集到任意集合的函数的集合等于壹 *)
@@ -679,7 +679,7 @@ Theorem cardMul_comm : ∀ 𝜅 𝜆, 𝜅 ⋅ 𝜆 = 𝜆 ⋅ 𝜅.
 Proof with auto.
   intros. apply CardAx1.
   set (Func (𝜅 × 𝜆) (𝜆 × 𝜅) (λ x, <π2 x, π1 x>)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. apply CProdE0 in Hx as []. apply CProdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply cprod_is_pairs in Hx1 as [a [b Hx1]].
@@ -809,14 +809,14 @@ Proof with eauto; try congruence.
   set (Func (s ∪ t ⟶ 𝜅) ((s ⟶ 𝜅) × (t ⟶ 𝜅)) (λ f,
     <Func s 𝜅 (λ x, f[x]), Func t 𝜅 (λ x, f[x])>
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros f Hf. apply arrow_iff in Hf as [Hf [Hd Hr]].
     apply CProdI; apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
-    + apply meta_maps_into.
+    + apply meta_function.
       intros x Hx. apply Hr. apply BUnionI1...
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
-    + apply meta_maps_into.
+    + apply meta_function.
       intros x Hx. apply Hr. apply BUnionI2...
   - intros f1 Hf1 f2 Hf2 Heq.
     apply op_iff in Heq as [H1 H2].
@@ -841,7 +841,7 @@ Proof with eauto; try congruence.
       | inl _ => g[x] | inr _ => h[x]
     end )) as f.
     assert (Hf: f: s ∪ t ⇒ 𝜅). {
-      apply meta_maps_into. intros x Hx.
+      apply meta_function. intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (x ∈ s))...
       apply Hgr... exfalso. eapply disjointE... apply Hhr...
     }
@@ -902,13 +902,13 @@ Proof with eauto; try congruence.
   set (Func ((𝜇 ⟶ 𝜅) × (𝜇 ⟶ 𝜆)) (𝜇 ⟶ 𝜅 × 𝜆) (λ p,
     Func 𝜇 (𝜅 × 𝜆) (λ x, <(π1 p)[x], (π2 p)[x]>)
   )) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros p Hp. apply CProdE1 in Hp as [g [Hg [h [Hh Hp]]]].
     apply arrow_iff in Hg as [Hgf [Hgd Hgr]].
     apply arrow_iff in Hh as [Hhf [Hhd Hhr]].
     subst p. zfc_simple. apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
-    + apply meta_maps_into. intros x Hx. apply CProdI.
+    + apply meta_function. intros x Hx. apply CProdI.
       apply Hgr... apply Hhr...
   - intros p1 Hp1 p2 Hp2 Heq.
     apply CProdE1 in Hp1 as [g1 [Hg1 [h1 [Hh1 H1]]]].
@@ -941,12 +941,12 @@ Proof with eauto; try congruence.
     set (Func 𝜇 𝜅 (λ x, π1 f[x])) as g.
     set (Func 𝜇 𝜆 (λ x, π2 f[x])) as h.
     assert (Hg: g: 𝜇 ⇒ 𝜅). {
-      apply meta_maps_into. intros x Hx. rewrite <- Hdf in Hx.
+      apply meta_function. intros x Hx. rewrite <- Hdf in Hx.
       apply func_correct in Hx... apply ranI in Hx.
       apply Hrf in Hx. apply CProdE0 in Hx as []...
     }
     assert (Hh: h: 𝜇 ⇒ 𝜆). {
-      apply meta_maps_into. intros x Hx. rewrite <- Hdf in Hx.
+      apply meta_function. intros x Hx. rewrite <- Hdf in Hx.
       apply func_correct in Hx... apply ranI in Hx.
       apply Hrf in Hx. apply CProdE0 in Hx as []...
     }
@@ -993,14 +993,14 @@ Proof with eauto; try congruence.
     Func 𝜇 (𝜆 ⟶ 𝜅) (λ y,
       Func 𝜆 𝜅 (λ x, f[<x, y>])
   ))) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros f Hf. apply SepI. {
       apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
-    apply meta_maps_into. intros y Hy. apply SepI. {
+    apply meta_function. intros y Hy. apply SepI. {
       apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
-    apply meta_maps_into. intros x Hx.
+    apply meta_function. intros x Hx.
     apply SepE in Hf as [_ Hf].
     eapply ap_ran... apply CProdI...
   - intros f1 Hf1 f2 Hf2 Heq.
@@ -1023,7 +1023,7 @@ Proof with eauto; try congruence.
     apply CProdI... apply SepI. {
       apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
-    apply meta_maps_into. intros x Hx.
+    apply meta_function. intros x Hx.
     apply Hrf1. apply CProdI...
   - intros f Hf. apply SepE in Hf as [_ [Hff [Hdf Hrf]]].
     set (Func (𝜆 × 𝜇) 𝜅 (λ p, f[π2 p][π1 p])) as g.
@@ -1064,7 +1064,7 @@ Proof with eauto; try congruence.
     + apply SepI. {
         apply PowerAx. intros p Hp. apply SepE1 in Hp...
       }
-      apply meta_maps_into. intros p Hp.
+      apply meta_function. intros p Hp.
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. zfc_simple. rewrite <- Hdf in Hb.
       apply func_correct in Hb... apply ranI in Hb. apply Hrf in Hb.
@@ -1274,7 +1274,7 @@ Lemma eqnum_repl : ∀ F A, (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
   A ≈ {F | x ∊ A}.
 Proof with auto.
   intros. set (Func A {F | x ∊ A} (λ x, F x)) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros x Hx. apply ReplAx. exists x. split...
   - intros x1 H1 x2 H2 Heq. apply H...
   - intros y Hy. apply ReplAx in Hy...
@@ -1284,7 +1284,7 @@ Qed.
 Lemma eqnum_repl_single : ∀ F a, ⎨a⎬ ≈ {F | x ∊ ⎨a⎬}.
 Proof with auto.
   intros. set (Func ⎨a⎬ {F | x ∊ ⎨a⎬} (λ x, F x)) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros x Hx. apply ReplAx. exists x. split...
   - intros x1 H1 x2 H2 _.
     apply SingE in H1. apply SingE in H2. congruence.

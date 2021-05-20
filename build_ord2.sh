@@ -16,3 +16,5 @@ echo "building EX8_1"
 coqc -R . ZFC EX8_1.v
 echo "building EX8_2"
 coqc -R . ZFC EX8_2.v
+echo "building EX8_3"
+coqc -R . ZFC EX8_3.v

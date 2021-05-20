@@ -5,20 +5,20 @@ Require Export ZFC.EST3_1.
 
 (*** EST第三章2：函数的左右逆，限制，像，函数空间，无限笛卡尔积 ***)
 
-(* 映射 *)
-Definition maps_into : set → set → set → Prop :=
+(* 映射 *) (* maps into *)
+Definition function : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F ⊆ B.
-Notation "F : A ⇒ B" := (maps_into F A B) (at level 60) : ZFC_scope.
+Notation "F : A ⇒ B" := (function F A B) (at level 60) : ZFC_scope.
 
-(* 单射 *) (* injection / one-to-one function *)
-Definition maps_one_to_one : set → set → set → Prop :=
+(* 单射 *) (* maps one-to-one / one-to-one function *)
+Definition injection : set → set → set → Prop :=
   λ F A B, injective F ∧ dom F = A ∧ ran F ⊆ B.
-Notation "F : A ⇔ B" := (maps_one_to_one F A B) (at level 60) : ZFC_scope.
+Notation "F : A ⇔ B" := (injection F A B) (at level 60) : ZFC_scope.
 
-(* 满射 *) (* surjection *)
-Definition maps_onto : set → set → set → Prop :=
+(* 满射 *) (* maps onto *)
+Definition surjection : set → set → set → Prop :=
   λ F A B, is_function F ∧ dom F = A ∧ ran F = B.
-Notation "F : A ⟹ B" := (maps_onto F A B) (at level 60) : ZFC_scope.
+Notation "F : A ⟹ B" := (surjection F A B) (at level 60) : ZFC_scope.
 
 (* 双射 *) (* one-to-one correspondence *)
 Definition bijection : set → set → set → Prop :=

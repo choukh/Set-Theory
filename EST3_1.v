@@ -9,7 +9,7 @@ Require Export ZFC.EX2.
 Definition is_rel : set → Prop := λ X, ∀x ∈ X, is_pair x.
 
 (* 关系是有序对的集合 *)
-Lemma rel_pair : ∀ R, is_rel R → ∀p ∈ R, p = < π1 p, π2 p >.
+Lemma rel_pair : ∀ R, is_rel R → ∀p ∈ R, p = <π1 p, π2 p>.
 Proof.
   intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
 Qed.
@@ -507,6 +507,21 @@ Proof.
   unfold injective. split. 
   - apply inv_func_iff_sr. apply Hs.
   - apply inv_sr_iff_func. apply Hf.
+Qed.
+
+Fact inv_as_repl : ∀ F, injective F →
+  F⁻¹ = {λ p, <π2 p, π1 p> | p ∊ F}.
+Proof with eauto.
+  intros F Hinj.
+  apply ExtAx. intros p. split; intros Hp.
+  - apply ReplAx. exists <π2 p, π1 p>. split.
+    + rewrite (rel_pair F⁻¹) in Hp... apply inv_op...
+    + zfc_simple. symmetry. eapply func_pair...
+      apply inv_func_iff_sr. apply Hinj.
+  - apply ReplAx in Hp as [q [Hq Heq]].
+    rewrite (rel_pair F) in Hq; [|apply Hinj|auto].
+    subst p. apply SepI. apply CProdI.
+    eapply ranI... eapply domI... split... zfc_simple.
 Qed.
 
 (** 复合 **)

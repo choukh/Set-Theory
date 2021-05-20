@@ -72,14 +72,14 @@ Proof with nauto.
   apply CardAx1. symmetry.
   apply Schröeder_Bernstein.
   - set (Func ω ℤ Int) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros n Hn...
     + intros n Hn m Hm Heq. apply int_ident in Heq...
       do 2 rewrite add_ident, embed_proj_id in Heq...
   - eapply dominate_rewrite_r.
     now rewrite ω_eqnum_ω_cp_ω.
     set (Func ℤ ω² IntProj) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros a Ha. apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
       pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [Heq _]]]]].
       subst. rewrite Heq. apply CProdI...
@@ -101,7 +101,7 @@ Proof with nauto.
   apply CardAx1. symmetry.
   apply Schröeder_Bernstein.
   - set (Func ω ℚ Rat) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros n Hn...
     + intros n Hn m Hm Heq.
       apply rat_ident in Heq...
@@ -112,7 +112,7 @@ Proof with nauto.
     eapply Equivalence_Transitive; revgoals. now rewrite ω_eqnum_ω_cp_ω.
     apply cardMul_well_defined; apply CardAx1; apply card_int_eq_aleph0.
     set (Func ℚ ℤ² RatProj) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros r Hr. apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
       pose proof (ratProj a Ha b Hb) as [c [Hc [d [Hd [Heq _]]]]].
       subst. rewrite Heq. apply CProdI... apply SepE1 in Hd...
@@ -182,7 +182,7 @@ Proof with neauto.
       - exists x. split... intros r Hr Hbt. apply SepI...
     }
     set (Func A ℚ (λ x, F[ℬ x])) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     - intros x Hx. cut (F[ℬ x] ∈ ℬ x). {
         intros H. apply SepE1 in H...
       }
@@ -261,7 +261,7 @@ Proof with neauto.
       | inl _ => F[ℬ x]
       | inr _ => q
     end)) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     - intros x Hx. destruct (ixm (x ∈ B))...
       cut (F[ℬ x] ∈ ℬ x). {
         intros H. apply SepE1 in H...

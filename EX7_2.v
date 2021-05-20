@@ -106,7 +106,7 @@ Definition NegIntLtStruct :=
 Lemma ω_embed_ran_nn : ∀n ∈ ω, ω_Embed[n] ∈ ℤ⁰⁺.
 Proof with eauto.
   intros n Hn. apply SepI.
-  - eapply ap_ran... apply ω_embed_maps_into.
+  - eapply ap_ran... apply ω_embed_function.
   - ω_destruct n; subst n.
     + right. rewrite <- zero, ω_embed...
     + left. rewrite suc_isomorphic_ω, ω_embed... apply intPos_sn.
@@ -115,7 +115,7 @@ Qed.
 Lemma ω_embed_bijective : ω_Embed: ω ⟺ ℤ⁰⁺.
 Proof with neauto; try congruence.
   apply bijection_is_func.
-  destruct ω_embed_maps_into as [Hf [Hd Hr]].
+  destruct ω_embed_function as [Hf [Hd Hr]].
   assert (Hrz: ran ω_Embed ⊆ ℤ⁰⁺). {
     intros a Ha.
     apply ranE in Ha as [n Hp]. apply domI in Hp as Hn.
@@ -170,7 +170,7 @@ Qed.
 
 Lemma intAddInv_bijective : (Func ℤ⁺ ℤ⁻ IntAddInv): ℤ⁺ ⟺ ℤ⁻.
 Proof with auto; try congruence.
-  apply meta_bijective.
+  apply meta_bijection.
   - intros a Ha. apply SepE in Ha as [Ha Hpos].
     apply SepI. apply intAddInv_ran... apply intPos_neg...
   - intros a Ha b Hb Heq.
@@ -473,7 +473,7 @@ Example ex7_14 : ∀ S, po S →
 Proof with eauto.
   intros * [_ [_ [Htr Hir]]] F T.
   assert (HfP: F: A S ⇔ (𝒫 (A S))). {
-    apply meta_injective.
+    apply meta_injection.
     + intros x Hx. apply PowerAx. intros t Ht.
       apply SepE1 in Ht...
     + intros x1 Hx1 x2 Hx2 Heq.

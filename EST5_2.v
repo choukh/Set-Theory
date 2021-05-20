@@ -696,22 +696,22 @@ Qed.
 (** 自然数嵌入 **)
 Definition ω_Embed := Func ω ℤ (λ n, [<n, 0>]~).
 
-Theorem ω_embed_maps_into : ω_Embed: ω ⇒ ℤ.
+Theorem ω_embed_function : ω_Embed: ω ⇒ ℤ.
 Proof.
-  apply meta_maps_into.
+  apply meta_function.
   intros x Hx. apply pQuotI; nauto.
 Qed.
 
 Corollary ω_embed_ran : ∀n ∈ ω, ω_Embed[n] ∈ ℤ.
 Proof with auto.
-  pose proof ω_embed_maps_into as [Hf [Hd Hr]].
+  pose proof ω_embed_function as [Hf [Hd Hr]].
   intros n Hn. apply Hr. eapply ranI.
   apply func_correct... rewrite Hd...
 Qed. 
 
 Theorem ω_embed_injective : injective ω_Embed.
 Proof with nauto.
-  apply meta_injective. intros x Hx. apply pQuotI...
+  apply meta_injection. intros x Hx. apply pQuotI...
   intros x1 Hx1 x2 Hx2 Heq. apply int_ident in Heq...
   rewrite add_ident, add_ident in Heq...
 Qed.
@@ -719,7 +719,7 @@ Qed.
 Lemma ω_embed_n : ∀n ∈ ω, ω_Embed[n] = [<n, 0>]~.
 Proof with nauto.
   intros n Hn. unfold ω_Embed. rewrite meta_func_ap...
-  apply ω_embed_maps_into.
+  apply ω_embed_function.
 Qed.
 
 Theorem ω_embed : ∀ n : nat, ω_Embed[n] = Int n.

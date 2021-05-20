@@ -35,7 +35,7 @@ Definition ℝ : set := (CauchySeq/~)%zfc.
 End CauchyReal.
 
 (** 戴德金分割 **)
-Definition is_DedekindCut : set → Prop := λ x,
+Definition is_DedekindCut := λ x,
   (* a. 非平凡 *) (x ≠ ∅ ∧ x ≠ ℚ) ∧
   (* b. 向下封闭 *) (∀ p q ∈ ℚ, q ∈ x → p <𝐪 q → p ∈ x) ∧
   (* c. 无最大数 *) ∀p ∈ x, ∃q ∈ x, p <𝐪 q.
@@ -112,7 +112,7 @@ Close Scope Rat_scope.
 Open Scope Int_scope.
 
 (** 实数的序 **)
-Definition RealLt : set := SubsetRel ℝ.
+Definition RealLt := SubsetRel ℝ.
 Notation "x <𝐫 y" := (<x, y> ∈ RealLt) (at level 70).
 
 Lemma realLt_connected : connected RealLt ℝ.

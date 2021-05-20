@@ -48,7 +48,7 @@ Notation "S ≇ T" := (¬isomorphic S T) (at level 60) : OrderedStruct_scope.
 Theorem iso_refl : Reflexive isomorphic.
 Proof with auto.
   intros S. exists (Ident (A S)).
-  split. apply ident_bijective.
+  split. apply ident_bijection.
   intros x Hx y Hy. rewrite ident_ap, ident_ap... reflexivity.
 Qed.
 

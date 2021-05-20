@@ -17,7 +17,7 @@ Proof.
   zfc_simple. repeat split; auto.
 Qed.
 
-Lemma min_maps_into : ∀ A R, woset A R → (fld R) = A →
+Lemma min_function : ∀ A R, woset A R → (fld R) = A →
   (Min R): 𝒫 A - ⎨∅⎬ ⇒ A.
 Proof with eauto.
   intros * [Hlo Hmin] Heq. subst A. split; split.
@@ -48,7 +48,7 @@ Lemma min_correct : ∀ A R B, woset A R → (fld R) = A →
   ⦿ B → B ⊆ A → minimum (Min R)[B] B R.
 Proof with eauto.
   intros * Hwo Heq Hne Hsub.
-  pose proof (min_maps_into A R Hwo) as [Hfm [Hdm _]]...
+  pose proof (min_function A R Hwo) as [Hfm [Hdm _]]...
   assert (HB: B ∈ dom (Min R)). {
     rewrite Hdm. apply SepI. apply PowerAx...
     apply SingNI. apply EmptyNI...
@@ -126,9 +126,9 @@ Proof with eauto; try congruence.
       rewrite Heq, H in Hna. apply Hna.
 Qed.
 
-Lemma ω_min_maps_into : (Min Lt): 𝒫 ω - ⎨∅⎬ ⇒ ω.
+Lemma ω_min_function : (Min Lt): 𝒫 ω - ⎨∅⎬ ⇒ ω.
 Proof.
-  apply min_maps_into.
+  apply min_function.
   apply Lt_wellOrder. apply fld_Lt.
 Qed.
 
@@ -210,7 +210,7 @@ Proof.
   zfc_simple. repeat split; auto.
 Qed.
 
-Lemma min_maps_into : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
+Lemma min_function : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
 Proof with eauto.
   intros * [Hlo Hmin]. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
@@ -240,7 +240,7 @@ Lemma min_correct : ∀ A R B, woset A R →
   ⦿ B → B ⊆ A → minimum (Min A R)[B] B R.
 Proof with eauto.
   intros * Hwo Hne Hsub.
-  pose proof (min_maps_into A R Hwo) as [Hfm [Hdm _]]...
+  pose proof (min_function A R Hwo) as [Hfm [Hdm _]]...
   assert (HB: B ∈ dom (Min A R)). {
     rewrite Hdm. apply SepI. apply PowerAx...
     apply SingNI. apply EmptyNI...

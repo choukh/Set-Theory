@@ -613,22 +613,22 @@ Qed.
 (** 整数嵌入 **)
 Definition IntEmbed := Func ℤ ℚ (λ a, [<a, Int 1>]~).
 
-Theorem intEmbed_maps_into : IntEmbed: ℤ ⇒ ℚ.
+Theorem intEmbed_function : IntEmbed: ℤ ⇒ ℚ.
 Proof.
-  apply meta_maps_into.
+  apply meta_function.
   intros x Hx. apply pQuotI; nauto.
 Qed.
 
 Corollary intEmbed_ran : ∀a ∈ ℤ, IntEmbed[a] ∈ ℚ.
 Proof with auto.
-  pose proof intEmbed_maps_into as [Hf [Hd Hr]].
+  pose proof intEmbed_function as [Hf [Hd Hr]].
   intros a Ha. apply Hr. eapply ranI.
   apply func_correct... rewrite Hd...
 Qed. 
 
 Theorem intEmbed_injective : injective IntEmbed.
 Proof with nauto.
-  apply meta_injective. intros x Hx. apply pQuotI...
+  apply meta_injection. intros x Hx. apply pQuotI...
   intros x1 Hx1 x2 Hx2 Heq. apply rat_ident in Heq...
   rewrite intMul_ident, intMul_ident in Heq...
 Qed.
@@ -636,7 +636,7 @@ Qed.
 Lemma intEmbed_a : ∀a ∈ ℤ, IntEmbed[a] = [<a, Int 1>]~.
 Proof with nauto.
   intros a Ha. unfold IntEmbed. rewrite meta_func_ap...
-  apply intEmbed_maps_into.
+  apply intEmbed_function.
 Qed.
 
 Theorem intEmbed : ∀ n : nat, IntEmbed[Int n] = Rat n.

@@ -152,7 +152,7 @@ Proof with eauto; try congruence.
   apply CardAx1 in H as [g Hg].
   set (λ f, g ∘ f ∘ g⁻¹) as ℱ.
   set (Func (Permutation A) (Permutation B) ℱ) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros f Hf.
     apply permutation_iff.
     apply permutation_iff in Hf.

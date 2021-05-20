@@ -80,7 +80,7 @@ Proof with eauto; try congruence.
   assert (H := Hg). destruct H as [_ [Hdg _]].
   set (Func (A S × A T) (A S' × A T') (λ x, <f[π1 x], g[π2 x]>)) as F.
   assert (Hbi: F: A S × A T ⟺ A S' × A T'). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       subst x. zfc_simple. apply CProdI; eapply ap_ran...
     - intros x1 H1 x2 H2 Heq.
@@ -151,7 +151,7 @@ Proof with auto; try congruence.
   pose proof contra_1_0 as H10.
   pose proof contra_0_1 as H01.
   assert (Hbi: F: Dom ⟺ Ran). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. 
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];
@@ -398,7 +398,7 @@ Proof with auto; try congruence.
   set (A S × (A T × A U)) as Ran.
   set (Func Dom Ran (λ x, <π1 (π1 x), <π2 (π1 x), π2 x>>)) as F.
   assert (Hbi: F: Dom ⟺ Ran). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       apply CProdE1 in Ha as [c [Hc [d [Hd Ha]]]].
@@ -460,7 +460,7 @@ Proof with auto; try congruence.
   pose proof contra_0_1 as H01.
   pose proof contra_1_0 as H10.
   assert (Hbi: F: Dom ⟺ Ran). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       apply BUnionE in Hb as [];
@@ -605,7 +605,7 @@ Proof with auto; try congruence.
   pose proof contra_0_1 as H01.
   pose proof contra_1_0 as H10.
   assert (Hbi: F: Dom ⟺ A S). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE0 in H as []...
@@ -655,7 +655,7 @@ Proof with nauto; try congruence.
   intros. unfold LoMul. simpl.
   set (Func (A S × 1) (A S) π1) as F.
   assert (Hbi: F: A S × 1 ⟺ A S). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. apply CProdE0 in Hx as []...
     - intros x1 H1 x2 H2 Heq.
       apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
@@ -687,7 +687,7 @@ Lemma loMul_0 : ∀ S, S ⋅ LOⁿ 0 ≅ LOⁿ 0.
 Proof with auto; try congruence.
   intros. unfold LoMul. simpl.
   exists ∅. split; simpl.
-  rewrite cprod_0_r. apply empty_bijective.
+  rewrite cprod_0_r. apply empty_bijection.
   intros x Hx. apply CProdE0 in Hx as [_ H]. exfalso0.
 Qed.
 

@@ -103,7 +103,7 @@ Proof with eauto; try congruence.
     {f ∊ ω ⟶ ⋃ 𝒜' | λ f, f: ω ⟹ g[m]}
   )) as h.
   assert (Hh: h: ω ⇒ 𝒫 (ω ⟶ ⋃ 𝒜')). {
-    apply meta_maps_into. intros m Hm. apply PowerAx.
+    apply meta_function. intros m Hm. apply PowerAx.
     intros x Hx. apply SepE1 in Hx...
   }
   assert (Hneh: ∀m ∈ ω, ⦿ h[m]). {
@@ -124,7 +124,7 @@ Proof with eauto; try congruence.
   }
   set (Func (ω × ω) ⋃ 𝒜' (λ p, F[π2 p][π1 p])) as f.
   assert (Hf: f: ω × ω ⟹ ⋃ 𝒜'). {
-    apply meta_surjective.
+    apply meta_surjection.
     - intros p Hp.
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. zfc_simple. apply UnionAx.
@@ -157,7 +157,7 @@ Proof with neauto.
     assert (Hf: f ∈ n ⟶ ω). {
       apply SepI. apply PowerAx.
       intros p Hp. apply SepE1 in Hp...
-      apply meta_maps_into. intros x Hx. eapply ω_trans...
+      apply meta_function. intros x Hx. eapply ω_trans...
     }
     apply arrow_iff in Hf as Hfn. destruct Hfn as [_ [Hdn _]].
     rewrite Heq in Hf. apply arrow_iff in Hf as [_ [Hdm _]].
@@ -185,19 +185,19 @@ Proof with nauto.
   - rewrite one in Hx. apply SingE in Hx. subst. apply SepI.
     + rewrite cprod_0_r, power_empty. apply SingI.
     + exists 0. split... apply injection_is_func.
-      apply empty_injective.
+      apply empty_injection.
 Qed.
 
 (* 任意集合被自身的有限序列集支配 *)
 Lemma dominated_by_sq : ∀ A, A ≼ 𝗦𝗾 A.
 Proof with neauto.
   intros. set (Func A (𝗦𝗾 A) (λ x, Func 1 A (λ _, x))) as f.
-  exists f. apply meta_injective.
+  exists f. apply meta_injection.
   + intros x Hx. apply SepI.
     * apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. apply CProdI... eapply ω_trans...
-    * exists 1. split... apply meta_maps_into. intros _ _...
+    * exists 1. split... apply meta_function. intros _ _...
   + intros x1 Hx1 x2 Hx2 Heq.
     assert (<∅, x1> ∈ Func 1 A (λ _, x1)). {
       apply SepI. apply CProdI... apply suc_has_0... zfc_simple.
@@ -231,7 +231,7 @@ Proof with eauto; try congruence.
   set (Func (𝗦𝗾 A) (𝗦𝗾 ω) (λ f,
     Func (dom f) ω (λ n, g[f[n]])
   )) as F.
-  exists F. apply meta_injective.
+  exists F. apply meta_injection.
   - intros f Hf. apply SepE in Hf as [_ [n [Hn Hf]]].
     assert (Hf' := Hf). destruct Hf' as [_ [Hdf _]].
     apply SepI.
@@ -239,7 +239,7 @@ Proof with eauto; try congruence.
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. apply CProdI... eapply ω_trans...
     + exists n. split... rewrite Hdf.
-      apply meta_maps_into. intros x Hx. eapply ap_ran.
+      apply meta_function. intros x Hx. eapply ap_ran.
       apply injection_is_func... eapply ap_ran...
   - intros f1 H1 f2 H2 Heq.
     apply SepE in H1 as [_ [n1 [Hn1 [Hf1 [Hdf1 Hrf1]]]]].
@@ -264,7 +264,7 @@ Proof with eauto; try congruence.
     apply func_ext_intro...
     intros x Hx. apply Heq2 in Hx as Heq.
     rewrite meta_func_ap, meta_func_ap in Heq; revgoals...
-    apply meta_maps_into... apply meta_maps_into...
+    apply meta_function... apply meta_function...
     destruct Hg as [Hi [Hd Hr]].
     eapply injectiveE; eauto; rewrite Hd.
     apply Hf1x... apply Hf2x...
@@ -299,7 +299,7 @@ Proof with auto; try congruence.
     {f ∊ K ⟶ ⋃ 𝒜' | λ f, f: K ⟹ A}
   )) as h.
   assert (Hh: h: 𝒜' ⇒ 𝒫 (K ⟶ ⋃ 𝒜')). {
-    apply meta_maps_into. intros m Hm. apply PowerAx.
+    apply meta_function. intros m Hm. apply PowerAx.
     intros x Hx. apply SepE1 in Hx...
   }
   assert (Hneh: ∀A ∈ 𝒜', ⦿ h[A]). {
@@ -321,7 +321,7 @@ Proof with auto; try congruence.
   }
   set (Func (𝒜' × K) ⋃ 𝒜' (λ p, F[π1 p][π2 p])) as f.
   assert (Hf: f: 𝒜' × K ⟹ ⋃ 𝒜'). {
-    apply meta_surjective.
+    apply meta_surjection.
     - intros p Hp.
       apply CProdE1 in Hp as [A [HA [k [Hk Hp]]]].
       subst p. zfc_simple. apply UnionAx.
@@ -373,15 +373,15 @@ Proof with neauto; try congruence.
   assert (HG: ∀f ∈ 𝗦𝗾 A, G f : ω ⇒ A). {
     intros f Hf.
     apply SepE in Hf as [_ [n [Hn [Hf [Hd Hr]]]]].
-    apply meta_maps_into.
+    apply meta_function.
     intros x Hx. destruct (ixm (x ∈ dom f))...
     eapply ap_ran... split...
   }
   assert (Hg: g: 𝗦𝗾 A ⇒ (ω ⟶ A)). {
-    apply meta_maps_into. intros f Hf.
+    apply meta_function. intros f Hf.
     apply SepI. apply HGp... apply HG...
   }
-  exists F. apply meta_injective.
+  exists F. apply meta_injection.
   - intros f Hf. apply CProdI.
     apply SepE in Hf as [_ [n [Hn [_ [Hd _]]]]]...
     apply SepI; unfold g; rewrite meta_func_ap...

@@ -136,7 +136,7 @@ Proof with neauto; try congruence.
       | inl _ => x⁺
       | inr _ => x
   end end)) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros x Hx. destruct (ixm (x = α)).
     + apply ord_nq_0_gt_0... apply EmptyNI.
       apply infinite_set_nonempty...

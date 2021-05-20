@@ -111,7 +111,7 @@ Proof with eauto; try congruence.
     intros B HB. apply HrF. apply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
-    apply meta_maps_into. intros B HB.
+    apply meta_function. intros B HB.
     apply HrF' in HB. apply SepE1 in HB...
   }
   (* f(B)是B的严格上界 *)
@@ -195,7 +195,7 @@ Proof with eauto; try congruence.
     intros B HB. apply HrF. apply ReplI...
   }
   assert (Hf: f: ℬ ⇒ A). {
-    apply meta_maps_into. intros B HB.
+    apply meta_function. intros B HB.
     apply HrF' in HB. apply SepE1 in HB...
   }
   (* f(B)是B的严格上界 *)

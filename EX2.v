@@ -6,7 +6,7 @@ Require Export ZFC.EST2.
 Example ex1_3: ∀ B C, B ⊆ C → 𝒫 B ⊆ 𝒫 C.
 Proof.
   intros B C H x HB. apply PowerAx in HB.
-  pose proof (sub_tran HB H) as HC.
+  pose proof (sub_tran _ _ _ HB H) as HC.
   apply PowerAx. apply HC.
 Qed.
 
@@ -275,11 +275,11 @@ Proof.
 Qed.
 
 Example ex2_21: ∀ A B, ⋃(A ∪ B) = ⋃A ∪ ⋃B.
-Proof.
+Proof with auto.
   intros. apply ExtAx. split; intros.
   - apply UnionAx in H as [y [H1 H2]]. apply BUnionE in H1 as [].
-    + apply BUnionI1. exact (UnionI H H2).
-    + apply BUnionI2. exact (UnionI H H2).
+    + apply BUnionI1. apply UnionAx. exists y. split...
+    + apply BUnionI2. apply UnionAx. exists y. split...
   - apply BUnionE in H as [].
     + apply UnionAx in H as [y [H1 H2]]. apply UnionAx.
       exists y. split. apply BUnionI1. apply H1. apply H2.

@@ -132,7 +132,7 @@ Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
   apply EmptyNE in H as [k Hk].
   set (Func 1 𝜅 (λ x, k)) as f.
-  exists f. apply meta_injective. intros _ _...
+  exists f. apply meta_injection. intros _ _...
   intros x1 H1 x2 H2 _. rewrite one in H1, H2.
   apply SingE in H1. apply SingE in H2. congruence.
 Qed.
@@ -174,7 +174,7 @@ Proof with auto.
   intros. rewrite (card_of_card 𝜅), <- card_of_power...
   apply cardLt_iff. split; [|apply Cantor's].
   set (Func 𝜅 (𝒫 𝜅) (λ x, ⎨x⎬)) as f.
-  exists f. apply meta_injective.
+  exists f. apply meta_injection.
   - intros x Hx. apply PowerAx. intros y Hy.
     apply SingE in Hy. subst...
   - intros x1 Hx1 x2 Hx2 Heq. assert (x1 ∈ ⎨x1⎬) by auto.
@@ -328,7 +328,7 @@ Proof with neauto.
   apply cardExp_well_defined. reflexivity. symmetry. apply Hk.
   apply cardExp_well_defined. reflexivity. symmetry. apply Hl.
   set (Func (K ⟶ 𝜇) (L ⟶ 𝜇) (λ f, f ∪ ((L - K) × ⎨m⎬))) as G.
-  exists G. apply meta_injective.
+  exists G. apply meta_injection.
   - intros f Hf.
     apply SepE in Hf as [Hf [Hff [Hdf Hrf]]].
     apply SepI. {
@@ -476,7 +476,7 @@ Proof with neauto; try congruence.
     | inl _ => (2 ⋅ (π1 x))%n
     | inr _ => (2 ⋅ (π1 x) + 1)%n
   end)) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   - intros x Hx. apply BUnionE in Hx as [].
     + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
       subst x. zfc_simple. apply SingE in Hb.

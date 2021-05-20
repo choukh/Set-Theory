@@ -151,7 +151,7 @@ Proof with neauto; try congruence.
   }
   set (Func N N (Next N Lt)) as F.
   assert (HF: F: N ⇔ N). {
-    apply meta_injective.
+    apply meta_injection.
     - intros n Hn. apply Hsub in Hn as Hnw. apply (Hsubn n Hnw).
       pose proof (Harc n Hnw) as [m [Hm Hnm]].
       apply ω_next... exists m. split...
@@ -193,9 +193,9 @@ Proof with auto; try congruence.
   intros B f [Hf [Hd Hr]].
   set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
   set (Func B ω (λ x, (Min Lt)[𝒩 x])) as g.
-  exists g. apply meta_injective.
+  exists g. apply meta_injection.
   + intros x Hx. eapply ap_ran.
-    apply ω_min_maps_into. apply SepI.
+    apply ω_min_function. apply SepI.
     * apply PowerAx. intros n Hn. apply SepE1 in Hn...
     * rewrite <- Hr in Hx. apply ranE in Hx as [n Hp].
       apply domI in Hp as Hn. apply func_ap in Hp...
@@ -229,7 +229,7 @@ Proof with auto; try congruence.
       | inl _ => f⁻¹[x]
       | inr _ => b
     end)) as g.
-    exists g. apply meta_surjective.
+    exists g. apply meta_surjection.
     + intros x Hx. destruct (ixm (x ∈ n))... apply (ap_ran n)...
       apply bijection_is_func. apply inv_bijection...
     + intros y Hy. destruct Hf as [[Hf Hs] [Hd Hr]].

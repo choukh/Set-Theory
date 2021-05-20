@@ -2,6 +2,37 @@
 
 Require Import ZFC.lib.Relation.
 
+(** dom & ran **)
+
+(* 函数的定义域等于函数的π1替代 *)
+Lemma dom_eq_π1_repl : ∀ f, is_function f → dom f = {π1 | p ∊ f}.
+Proof with eauto.
+  intros f Hf. apply ExtAx. split; intros Hx.
+  - apply domE in Hx as [y Hp]. apply ReplAx.
+    exists <x, y>. split... zfc_simple.
+  - apply ReplAx in Hx as [p [Hp H1]]. 
+    apply func_pair in Hp as Heq... apply SepI.
+    + apply UnionAx. exists ⎨x⎬. split...
+      apply UnionAx. exists p. split...
+      rewrite Heq, <- H1. apply PairI1.
+    + exists (π2 p). congruence.
+Qed.
+
+(* 函数的值域等于函数的π2替代 *)
+Lemma ran_eq_π2_repl : ∀ f, is_function f → ran f = {π2 | p ∊ f}.
+Proof with eauto.
+  intros f Hf. apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp]. apply ReplAx.
+    exists <x, y>. split... zfc_simple.
+  - apply ReplAx in Hy as [p [Hp H2]]. 
+    apply func_pair in Hp as Heq... apply SepI.
+    + apply UnionAx. exists {π1 p, π2 p}. split.
+      apply UnionAx. exists p. split...
+      rewrite Heq at 3. apply PairI2.
+      rewrite <- H2. apply PairI2.
+    + exists (π1 p). congruence.
+Qed.
+
 (** meta **)
 
 (* 通过类型论函数证明集合论函数的定义域 *)
@@ -16,7 +47,7 @@ Proof with eauto.
 Qed.
 
 (* 通过类型论函数证明集合论函数的定义域与值域 *)
-Lemma meta_maps_into : ∀ A B F, (∀x ∈ A, F x ∈ B) → 
+Lemma meta_function : ∀ A B F, (∀x ∈ A, F x ∈ B) → 
   (Func A B F): A ⇒ B.
 Proof with auto.
   intros. split. apply func_is_func. split.
@@ -36,13 +67,13 @@ Proof with auto.
 Qed.
 
 (* 通过类型论函数证明集合论函数是单射 *)
-Lemma meta_injective : ∀ A B F,
+Lemma meta_injection : ∀ A B F,
   (∀x ∈ A, F x ∈ B) → 
   (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
   (Func A B F): A ⇔ B.
 Proof with eauto.
   intros * Hf Hinj.
-  apply meta_maps_into in Hf as [Hf [Hd Hr]].
+  apply meta_function in Hf as [Hf [Hd Hr]].
   split... split... intros y Hy.
   split. apply ranE in Hy...
   intros x1 x2 H1 H2.
@@ -52,41 +83,41 @@ Proof with eauto.
 Qed.
 
 (* 通过类型论函数证明集合论函数是满射 *)
-Lemma meta_surjective : ∀ A B F,
+Lemma meta_surjection : ∀ A B F,
   (∀x ∈ A, F x ∈ B) → 
   (∀y ∈ B, ∃x ∈ A, F x = y) →
   (Func A B F): A ⟹ B.
 Proof with eauto.
   intros * Hf Hsurj.
-  apply meta_maps_into in Hf as [Hf [Hd Hr]].
+  apply meta_function in Hf as [Hf [Hd Hr]].
   split; [|split]... apply sub_antisym...
   intros y Hy. pose proof (Hsurj _ Hy) as [x [Hx Hap]].
   eapply ranI. apply SepI. apply CProdI... zfc_simple.
 Qed.
 
 (* 通过类型论函数证明集合论函数是双射 *)
-Lemma meta_bijective : ∀ A B F,
+Lemma meta_bijection : ∀ A B F,
   (∀x ∈ A, F x ∈ B) →
   (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
   (∀y ∈ B, ∃x ∈ A, F x = y) →
   (Func A B F): A ⟺ B.
 Proof with auto.
   intros * H1 H2 H3.
-  apply (meta_injective A B) in H2 as [Hi [Hd _]]...
-  apply (meta_surjective A B) in H3 as [_ [_ Hr]]...
+  apply (meta_injection A B) in H2 as [Hi [Hd _]]...
+  apply (meta_surjection A B) in H3 as [_ [_ Hr]]...
   split; [|split]...
 Qed.
 
-(* 通过指定定义域讲类型论函数嵌入到集合论函数 *)
-Definition LambdaEmbed : (set → set) → set → set := λ F A,
+(* 通过指定定义域将类型论函数编码为集合论函数 *)
+Definition LambdaEncode : (set → set) → set → set := λ F A,
   Func A {F | a ∊ A} F.
-Notation "F ↿ A" := (LambdaEmbed F A) (at level 60).
+Notation "F ↿ A" := (LambdaEncode F A) (at level 60).
 Notation "'Λ' x ∊ A , F" := ((λ x, F) ↿ A) (at level 200).
 
-Lemma lambdaEmbed : ∀ F A, ∀a ∈ A, (F ↿ A)[a] = F a.
+Lemma lambdaEncode : ∀ F A, ∀a ∈ A, (F ↿ A)[a] = F a.
 Proof with auto.
-  intros * a Ha. unfold LambdaEmbed.
-  rewrite meta_func_ap... apply meta_maps_into.
+  intros * a Ha. unfold LambdaEncode.
+  rewrite meta_func_ap... apply meta_function.
   intros x Hx. apply ReplI...
 Qed.
 
@@ -97,27 +128,27 @@ Definition Const : set → set → set := λ A b,
   Func A ⎨b⎬ (λ _, b).
 
 (* 常函数是映射 *)
-Lemma const_maps_into : ∀ A b, (Const A b): A ⇒ ⎨b⎬.
+Lemma const_function : ∀ A b, (Const A b): A ⇒ ⎨b⎬.
 Proof.
-  intros A b. apply meta_maps_into. intros _ _. auto.
+  intros A b. apply meta_function. intros _ _. auto.
 Qed.
 
 (* 常函数应用 *)
 Lemma const_func_ap : ∀ A b, ∀x ∈ A, (Const A b)[x] = b.
 Proof with auto.
   intros * x Hx. unfold Const.
-  rewrite meta_func_ap... apply const_maps_into.
+  rewrite meta_func_ap... apply const_function.
 Qed.
 
 (* 常函数是满射 *)
-Lemma const_surjective : ∀ A b, ⦿ A → (Const A b): A ⟹ ⎨b⎬.
+Lemma const_surjection : ∀ A b, ⦿ A → (Const A b): A ⟹ ⎨b⎬.
 Proof with auto.
-  intros A b [a Ha]. apply meta_surjective. intros _ _...
+  intros A b [a Ha]. apply meta_surjection. intros _ _...
   intros y Hy. apply SingE in Hy. exists a. split...
 Qed.
 
 (* 恒等函数是双射 *)
-Lemma ident_bijective : ∀ A, Ident A: A ⟺ A.
+Lemma ident_bijection : ∀ A, Ident A: A ⟺ A.
 Proof with auto.
   intros. split. apply ident_injective.
   split. apply dom_ident. apply ran_ident.
@@ -160,7 +191,7 @@ Proof with auto.
 Qed.
 
 (* 空函数是空集到任意集合的单射 *)
-Lemma empty_injective : ∀ A, ∅: ∅ ⇔ A.
+Lemma empty_injection : ∀ A, ∅: ∅ ⇔ A.
 Proof with auto.
   intros. repeat split. intros x Hx. exfalso0.
   apply domE in H... intros x1 x2 Hx1. exfalso0.
@@ -171,10 +202,10 @@ Proof with auto.
 Qed.
 
 (* 空函数是空集到空集的双射 *)
-Lemma empty_bijective : ∅: ∅ ⟺ ∅.
+Lemma empty_bijection : ∅: ∅ ⟺ ∅.
 Proof with auto.
   apply bijection_is_injection. split.
-  apply empty_injective.
+  apply empty_injection.
   apply ExtAx. intros y. split; intros Hy.
   apply ranE in Hy as [x Hp]. exfalso0. exfalso0.
 Qed.
@@ -228,7 +259,7 @@ Proof with auto.
 Qed.
 
 (* 单点集是双射 *)
-Lemma single_pair_bijective : ∀ a b, ⎨<a, b>⎬: ⎨a⎬ ⟺ ⎨b⎬.
+Lemma single_pair_bijection : ∀ a b, ⎨<a, b>⎬: ⎨a⎬ ⟺ ⎨b⎬.
 Proof with auto.
   intros. split. apply single_pair_injective. split.
   - apply dom_of_single_pair.
@@ -240,7 +271,7 @@ Lemma single_pair_ap: ∀ a b, ∀x ∈ ⎨a⎬, ⎨<a, b>⎬[x] = b.
 Proof with auto.
   intros a b x Hx.
   apply SingE in Hx; subst.
-  pose proof (single_pair_bijective a b) as [[Hf _] [Hd Hr]].
+  pose proof (single_pair_bijection a b) as [[Hf _] [Hd Hr]].
   assert (Ha: a ∈ dom ⎨<a, b>⎬). rewrite Hd...
   apply func_correct in Ha... apply ranI in Ha.
   rewrite Hr in Ha. apply SingE in Ha...
@@ -257,7 +288,7 @@ Proof with auto.
 Qed.
 
 (* 复合映射 *)
-Lemma compo_maps_into : ∀ F G A B C,
+Lemma compo_function : ∀ F G A B C,
   F: A ⇒ B → G: B ⇒ C → (G ∘ F): A ⇒ C.
 Proof with eauto.
   intros * [Hff [Hfd Hfr]] [Hfg [Hgd Hgr]].
@@ -284,7 +315,7 @@ Lemma compo_injection : ∀ F G A B C,
   F: A ⇔ B → G: B ⇔ C → (G ∘ F): A ⇔ C.
 Proof with eauto.
   intros * Hf Hg. apply injection_is_func. split.
-  - eapply compo_maps_into; apply injection_is_func...
+  - eapply compo_function; apply injection_is_func...
   - apply compo_injective. destruct Hg... destruct Hf...
 Qed.
 
@@ -296,7 +327,7 @@ Proof with eauto; try congruence.
   apply surjection_is_func in Hf as [Hf Hfr].
   apply surjection_is_func in Hg as [Hg Hgr].
   apply surjection_is_func. split.
-  eapply compo_maps_into...
+  eapply compo_function...
   apply ExtAx. intros y. split; intros Hy.
   - apply ranE in Hy as [x Hp].
     apply compoE in Hp as [t [_ H]]. apply ranI in H...
@@ -388,7 +419,7 @@ Proof with auto.
 Qed.
 
 (* 映射的限制 *)
-Lemma restr_maps_into : ∀ f A B C, C ⊆ A → f: A ⇒ B → f ↾ C: C ⇒ B.
+Lemma restr_function : ∀ f A B C, C ⊆ A → f: A ⇒ B → f ↾ C: C ⇒ B.
 Proof with auto.
   intros * Hsub [Hf [Hd Hr]].
   split. apply restr_func...
@@ -402,7 +433,7 @@ Proof with eauto.
   intros * Hsub Hf.
   apply injection_is_func in Hf as [Hf Hinj].
   apply injection_is_func. split.
-  eapply restr_maps_into... apply restr_injective...
+  eapply restr_function... apply restr_injective...
 Qed.
 
 (* 限制于A的值域等于A的像 *)
@@ -489,7 +520,7 @@ Proof with auto.
 Qed.
 
 (* 映射的并也是映射 *)
-Lemma bunion_maps_into : ∀ F G A B C D,
+Lemma bunion_function : ∀ F G A B C D,
   F: A ⇒ B → G: C ⇒ D →
   (∀x ∈ A ∩ C, F[x] = G[x]) →
   (∀y ∈ B ∩ D, F⁻¹[y] = G⁻¹[y]) →
@@ -517,7 +548,7 @@ Proof with eauto; try congruence.
   apply injection_is_func in HF as [HF HiF].
   apply injection_is_func in HG as [HG HiG].
   apply injection_is_func. split.
-  apply bunion_maps_into... apply bunion_injective...
+  apply bunion_function... apply bunion_injective...
   destruct HF as [HfF [HdF HrF]].
   destruct HG as [HfG [HdG HrG]]. split...
   - intros x Hx. rewrite HdF, HdG in Hx. apply Hreq...
@@ -558,7 +589,7 @@ Lemma bunion_func_ap : ∀ F G A B C D,
 Proof with auto; try congruence.
   intros * HF HG Hreq Hdeq.
   assert (HU: F ∪ G: A ∪ C ⇒ B ∪ D)
-    by (apply bunion_maps_into; auto).
+    by (apply bunion_function; auto).
   destruct HF as [HfF [HdF _]].
   destruct HG as [HfG [HdG _]].
   destruct HU as [HfU [HdU _]].
@@ -585,18 +616,42 @@ Qed.
 
 (** add point **)
 
-(* 函数加点 *)
-Lemma func_add_point : ∀ F A B a b, F: A ⇒ B →
-  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ →
-  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⇒ B ∪ ⎨b⎬.
+(* 函数加点仍是函数 *)
+Lemma add_point_is_func : ∀ F a b,
+  is_function F → a ∉ dom F →
+  is_function (F ∪ ⎨<a, b>⎬).
 Proof with eauto.
-  intros * [Hf [Hd Hr]] Hdj1 Hdj2.
-  pose proof (single_pair_bijective a b) as [[Hf' _] [Hd' Hr']].
-  split; [|split].
-  - apply bunion_is_func... intros x Hx. exfalso.
+  intros F a b Hf Hout.
+  pose proof (single_pair_bijection a b) as [[Hfs _] [Hds _]].
+  apply bunion_is_func... intros x Hx. exfalso.
+  apply BInterE in Hx as [H1 H2].
+  rewrite Hds in H2. apply SingE in H2; subst...
+Qed.
+
+(* 单射加点仍是单射 *)
+Lemma add_point_injective : ∀ F a b,
+  injective F → a ∉ dom F → b ∉ ran F →
+  injective (F ∪ ⎨<a, b>⎬).
+Proof with eauto.
+  intros F a b Hf Hout1 Hout2.
+  pose proof (single_pair_bijection a b) as [Hfs [Hds Hrs]].
+  apply bunion_injective... split.
+  - intros x Hx. exfalso.
     apply BInterE in Hx as [H1 H2].
-    rewrite Hd in H1. rewrite Hd' in H2.
-    eapply disjointE; [apply Hdj1|..]...
+    rewrite Hds in H2. apply SingE in H2; subst...
+  - intros y Hy. exfalso.
+    apply BInterE in Hy as [H1 H2].
+    rewrite Hrs in H2. apply SingE in H2; subst...
+Qed.
+
+(* 函数加点 *)
+Lemma function_add_point : ∀ F A B a b,
+  F: A ⇒ B → a ∉ A → b ∉ B →
+  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⇒ B ∪ ⎨b⎬.
+Proof with eauto; try congruence.
+  intros * [Hf [Hd Hr]] Hout1 Hout2.
+  split; [|split].
+  - apply add_point_is_func...
   - apply ExtAx. split; intros Hx.
     + apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
       * apply BUnionI1. apply domI in H. congruence.
@@ -604,9 +659,10 @@ Proof with eauto.
         apply op_iff in H as []; subst...
     + apply BUnionE in Hx as [].
       * eapply domI. apply BUnionI1.
-        apply func_correct... rewrite Hd...
+        apply func_correct...
       * eapply domI. apply BUnionI2.
-        apply func_correct... rewrite Hd'...
+        pose proof (single_pair_bijection a b) as [[Hfs _] [Hds _]].
+        apply func_correct...
   - intros y Hy. apply ranE in Hy as [x Hp].
     apply BUnionE in Hp as [].
     + apply BUnionI1. apply Hr. eapply ranI...
@@ -614,63 +670,63 @@ Proof with eauto.
       apply op_iff in H as []; subst...
 Qed.
 
+(* 单射加点 *)
+Lemma injection_add_point : ∀ F A B a b,
+  F: A ⇔ B → a ∉ A → b ∉ B →
+  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⇔ B ∪ ⎨b⎬.
+Proof with eauto; try congruence.
+  intros * Hf Hout1 Hout2.
+  apply injection_is_func in Hf as [Hf Hinj].
+  apply injection_is_func. split.
+  apply function_add_point...
+  destruct Hf as [_ [Hd Hr]].
+  apply add_point_injective...
+  intros Hout. apply Hout2. apply Hr...
+Qed.
+
 (* 双射加点 *)
-Lemma bijection_add_point : ∀ F A B a b, F: A ⟺ B →
-  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ →
+Lemma bijection_add_point : ∀ F A B a b,
+  F: A ⟺ B → a ∉ A → b ∉ B →
   (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⟺ B ∪ ⎨b⎬.
-Proof with eauto.
-  intros * [Hif [Hdf Hrf]] Hdj1 Hdj2.
-  assert (Hmap: F: A ⇒ B). {
-    split. destruct Hif... split... rewrite Hrf...
-  }
-  pose proof (func_add_point _ _ _ _ _ Hmap Hdj1 Hdj2) as [Hfu [Hdu Hru]].
-  pose proof (single_pair_bijective a b) as [[Hfs Hss] [Hds Hrs]].
-  split; [|split]... apply bunion_injective...
-  apply single_pair_injective. split.
-  - intros x Hx. rewrite Hdf, Hds in Hx.
-    apply BInterE in Hx as [H1 H2].
-    exfalso. eapply disjointE; [apply Hdj1|..]...
-  - intros y Hy. rewrite Hrf, Hrs in Hy.
-    apply BInterE in Hy as [H1 H2].
-    exfalso. eapply disjointE; [apply Hdj2|..]...
-  - apply sub_antisym... intros y Hy. apply BUnionE in Hy as [].
-    + rewrite <- Hrf in H. eapply ranE in H as [x Hp]. 
+Proof with eauto; try congruence.
+  intros * Hf Hout1 Hout2.
+  apply bijection_is_injection in Hf as [Hinj Hr].
+  apply bijection_is_injection... split.
+  apply injection_add_point...
+  pose proof (single_pair_bijection a b) as [[Hfs Hss] [Hds Hrs]].
+  apply ExtAx. intros y. split; intros Hy.
+  - apply ranE in Hy as [x Hp].
+    apply BUnionE in Hp as []; apply ranI in H.
+    + apply BUnionI1...
+    + rewrite Hrs in H. apply BUnionI2...
+  - apply BUnionE in Hy as [].
+    + rewrite <- Hr in H. apply ranE in H as [x Hp].
       eapply ranI. apply BUnionI1...
-    + rewrite <- Hrs in H. eapply ranE in H as [x Hp]. 
+    + rewrite <- Hrs in H. apply ranE in H as [x Hp].
       eapply ranI. apply BUnionI2...
 Qed.
 
-(* 函数加点的应用 *)
-Lemma add_point_func_ap : ∀ F A B a b, F: A ⟺ B →
-  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ →
+(* 加点函数的应用 *)
+Lemma add_point_func_ap : ∀ F A B a b,
+  F: A ⟺ B → a ∉ A → b ∉ B →
   (∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
-  ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x].
+  ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = b.
 Proof with eauto.
-  intros * HF Hdj1 Hdj2.
+  intros * HF Hout1 Hout2.
+  cut (
+    (∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
+    (∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x])
+  ). {
+    intros [H1 H2]. split. apply H1.
+    intros x Hx. rewrite <- (single_pair_ap a b x) at 2... apply H2...
+  }
   eapply bunion_func_ap.
   - apply bijection_is_func...
-  - apply bijection_is_func. apply single_pair_bijective.
-  - intros x Hx. exfalso. apply BInterE in Hx as [].
-    apply (disjointE A ⎨a⎬ x)...
-  - intros x Hx. exfalso. apply BInterE in Hx as [].
-    apply (disjointE B ⎨b⎬ x)...
-Qed.
-
-(* 函数加点的应用 *)
-Lemma add_point_func_ap' : ∀ F A B a b, F: A ⟺ B →
-  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ → ∀x ∈ A ∪ ⎨a⎬,
-  x ∈ A ∧ (F ∪ ⎨<a, b>⎬)[x] = F[x] ∨
-  x = a ∧ (F ∪ ⎨<a, b>⎬)[x] = b.
-Proof with eauto.
-  intros * HF Hdj1 Hdj2.
-  assert ((∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
-    ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x])
-    by (eapply add_point_func_ap; eauto).
-  destruct H as [H1 H2]. intros x Hx.
-  apply BUnionE in Hx as [].
-  - left. rewrite H1...
-  - right. split. apply SingE in H...
-    rewrite H2, single_pair_ap...
+  - apply bijection_is_func. apply single_pair_bijection.
+  - intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+    apply SingE in H2; subst...
+  - intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
+    apply SingE in H2; subst...
 Qed.
 
 (** replace value **)
@@ -714,7 +770,7 @@ Proof with eauto; try congruence.
     intros x Hx H. subst B. apply ReplAx. exists x. split...
   }
   set (Func A B (λ x, R x)) as F.
-  exists F. apply meta_bijective.
+  exists F. apply meta_bijection.
   - intros x Hx. apply ReplAx. exists x. split...
   - intros x1 Hx1 x2 Hx2 Heq.
     subst R. unfold ReplaceElement in Heq.
@@ -802,7 +858,7 @@ Proof with eauto; try congruence.
     split... split... rewrite Hreq...
   }
   subst F'. unfold FuncSwapValue. rewrite Hd.
-  apply meta_maps_into. intros x Hx.
+  apply meta_function. intros x Hx.
   destruct (ixm (x = a)). eapply ap_ran... split...
   destruct (ixm (x = b)).
   eapply ap_ran... split... eapply ap_ran... split...

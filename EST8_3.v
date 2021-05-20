@@ -162,7 +162,7 @@ Proof with auto.
   intros S i.
   set (Func (A S) (LoDisj_A S i) (λ x, <x, i>)) as f.
   assert (Hbi: f : A S ⟺ A (LoDisj S i)). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. apply CProdI...
     - intros x1 H1 x2 H2. apply op_iff.
     - intros y Hy. apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
@@ -320,7 +320,7 @@ Proof with eauto; try congruence.
   end)) as F.
   pose proof contra_1_0 as H10.
   assert (Hbi: F: Dom ⟺ Ran). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];
@@ -474,7 +474,7 @@ Proof with neauto; try congruence.
   end)) as F.
   pose proof contra_0_1 as H01.
   assert (Hbi: F: Dom ⟺ Ran). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];
@@ -572,7 +572,7 @@ Proof with neauto; try congruence.
   end)) as F.
   pose proof contra_0_1 as H01.
   assert (Hbi: F: Dom ⟺ ω). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];
@@ -653,7 +653,7 @@ Proof with neauto; try congruence.
   end)) as F.
   pose proof contra_0_1 as H01.
   assert (Hbi: F: Dom ⟺ ω⁺). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];
@@ -799,7 +799,7 @@ Proof with neauto; try congruence.
   )) as F.
   pose proof contra_0_1 as H01.
   pose proof ω_embed_injective as Hinj.
-  pose proof ω_embed_maps_into as [_ [Hωd _]].
+  pose proof ω_embed_function as [_ [Hωd _]].
   assert (Hcontra: ∀ n m ∈ ω, (-ω_Embed [n])%z ≠ ω_Embed[(m + 1)%n]). {
     intros n Hn m Hm. intros H.
     rewrite ω_embed_n, ω_embed_n, intAddInv in H; nauto; [|apply add_ran]...
@@ -809,7 +809,7 @@ Proof with neauto; try congruence.
     eapply suc_neq_0...
   }
   assert (Hbi: F: ω × ⎨0⎬ ∪ ω × ⎨1⎬ ⟺ ℤ). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
       apply CProdE1 in H as [a [Ha [b [Hb Heq]]]];

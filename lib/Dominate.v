@@ -12,7 +12,7 @@ Notation "A ≺ B" := (A ≼ B ∧ A ≉ B) (at level 70).
 
 (* 空集被任意集合支配 *)
 Lemma empty_dominated : ∀ A, ∅ ≼ A.
-Proof. intros. exists ∅. apply empty_injective. Qed.
+Proof. intros. exists ∅. apply empty_injection. Qed.
 
 (* 等势的集合相互支配 *)
 Lemma eqnum_dominate : ∀ A B, A ≈ B → A ≼ B.
@@ -24,7 +24,7 @@ Qed.
 Lemma dominate_refl : ∀ A, A ≼ A.
 Proof.
   intros. exists (Ident A).
-  apply bijection_is_injection. apply ident_bijective.
+  apply bijection_is_injection. apply ident_bijection.
 Qed.
 Global Hint Immediate dominate_refl : core.
 
@@ -82,7 +82,7 @@ Proof with eauto; try congruence.
     eapply imgI. apply H. rewrite inv_op. apply func_correct.
     apply inv_func_iff_sr... rewrite inv_dom...
   }
-  exists h. apply meta_bijective.
+  exists h. apply meta_bijection.
   - intros x Hx. destruct (ixm (x ∈ C)).
     + eapply ap_ran. split... apply Hx.
     + rewrite <- Hdg, <- inv_ran. eapply ap_ran. split...
@@ -122,7 +122,7 @@ Qed.
 Lemma dominate_sub : ∀ A B, A ⊆ B → A ≼ B.
 Proof with auto.
   intros. exists (Ident A).
-  pose proof (ident_bijective A) as [Hi [Hd Hr]].
+  pose proof (ident_bijection A) as [Hi [Hd Hr]].
   split; [|split]... rewrite Hr...
 Qed.
 
@@ -178,11 +178,11 @@ Fact ω_eqnum_ω_cp_ω : ω ≈ ω × ω.
 Proof with nauto.
   apply Schröeder_Bernstein.
   - set (Func ω (ω × ω) (λ n, <n, ∅>)) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros n Hn. apply CProdI...
     + intros x1 _ x2 _ Heq. apply op_iff in Heq as []...
   - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%n)) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros p Hp.
       apply CProdE1 in Hp as [n [Hn [m [Hm Hp]]]].
       subst p. zfc_simple. apply mul_ran; apply exp_ran...

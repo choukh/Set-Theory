@@ -6,7 +6,7 @@ Require Export ZFC.lib.Relation.
 (*** EST第四章1：自然数，归纳原理，传递集，皮亚诺结构，ω递归定理 ***)
 
 (** 自然数 **)
-Definition is_nat : set → Prop := λ n, ∀ A, inductive A → n ∈ A.
+Definition is_nat := λ n, ∀ A, inductive A → n ∈ A.
 
 Theorem ω_exists : ∃ ω, ∀ n, n ∈ ω ↔ is_nat n.
 Proof with auto.
@@ -16,7 +16,7 @@ Proof with auto.
     intros A HA. apply Hn in HA...
 Qed.
 
-Definition ω : set := {n ∊ 𝐈 | is_nat}.
+Definition ω := {n ∊ 𝐈 | is_nat}.
 
 Lemma ω_has_0 : ∅ ∈ ω.
 Proof with auto.
@@ -72,7 +72,7 @@ Proof with auto.
 Qed.
 
 (* 传递集 *)
-Definition trans : set → Prop :=
+Definition trans :=
   λ X, ∀ a A, a ∈ A → A ∈ X → a ∈ X.
 
 (* 传递集的成员都是该传递集的子集 *)
@@ -163,19 +163,19 @@ Ltac ω_destruct n :=
   ].
 
 (* 集合对函数封闭 *)
-Definition close : set → set → Prop := λ S A, ∀x ∈ A, S[x] ∈ A.
+Definition close := λ S A, ∀x ∈ A, S[x] ∈ A.
 
 (** 皮亚诺结构 **)
-Definition is_Peano : set → set → set → Prop := λ N S e,
+Definition is_Peano := λ N S e,
   S: N ⇒ N ∧ e ∈ N ∧
   e ∉ ran S ∧
   injective S ∧
   ∀ A, A ⊆ N → e ∈ A → close S A → A = N.
 
 (* 后继函数 *)
-Definition σ : set := {λ n, <n, n⁺> | n ∊ ω}.
+Definition σ := {λ n, <n, n⁺> | n ∊ ω}.
 
-Lemma σ_maps_into : σ : ω ⇒ ω.
+Lemma σ_function : σ : ω ⇒ ω.
 Proof with eauto; try congruence.
   repeat split.
   - intros p Hp. apply ReplAx in Hp as [x [_ Hp]].
@@ -197,7 +197,7 @@ Qed.
 (* 后继函数是双射 *)
 Lemma σ_bijective : σ: ω ⟺ ω - ⎨∅⎬.
 Proof with eauto.
-  pose proof σ_maps_into as [Hf [Hd Hr]]. split; split...
+  pose proof σ_function as [Hf [Hd Hr]]. split; split...
   - split. apply ranE in H...
     intros y1 y2 H1 H2.
     apply ReplAx in H1 as [m [Hm H1]].
@@ -218,14 +218,14 @@ Qed.
 
 Lemma σ_ap : ∀n ∈ ω, σ[n] = n⁺.
 Proof with auto.
-  intros n Hn.  destruct σ_maps_into as [Hf _].
+  intros n Hn.  destruct σ_function as [Hf _].
   eapply func_ap... apply ReplAx. exists n. split...
 Qed.
 
 (* <ω, σ, ∅>是一个皮亚诺结构 *)
 Theorem ω_Peano : is_Peano ω σ ∅.
 Proof with eauto.
-  intros. assert (Hσ:= σ_maps_into). split...
+  intros. assert (Hσ:= σ_function). split...
   destruct Hσ as [Hf [Hd _]].
   split. apply ω_has_0. split; [|split].
   - intros H. apply ranE in H as [x Hp].

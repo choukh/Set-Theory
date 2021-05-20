@@ -6,8 +6,6 @@ Require Export Coq.Unicode.Utf8_core.
 Require Export Coq.Logic.Classical.
 Require Export Coq.Logic.Epsilon.
 
-Set Implicit Arguments.
-
 Notation "⊤" := True.
 Notation "⊥" := False.
 

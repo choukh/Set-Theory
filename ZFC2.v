@@ -133,8 +133,8 @@ Qed.
 Example inter_self_0 : ∀ a, a ∩ a = ∅ → a = ∅.
 Proof.
   intros. apply EmptyI. intros x H1.
-  pose proof ((EmptyE H) x).
-  apply H0. apply BInterI; apply H1.
+  eapply EmptyE. apply H.
+  apply BInterI; apply H1.
 Qed.
 
 Example inter_eq_0_e : ∀ a b, ⦿a → a ∩ b = ∅ → a ≠ b.

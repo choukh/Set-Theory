@@ -55,7 +55,7 @@ Proof with neauto.
   apply CardAx1.
   set (λ B, <B, |B|>) as F.
   set (Func (𝗙𝗶𝗻 A) (⋃ᵢ λ i, 𝗙𝗶𝗻𝗰 A i × ⎨i⎬) F) as f.
-  exists f. apply meta_bijective.
+  exists f. apply meta_bijection.
   + intros B HB. assert (HBw: |B| ∈ ω) by (apply Hw; auto).
     eapply IFUnionI... apply CProdI...
     apply finCardSubSets_iff_finiteSubSets...
@@ -99,7 +99,7 @@ Proof with auto.
     apply SepE in HB as [HB _]. apply PowerAx...
   }
   set (Func (𝗙𝗶𝗻𝗰 A n) (n ⟶ A) (λ B, F[G B])) as h.
-  exists h. apply meta_injective.
+  exists h. apply meta_injection.
   - intros B HB. apply arrowI.
     destruct (Hg B) as [Hfg [Hdg Hrg]]...
     split... split... rewrite Hrg. apply Hsub...
@@ -131,7 +131,7 @@ Proof with neauto.
   apply set_infinite_iff_card_infinite in Hinf.
   apply Schröeder_Bernstein.
   - set (Func A (𝗙𝗶𝗻 A) (λ a, ⎨a⎬)) as f.
-    exists f. apply meta_injective.
+    exists f. apply meta_injection.
     + intros a Ha. apply SepI... apply PowerAx.
       apply single_of_member_is_subset...
     + intros x1 H1 x2 H2 Heq. apply single_injective...
@@ -277,7 +277,7 @@ Proof with neauto; try congruence.
     end
   )) as g.
   assert (Hg: g: A ⟺ A). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx. destruct (ixm (f[x] = m⁺)).
       + eapply ap_ran...
       + eapply ap_ran... apply Happ...
@@ -363,7 +363,7 @@ Proof with eauto; try congruence.
       apply SingE in Hb. rewrite H. zfc_simple.
   }
   assert (Hg: g: A ⟺ A). {
-    apply meta_bijective.
+    apply meta_bijection.
     - intros x Hx.
       destruct (ixm (π2 f⁻¹[x] = 0)); eapply ap_ran...
       + apply BUnionI2. apply CProdI... apply Hπ1...
@@ -486,7 +486,7 @@ Proof with neauto; try congruence.
     rewrite <- (remove_one_member_then_return A a) at 1 2...
     apply bunion_bijection.
     - apply HF'a...
-    - apply ident_bijective.
+    - apply ident_bijection.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
     - intros y Hy. rewrite Hdj in Hy... exfalso0.
   }
@@ -496,7 +496,7 @@ Proof with neauto; try congruence.
   ). {
     intros a Ha. eapply bunion_func_ap.
     - apply bijection_is_func. apply HF'a...
-    - apply bijection_is_func. apply ident_bijective.
+    - apply bijection_is_func. apply ident_bijection.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
     - intros y Hy. rewrite Hdj in Hy... exfalso0.
   }
@@ -511,7 +511,7 @@ Proof with neauto; try congruence.
     pose proof (Huap a Ha) as [Heq _].
     rewrite Heq in Hap... eapply (HF'a a Ha)...
   }
-  exists g. apply meta_injective.
+  exists g. apply meta_injection.
   - intros a Ha. apply permutation_iff. apply HGa...
   - intros x1 H1 x2 H2 Heq.
     assert ((G x1)[x2] = (G x2)[x2])...
@@ -609,7 +609,7 @@ Proof with neauto; try congruence.
     intros f Hf Hle. rewrite HeqA...
     apply bunion_bijection.
     - apply Hsf...
-    - apply ident_bijective.
+    - apply ident_bijection.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
   }
@@ -620,7 +620,7 @@ Proof with neauto; try congruence.
     intros f Hf Hle.
     eapply bunion_func_ap...
     - apply bijection_is_func. apply Hsf...
-    - apply bijection_is_func. apply ident_bijective.
+    - apply bijection_is_func. apply ident_bijection.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
     - intros x Hx. rewrite Hdj in Hx... exfalso0.
   }
@@ -638,11 +638,11 @@ Proof with neauto; try congruence.
     pose proof (HGfx f Hf Hle) as [_ Heq].
     rewrite Heq... apply ident_ap...
   }
-  exists g. apply meta_injective.
+  exists g. apply meta_injection.
   - intros f Hf. unfold G'.
     destruct (ixm (|O f| = 0)). {
       apply BUnionI1. apply CProdI...
-      apply permutation_iff. apply ident_bijective.
+      apply permutation_iff. apply ident_bijection.
     }
     destruct (ixm (|O f| = 1)). {
       apply BUnionI2. apply CProdI...
@@ -738,7 +738,7 @@ Proof with nauto; try easy.
   - apply SepE in Hx as [Hx _]. apply SepE in Hx as [Hx _].
     rewrite cprod_0_r, power_empty, <- one in Hx...
   - rewrite one in Hx. apply SingE in Hx. subst x.
-    apply permutation_iff. apply empty_bijective.
+    apply permutation_iff. apply empty_bijection.
 Qed.
 
 (* 1的阶乘等于1 *)
@@ -753,7 +753,7 @@ Proof with nauto; try easy.
     apply PairE in Hx as []; subst...
     assert (0 ∈ 1). { apply suc_has_0... }
     rewrite <- Hd in H. apply domE in H as [y Hp]. exfalso0.
-  - assert (Hf: ⎨<∅, ∅>⎬: ⎨∅⎬ ⟺ ⎨∅⎬) by apply single_pair_bijective.
+  - assert (Hf: ⎨<∅, ∅>⎬: ⎨∅⎬ ⟺ ⎨∅⎬) by apply single_pair_bijection.
     rewrite one. apply SingE in Hx; subst. apply permutation_iff...
 Qed.
 
@@ -769,7 +769,7 @@ Proof with eauto; try congruence.
   }
   set (λ f, ℱ f ∪ Ident (B - ran g)) as ℱ'.
   set (Func (Permutation A) (Permutation B) ℱ') as F.
-  exists F. apply meta_injective. {
+  exists F. apply meta_injection. {
     intros f Hf. unfold ℱ', ℱ.
     apply permutation_iff.
     apply permutation_iff in Hf.

@@ -401,7 +401,7 @@ Proof with auto.
   intros A H.
   set (Func ω A (λ n, A)) as f.
   assert (Hf: f: ω ⇒ A). {
-    apply meta_maps_into. intros n Hn...
+    apply meta_function. intros n Hn...
   }
   apply no_descending_chain.
   exists f. split. apply Hf. split. apply Hf.
@@ -417,7 +417,7 @@ Proof with nauto.
     | inr _=> b
   end)) as f.
   assert (Hf: f: ω ⇒ {a, b}). {
-    apply meta_maps_into. intros n Hn.
+    apply meta_function. intros n Hn.
     destruct (ixm (even n)). apply PairI1. apply PairI2.
   }
   apply no_descending_chain.
@@ -447,7 +447,7 @@ Proof with auto; try congruence.
       | inr _ => b
   end end)) as F.
   assert (HF: F: A ⇒ A). {
-    apply meta_maps_into. intros x Hx.
+    apply meta_function. intros x Hx.
     destruct (ixm (x = a))...
     destruct (ixm (x = b))...
   }
