@@ -15,11 +15,10 @@ make
 ```
 
 ## Meta.v
-- Metatheory
-  - Law of excluded middle
-  - Church's iota operator
-  - Informative excluded middle
-  - Decidable inhabitance of type
+- Law of excluded middle
+- Church's iota operator
+- Informative excluded middle
+- Decidable inhabitance of type
 
 ## ZFC0.v
 - Axiom of extensionality
@@ -59,8 +58,6 @@ make
 - Restriction, image
 - Function space
 - Infinite Cartesian product
-- AC equivalent form 1: Function has right inverse iff surjective
-- AC equivalent form 2: Infinite Cartesian product of nonempty sets is nonempty
 
 ## EST3_3.v
 - Binary relation
@@ -136,6 +133,7 @@ make
 ## EST6_4.v
 - Systematic discussion on AC
   - Uniformization
+  - Infinite Cartesian product of nonempty sets is nonempty
   - Choice function
   - Cardinal comparability
   - Zorn's lemma
