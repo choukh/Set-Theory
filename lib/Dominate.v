@@ -6,8 +6,8 @@ Require Import ZFC.lib.IndexedFamilyUnion.
 Require Export ZFC.EST6_1.
 
 (* 集合的支配关系 *)
-Definition dominate : set → set → Prop := λ A B, ∃ f, f: A ⇔ B.
-Notation "A ≼ B" := (dominate A B) (at level 70).
+Definition Dominate : set → set → Prop := λ A B, ∃ f, f: A ⇔ B.
+Notation "A ≼ B" := (Dominate A B) (at level 70).
 Notation "A ≺ B" := (A ≼ B ∧ A ≉ B) (at level 70).
 
 (* 空集被任意集合支配 *)

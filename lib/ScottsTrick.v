@@ -9,8 +9,6 @@ Import RegularityConsequences.
 Module ForAnyType.
 
 Local Hint Resolve all_grounded : core.
-Local Hint Resolve grounded_in_rank : core.
-Local Hint Resolve grounded_under_rank : core.
 
 Local Definition F := λ T, T → set.
 Local Definition R := λ T, relation T.
@@ -30,7 +28,8 @@ Definition scott {T} : F T → R T → T → set :=
 Local Lemma A_in_𝒜 {T} {F : F T} {R : R T} :
   Equivalence R → ∀ t, F t ∈ 𝒜 F R t.
 Proof with auto.
-  intros. apply SepI... exists t. split... apply H.
+  intros. apply SepI... apply grounded_under_rank...
+  exists t. split... apply H.
 Qed.
 Local Hint Resolve A_in_𝒜 : core.
 
@@ -41,10 +40,11 @@ Proof with auto.
   intros. apply ordMin_correct...
   exists (rank (F t))⁺. split. apply BUnionI2...
   apply EmptyNI. exists (F t). apply BInterI...
+  apply grounded_under_rank...
 Qed.
 
 Local Lemma μ_is_ord {T} {F : F T} {R : R T} :
-  Equivalence R → ∀ t, is_ord (μ F R t).
+  Equivalence R → ∀ t, μ F R t ⋵ 𝐎𝐍.
 Proof.
   intros. destruct (@μ_is_min T F R H t) as [Hμ _].
   apply SepE1 in Hμ. eapply ord_is_ords; revgoals; eauto.
@@ -52,11 +52,11 @@ Qed.
 Local Hint Resolve μ_is_ord : core.
 
 Local Fact μ_is_suc {T} {F : F T} {R : R T} :
-  Equivalence R → ∀ t, is_suc (μ F R t).
+  Equivalence R → ∀ t, μ F R t ⋵ 𝐎𝐍ˢᵘᶜ.
 Proof with eauto.
   intros Heq t. destruct (@μ_is_min T F R Heq t) as [Hμ Hmin]...
   apply SepE in Hμ as [Hμ HP].
-  destruct (ord_is_suc_or_limit (μ F R t)) as [|Hlim]... exfalso.
+  destruct (sucord_or_limord (μ F R t)) as [|Hlim]... exfalso.
   apply V_limit in Hlim. apply EmptyNE in HP as [B HB].
   apply BInterE in HB as [H1 H2]. rewrite Hlim in H2.
   apply FUnionE in H2 as [ξ [Hξ Ha]].
@@ -116,6 +116,7 @@ Proof with eauto.
     - exists v. split...
       eapply Equivalence_Transitive... symmetry...
     - eapply V_intro... apply PowerAx...
+      apply grounded_in_rank...
   }
   destruct (@μ_is_min T F R Heq t) as [_ Hmin]...
   apply Hmin in H as [].

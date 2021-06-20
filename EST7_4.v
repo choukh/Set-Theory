@@ -2,6 +2,7 @@
 (** Coq coding by choukh, Dec 2020 **)
 
 Require Export ZFC.EST7_3.
+Require Export ZFC.lib.Class.
 Require Import ZFC.lib.FuncFacts.
 
 (*** EST第七章4：序数的定义，序数的序，布拉利-福尔蒂悖论，
@@ -87,11 +88,13 @@ Import WoStruct.EpsilonImage.
 
 (* 序数 *)
 Definition ord := λ S, α S.
-(* α ∈ 𝐎𝐍 *)
+(* 序数类 *)
 Definition is_ord := λ α, ∃ S, α = ord S.
+Notation 𝐎𝐍 := is_ord.
 
-Lemma ord_is_ord : ∀ S, is_ord (ord S).
+Lemma ord_is_ord : ∀ S, ord S ⋵ 𝐎𝐍.
 Proof. intros. exists S. auto. Qed.
+Hint Immediate ord_is_ord : core.
 
 (* 序数良定义 *)
 Lemma ord_well_defined : ∀ S T, S ≅ T ↔ ord S = ord T.
@@ -136,12 +139,12 @@ Proof.
 Qed.
 
 (* 序数是良序集 *)
-Lemma ord_woset : ∀ α, is_ord α → woset α (MemberRel α).
+Lemma ord_woset : ∀α ⋵ 𝐎𝐍, woset α (MemberRel α).
 Proof. intros α [S H]. subst. apply (wo (Epsilon S)). Qed.
 
 (* 可以以成员关系良序排列的传递集是序数 *)
 Theorem transitive_set_well_ordered_by_epsilon_is_ord :
-  ∀ α, trans α → woset α (MemberRel α) → is_ord α.
+  ∀ α, trans α → woset α (MemberRel α) → α ⋵ 𝐎𝐍.
 Proof with eauto.
   intros α Htr Hwo.
   set (constr α (MemberRel α) Hwo) as S.
@@ -173,11 +176,8 @@ Proof with eauto.
     apply Hsub in H. apply SepE2 in H...
 Qed.
 
-(* 序数集 *)
-Definition is_ords := λ S, ∀α ∈ S, is_ord α.
-
 (* 序数里都是序数 *)
-Theorem ord_is_ords : ∀ α, is_ord α → is_ords α.
+Theorem ord_is_ords : ∀α ⋵ 𝐎𝐍, α ⪽ 𝐎𝐍.
 Proof.
   intros α [S H] x Hx. subst.
   apply ordE in Hx as [t [Ht Heqx]]. subst x.
@@ -186,13 +186,13 @@ Proof.
 Qed.
 
 (* 序数是传递集 *)
-Theorem ord_trans : ∀ α, is_ord α → trans α.
+Theorem ord_trans : ∀α ⋵ 𝐎𝐍, trans α.
 Proof.
   intros α [S H]. subst. apply α_trans.
 Qed.
 
 (* 序数的序反自反 *)
-Theorem ord_irrefl : ∀ α, is_ord α → α ∉ α.
+Theorem ord_irrefl : ∀α ⋵ 𝐎𝐍, α ∉ α.
 Proof.
   intros α [S H]. subst. intros H.
   pose proof (ordE _ _ H) as [s [Hs Heq]].
@@ -200,15 +200,16 @@ Proof.
 Qed.
 
 End OrdDef.
+Notation 𝐎𝐍 := is_ord.
 Global Hint Immediate ord_is_ord : core.
 
 (* 序数的序满足三歧性 *)
-Theorem ord_trich : ∀ α β, is_ord α → is_ord β →
+Theorem ord_trich : ∀ α β ⋵ 𝐎𝐍,
   α ∈ β ∧ α ≠ β ∧ β ∉ α ∨
   α ∉ β ∧ α = β ∧ β ∉ α ∨
   α ∉ β ∧ α ≠ β ∧ β ∈ α.
 Proof with eauto.
-  intros α β Hα Hβ.
+  intros α Hα β Hβ.
   assert (α ∈ β ∨ α = β ∨ β ∈ α). {
     destruct Hα as [S Heqα].
     destruct Hβ as [T Heqβ]. subst.
@@ -227,26 +228,24 @@ Proof with eauto.
 Qed.
 
 (* 序数的序是连通的 *)
-Corollary ord_connected : ∀ α β, is_ord α → is_ord β →
-  α ≠ β → α ∈ β ∨ β ∈ α.
+Corollary ord_connected : ∀ α β ⋵ 𝐎𝐍, α ≠ β → α ∈ β ∨ β ∈ α.
 Proof.
-  intros α β Hα Hβ Hnq.
-  destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]]; tauto.
+  intros α Hα β Hβ Hnq.
+  destruct (ord_trich α Hα β) as [[H []]|[[H []]|[H []]]]; tauto.
 Qed.
 
 (* 序数具有可比较性 *)
-Corollary ord_comparability : ∀ α β, is_ord α → is_ord β →
-  α ⋸ β ∨ β ⋸ α.
+Corollary ord_comparability : ∀ α β ⋵ 𝐎𝐍, α ⋸ β ∨ β ⋸ α.
 Proof with auto.
-  intros α β Hα Hβ.
+  intros α Hα β Hβ.
   destruct (classic (α = β)). left. right...
   apply ord_connected in H as []...
 Qed.
 
 (* 序数的小于等于关系与子集关系等价 *)
-Corollary ord_leq_iff_sub : ∀ α β, is_ord α → is_ord β → α ⋸ β ↔ α ⊆ β.
+Corollary ord_leq_iff_sub : ∀ α β ⋵ 𝐎𝐍, α ⋸ β ↔ α ⊆ β.
 Proof with eauto.
-  intros α β Hα Hβ. split.
+  intros α Hα β Hβ. split.
   - intros [].
     + intros x Hx. eapply ord_trans...
     + subst. apply sub_refl.
@@ -256,7 +255,7 @@ Proof with eauto.
 Qed.
 
 (* 序数的任意前节也是序数 *)
-Fact seg_of_ord : ∀ α, is_ord α → ∀β ∈ α, seg β (MemberRel α) = β.
+Fact seg_of_ord : ∀α ⋵ 𝐎𝐍, ∀β ∈ α, seg β (MemberRel α) = β.
 Proof with eauto.
   intros α Hα β Hlt.
   apply ExtAx. split; intros Hx.
@@ -265,7 +264,7 @@ Proof with eauto.
 Qed.
 
 (* 序数的非空集合一定有最小序数 *)
-Theorem ords_has_minimum : ∀ A, is_ords A → ⦿ A → 
+Theorem ords_has_minimum : ∀ A, A ⪽ 𝐎𝐍 → ⦿ A → 
   ∃μ ∈ A, ∀α ∈ A, μ ⋸ α.
 Proof with eauto.
   intros A Hord [β Hβ].
@@ -287,24 +286,24 @@ Proof with eauto.
         apply Hmin in H as []... apply binRelE3 in H...
       * apply Hord in Hαs.
         assert (β ⋸ α). {
-          destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]];
+          destruct (ord_trich α Hαs β) as [[H []]|[[H []]|[H []]]];
           auto; tauto.
         }
         apply ord_leq_iff_sub in H... apply H in Hμβ...
 Qed.
 
 (* 序数集是良序集 *)
-Theorem ords_woset : ∀ A, is_ords A → woset A (MemberRel A).
+Theorem ords_woset : ∀ A, A ⪽ 𝐎𝐍 → woset A (MemberRel A).
 Proof with eauto.
   intros S Hord. repeat split.
   - apply memberRel_is_binRel.
   - intros α β γ Hαβ Hβγ.
     apply binRelE2 in Hαβ as [Hα [Hβ Hαβ]].
     apply binRelE2 in Hβγ as [_  [Hγ Hβγ]].
-    apply binRelI... eapply ord_trans... apply Hord...
+    apply binRelI... eapply ord_trans...
   - intros α Hα β Hβ.
-    destruct (ord_trich α β) as [[H []]|[[H []]|[H []]]].
-    apply Hord... apply Hord...
+    destruct (ord_trich α (Hord α Hα) β (Hord β Hβ))
+      as [[H []]|[[H []]|[H []]]].
     + left. repeat split... apply binRelI...
       intros H2. apply H1. apply binRelE3 in H2...
     + right; left. repeat split...
@@ -321,7 +320,7 @@ Qed.
 
 (* 由序数组成的传递集是序数 *)
 Corollary transitive_set_of_ords_is_ord :
-  ∀ A, is_ords A → trans A → is_ord A.
+  ∀ A, A ⪽ 𝐎𝐍 → trans A → A ⋵ 𝐎𝐍.
 Proof with auto.
   intros A Hord Htr.
   apply transitive_set_well_ordered_by_epsilon_is_ord...
@@ -329,7 +328,7 @@ Proof with auto.
 Qed.
 
 (* 零是序数 *)
-Corollary empty_is_ord : is_ord ∅.
+Corollary empty_is_ord : ∅ ⋵ 𝐎𝐍.
 Proof.
   apply transitive_set_of_ords_is_ord.
   intros x Hx. exfalso0. intros x y _ Hy. exfalso0.
@@ -337,7 +336,7 @@ Qed.
 Global Hint Resolve empty_is_ord : core.
 
 (* 后继序数是序数 *)
-Corollary ord_suc_is_ord : ∀ α, is_ord α → is_ord α⁺.
+Corollary ord_suc_is_ord : ∀ α, α ⋵ 𝐎𝐍 → α⁺ ⋵ 𝐎𝐍.
 Proof with eauto.
   intros α Hord.
   apply transitive_set_of_ords_is_ord.
@@ -349,7 +348,7 @@ Qed.
 Global Hint Resolve ord_suc_is_ord : core.
 
 (* 序数集的并是序数 *)
-Corollary union_of_ords_is_ord : ∀ A, is_ords A → is_ord (⋃ A).
+Corollary union_of_ords_is_ord : ∀ A, A ⪽ 𝐎𝐍 → ⋃ A ⋵ 𝐎𝐍.
 Proof with eauto.
   intros A Hord.
   apply transitive_set_of_ords_is_ord.
@@ -359,59 +358,56 @@ Proof with eauto.
     apply UnionAx in Hδ as [α [Hα Hδ]].
     eapply sub_tran; revgoals. apply union_is_ub...
     apply ord_leq_iff_sub... eapply ord_is_ords.
-    apply Hord... apply Hδ. apply Hord...
+    apply Hord... apply Hδ.
 Qed.
 
 (* 两个序数的二元并是序数 *)
-Corollary bunion_of_ords_is_ord : ∀ α β,
-  is_ord α → is_ord β → is_ord (α ∪ β).
+Corollary bunion_of_ords_is_ord : ∀ α β ⋵ 𝐎𝐍, α ∪ β ⋵ 𝐎𝐍.
 Proof.
-  intros * Hoα Hoβ. apply union_of_ords_is_ord.
+  intros α Hoα β Hoβ. apply union_of_ords_is_ord.
   intros x Hx. apply PairE in Hx as []; subst; auto.
 Qed.
 
 (* 序数上界 *)
-Definition is_ub := λ μ A, is_ord μ ∧ ∀α ∈ A, α ⋸ μ.
+Definition is_ub := λ μ A, μ ⋵ 𝐎𝐍 ∧ ∀α ∈ A, α ⋸ μ.
 
 (* 序数/序数集上确界 *)
 Definition sup := λ A, ⋃ A.
 Definition is_sup := λ μ A, is_ub μ A ∧ ∀ α, is_ub α A → μ ⋸ α.
 
 (* 序数集的并是其上界 *)
-Lemma ord_sup_is_ub : ∀ A, is_ords A → is_ub (sup A) A.
+Lemma ord_sup_is_ub : ∀ A, A ⪽ 𝐎𝐍 → is_ub (sup A) A.
 Proof with auto.
   intros A Hord. 
   apply union_of_ords_is_ord in Hord as Hu.
   split... intros α Hα. apply ord_leq_iff_sub...
-  apply Hord... apply union_is_ub...
+  apply union_is_ub...
 Qed.
 
 (* 序数集的并是其上确界 *)
-Lemma ord_sup_correct : ∀ A, is_ords A → is_sup (sup A) A.
+Lemma ord_sup_correct : ∀ A, A ⪽ 𝐎𝐍 → is_sup (sup A) A.
 Proof with auto.
   intros A Hord.
   split. apply ord_sup_is_ub...
   intros α [H1 H2]. apply ord_leq_iff_sub...
   apply union_of_ords_is_ord...
   apply union_is_sup. intros a Ha.
-  apply ord_leq_iff_sub... apply Hord... apply H2...
+  apply ord_leq_iff_sub... apply H2...
 Qed.
 
 (* 两个序数的二元并等于它们中较大的一个 *)
-Lemma bunion_of_ords_eq_l : ∀ α β, is_ord α → is_ord β →
-  α ⋸ β → α ∪ β = β.
+Lemma bunion_of_ords_eq_l : ∀ α β ⋵ 𝐎𝐍, α ⋸ β → α ∪ β = β.
 Proof with auto.
-  intros α β Hoα Hoβ Hle.
+  intros α Hoα β Hoβ Hle.
   apply ord_leq_iff_sub in Hle...
   apply ExtAx. split; intros Hx.
   - apply BUnionE in Hx as []... apply Hle...
   - apply BUnionI2...
 Qed.
 
-Lemma bunion_of_ords_eq_r : ∀ α β, is_ord α → is_ord β →
-  β ⋸ α → α ∪ β = α.
+Lemma bunion_of_ords_eq_r : ∀ α β ⋵ 𝐎𝐍, β ⋸ α → α ∪ β = α.
 Proof with auto.
-  intros α β Hoα Hoβ Hle.
+  intros α Hoα β Hoβ Hle.
   apply ord_leq_iff_sub in Hle...
   apply ExtAx. split; intros Hx.
   - apply BUnionE in Hx as []... apply Hle...
@@ -419,33 +415,29 @@ Proof with auto.
 Qed.
 
 (* 后继序数是大于该序数的最小序数 *)
-Lemma ord_suc_correct : ∀ α β, is_ord α → is_ord β →
-  α ∈ β → α⁺ ⋸ β.
+Lemma ord_suc_correct : ∀ α β ⋵ 𝐎𝐍, α ∈ β → α⁺ ⋸ β.
 Proof with eauto.
-  intros α β H1 H2 Hα. apply ord_leq_iff_sub...
+  intros α Hoα β Hoβ Hα. apply ord_leq_iff_sub...
   intros x Hx. apply BUnionE in Hx as [].
   - eapply ord_trans...
   - apply SingE in H. subst...
 Qed.
 
 (* ω是序数 *)
-Fact ω_is_ord : is_ord ω.
+Fact ω_is_ord : ω ⋵ 𝐎𝐍.
 Proof.
-  exists 𝛚. symmetry. apply α_ω.
+  exists ℕ̃. symmetry. apply α_ω.
 Qed.
 Global Hint Resolve ω_is_ord : core.
 
 (* ω是序数集 *)
-Fact ω_is_ords : is_ords ω.
+Fact ω_is_ords : ω ⪽ 𝐎𝐍.
 Proof. apply ord_is_ords. apply ω_is_ord. Qed.
 
 (* 自然数是序数 *)
-Fact nat_is_ord : ∀n ∈ ω, is_ord n.
-Proof. intros n Hn. apply ω_is_ords. apply Hn. Qed.
-
-Fact embed_is_ord : ∀ n : nat, is_ord n.
-Proof. intros. apply nat_is_ord. apply embed_ran. Qed.
-Global Hint Immediate embed_is_ord : number_hint.
+Fact nat_is_ord : ∀ n : nat, n ⋵ 𝐎𝐍.
+Proof. intros. apply ω_is_ords. apply embed_ran. Qed.
+Global Hint Immediate nat_is_ord : number_hint.
 
 (* 有限序数的上确界是ω *)
 Fact sup_of_ω_is_ω : is_sup ω ω.
@@ -458,14 +450,15 @@ Proof.
 Qed.
 
 (* 布拉利-福尔蒂悖论：不存在包含所有序数的集合 *)
-Theorem Burali_Forti : ¬ ∃ A, ∀ α, is_ord α → α ∈ A.
+Theorem Burali_Forti : ¬ ∃ A, ∀α ⋵ 𝐎𝐍, α ∈ A.
 Proof with eauto.
   intros [A HA].
-  set {x ∊ A | λ x, is_ord x} as Ω.
-  assert (HΩ: ∀ α, is_ord α ↔ α ∈ Ω). {
-    split; intros H. apply SepI... apply SepE2 in H...
+  set {x ∊ A | λ x, x ⋵ 𝐎𝐍} as Ω.
+  assert (HΩ: ∀ α, α ⋵ 𝐎𝐍 ↔ α ∈ Ω). {
+    split; intros H. apply SepI... apply HA...
+    apply SepE2 in H...
   }
-  cut (is_ord Ω). {
+  cut (Ω ⋵ 𝐎𝐍). {
     intros Hord. apply HΩ in Hord as Hrefl.
     eapply ord_irrefl...
   }
@@ -478,44 +471,39 @@ Qed.
 (** more about order of ord parallel to nat in EST4_3 **)
 
 (* 两个序数不能同时满足大于关系和小于关系 *)
-Lemma ord_not_lt_gt : ∀ α β, is_ord α → is_ord β →
-  α ∈ β → β ∈ α → ⊥.
+Lemma ord_not_lt_gt : ∀ α β ⋵ 𝐎𝐍, α ∈ β → β ∈ α → False.
 Proof.
-  intros α β Hα Hβ Hαβ Hβα. eapply ord_irrefl. apply Hα.
+  intros α Hα β Hβ Hαβ Hβα. eapply ord_irrefl. apply Hα.
   eapply ord_trans; eauto.
 Qed.
 
 (* 两个序数不能同时满足等于关系和小于关系 *)
-Lemma ord_not_lt_self : ∀ α β, is_ord α → is_ord β →
-  α = β → α ∈ β → ⊥.
+Lemma ord_not_lt_self : ∀ α β ⋵ 𝐎𝐍, α = β → α ∈ β → False.
 Proof.
-  intros α β Hα Hβ Heq Hαβ. subst. eapply ord_irrefl; eauto.
+  intros α Hα β Hβ Heq Hαβ. subst. eapply ord_irrefl; eauto.
 Qed.
 
 (* 两个序数不能同时满足小于等于关系和大于关系 *)
-Lemma ord_not_leq_gt : ∀ α β, is_ord α → is_ord β →
-  α ⋸ β → β ∈ α → ⊥.
+Lemma ord_not_leq_gt : ∀ α β ⋵ 𝐎𝐍, α ⋸ β → β ∈ α → False.
 Proof with eauto.
-  intros α β Hα Hβ Hle Hgt. destruct Hle.
+  intros α Hα β Hβ Hle Hgt. destruct Hle.
   - eapply ord_not_lt_gt; revgoals...
   - eapply ord_not_lt_self; revgoals...
 Qed.
 
 (* 序数的小于等于关系与小于后继的转化 *)
-Lemma ord_leq_iff_lt_suc : ∀ α β, is_ord α → is_ord β →
-  α ⋸ β ↔ α ∈ β⁺.
+Lemma ord_leq_iff_lt_suc : ∀ α β ⋵ 𝐎𝐍, α ⋸ β ↔ α ∈ β⁺.
 Proof with nauto.
-  intros α β Hα Hβ. split.
+  intros α Hα β Hβ. split.
   - intros []. apply BUnionI1... subst...
   - intros H. apply BUnionE in H as []. left...
     right. apply SingE in H...
 Qed.
 
 (* 序数后继保序 *)
-Lemma ord_suc_preserve_lt : ∀ α β, is_ord α → is_ord β →
-  α ∈ β ↔ α⁺ ∈ β⁺.
+Lemma ord_suc_preserve_lt : ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ α⁺ ∈ β⁺.
 Proof with eauto.
-  intros α β Hα Hβ. split; intros H.
+  intros α Hα β Hβ. split; intros H.
   - destruct (classic (α⁺ = β)) as [|Hnq]. {
       apply BUnionI2. subst...
     }
@@ -530,10 +518,9 @@ Proof with eauto.
 Qed.
 
 (* 序数后继是单射 *)
-Lemma ord_suc_injective : ∀ α β, is_ord α → is_ord β →
-  α⁺ = β⁺ → α = β.
+Lemma ord_suc_injective : ∀ α β ⋵ 𝐎𝐍, α⁺ = β⁺ → α = β.
 Proof with auto.
-  intros α β Hα Hβ Heq.
+  intros α Hα β Hβ Heq.
   assert (⋃α⁺ = ⋃β⁺) by congruence.
   apply ord_trans in Hα. apply ord_trans in Hβ.
   apply trans_union_suc in Hα.
@@ -541,7 +528,7 @@ Proof with auto.
 Qed.
 
 (* 后继序数大于零 *)
-Lemma ord_suc_has_0 : ∀ α, is_ord α → ∅ ∈ α⁺.
+Lemma ord_suc_has_0 : ∀α ⋵ 𝐎𝐍, ∅ ∈ α⁺.
 Proof with auto.
   intros α Hα. destruct (classic (∅ = α)).
   - apply BUnionI2. subst...
@@ -550,14 +537,14 @@ Proof with auto.
 Qed.
 
 (* 任意序数不等于其后继 *)
-Lemma ord_neq_suc : ∀ α, is_ord α → α ≠ α⁺.
+Lemma ord_neq_suc : ∀α ⋵ 𝐎𝐍, α ≠ α⁺.
 Proof.
   intros α Hα. pose proof (suc_has_n α). intros Heq.
   rewrite <- Heq in H at 1. apply (ord_irrefl α); auto.
 Qed.
 
 (* 不等于零的序数大于零 *)
-Lemma ord_nq_0_gt_0 : ∀ α, is_ord α → α ≠ ∅ ↔ ∅ ∈ α.
+Lemma ord_nq_0_gt_0 : ∀α ⋵ 𝐎𝐍, α ≠ ∅ ↔ ∅ ∈ α.
 Proof with auto.
   intros α Hα. split; intros.
   - apply ord_connected in H as []... exfalso0.
@@ -565,24 +552,23 @@ Proof with auto.
 Qed.
 
 (* 后继序数不等于零 *)
-Corollary ord_suc_neq_0 : ∀ α, is_ord α → α⁺ ≠ ∅.
+Corollary ord_suc_neq_0 : ∀α ⋵ 𝐎𝐍, α⁺ ≠ ∅.
 Proof with auto.
-  intros. eapply ord_nq_0_gt_0; revgoals...
+  intros α Hα. eapply ord_nq_0_gt_0; revgoals...
   apply ord_suc_has_0...
 Qed.
 
 (* 任意序数大于等于零 *)
-Lemma ord_ge_0 : ∀ α, is_ord α → ∅ ⋸ α.
+Lemma ord_ge_0 : ∀α ⋵ 𝐎𝐍, ∅ ⋸ α.
 Proof with auto.
-  intros. apply ord_leq_iff_sub; auto.
+  intros α Hα. apply ord_leq_iff_sub; auto.
   apply empty_sub_all.
 Qed.
 
 (* 序数的小于关系与真子集关系等价 *)
-Lemma ord_lt_iff_psub : ∀ α β, is_ord α → is_ord β →
-  α ∈ β ↔ α ⊂ β.
+Lemma ord_lt_iff_psub : ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ α ⊂ β.
 Proof with eauto.
-  intros α β Hα Hβ. split.
+  intros α Hα β Hβ. split.
   - intros Hlt. split. apply ord_leq_iff_sub...
     intros Heq. subst. eapply ord_irrefl...
   - intros [Hsub Hnq].
@@ -590,10 +576,9 @@ Proof with eauto.
     apply Hsub in H. exfalso. eapply ord_irrefl...
 Qed.
 
-Lemma ord_lt_iff_not_sub : ∀ α β, is_ord α → is_ord β →
-  α ∈ β ↔ β ⊈ α.
+Lemma ord_lt_iff_not_sub : ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ β ⊈ α.
 Proof with auto.
-  intros α β Hα Hβ. split; intros H.
+  intros α Hα β Hβ. split; intros H.
   - intros Hsub. apply Hsub in H. apply (ord_irrefl α)...
   - destruct (classic (α = β)) as [Heq|Hnq].
     + exfalso. apply H. subst...
@@ -601,18 +586,16 @@ Proof with auto.
       apply H. apply ord_lt_iff_psub...
 Qed.
 
-Lemma ord_lt_suc_iff_sub : ∀ α β, is_ord α → is_ord β →
-  α ⊆ β ↔ α ∈ β⁺.
+Lemma ord_lt_suc_iff_sub : ∀ α β ⋵ 𝐎𝐍, α ⊆ β ↔ α ∈ β⁺.
 Proof.
-  intros α β Hα Hβ. rewrite <- (ord_leq_iff_lt_suc α β Hα Hβ).
-  symmetry. exact (ord_leq_iff_sub α β Hα Hβ).
+  intros α Hα β Hβ. rewrite <- (ord_leq_iff_lt_suc α Hα β Hβ).
+  symmetry. exact (ord_leq_iff_sub α Hα β Hβ).
 Qed.
 
-Lemma ord_leq_iff_not_gt : ∀ α β, is_ord α → is_ord β →
-  α ⋸ β ↔ β ∉ α.
+Lemma ord_leq_iff_not_gt : ∀ α β ⋵ 𝐎𝐍, α ⋸ β ↔ β ∉ α.
 Proof with eauto.
-  intros α β Hα Hβ.
-  rewrite (ord_leq_iff_sub α β Hα Hβ).
+  intros α Hα β Hβ.
+  rewrite (ord_leq_iff_sub α Hα β Hβ).
   split; intros H.
   - intros Hlt. apply ord_lt_iff_not_sub in Hlt...
   - destruct (classic (α ⊆ β))...
@@ -620,8 +603,7 @@ Proof with eauto.
 Qed.
 
 (* 序数不稠密 *)
-Lemma ord_not_dense : ∀ α, is_ord α →
-  ¬ ∃ β, is_ord β ∧ α ∈ β ∧ β ∈ α⁺.
+Lemma ord_not_dense : ∀α ⋵ 𝐎𝐍, ¬ ∃β ⋵ 𝐎𝐍, α ∈ β ∧ β ∈ α⁺.
 Proof with eauto.
   intros α Hα [β [Hβ [Hαβ Hβα]]].
   apply BUnionE in Hβα as [Hlt|Heq].
@@ -630,7 +612,7 @@ Proof with eauto.
 Qed.
 
 (* 序数集最小元的两种定义等价 *)
-Lemma ord_ε_minimum_iff_sub_minimum : ∀ α A, is_ords A →
+Lemma ord_ε_minimum_iff_sub_minimum : ∀ α A, A ⪽ 𝐎𝐍 →
   ε_minimum α A ↔ sub_minimum α A.
 Proof with auto.
   split; intros [Hm Hmin]; split; auto; intros β Hβ;
@@ -638,7 +620,7 @@ Proof with auto.
 Qed.
 
 (* 序数集最大元的两种定义等价 *)
-Lemma ord_ε_maximum_iff_sub_maximum : ∀ α A, is_ords A →
+Lemma ord_ε_maximum_iff_sub_maximum : ∀ α A, A ⪽ 𝐎𝐍 →
   ε_maximum α A ↔ sub_maximum α A.
 Proof with auto.
   split; intros [Hm Hmax]; split; auto; intros β Hβ;
@@ -649,16 +631,16 @@ Qed.
 Definition ord_archimedean := λ A, ∀a ∈ A, ∃b ∈ A, a ∈ b.
 
 (* 具有阿基米德性的序数集没有最大元 *)
-Lemma ord_archimedean_impl_no_maximum : ∀ A, is_ords A →
+Lemma ord_archimedean_impl_no_maximum : ∀ A, A ⪽ 𝐎𝐍 →
   ord_archimedean A → ¬∃μ, sub_maximum μ A.
 Proof with auto.
   intros A Hord Hnmax [μ [Hμ Hmax]].
   pose proof (Hnmax μ Hμ) as [β [Hβ Hβμ]]. apply Hmax in Hβ.
-  apply Hβ in Hβμ. apply (ord_irrefl μ)... apply Hord in Hμ...
+  apply Hβ in Hβμ. apply (ord_irrefl μ)...
 Qed.
 
 (* 没有最大元的非空序数集具有阿基米德性 *)
-Lemma ord_archimedean_if_no_maximum : ∀ A, ⦿ A → is_ords A →
+Lemma ord_archimedean_if_no_maximum : ∀ A, ⦿ A → A ⪽ 𝐎𝐍 →
   (¬∃μ, sub_maximum μ A) → ord_archimedean A.
 Proof with eauto.
   intros A [γ Hγ] Hord Hnmax α Hα.
@@ -670,7 +652,7 @@ Proof with eauto.
 Qed.
 
 (* 非空序数集具有阿基米德性当且仅当它没有最大元 *)
-Theorem ord_archimedean_iff_no_maximum : ∀ A, ⦿ A → is_ords A →
+Theorem ord_archimedean_iff_no_maximum : ∀ A, ⦿ A → A ⪽ 𝐎𝐍 →
   ord_archimedean A ↔ ¬∃μ, sub_maximum μ A.
 Proof with auto.
   intros A Hne Hord. split; intros H.
@@ -679,35 +661,39 @@ Proof with auto.
 Qed.
 
 (* 后继序数 *)
-Definition is_suc := λ α, ∃ β, is_ord β ∧ α = β⁺.
+Definition sucord := λ α, ∃β ⋵ 𝐎𝐍, α = β⁺.
+Notation 𝐎𝐍ˢᵘᶜ := sucord.
+
 (* 极限序数 *)
-Definition is_limit := λ α, is_ord α ∧ α = sup α.
+Definition limord := λ α, α ⋵ 𝐎𝐍 ∧ α = sup α.
+Notation 𝐎𝐍ˡⁱᵐ := limord.
 
 (* 后继序数的上确界是其前驱 *)
-Lemma sup_of_suc : ∀ α, is_ord α → sup α⁺ = α.
+Lemma sup_of_sucord : ∀α ⋵ 𝐎𝐍, sup α⁺ = α.
 Proof.
-  intros. apply ord_trans in H. apply trans_union_suc in H.
-  unfold sup. rewrite H. reflexivity.
+  intros α Hα. apply ord_trans in Hα.
+  apply trans_union_suc in Hα.
+  unfold sup. rewrite Hα. reflexivity.
 Qed.
 
 (* 后继序数大于自身的上确界 *)
-Lemma suc_contains_sup : ∀ α, is_suc α → sup α ∈ α.
+Lemma sucord_contains_sup : ∀α ⋵ 𝐎𝐍ˢᵘᶜ, sup α ∈ α.
 Proof.
   intros α [β [Hβ Heqα]]. subst α.
-  rewrite sup_of_suc. apply suc_has_n. apply Hβ.
+  rewrite sup_of_sucord. apply suc_has_n. apply Hβ.
 Qed.
 
 (* 后继序数的上确界是其最大元 *)
-Lemma maximum_of_suc : ∀ α, is_suc α → ε_maximum (sup α) α.
+Lemma maximum_of_sucord : ∀α ⋵ 𝐎𝐍ˢᵘᶜ, ε_maximum (sup α) α.
 Proof with auto.
-  intros. split. apply suc_contains_sup...
+  intros. split. apply sucord_contains_sup...
   intros β Hβ. apply ord_sup_correct...
   destruct H as [γ [Hγ Heq]]. rewrite Heq.
   apply ord_is_ords...
 Qed.
 
 (* 极限序数不大于自身的上确界 *)
-Lemma limit_not_contains_sup : ∀ α, is_limit α → sup α ∉ α.
+Lemma limord_not_contains_sup : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, sup α ∉ α.
 Proof with auto.
   intros α [Hα Heq] H. rewrite Heq in H at 2.
   apply (ord_irrefl (sup α))...
@@ -715,59 +701,58 @@ Proof with auto.
 Qed.
 
 (* 零是极限序数（也可以单独把零分为一类） *)
-Lemma empty_is_limit : is_limit ∅.
+Lemma empty_is_limord : ∅ ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof.
   split. apply empty_is_ord.
   unfold sup. rewrite union_empty. reflexivity.
 Qed.
 
 (* ω是极限序数 *)
-Lemma ω_is_limit : is_limit ω.
+Lemma ω_is_limord : ω ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof with auto.
   split... apply ExtAx. split; intros Hx.
   - apply UnionAx. exists x⁺. split... apply ω_inductive...
   - apply trans_union_sub... apply ω_trans.
 Qed.
-Global Hint Resolve ω_is_limit : core.
+Global Hint Resolve ω_is_limord : core.
 
 (* 极限序数具有阿基米德性 *)
-Lemma limit_ord_archimedean : ∀ α, is_limit α → ord_archimedean α.
+Lemma limord_archimedean : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, ord_archimedean α.
 Proof.
   intros α [Hα Heq] β Hβ. rewrite Heq in Hβ.
   apply UnionAx in Hβ. apply Hβ.
 Qed.
 
 (* 极限序数无最大元 *)
-Lemma limit_ord_no_maximum : ∀ α, is_limit α → ¬ ∃ μ, sub_maximum μ α.
+Lemma limord_no_maximum : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, ¬ ∃ μ, sub_maximum μ α.
 Proof.
-  intros. apply ord_archimedean_impl_no_maximum.
-  apply ord_is_ords. apply H. apply limit_ord_archimedean. apply H.
+  intros α H. apply ord_archimedean_impl_no_maximum.
+  apply ord_is_ords. apply H. apply limord_archimedean. apply H.
 Qed.
 
 (* 极限序数有任意成员的后继 *)
-Lemma suc_in_limit : ∀ α, is_limit α → ∀β ∈ α, β⁺ ∈ α.
+Lemma sucord_in_limord : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, ∀β ∈ α, β⁺ ∈ α.
 Proof with eauto.
   intros α Hlim β Hβ.
   destruct (classic (β⁺ ∈ α))... exfalso.
-  eapply limit_ord_no_maximum...
+  eapply limord_no_maximum...
   exists β. split... intros γ Hγ.
-  assert (Hoα: is_ord α). apply Hlim.
-  assert (Hoβ: is_ord β). eapply ord_is_ords...
-  assert (Hoγ: is_ord γ). eapply ord_is_ords; revgoals...
+  assert (Hoα: α ⋵ 𝐎𝐍). apply Hlim.
+  assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
+  assert (Hoγ: γ ⋵ 𝐎𝐍). eapply ord_is_ords; revgoals...
   apply ord_lt_suc_iff_sub...
   apply ord_leq_iff_not_gt in H...
   apply ord_leq_iff_sub in H... apply H...
 Qed.
 
 (* 序数是极限序数当且仅当它不是后继序数 *)
-Lemma ord_is_limit_iff_not_suc : ∀ α, is_ord α →
-  is_limit α ↔ ¬ is_suc α.
+Lemma limord_iff_not_sucord : ∀α ⋵ 𝐎𝐍, α ⋵ 𝐎𝐍ˡⁱᵐ ↔ ¬ α ⋵ 𝐎𝐍ˢᵘᶜ.
 Proof with eauto.
-  split.
+  intros α H. split.
   - intros [Hα H1] [β [Hβ H2]]. rewrite H2 in H1 at 2.
-    rewrite sup_of_suc in H1... rewrite H1 in H2.
+    rewrite sup_of_sucord in H1... rewrite H1 in H2.
     eapply ord_neq_suc...
-  - intros Hnsuc. destruct (classic (is_limit α)) as [|Hnlim]...
+  - intros Hnsuc. destruct (classic (α ⋵ 𝐎𝐍ˡⁱᵐ)) as [|Hnlim]...
     exfalso. apply Hnsuc. clear Hnsuc.
     apply not_and_or in Hnlim as [|Hneq]. exfalso...
     assert (Hne: sup α ⊂ α). {
@@ -777,58 +762,54 @@ Proof with eauto.
     }
     apply comp_nonempty in Hne as [β Hβ].
     apply SepE in Hβ as [Hβ Hβ'].
-    assert (Hordβ: is_ord β). {
+    assert (Hordβ: β ⋵ 𝐎𝐍). {
       apply ord_is_ords in H. apply H...
     }
     exists β. split...
     destruct (classic (α = β⁺)) as [|Hnq]...
     exfalso. apply ord_connected in Hnq as [H1|H2]...
-    + apply (ord_not_dense β)...
+    + apply (ord_not_dense β)... exists α. split...
     + apply Hβ'. apply UnionAx. exists (β⁺). split...
 Qed.
 
 (* 序数是后继序数当且仅当它不是极限序数 *)
-Corollary ord_is_suc_iff_not_limit : ∀ α, is_ord α →
-  is_suc α ↔ ¬ is_limit α.
+Corollary sucord_iff_not_limord : ∀α ⋵ 𝐎𝐍, α ⋵ 𝐎𝐍ˢᵘᶜ ↔ ¬ α ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof.
-  intros. pose proof (ord_is_limit_iff_not_suc α H). tauto.
+  intros α H. pose proof (limord_iff_not_sucord α H).
+  unfold InClass in *. tauto.
 Qed.
 
 (* 序数要么是后继序数要么是极限序数 *)
-Theorem ord_is_suc_or_limit : ∀ α, is_ord α →
-  is_suc α ∨ is_limit α.
+Theorem sucord_or_limord : ∀α ⋵ 𝐎𝐍, α ⋵ 𝐎𝐍ˢᵘᶜ ∨ α ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof with auto.
-  intros. destruct (classic (is_suc α))...
-  right. apply ord_is_limit_iff_not_suc...
+  intros α H. destruct (classic (α ⋵ 𝐎𝐍ˢᵘᶜ))...
+  right. apply limord_iff_not_sucord...
 Qed.
 
 (* 序数是后继序数当且仅当它大于自身的上确界 *)
-Corollary suc_iff_contains_sup :
-  ∀ α, is_ord α → is_suc α ↔ sup α ∈ α.
+Corollary sucord_iff_contains_sup : ∀α ⋵ 𝐎𝐍, α ⋵ 𝐎𝐍ˢᵘᶜ ↔ sup α ∈ α.
 Proof with auto.
   intros α Hoα. split; intros H.
-  - apply suc_contains_sup...
-  - destruct (ord_is_suc_or_limit α)... exfalso.
-    apply limit_not_contains_sup in H0...
+  - apply sucord_contains_sup...
+  - destruct (sucord_or_limord α)... exfalso.
+    apply limord_not_contains_sup in H0...
 Qed.
 
 (* 序数是极限序数当且仅当它不大于自身的上确界 *)
-Corollary limit_iff_not_contains_sup :
-  ∀ α, is_ord α → is_limit α ↔ sup α ∉ α.
+Corollary limord_iff_not_contains_sup : ∀α ⋵ 𝐎𝐍, α ⋵ 𝐎𝐍ˡⁱᵐ ↔ sup α ∉ α.
 Proof with auto.
   intros α Hoα. split; intros H.
-  - apply limit_not_contains_sup...
-  - destruct (ord_is_suc_or_limit α)... exfalso.
-    apply H. apply suc_contains_sup...
+  - apply limord_not_contains_sup...
+  - destruct (sucord_or_limord α)... exfalso.
+    apply H. apply sucord_contains_sup...
 Qed.
 
 (* ex7_25 序数上的超限归纳模式 *)
 Theorem transfinite_induction_schema_on_ordinals :
-  ∀ ϕ, (∀ α, is_ord α → ((∀β ∈ α, ϕ β) → ϕ α)) →
-  ∀ α, is_ord α → ϕ α.
+  ∀ ϕ, (∀α ⋵ 𝐎𝐍, ((∀β ∈ α, ϕ β) → ϕ α)) → ∀α ⋵ 𝐎𝐍, ϕ α.
 Proof with eauto.
   intros * Hind α Hoα.
-  assert (Hstar: ∀ ξ, is_ord ξ → ¬ ϕ ξ → ∃γ ∈ ξ, ¬ ϕ γ). {
+  assert (Hstar: ∀ ξ ⋵ 𝐎𝐍, ¬ ϕ ξ → ∃γ ∈ ξ, ¬ ϕ γ). {
     intros ξ Hpξ Hnξ.
     destruct (classic (∃γ ∈ ξ, ¬ ϕ γ))... exfalso.
     apply Hnξ. apply Hind... intros γ Hγ.
@@ -845,7 +826,7 @@ Proof with eauto.
     intros ξ Hξ. apply SepE1 in Hξ...
   }
   apply SepE in Hμ as [Hμ Hnμ].
-  assert (Hoμ: is_ord μ). eapply ord_is_ords...
+  assert (Hoμ: μ ⋵ 𝐎𝐍). eapply ord_is_ords...
   set {ξ ∊ μ | λ ξ, ¬ ϕ ξ} as μ'.
   destruct (ord_woset μ) as [_ Hmμ]...
   pose proof (Hmμ μ') as [ν [Hν _]]. {
@@ -855,7 +836,7 @@ Proof with eauto.
     intros ξ Hξ. apply SepE1 in Hξ...
   }
   apply SepE in Hν as [Hν Hnν].
-  assert (Hoν: is_ord ν). eapply ord_is_ords...
+  assert (Hoν: ν ⋵ 𝐎𝐍). eapply ord_is_ords...
   assert (Hν': ν ∈ α'). apply SepI... eapply ord_trans...
   apply Hmin in Hν' as [].
   - apply binRelE3 in H. eapply ord_not_lt_gt; revgoals...

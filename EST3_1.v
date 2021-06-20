@@ -144,8 +144,8 @@ Definition is_function : set → Prop :=
 (* 空集是函数 *)
 Fact empty_is_func : is_function ∅.
 Proof.
-  repeat split. intros x Hx. exfalso0.
-  apply domE. apply H. intros y1 y2 H1 H2. exfalso0.
+  split; intros x Hx. exfalso0.
+  apply domE in Hx as [y Hp]. exfalso0.
 Qed.
 
 Lemma func_pair : ∀ F, is_function F →
@@ -166,7 +166,8 @@ Lemma func_sv : ∀ F a b c, is_function F →
   <a, b> ∈ F → <a, c> ∈ F → b = c.
 Proof.
   intros * Hf Hb Hc. destruct Hf as [_ H].
-  apply domI in Hb as Hd. apply H in Hd as [_ Hu]. apply Hu; auto.
+  apply domI in Hb as Hd. apply H in Hd as [x [_ Hu]].
+  apply Hu in Hb. apply Hu in Hc. congruence.
 Qed.
 
 Lemma func_dom_sv : ∀ F x, is_function F → x ∈ dom F → ∃! y, <x, y> ∈ F.
@@ -180,22 +181,23 @@ Definition Func : set → set → (set → set) → set := λ A B F,
   Rel A B (λ x y, y = F x).
 
 Lemma func_is_func : ∀ F A B, is_function (Func A B F).
-Proof with auto.
-  intros. repeat split.
-  - apply rel_is_rel. - apply domE in H...
-  - intros y1 y2 H1 H2.
-    apply SepE in H1 as [_ H1].
-    apply SepE in H2 as [_ H2]. zfc_simple.
+Proof.
+  intros. split. apply rel_is_rel.
+  intros x Hx. rewrite <- unique_existence.
+  split. apply domE in Hx. apply Hx.
+  intros y1 y2 H1 H2.
+  apply SepE in H1 as [_ H1].
+  apply SepE in H2 as [_ H2]. zfc_simple.
 Qed.
 
 Lemma ident_is_func : ∀ A, is_function (Ident A).
 Proof.
-  repeat split.
-  - apply ident_is_rel.
-  - apply domE in H. apply H.
-  - intros y y' Hy Hy'.
-    apply identE in Hy as [].
-    apply identE in Hy' as []. subst. reflexivity.
+  split. apply ident_is_rel.
+  intros x Hx. rewrite <- unique_existence.
+  split. apply domE in Hx. apply Hx.
+  intros y1 y2 H1 H2.
+  apply identE in H1 as [].
+  apply identE in H2 as []. congruence.
 Qed.
 
 Fact ident_eq_func : ∀ A, Ident A = Func A A (λ x, x).
@@ -210,42 +212,40 @@ intros. apply ExtAx. split; intros.
 Qed.
 
 (* 函数应用 *)
-(* pre_ap F x := {<a, b> ∈ F | a = x} = {<x, b>} *)
-Definition pre_ap : set → set → set := λ F x,
+(* PreAp F x := {<a, b> ∈ F | a = x} = {<x, b>} *)
+Definition PreAp : set → set → set := λ F x,
   {p ∊ F | λ p, is_pair p ∧ π1 p = x}.
-(* ap F x := {y | <x, y> ∈ F} *)
-Definition ap : set → set → set := λ F x, π2 ⋃ (pre_ap F x).
-Notation "F [ x ]" := (ap F x) (at level 9, format "F [ x ]") : ZFC_scope.
+(* Ap F x := {y | <x, y> ∈ F} *)
+Definition Ap : set → set → set := λ F x, π2 ⋃ (PreAp F x).
+Notation "F [ x ]" := (Ap F x) (at level 9, format "F [ x ]") : set_scope.
 
-Lemma pre_ap_single : ∀ F,
-  is_function F → ∀x ∈ dom F, ∃! p, p ∈ pre_ap F x.
+Lemma preAp_unique : ∀ F,
+  is_function F → ∀x ∈ dom F, ∃! p, p ∈ PreAp F x.
 Proof.
   intros F Hf x Hx.
-  apply func_dom_sv in Hx as [[y H] Hexu]; [|apply Hf]. split.
-  - exists <x, y>. apply SepI. apply H. split.
+  apply func_dom_sv in Hx as [y [H Hu]]; [|apply Hf].
+  exists <x, y>. split.
+  - apply SepI. apply H. split.
     + exists x, y. reflexivity.
     + rewrite π1_correct. reflexivity.
-  - intros p q Hp Hq.
+  - intros p Hp.
     apply SepE in Hp as [Hp [Hpp Hπp]].
-    apply SepE in Hq as [Hq [Hpq Hπq]].
     apply (op_η p) in Hpp. rewrite Hpp, Hπp in Hp.
-    apply (op_η q) in Hpq. rewrite Hpq, Hπq in Hq.
-    pose proof (Hexu _ _ Hp Hq).
-    rewrite Hpq, Hpp, Hπp, Hπq, H0. reflexivity.
+    apply Hu in Hp. congruence.
 Qed.
 
-Lemma pre_ap_exists : ∀ F,
-  is_function F → ∀x ∈ dom F, ∃y ∈ ran F, pre_ap F x = ⎨<x, y>⎬.
+Lemma preAp : ∀ F,
+  is_function F → ∀x ∈ dom F, ∃y ∈ ran F, PreAp F x = ⎨<x, y>⎬.
 Proof.
   intros F Hf x Hd.
-  pose proof (pre_ap_single F Hf x Hd) as [[p Hp] Hu].
+  pose proof (preAp_unique F Hf x Hd) as [p [Hp Hu]].
   pose proof (SepE F _ p Hp) as [Hp' [Hpp Hπp]].
   apply (op_η p) in Hpp.
   exists (π2 p). split.
   - apply SepE in Hp as [Hp _]. rewrite Hpp in Hp.
     eapply ranI. apply Hp.
   - apply ExtAx. intros q. split; intros Hq.
-    + pose proof (Hu p q Hp Hq). subst q.
+    + pose proof (Hu q Hq). subst q.
       rewrite Hpp at 1. rewrite <- Hπp. apply SingI.
     + apply SingE in Hq. rewrite <- Hπp in Hq.
       rewrite Hq. rewrite <- Hpp. apply Hp.
@@ -255,13 +255,13 @@ Lemma ap_exists : ∀ F,
   is_function F → ∀x ∈ dom F, ∃y ∈ ran F, <x, y> ∈ F ∧ F[x] = y.
 Proof.
   intros F H x Hd.
-  pose proof (pre_ap_exists F H x Hd) as [y [Hr Heq]].
+  pose proof (preAp F H x Hd) as [y [Hr Heq]].
   exists y. repeat split.
   - apply Hr.
   - assert (Hxy: < x, y > ∈ ⎨< x, y >⎬) by apply SingI.
-    rewrite ExtAx in Heq. apply Heq in Hxy.
+    rewrite <- Heq in Hxy.
     apply SepE in Hxy as [Hxy _]. apply Hxy.
-  - unfold ap. rewrite Heq. rewrite union_single.
+  - unfold Ap. rewrite Heq. rewrite union_single.
     rewrite π2_correct. reflexivity.
 Qed.
 
@@ -287,7 +287,7 @@ Proof with auto.
 Qed.
 
 Lemma ran_eq_repl_by_ap : ∀ f, is_function f →
-  ran f = {ap f | x ∊ dom f}.
+  ran f = {Ap f | x ∊ dom f}.
 Proof with auto.
   intros f Hf.
   apply ExtAx. intros y. split; intros Hy.
@@ -352,12 +352,14 @@ Lemma singrE : ∀ R a b c, single_rooted R →
   <a, c> ∈ R → <b, c> ∈ R → a = b.
 Proof.
   intros * Hs Ha Hb. apply ranI in Ha as Hr.
-  apply Hs in Hr as [_ Hu]. apply Hu; auto.
+  apply Hs in Hr as [x [_ Hu]].
+  apply Hu in Ha. apply Hu in Hb. congruence.
 Qed.
 
 Lemma ident_single_rooted : ∀ A, single_rooted (Ident A).
 Proof.
-  intros A. split. apply ranE in H. apply H.
+  intros A y H. rewrite <- unique_existence.
+  split. apply ranE in H. apply H.
   intros y1 y2 H1 H2.
   apply ReplAx in H1 as [x1 [Hx1 H1]]. apply op_iff in H1 as [].
   apply ReplAx in H2 as [x2 [Hx2 H2]]. apply op_iff in H2 as [].
@@ -376,13 +378,14 @@ Lemma injectiveE : ∀ f, injective f →
 Proof with eauto.
   intros f [Hf Hs] a Ha b Hb Heq.
   apply func_correct in Ha... apply func_correct in Hb...
-  eapply Hs... eapply ranI... rewrite Heq...
+  eapply unique_existence. apply Hs.
+  eapply ranI... congruence. congruence.
 Qed.
 
 (** 逆 **)
 Definition Inverse : set → set := λ F,
   {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
-Notation "F ⁻¹" := (Inverse F) (at level 9, format "F ⁻¹") : ZFC_scope.
+Notation "F ⁻¹" := (Inverse F) (at level 9, format "F ⁻¹") : set_scope.
 
 Lemma inv_rel : ∀ R, is_rel R⁻¹.
 Proof.
@@ -454,15 +457,15 @@ Theorem inv_func_iff_sr : ∀ F, is_function F⁻¹ ↔ single_rooted F.
 Proof.
   unfold is_function, is_rel, single_rooted. split.
   - intros [_ Hs]. intros y Hy. rewrite <- inv_dom in Hy.
-    apply Hs in Hy as [[x Hp] H]. split.
-    + exists x. rewrite inv_op. apply Hp.
-    + intros x1 x2 H1 H2. apply H; rewrite <- inv_op; assumption.
+    apply Hs in Hy as [x [Hp H]]. exists x. split.
+    + rewrite inv_op. apply Hp.
+    + intros x' Hx'. apply H; rewrite <- inv_op; assumption.
   - intros Hs. split.
     + intros x Hx. apply SepE in Hx as [_ [Hp _]]. apply Hp.
     + intros x Hx. rewrite inv_dom in Hx.
-      apply Hs in Hx as [[y Hp] H]. split.
-      * exists y. rewrite <- inv_op. apply Hp.
-      * intros y1 y2 H1 H2. apply H; rewrite inv_op; assumption.
+      apply Hs in Hx as [y [Hp H]]. exists y. split.
+      * rewrite <- inv_op. apply Hp.
+      * intros y' Hy'. apply H; rewrite inv_op; assumption.
 Qed.
 
 Theorem inv_sr_iff_func : ∀ F, 
@@ -471,13 +474,13 @@ Proof with auto.
   unfold single_rooted, is_function. split.
   - intros [Hr Hs]. split...
     intros x Hx. rewrite <- inv_ran in Hx.
-    apply Hs in Hx as [[y Hp] H]. split.
-    + exists y. rewrite inv_op...
-    + intros y1 y2 H1 H2. apply H; rewrite <- inv_op...
+    apply Hs in Hx as [y [Hp H]]. exists y. split.
+    + rewrite inv_op...
+    + intros y' Hy'. apply H; rewrite <- inv_op...
   - intros [Hr Hs]. split... intros y Hy. rewrite inv_ran in Hy.
-    apply Hs in Hy as [[x Hp] H]. split.
-    + exists x. rewrite <- inv_op...
-    + intros x1 x2 H1 H2. apply H; rewrite inv_op...
+    apply Hs in Hy as [x [Hp H]]. exists x. split.
+    + rewrite <- inv_op...
+    + intros x' Hx'. apply H; rewrite inv_op...
 Qed.
 
 Theorem inv_injective : ∀ F, injective F → injective F⁻¹.
@@ -528,7 +531,7 @@ Qed.
 Definition Composition : set → set → set := λ F G,
   {p ∊ (dom G × ran F) | λ p, is_pair p ∧
     ∃ y, <π1 p, y> ∈ G ∧ <y, π2 p> ∈ F}.
-Notation "F ∘ G" := (Composition F G) (at level 60) : ZFC_scope.
+Notation "F ∘ G" := (Composition F G) (at level 60) : set_scope.
 
 Lemma compoI : ∀ F G x y t,
   <x, t> ∈ G → <t, y> ∈ F → <x, y> ∈ (F ∘ G).
@@ -555,10 +558,11 @@ Qed.
 Lemma compo_func : ∀ F G,
   is_function F → is_function G → is_function (F ∘ G).
 Proof.
-  intros F G Hf Hg. repeat split.
+  intros F G Hf Hg. split.
   - intros x Hx. apply SepE in Hx as [_ [H _]]. apply H.
-  - apply domE in H. apply H.
-  - intros y y' Hy Hy'.
+  - intros x Hx. apply domE in Hx as [y Hy].
+    exists y. split. apply Hy.
+    intros y' Hy'.
     apply compoE in Hy  as [t  [Htg  Htf]].
     apply compoE in Hy' as [t' [Ht'g Ht'f]].
     apply domI in Htg as Hdg.

@@ -1,10 +1,11 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 5 **)
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Export ZFC.EX6_2.
 Require Import ZFC.lib.WosetMin.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Import ZFC.lib.ChoiceFacts.
 Require Import ZFC.lib.Choice.
+Require Export ZFC.EX6_2.
 
 (*** EST第六章5：可数集，可数多个可数集的并是可数集 ***)
 
@@ -272,9 +273,9 @@ Qed.
 
 (* “定理：可数多个可数集的并是可数集“的推广 *)
 Theorem cardLeq_union : AC_I →
-  ∀ 𝒜 𝜅, is_card 𝜅 → (∀A ∈ 𝒜, |A| ≤ 𝜅) → |⋃ 𝒜| ≤ |𝒜| ⋅ 𝜅.
+  ∀ 𝒜, ∀𝜅 ⋵ 𝐂𝐃, (∀A ∈ 𝒜, |A| ≤ 𝜅) → |⋃ 𝒜| ≤ |𝒜| ⋅ 𝜅.
 Proof with auto; try congruence.
-  intros AC1 * [K HK] Hle.
+  intros AC1 𝒜 𝜅 [K HK] Hle.
   set {A ∊ 𝒜 | λ A, ⦿ A} as 𝒜'.
   assert (Hle': |𝒜'| ≤ |𝒜|). {
     apply cardLeq_sub. intros x Hx. apply SepE1 in Hx...

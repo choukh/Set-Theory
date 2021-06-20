@@ -2,6 +2,8 @@
 
 Require Export ZFC.EX4.
 
+Definition woset := λ A R, wellOrder R A.
+
 Lemma add_1_1 : 1 + 1 = 2.
 Proof with auto.
   rewrite pred, add_m_n, add_m_n', add_ident;
@@ -58,7 +60,7 @@ Qed.
 Lemma power_two : 𝒫 2 = 3 ∪ ⎨⎨1⎬⎬.
 Proof with nauto.
   apply ExtAx. split; intros Hx.
-  - destruct (empty_or_inh x) as [|[a Ha]]. {
+  - destruct (empty_or_not x) as [|[a Ha]]. {
       subst. do 3 apply BUnionI1...
     }
     destruct (classic (x = 1)) as [|H1]. {

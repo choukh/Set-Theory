@@ -12,7 +12,7 @@ Definition Sep : set → (set → Prop) → set := λ A P,
     | inl _ => ⎨x⎬
     | inr _ => ∅
   end) in ⋃{F | x ∊ A}.
-Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)) : ZFC_scope.
+Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)) : set_scope.
 
 (* 从替代公理和空集公理导出Zermelo分类公理 *)
 Theorem sep_correct : ∀ A P x, x ∈ {x ∊ A | P} ↔ x ∈ A ∧ P x.
@@ -32,13 +32,13 @@ Lemma SepI : ∀ A (P : set → Prop), ∀x ∈ A, P x → x ∈ {x ∊ A | P}.
 Proof. intros A P x Hx HP. apply sep_correct. auto. Qed.
 
 Lemma SepE1 : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A.
-Proof. intros A P x Hx. apply sep_correct in Hx. firstorder. Qed.
+Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
 
 Lemma SepE2 : ∀ A P, ∀x ∈ {x ∊ A | P}, P x.
-Proof. intros A P x Hx. apply sep_correct in Hx. firstorder. Qed.
+Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
 
 Lemma SepE : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A ∧ P x.
-Proof. intros A P x Hx. apply sep_correct in Hx. apply Hx. Qed.
+Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
 
 Lemma sep_sub : ∀ A P, {x ∊ A | P} ⊆ A.
 Proof. unfold Sub. exact SepE1. Qed.
@@ -68,6 +68,16 @@ Proof with auto.
     apply (SepE2 ⎨x⎬). rewrite H...
 Qed.
 
+Lemma sep_ext : ∀ A P Q,
+  (∀x ∈ A, P x ↔ Q x) → {x ∊ A | P} = {x ∊ A | Q}.
+Proof with auto.
+  intros. apply ExtAx. split; intros Hx.
+  - apply SepE in Hx as [Hx HP].
+    apply SepI... apply H...
+  - apply SepE in Hx as [Hx HQ].
+    apply SepI... apply H...
+Qed.
+
 Definition Extraneous := λ A, {x ∊ A | λ x, x ∉ x}.
 
 Lemma extraneous : ∀ A, Extraneous A ∉ A.
@@ -88,7 +98,7 @@ Qed.
 (** 任意交 **)
 Definition Inter : set -> set :=
   λ Y, {x ∊ ⋃Y | (λ x, ∀y ∈ Y, x ∈ y)}.
-Notation "⋂ X" := (Inter X) (at level 9, right associativity) : ZFC_scope.
+Notation "⋂ X" := (Inter X) (at level 9, right associativity) : set_scope.
 
 Lemma InterI : ∀ x Y, ⦿ Y → (∀y ∈ Y, x ∈ y) → x ∈ ⋂Y.
 Proof.
@@ -112,7 +122,7 @@ Qed.
 
 (** 二元交 **)
 Definition BInter := λ X Y, ⋂{X, Y}.
-Notation "X ∩ Y" := (BInter X Y) (at level 49) : ZFC_scope.
+Notation "X ∩ Y" := (BInter X Y) (at level 49) : set_scope.
 
 Lemma BInterI : ∀ x X Y, x ∈ X → x ∈ Y → x ∈ X ∩ Y.
 Proof.
@@ -153,7 +163,7 @@ Proof.
   exists x. apply BInterE in Hx. apply Hx.
 Qed.
 
-Lemma disjointE : ∀ A B x, disjoint A B → x ∈ A → x ∈ B → ⊥.
+Lemma disjointE : ∀ A B x, disjoint A B → x ∈ A → x ∈ B → False.
 Proof.
   intros * H Ha Hb. eapply EmptyE in H.
   apply H. apply BInterI; eauto.
@@ -177,7 +187,7 @@ Qed.
 (** 有序对 **)
 Definition OPair : set → set → set := λ x y, {⎨x⎬, {x, y}}.
 Notation "< x , y , .. , z >" := ( OPair .. ( OPair x y ) .. z )
-  (z at level 69, format "< x ,  y ,  .. ,  z >") : ZFC_scope.
+  (z at level 69, format "< x ,  y ,  .. ,  z >") : set_scope.
 
 Definition π1 : set → set := λ p, ⋃ ⋂ p.
 Definition π2 : set → set := λ p,
@@ -289,7 +299,7 @@ Qed.
 (** 笛卡儿积 **)
 Definition CProd := λ A B,
   {p ∊ 𝒫 𝒫 (A ∪ B) | λ p, ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
-Notation "A × B" := (CProd A B) (at level 40) : ZFC_scope.
+Notation "A × B" := (CProd A B) (at level 40) : set_scope.
 
 Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
 Proof with auto.

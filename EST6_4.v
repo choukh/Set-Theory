@@ -1,9 +1,10 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 4 **)
 (** Coq coding by choukh, Sep 2020 **)
 
-Require Export ZFC.EST6_3.
-Require Import ZFC.lib.Choice.
+Require ZFC.lib.Choice.
+Require Import ZFC.lib.ChoiceFacts.
 Require Import ZFC.lib.IndexedFamilyUnion.
+Require Export ZFC.EST6_3.
 
 (*** EST第六章4
   - 选择公理的系统考察
@@ -15,20 +16,20 @@ Require Import ZFC.lib.IndexedFamilyUnion.
 
 (* ==需要选择公理== *)
 (* 基数具有可比较性 *)
-Theorem card_comparability : AC_V → ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 𝜅 ≤ 𝜆 ∨ 𝜆 ≤ 𝜅.
+Theorem card_comparability : AC_V →
+  ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜆 ∨ 𝜆 ≤ 𝜅.
 Proof.
-  intros AC5 𝜅 𝜆 H𝜅 H𝜆.
+  intros AC5 𝜅 H𝜅 𝜆 H𝜆.
   pose proof (AC5 𝜅 𝜆) as []; [left|right]; split; auto.
 Qed.
 
 (* ==需要选择公理== *)
 (* 基数具有连通性 *)
-Corollary card_connected : AC_V → ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 𝜆 → 𝜅 <𝐜 𝜆 ∨ 𝜆 <𝐜 𝜅.
+Corollary card_connected : AC_V →
+  ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ 𝜆 → 𝜅 <𝐜 𝜆 ∨ 𝜆 <𝐜 𝜅.
 Proof.
-  intros AC5 𝜅 𝜆 H𝜅 H𝜆 Hnq.
-  destruct (card_comparability AC5 𝜅 𝜆) as [];
+  intros AC5 𝜅 H𝜅 𝜆 H𝜆 Hnq.
+  destruct (card_comparability AC5 𝜅 H𝜅 𝜆) as [];
   auto; [left|right]; split; auto.
 Qed.
 
@@ -100,10 +101,10 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 所有自然数都小于无限基数 *)
-Corollary cardLt_infcard_n : ∀ 𝜅, ∀n ∈ ω, infcard 𝜅 → n <𝐜 𝜅.
+Corollary cardLt_infcard_n : ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, n <𝐜 𝜅.
 Proof with auto.
-  intros 𝜅 n Hn [Hcd Hinf].
-  rewrite card_of_card, card_of_nat...
+  intros 𝜅 [Hcd Hinf] n Hn.
+  rewrite (card_of_card 𝜅), card_of_nat...
   apply cardLt_iff. apply nat_dominated_by_infinite...
 Qed.
 
@@ -172,15 +173,16 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 阿列夫零是最小的无限基数 *)
-Corollary aleph0_is_the_least_infinite_card : AC_III → ∀ 𝜅,
-  infcard 𝜅 → ℵ₀ ≤ 𝜅.
+Corollary aleph0_is_the_least_infinite_card : AC_III →
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ℵ₀ ≤ 𝜅.
 Proof with auto.
-  intros AC3 𝜅 [Hcd Hinf]. rewrite card_of_card...
+  intros AC3 𝜅 [Hcd Hinf]. rewrite (card_of_card 𝜅)...
   apply cardLeq_iff. apply ω_is_the_least_infinite_set...
 Qed.
 
 (* ==使用选择公理的代替证法== *)
 Module AlternativeProofWithAC.
+Import ZFC.lib.Choice.
 
 (* Check EST6_3.dominated_by_ω_iff_mapped_onto_by_ω *)
 (* 任意非空集合被ω支配当且仅当它被ω满射 *)
@@ -193,8 +195,8 @@ Qed.
 
 (* Check EST6_3.infinite_subset_of_ω_eqnum_ω *)
 (* ω的任意无限子集与ω等势 *)
-Corollary infinite_subset_of_ω_eqnum_ω : ∀ N,
-  N ⊆ ω → infinite N → N ≈ ω.
+Corollary infinite_subset_of_ω_eqnum_ω :
+  ∀ N, N ⊆ ω → infinite N → N ≈ ω.
 Proof.
   intros N Hsub Hinf.
   apply dominate_sub in Hsub.
@@ -204,8 +206,8 @@ Qed.
 
 (* Check EST6_3.cardLt_aleph0_iff_finite *)
 (* 基数是有限基数当且仅当它小于阿列夫零 *)
-Corollary cardLt_aleph0_iff_finite : ∀ 𝜅,
-  is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
+Corollary cardLt_aleph0_iff_finite :
+  ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
   - intros [Hleq Hnq]. destruct (classic (finite 𝜅))... exfalso.
@@ -218,8 +220,8 @@ Qed.
 
 (* Check EST6_3.dominated_by_finite_is_finite *)
 (* 被有限集支配的集合是有限集 *)
-Corollary dominated_by_finite_is_finite : ∀ A B,
-  A ≼ B → finite B → finite A.
+Corollary dominated_by_finite_is_finite :
+  ∀ A B, A ≼ B → finite B → finite A.
 Proof with auto.
   intros * Hdm Hfin.
   rewrite set_finite_iff_card_finite.
@@ -231,8 +233,8 @@ Qed.
 
 (* Check EST6_1.subset_of_finite_is_finite *)
 (* 有限集的子集是有限集 *)
-Corollary subset_of_finite_is_finite : ∀ A B,
-  A ⊆ B → finite B → finite A.
+Corollary subset_of_finite_is_finite :
+  ∀ A B, A ⊆ B → finite B → finite A.
 Proof.
   intros * Hsub Hfin.
   eapply dominated_by_finite_is_finite.
@@ -405,8 +407,9 @@ Proof with eauto; try congruence.
     + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
       apply SepE in Hp as [Hp _]. apply cprod_is_pairs in Hp...
-    + apply domE in H...
-    + intros y1 y2 H1 H2.
+    + intros x H. rewrite <- unique_existence.
+      split. apply domE in H...
+      intros y1 y2 H1 H2.
       apply HpUG in H1 as [i1 [Hi1 Hp1]].
       apply HpUG in H2 as [i2 [Hi2 Hp2]].
       apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
@@ -420,7 +423,8 @@ Proof with eauto; try congruence.
       }
       exfalso. eapply disjointE; revgoals.
       apply Hx1. apply Hx2. apply cprod_disjointify...
-  - intros y Hy. split. apply ranE in Hy...
+  - intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply HpUG in H1 as [i1 [Hi1 Hp1]].
     apply HpUG in H2 as [i2 [Hi2 Hp2]].
@@ -620,8 +624,9 @@ Proof with eauto; try congruence.
     + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
       apply SepE in Hp as [Hp _]. apply cprod_is_pairs in Hp...
-    + apply domE in H...
-    + intros y1 y2 H1 H2.
+    + intros x H. rewrite <- unique_existence.
+      split. apply domE in H...
+      intros y1 y2 H1 H2.
       apply HpUG in H1 as [i1 [Hi1 Hp1]].
       apply HpUG in H2 as [i2 [Hi2 Hp2]].
       apply HgF in Hi1 as [f1 [Hf1 Heq1]]. rewrite Heq1 in Hp1.
@@ -635,7 +640,8 @@ Proof with eauto; try congruence.
       }
       exfalso. eapply disjointE; revgoals.
       apply Hx1. apply Hx2. apply cprod_disjointify...
-  - intros y Hy. split. apply ranE in Hy...
+  - intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply HpUG in H1 as [i1 [Hi1 Hp1]].
     apply HpUG in H2 as [i2 [Hi2 Hp2]].
@@ -752,10 +758,10 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 相同基数的无限累加和等价于基数乘法 *)
-Theorem cardInfSum_of_same_card : ∀ I 𝜅, is_card 𝜅 →
-  ∑ I (λ _, 𝜅) = |I| ⋅ 𝜅.
+Theorem cardInfSum_of_same_card :
+  ∀ I, ∀𝜅 ⋵ 𝐂𝐃, ∑ I (λ _, 𝜅) = |I| ⋅ 𝜅.
 Proof with auto; try congruence.
-  intros * Hcd. rewrite (card_of_card 𝜅) at 1...
+  intros I 𝜅 Hcd. rewrite (card_of_card 𝜅) at 1...
   rewrite cardMul_comm, cardMul. apply CardAx1.
   replace (⋃{λ i, 𝜅 × ⎨i⎬ | i ∊ I}) with (𝜅 × I). easy.
   apply ExtAx. intros p. split; intros Hp.

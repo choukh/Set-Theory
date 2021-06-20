@@ -8,7 +8,7 @@ Require Export ZFC.EST6_2.
 (* ex6_5 see EST6_1 eqnum_refl symm tran *)
 
 (* 同一基数的所有集合不能构成一个集合 *)
-Example ex6_6 : ∀ 𝜅, is_card 𝜅 → ⦿ 𝜅 → ¬∃ A, ∀ x, |x| = 𝜅 → x ∈ A.
+Example ex6_6 : ∀𝜅 ⋵ 𝐂𝐃, ⦿ 𝜅 → ¬∃ A, ∀ x, |x| = 𝜅 → x ∈ A.
 Proof with auto.
   intros 𝜅 H𝜅 Hi [A Hcd].
   apply no_set_of_all_set. exists (⋃A).

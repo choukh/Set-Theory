@@ -28,7 +28,7 @@ Definition PairRepl : set → set → set → set := λ a b x,
 
 (** 配对 **)
 Definition Pair := λ x y, {PairRepl x y | w ∊ Doubleton}.
-Notation "{ x , y }" := (Pair x y) : ZFC_scope.
+Notation "{ x , y }" := (Pair x y) : set_scope.
 
 Lemma PairI1 : ∀ x y, x ∈ {x, y}.
 Proof.
@@ -73,7 +73,7 @@ Qed.
 
 (** 单集 **)
 Definition Singleton : set → set := λ x, {x, x}.
-Notation "⎨ x ⎬" := (Singleton x) (format "⎨ x ⎬") : ZFC_scope.
+Notation "⎨ x ⎬" := (Singleton x) (format "⎨ x ⎬") : set_scope.
 
 Lemma SingI : ∀ x, x ∈ ⎨x⎬.
 Proof. unfold Singleton. intros. apply PairI1. Qed.
@@ -146,10 +146,8 @@ Proof. intros. apply SingE. apply H. Qed.
 
 Fact empty_neq_one : ∅ ≠ 1.
 Proof.
-  intros H. eapply ExtAx in H.
-  destruct H as [_ H].
-  pose proof (H OneI1).
-  eapply EmptyAx. apply H0.
+  intros H. eapply ExtNI; eauto.
+  exists ∅. split. apply OneI1. apply EmptyAx.
 Qed.
 
 (* 贰 *)
@@ -193,7 +191,7 @@ Qed.
 (* 单集的子集是空集或该单集 *)
 Lemma subset_of_single : ∀ x A, A ⊆ ⎨x⎬ → A = ∅ ∨ A = ⎨x⎬.
 Proof.
-  intros. destruct (empty_or_inh A).
+  intros. destruct (empty_or_not A).
   - left. apply H0.
   - right. destruct H0 as [a Ha].
     apply character_of_single.
@@ -301,7 +299,7 @@ Proof. exact (power_single ∅). Qed.
 
 (** 二元并 **)
 Definition BUnion := λ X Y, ⋃{X, Y}.
-Notation "X ∪ Y" := (BUnion X Y) (at level 50) : ZFC_scope.
+Notation "X ∪ Y" := (BUnion X Y) (at level 50) : set_scope.
 
 Lemma BUnionI1 : ∀ w X Y, w ∈ X → w ∈ X ∪ Y.
 Proof.
@@ -380,7 +378,7 @@ Qed.
 Fact funion_const_0 : ∀ X F, 
   (∀x ∈ X, F x = ∅) → ⋃{F|x ∊ X} = ∅.
 Proof.
-  intros. destruct (empty_or_inh X).
+  intros. destruct (empty_or_not X).
   - subst. apply funion_0.
   - exact (funion_const X F ∅ H0 H).
 Qed.

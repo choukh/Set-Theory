@@ -406,7 +406,7 @@ Proof with nauto.
 Qed.
 
 (* 非零实数 *)
-Definition ℝ' := (ℝ - ⎨Real 0⎬)%zfc.
+Definition ℝ' := (ℝ - ⎨Real 0⎬)%set.
 
 Lemma nzRealI0 : ∀x ∈ ℝ, x ≠ Real 0 → x ∈ ℝ'.
 Proof with auto.
@@ -777,7 +777,7 @@ Proof with neauto.
     intros q Hq. apply SepE in Hq as [Hq Hqr].
     apply SepI... eapply ratLt_tranr...
     intros Heq. assert (r ∈ Realq s) by (apply SepI; auto).
-    rewrite ExtAx in Heq. apply Heq in H. apply SepE in H as [_ H].
+    rewrite <- Heq in H. apply SepE in H as [_ H].
     eapply ratLt_irrefl...
 Qed.
 

@@ -49,7 +49,8 @@ Example ex4_8: ∀ f A h c, injective f → f: A ⇒ A →
   injective h.
 Proof with eauto; try congruence.
   intros * Hinj [Hff [Hdf Hrf]] Hc [Hfh [Hdh Hrh]] Hh0 Hh1.
-  split... intros y Hy. split. apply ranE in Hy...
+  split... intros y Hy. rewrite <- unique_existence.
+  split. apply ranE in Hy...
   assert (Hnq0: ∀n ∈ ω, h[n⁺] ≠ c). {
     intros n Hn Heq1. apply Hh1 in Hn as Heq2.
     assert (Heq: f[h[n]] = c) by congruence.
@@ -461,7 +462,8 @@ Proof with eauto; try congruence.
   )) as h.
   assert (Hhf: is_function h). {
     split. apply rel_is_rel.
-    intros x Hx. split. apply domE in Hx...
+    intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
     intros y1 y2 H1 H2.
     apply SepE in H1 as [Hp [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [_  [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
@@ -481,7 +483,8 @@ Proof with eauto; try congruence.
   }
   exists h. split; split...
   - (* single_rooted h *)
-    intros y Hy. split. apply ranE in Hy...
+    intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply SepE in H1 as [Hp1 [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [Hp2 [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
@@ -666,7 +669,8 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   )) as h.
   assert (Hhf: is_function h). {
     split. apply rel_is_rel.
-    intros x Hx. split. apply domE in Hx...
+    intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
     intros y1 y2 H1 H2.
     apply SepE in H1 as
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].
@@ -689,7 +693,8 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   }
   exists h. split; split...
   - (* single_rooted h *)
-    intros y Hy. split. apply ranE in Hy...
+    intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply SepE in H1 as
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].

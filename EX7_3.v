@@ -13,7 +13,7 @@ Import Real.
 Hint Resolve rank_is_ord : core.
 
 (* 整数集是良基集 *)
-Lemma int_grounded : grounded ℤ.
+Lemma int_grounded : ℤ ⋵ 𝐖𝐅.
 Proof with eauto.
   apply grounded_intro. intros a Ha.
   apply ReplAx in Ha as [p [_ Ha]]. subst a.
@@ -33,7 +33,7 @@ Qed.
 Hint Resolve int_grounded : core.
 
 (* 有理数集是良基集 *)
-Lemma rat_grounded : grounded ℚ.
+Lemma rat_grounded : ℚ ⋵ 𝐖𝐅.
 Proof with eauto.
   apply grounded_intro. intros r Hr.
   apply ReplAx in Hr as [p [_ Hr]]. subst r.
@@ -53,7 +53,7 @@ Qed.
 Hint Resolve rat_grounded : core.
 
 (* 戴德金实数集是良基集 *)
-Lemma real_grounded : grounded ℝ.
+Lemma real_grounded : ℝ ⋵ 𝐖𝐅.
 Proof with eauto.
   apply grounded_intro. intros x Hx.
   apply SepE1 in Hx. apply PowerAx in Hx.
@@ -175,17 +175,17 @@ Qed.
 End RankOfReal.
 
 (* 假设正则公理，那么第α层宇宙就是由那些秩小于α的集合所组成的集合 *)
-Example ex7_28 : Regularity → ∀ α β, is_ord α → is_ord β →
+Example ex7_28 : Regularity → ∀ α β ⋵ 𝐎𝐍,
   α ⋸ β → V α = {X ∊ V β | λ X, rank X ∈ α}.
 Proof with eauto.
-  intros Reg α β Hoα Hoβ Hle.
+  intros Reg α Hoα β Hoβ Hle.
   destruct Hle; apply ExtAx; split; intros Hx.
-  - apply SepI... eapply V_sub... rewrite <- rank_of_V...
+  - apply SepI... eapply V_sub... rewrite <- (rank_of_V α)...
     apply rank_of_member... apply V_grounded...
   - apply SepE2 in Hx. rewrite V_hierarchy...
     eapply FUnionI... apply PowerAx. apply grounded_in_rank.
     apply all_grounded_iff_regularity...
-  - subst. apply SepI... rewrite <- rank_of_V...
+  - subst. apply SepI... rewrite <- (rank_of_V β)...
     apply rank_of_member... apply V_grounded...
   - subst. apply SepE1 in Hx...
 Qed.
@@ -250,10 +250,10 @@ Qed.
 
 End IsomorphismType.
 
-Example ex7_33 : ∀ D B, grounded D → trans D →
-  (∀a ∈ D, a ⊆ B → a ∈ B) → D ⊆ B.
+Example ex7_33 : ∀ D ⋵ 𝐖𝐅, trans D →
+  ∀ B, (∀a ∈ D, a ⊆ B → a ∈ B) → D ⊆ B.
 Proof with eauto.
-  intros * Hgnd Htr HB.
+  intros D Hgnd Htr B HB.
   destruct (classic (D ⊆ B)) as [|Hnsub]... exfalso.
   assert (Hne: ⦿ (D - B)). {
     apply EmptyNE. intros H0.
@@ -276,8 +276,8 @@ Proof with eauto.
   assert (HxD: x ∈ D)...
   assert (Hx: x ∈ D - B). apply SepI...
   assert (rank x ∈ Ω). apply ReplI...
-  assert (Hgm: grounded m). eapply member_grounded...
-  assert (Hgx: grounded x). eapply member_grounded...
+  assert (Hgm: m ⋵ 𝐖𝐅). eapply member_grounded...
+  assert (Hgx: x ⋵ 𝐖𝐅). eapply member_grounded...
   apply rank_of_member in Hxm...
   apply Hle in H as [].
   - apply binRelE3 in H. eapply ord_not_lt_gt; revgoals...
@@ -326,7 +326,7 @@ Qed.
 
 (* ex7_37 连通传递集等价于序数 *)
 Theorem connected_trans_iff_ord : ∀ α,
-  is_ord α ↔ connected (MemberRel α) α ∧ trans α.
+  α ⋵ 𝐎𝐍 ↔ connected (MemberRel α) α ∧ trans α.
 Proof with eauto.
   split. {
     intros Ho. split.
@@ -361,11 +361,11 @@ Proof with eauto.
     apply H. eapply binRelE3...
 Qed.
 
-(* ex7_38 see EST7_4 Theorem ord_is_suc_or_limit *)
+(* ex7_38 see EST7_4 Theorem sucord_or_limord *)
 
 (* ex7_39 传递集的传递集等价于序数 *)
 Theorem trans_of_trans_iff_ord : ∀ α,
-  is_ord α ↔ trans α ∧ ∀ξ ∈ α, trans ξ.
+  α ⋵ 𝐎𝐍 ↔ trans α ∧ ∀ξ ∈ α, trans ξ.
 Proof with eauto.
   split. {
     intros Ho. repeat split.
@@ -414,26 +414,24 @@ End RegularWorld.
 Section TC.
 Import TransitiveClosureDef.
 
-Local Lemma fn_grounded :
-  ∀ A, grounded A → ∀n ∈ ω, grounded (F A)[n].
+Local Lemma fn_grounded : ∀A ⋵ 𝐖𝐅, ∀n ∈ ω, (F A)[n] ⋵ 𝐖𝐅.
 Proof with auto.
   intros A Hgnd n Hn.
-  set {n ∊ ω | λ n, grounded (F A)[n]} as N.
+  set {n ∊ ω | λ n, (F A)[n] ⋵ 𝐖𝐅} as N.
   ω_induction N Hn. rewrite f_0...
   rewrite f_n... apply union_grounded.
   apply pair_grounded... apply union_grounded...
 Qed.
 Hint Resolve fn_grounded : core.
 
-Local Lemma rank_of_fn :
-  ∀ A, grounded A → ∀n ∈ ω, rank (F A)[n] = rank A.
+Local Lemma rank_of_fn : ∀A ⋵ 𝐖𝐅, ∀n ∈ ω, rank (F A)[n] = rank A.
 Proof with eauto; try congruence.
   intros A Hgnd n Hn.
   set {n ∊ ω | λ n, rank (F A)[n] = rank A} as N.
   ω_induction N Hn. rewrite f_0...
-  assert (H1: grounded (F A)[m]). apply fn_grounded...
-  assert (H2: grounded ⋃(F A)[m]). apply union_grounded...
-  assert (H3: grounded (A ∪ ⋃(F A)[m])). {
+  assert (H1: (F A)[m] ⋵ 𝐖𝐅). apply fn_grounded...
+  assert (H2: ⋃(F A)[m] ⋵ 𝐖𝐅). apply union_grounded...
+  assert (H3: (A ∪ ⋃(F A)[m]) ⋵ 𝐖𝐅). {
     apply union_grounded... apply pair_grounded...
   }
   apply ExtAx. split; intros Hx.
@@ -453,8 +451,7 @@ Proof with eauto; try congruence.
     eapply FUnionI... apply BUnionI1...
 Qed.
 
-Lemma transitive_closure_grounded :
-  ∀ A, grounded A → grounded (𝗧𝗖 A).
+Lemma transitive_closure_grounded : ∀A ⋵ 𝐖𝐅, 𝗧𝗖 A ⋵ 𝐖𝐅.
 Proof with eauto.
   intros A Hgnd. apply grounded_intro.
   intros x Hx. apply UnionAx in Hx as [y [Hy Hx]].
@@ -464,11 +461,10 @@ Proof with eauto.
   apply func_ap in Hp... subst y.
   eapply member_grounded; revgoals... apply fn_grounded...
 Qed.
-Hint Resolve transitive_closure_grounded : core.
 
 (* ex7_36 任意集合与其传递闭包等秩 *)
 Fact transitive_closure_persist_rank :
-  ∀ S, grounded S → rank (𝗧𝗖 S) = rank S.
+  ∀S ⋵ 𝐖𝐅, rank (𝗧𝗖 S) = rank S.
 Proof with eauto; try congruence.
   intros S Hgnd.
   apply ExtAx. split; intros Hx.
@@ -483,9 +479,11 @@ Proof with eauto; try congruence.
     rewrite rank_of_fn in Hs...
     apply BUnionE in Hx as [].
     eapply ord_trans; revgoals... apply SingE in H...
+    apply transitive_closure_grounded...
   - rewrite rank_recurrence in *...
     apply FUnionE in Hx as [s [Hs Hx]].
     eapply FUnionI... apply tc_contains...
+    apply transitive_closure_grounded...
 Qed.
 
 End TC.

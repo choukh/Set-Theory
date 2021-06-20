@@ -1,11 +1,11 @@
 (** Coq coding by choukh, Jan 2021 **)
 
 Require Export ZFC.lib.Ordinal.
-Require Import ZFC.lib.Choice.
+Require Import ZFC.lib.ChoiceFacts.
 Require ZFC.lib.WosetMin.
 
 (* set-theoretic form *)
-Definition set_theoretic_Zorn := Choice.AC_VI.
+Definition set_theoretic_Zorn := ChoiceFacts.AC_VI.
 
 (* general form *)
 Definition general_Zorn := ∀ A R, poset A R →
@@ -121,12 +121,12 @@ Proof with eauto; try congruence.
     apply HrF' in HB. apply SepE2 in HB. apply HB...
   }
   set (Recursion (λ B, f[B])) as a.
-  assert (HB: ∀ α, is_ord α → {a | β ∊ α} ∈ ℬ). {
+  assert (HB: ∀α ⋵ 𝐎𝐍, {a | β ∊ α} ∈ ℬ). {
     eapply transfinite_induction_schema_on_ordinals.
     intros α Hoα IH.
     assert (Hsub: {a | β ∊ α} ⊆ A). {
       intros x Hx. apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
-      assert (Hoβ: is_ord β). eapply ord_is_ords...
+      assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
       unfold a. rewrite recursion_spec...
       eapply ap_ran... apply IH...
     }
@@ -136,24 +136,24 @@ Proof with eauto; try congruence.
     intros x Hx y Hy Hnq.
     apply ReplAx in Hx as H. destruct H as [δ [Hδ Heqx]].
     apply ReplAx in Hy as H. destruct H as [ε [Hε Heqy]]. subst x y.
-    assert (Hoδ: is_ord δ). eapply ord_is_ords...
-    assert (Hoε: is_ord ε). eapply ord_is_ords; revgoals...
+    assert (Hoδ: δ ⋵ 𝐎𝐍). eapply ord_is_ords...
+    assert (Hoε: ε ⋵ 𝐎𝐍). eapply ord_is_ords; revgoals...
     destruct (classic (δ = ε)) as [|Hnq']...
     apply ord_connected in Hnq' as []; auto; [left|right];
     (apply SepI; [|apply CProdI; auto]); unfold a;
     [rewrite (recursion_spec _ ε)|rewrite (recursion_spec _ δ)]; auto;
     (apply f_strict; [apply IH|apply ReplI])...
   }
-  assert (Hmono: ∀ α, is_ord α → ∀β ∈ α, (a β <ᵣ a α) R). {
+  assert (Hmono: ∀α ⋵ 𝐎𝐍, ∀β ∈ α, (a β <ᵣ a α) R). {
     intros α Hoα β Hlt.
     unfold a. rewrite (recursion_spec _ α)...
-    apply f_strict... apply ReplI...
+    apply f_strict. apply HB... apply ReplI...
   }
-  set {x ∊ A | λ x, ∃ α, is_ord α ∧ x = a α} as A'.
-  set (ϕ_Repl (λ x α, is_ord α ∧ x = a α) A') as Ω.
+  set {x ∊ A | λ x, ∃α ⋵ 𝐎𝐍, x = a α} as A'.
+  set (ϕ_Repl (λ x α, α ⋵ 𝐎𝐍 ∧ x = a α) A') as Ω.
   apply Burali_Forti. exists Ω.
   intros α Hoα. apply ϕ_ReplAx.
-  - intros x Hx. split.
+  - intros x Hx. rewrite <- unique_existence. split.
     + apply SepE2 in Hx as [ξ [Hξ Hx]]...
     + intros δ ε [Hoδ H1] [Hoε H2]. subst x.
       destruct (classic (δ = ε))... exfalso.
@@ -162,6 +162,7 @@ Proof with eauto; try congruence.
       eapply relLt_irrefl; eauto; apply Hpo.
   - exists (a α). split... apply SepI...
     unfold a. rewrite recursion_spec... eapply ap_ran...
+    apply HB... exists α. split...
 Qed.
 
 Module AlternativeProofWithoutRecursion.
@@ -473,7 +474,8 @@ Proof with eauto; try congruence.
     | inr _ => 0
   end) as γ.
   pose proof (recrusion_spec_intro S γ) as [Hff [Hdf Hrf]]. {
-    intros f. unfold γ. destruct (ixm (P f)); split...
+    intros f. unfold γ. rewrite <- unique_existence.
+    destruct (ixm (P f)); split...
   }
   set (Recursion S γ) as f. fold f in Hff, Hdf, Hrf.
   set {a ∊ A | λ A, f[a] = 1} as C.
@@ -760,10 +762,10 @@ Proof with eauto; try congruence.
   set (M ∪ ⎨s⎬) as M'.
   set (BinRel (M ∪ ⎨s⎬) (λ x y,
     match (ixm (x = s)) with
-    | inl _ => ⊥
+    | inl _ => False
     | inr _ =>
       match (ixm (y = s)) with
-      | inl _ => ⊤
+      | inl _ => True
       | inr _ => (x <ᵣ y) RM
   end end)) as RM'.
   assert (Hsub': M' ⊆ X). {

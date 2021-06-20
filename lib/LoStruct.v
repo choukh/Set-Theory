@@ -1,8 +1,11 @@
 (** Coq coding by choukh, Mar 2021 **)
 
+Set Warnings "-unrecognized-unicode".
+
 Require Import Relation_Definitions.
 Require Import RelationClasses.
 Require Import PropExtensionality.
+Require Import ZFC.lib.Real.
 Require Export ZFC.EST7_3.
 
 Declare Scope LoStruct_scope.
@@ -24,8 +27,11 @@ Proof with auto.
   - intros x H. exfalso0.
 Qed.
 
-Notation ø := (constr ∅ ∅ empty_loset).
-Notation 𝛚 := (constr ω Lt (proj1 Lt_wellOrder)).
+Notation "ø̃" := (constr ∅ ∅ empty_loset).
+Notation "ℕ̃" := (constr ω Lt (proj1 Lt_wellOrder)).
+Notation "ℤ̃" := (constr ℤ IntLt intLt_linearOrder).
+Notation "ℚ̃" := (constr ℚ RatLt ratLt_linearOrder).
+Notation "ℝ̃" := (constr ℝ RealLt realLt_linearOrder).
 
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.

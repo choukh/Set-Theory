@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 Definition SymDiff : set → set → set := λ A B, (A - B) ∪ (B - A).
-Notation "A + B" := (SymDiff A B) : ZFC_scope.
+Notation "A + B" := (SymDiff A B) : set_scope.
 
 Example ex2_15_a_0: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
 Proof.
@@ -372,16 +372,16 @@ Qed.
 
 Example ex2_35: ∀ A B, 𝒫 A = 𝒫 B → A = B.
 Proof.
-  intros. rewrite ExtAx in H. apply ExtAx. split; intros.
+  intros. apply ExtAx. split; intros.
   - assert (⎨x⎬ ⊆ A). {
       intros y Hy. apply SingE in Hy. subst. assumption.
     }
-    apply PowerAx in H1. apply H in H1.
+    apply PowerAx in H1. rewrite H in H1.
     apply PowerAx in H1. apply H1. apply SingI.
   - assert (⎨x⎬ ⊆ B). {
       intros y Hy. apply SingE in Hy. subst. assumption.
     }
-    apply PowerAx in H1. apply H in H1.
+    apply PowerAx in H1. rewrite <- H in H1.
     apply PowerAx in H1. apply H1. apply SingI.
 Qed.
 

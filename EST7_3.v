@@ -1,6 +1,8 @@
 (** Based on "Elements of Set Theory" Chapter 7 Part 3 **)
 (** Coq coding by choukh, Dec 2020 **)
 
+Global Set Warnings "-unrecognized-unicode".
+
 Require Import Relation_Definitions.
 Require Import RelationClasses.
 Require Import PropExtensionality.
@@ -227,7 +229,18 @@ Record WoStruct : Type := constr {
 }.
 Global Hint Immediate wo : core.
 
-Notation 𝛚 := (constr ω Lt Lt_wellOrder).
+Lemma empty_loset : woset ∅ ∅.
+Proof with auto.
+  repeat split.
+  - intros x H. exfalso0.
+  - intros x y z H. exfalso0.
+  - intros x H. exfalso0.
+  - intros B Hne Hsub. apply sub_empty in Hsub.
+    exfalso. eapply EmptyNI; eauto.
+Qed.
+
+Notation "ø̃" := (constr ∅ ∅ empty_loset) : WoStruct_scope.
+Notation "ℕ̃" := (constr ω Lt Lt_wellOrder) : WoStruct_scope.
 
 Lemma eq_intro : ∀ S T, A S = A T → R S = R T → S = T.
 Proof.
@@ -291,7 +304,7 @@ Existing Instance iso_equiv.
 (* 良序结构间的态射唯一 *)
 Theorem wo_iso_unique : ∀ S T, S ≅ T → ∃! f, f :ₒₑ S ⟺ T.
 Proof with eauto; try congruence.
-  intros S T Hiso. split...
+  intros S T Hiso. rewrite <- unique_existence. split...
   intros f g [Hf H1] [Hg H2].
   cut (∀ f g S T, f :ₒₑ S ⟺ T → g :ₒₑ S ⟺ T → f ⊆ g). {
     intros H. apply sub_antisym; eapply H; split...
@@ -406,7 +419,7 @@ Proof. intros. apply spec_intro; auto. Qed.
 
 End Recursion.
 
-(* 伊普西隆像 *)
+(*  像 *)
 Module Import EpsilonImage.
 
 Definition γ := λ x y, y = ran x.
@@ -416,7 +429,8 @@ Definition ε := λ S, MemberRel (α S).
 
 Lemma e_spec : ∀ S, recrusion_spec S γ (E S).
 Proof.
-  intros. apply recrusion_spec_intro. intros f. split.
+  intros. apply recrusion_spec_intro. intros f.
+  rewrite <- unique_existence. split.
   exists (ran f). congruence. congruence.
 Qed.
 
@@ -483,7 +497,8 @@ Lemma e_injective : ∀ S, injective (E S).
 Proof with eauto; try congruence.
   intros. destruct (wo S) as [Hlo Hmin].
   destruct (e_spec S) as [Hf [Hd _]]...
-  split... intros y Hy. split. apply ranE in Hy...
+  split... intros y Hy. rewrite <- unique_existence.
+  split. apply ranE in Hy...
   intros s t Hs Ht.
   apply func_ap in Hs as H1... apply domI in Hs.
   apply func_ap in Ht as H2... apply domI in Ht.
@@ -636,10 +651,10 @@ End EpsilonImage.
 (* Examples *)
 Module Export EpsilonImageOfNats.
 
-Example e_ω_nat : ∀n ∈ ω, (E 𝛚)[n] = n.
+Example e_ω_nat : ∀n ∈ ω, (E ℕ̃)[n] = n.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, (E 𝛚)[n] = n} as N.
+  set {n ∊ ω | λ n, (E ℕ̃)[n] = n} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
     + apply e_elim in Hx as [k [_ [Hk _]]]...
@@ -658,30 +673,30 @@ Proof with neauto.
         apply e_elim in H as [k [Hk [Hkm [Heqx Hx]]]]...
         apply binRelE3 in Hkm.
         eapply e_intro... apply binRelI... apply BUnionI1...
-      * apply (e_intro 𝛚 x m)... apply binRelI... congruence.
+      * apply (e_intro ℕ̃ x m)... apply binRelI... congruence.
 Qed.
 
-Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m 𝛚))[n] = n.
+Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m ℕ̃))[n] = n.
 Proof with neauto.
   intros n Hn p Hp.
-  set {n ∊ ω | λ n, n ∈ p → (E (Seg p 𝛚))[n] = n} as N.
+  set {n ∊ ω | λ n, n ∈ p → (E (Seg p ℕ̃))[n] = n} as N.
   ω_induction N Hn; intros Hnp.
   - apply ExtAx. split; intros Hx; [|exfalso0].
-    apply (e_elim (Seg p 𝛚)) in Hx as [k [_ [Hk _]]].
+    apply (e_elim (Seg p ℕ̃)) in Hx as [k [_ [Hk _]]].
     + apply SepE in Hk as [Hk _].
       apply binRelE3 in Hk. exfalso0.
     + apply SepI... apply binRelI...
   - assert (Hp': p⁺ ∈ ω) by (apply ω_inductive; auto).
     assert (Hm': m⁺ ∈ ω) by (apply ω_inductive; auto).
     assert (Hmp: m ∈ p). { apply (nat_trans p Hp m m⁺)... }
-    assert (Hmseg: m ∈ A (Seg p 𝛚)). {
+    assert (Hmseg: m ∈ A (Seg p ℕ̃)). {
       apply SepI... apply binRelI...
     }
-    assert (Hm'seg: m⁺ ∈ A (Seg p 𝛚)). {
+    assert (Hm'seg: m⁺ ∈ A (Seg p ℕ̃)). {
       apply SepI... apply binRelI...
     }
     apply ExtAx. split; intros Hx.
-    + apply (e_elim (Seg p 𝛚)) in Hx as [k [Hk [Hkm [Heqx Hx]]]]...
+    + apply (e_elim (Seg p ℕ̃)) in Hx as [k [Hk [Hkm [Heqx Hx]]]]...
       apply SepE in Hkm as [Hkm _].
       apply binRelE2 in Hkm as [Hkw [_ Hkm]].
       apply leq_iff_lt_suc in Hkm as []...
@@ -690,26 +705,26 @@ Proof with neauto.
       * apply BUnionI2. subst. rewrite <- IH at 2...
     + apply leq_iff_lt_suc in Hx as []; [| |eapply ω_trans|]...
       * rewrite <- IH in H...
-        apply (e_elim (Seg p 𝛚)) in H as [k [Hk [Hkm [Heqx Hx]]]]...
+        apply (e_elim (Seg p ℕ̃)) in H as [k [Hk [Hkm [Heqx Hx]]]]...
         apply SepE in Hkm as [Hkm _].
         apply binRelE2 in Hkm as [Hkw [_ Hkm]].
-        eapply (e_intro (Seg p 𝛚))...
+        eapply (e_intro (Seg p ℕ̃))...
         apply seg_lt; apply binRelI... apply BUnionI1...
-      * apply (e_intro (Seg p 𝛚) x m)...
+      * apply (e_intro (Seg p ℕ̃) x m)...
         apply seg_lt; apply binRelI... rewrite IH...
 Qed.
 
-Example α_nat : ∀n ∈ ω, α (Seg n 𝛚) = n.
+Example α_nat : ∀n ∈ ω, α (Seg n ℕ̃) = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | λ n, α (Seg n 𝛚) = n} as N.
+  set {n ∊ ω | λ n, α (Seg n ℕ̃) = n} as N.
   ω_induction N Hn.
-  - unfold α. replace (E (Seg ∅ 𝛚)) with ∅.
+  - unfold α. replace (E (Seg ∅ ℕ̃)) with ∅.
     apply ran_of_empty. symmetry. apply e_empty.
     apply ExtAx. split; intros Hx; [|exfalso0].
     apply SepE2 in Hx. apply binRelE3 in Hx...
   - assert (Hm': m⁺ ∈ ω) by (apply ω_inductive; auto).
-    destruct (e_spec (Seg m⁺ 𝛚)) as [Hf [Hd _]]...
+    destruct (e_spec (Seg m⁺ ℕ̃)) as [Hf [Hd _]]...
     apply ExtAx. intros y. split; intros Hy.
     + apply ranE in Hy as [x Hp]. apply domI in Hp as Hx.
       rewrite Hd in Hx. apply SepE2 in Hx.
@@ -721,9 +736,9 @@ Proof with neauto; try congruence.
       * rewrite seg_e_ap... apply e_ω_nat... apply binRelI...
 Qed.
 
-Example α_ω : α 𝛚 = ω.
+Example α_ω : α ℕ̃ = ω.
 Proof with auto.
-  destruct (e_spec 𝛚) as [Hf [Hd _]].
+  destruct (e_spec ℕ̃) as [Hf [Hd _]].
   apply ExtAx. intros m. split; intros Hm.
   - apply ranE in Hm as [n Hp]. apply domI in Hp as Hn.
     rewrite Hd in Hn. apply func_ap in Hp...
@@ -759,7 +774,7 @@ Proof with eauto; try congruence.
   end) as γ.
   set (Recursion S γ) as F.
   pose proof (recrusion_spec_intro S γ) as [HfF [HdF Hγ]]. {
-    intros f. split... unfold γ.
+    intros f. rewrite <- unique_existence. split... unfold γ.
     destruct (ixm (⦿ (A T - ran f))).
     - exists ((Min T)[A T - ran f])...
     - exists e...
@@ -814,7 +829,8 @@ Proof with eauto; try congruence.
     apply SepE1 in Ha as Haa.
     exists a. split... exists Fᵒ. split; [split; split|].
     - apply restr_func...
-    - intros b Hb. split. apply ranE in Hb...
+    - intros b Hb. rewrite <- unique_existence.
+      split. apply ranE in Hb...
       intros x y Hpx Hpy.
       apply restrE2 in Hpx as [Hpx Hx]. apply func_ap in Hpx...
       apply restrE2 in Hpy as [Hpy Hy]. apply func_ap in Hpy...
@@ -900,7 +916,8 @@ Proof with eauto; try congruence.
   destruct (classic (ran F = A T)) as [Hr|Hnq]. {
     left.
     exists F. split; [split; split|]...
-    - intros b Hb. split. apply ranE in Hb...
+    - intros b Hb. rewrite <- unique_existence.
+      split. apply ranE in Hb...
       intros x y Hpx Hpy.
       apply domI in Hpx as Hx. apply func_ap in Hpx...
       apply domI in Hpy as Hy. apply func_ap in Hpy...
@@ -966,7 +983,8 @@ Proof with eauto; try congruence.
   }
   exists b. split. apply SepE1 in Hm...
   exists F. split; [split; split|]...
-  - intros c Hc. split. apply ranE in Hc...
+  - intros c Hc. rewrite <- unique_existence.
+    split. apply ranE in Hc...
     intros x y Hpx Hpy.
     apply domI in Hpx as Hx. apply func_ap in Hpx...
     apply domI in Hpy as Hy. apply func_ap in Hpy...

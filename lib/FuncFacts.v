@@ -73,8 +73,8 @@ Lemma meta_injection : ∀ A B F,
   (Func A B F): A ⇔ B.
 Proof with eauto.
   intros * Hf Hinj.
-  apply meta_function in Hf as [Hf [Hd Hr]].
-  split... split... intros y Hy.
+  apply meta_function in Hf as [Hf [Hd Hr]]. split... split...
+  intros y Hy. rewrite <- unique_existence.
   split. apply ranE in Hy...
   intros x1 x2 H1 H2.
   apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [Hx1 _].
@@ -193,12 +193,17 @@ Qed.
 (* 空函数是空集到任意集合的单射 *)
 Lemma empty_injection : ∀ A, ∅: ∅ ⇔ A.
 Proof with auto.
-  intros. repeat split. intros x Hx. exfalso0.
-  apply domE in H... intros x1 x2 Hx1. exfalso0.
-  apply ranE in H... intros y1 y2 Hy1. exfalso0.
-  apply ExtAx. split; intros Hx.
-  apply domE in Hx as [y Hp]. exfalso0. exfalso0.
-  intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
+  intros. repeat split.
+  - intros x Hx. exfalso0.
+  - intros y Hy. rewrite <- unique_existence.
+    split. apply domE in Hy...
+    intros x1 x2 H1. exfalso0.
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply ranE in Hx...
+    intros y1 y2 H2. exfalso0.
+  - apply ExtAx. split; intros Hx.
+    apply domE in Hx as [y Hp]. exfalso0. exfalso0.
+  - intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
 Qed.
 
 (* 空函数是空集到空集的双射 *)
@@ -222,10 +227,11 @@ Qed.
 (* 单点集是函数 *)
 Lemma single_pair_is_func : ∀ a b, is_function ⎨<a, b>⎬.
 Proof with auto.
-  intros. repeat split.
+  intros. split.
   - intros x Hx. apply SingE in Hx. subst x...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
+    intros y1 y2 H1 H2.
     apply SingE in H1. apply op_iff in H1 as []; subst.
     apply SingE in H2. apply op_iff in H2 as []; subst...
 Qed.
@@ -234,7 +240,8 @@ Qed.
 Lemma single_pair_injective : ∀ a b, injective ⎨<a, b>⎬.
 Proof with auto.
   intros. split. apply single_pair_is_func.
-  split. apply ranE in H...
+  intros x Hx. rewrite <- unique_existence.
+  split. apply ranE in Hx...
   intros y1 y2 H1 H2.
   apply SingE in H1. apply op_iff in H1 as []; subst.
   apply SingE in H2. apply op_iff in H2 as []; subst...
@@ -380,7 +387,8 @@ Lemma restr_to_single_injective : ∀ f a, is_function f →
   injective (f ↾ ⎨a⎬).
 Proof with auto.
   intros. split. apply restr_func...
-  intros y Hy. split. apply ranE in Hy...
+  intros y Hy. rewrite <- unique_existence.
+  split. apply ranE in Hy...
   intros x1 x2 H1 H2.
   apply restrE2 in H1 as [_ H1]. apply SingE in H1.
   apply restrE2 in H2 as [_ H2]. apply SingE in H2. congruence.
@@ -474,7 +482,8 @@ Lemma bunion_injective : ∀ f g,
 Proof with eauto.
   intros * [Hf Hsf] [Hg Hsg]. split.
   - intros [Hreq Hdeq]. split. apply bunion_is_func...
-    intros y Hy. split. apply ranE in Hy...
+    intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply BUnionE in H1 as [H1|H1]; apply BUnionE in H2 as [H2|H2].
     + eapply (singrE f)...
@@ -612,6 +621,55 @@ Proof with auto; try congruence.
     + rewrite <- Hreq... apply func_ap in H...
       apply BInterI... apply domI in H...
     + apply func_ap in H...
+Qed.
+
+(** union **)
+
+Lemma union_of_chain_of_injective_functions :
+  ∀ F, is_chain F → (∀f ∈ F, injective f) →
+  ⋃F: ⋃{dom | f ∊ F} ⟺ ⋃{ran | f ∊ F}.
+Proof with eauto; try congruence.
+  intros F Hchn Hfs. split; split; [split|..].
+  - intros p Hp.
+    apply UnionAx in Hp as [f [Hf Hp]]. eapply Hfs...
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
+    intros y1 y2 H1 H2.
+    apply UnionAx in H1 as [f1 [Hf1 H1]].
+    apply UnionAx in H2 as [f2 [Hf2 H2]].
+    pose proof (Hchn f1 Hf1 f2 Hf2) as [].
+    + apply Hfs in Hf2 as [Hff2 _]. apply H in H1.
+      apply func_ap in H1...
+      apply func_ap in H2...
+    + apply Hfs in Hf1 as [Hff1 _]. apply H in H2.
+      apply func_ap in H1...
+      apply func_ap in H2...
+  - intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
+    intros x1 x2 H1 H2.
+    apply UnionAx in H1 as [f1 [Hf1 H1]].
+    apply UnionAx in H2 as [f2 [Hf2 H2]].
+    pose proof (Hchn f1 Hf1 f2 Hf2) as [].
+    + apply H in H1. eapply singrE... apply Hfs...
+    + apply H in H2. eapply singrE... apply Hfs...
+  - apply ExtAx. split; intros Hx.
+    + apply domE in Hx as [y Hp].
+      apply UnionAx in Hp as [f [Hf Hp]]. apply domI in Hp.
+      apply UnionAx. exists (dom f). split...
+      apply ReplAx. exists f. split...
+    + apply UnionAx in Hx as [p [Hp Hx]].
+      apply ReplAx in Hp as [f [Hf Heq]]. subst.
+      apply domE in Hx as [y Hp]. eapply domI.
+      apply UnionAx. exists f. split...
+  - apply ExtAx. intros y. split; intros Hy.
+    + apply ranE in Hy as [x Hp].
+      apply UnionAx in Hp as [f [Hf Hp]]. apply ranI in Hp.
+      apply UnionAx. exists (ran f). split...
+      apply ReplAx. exists f. split...
+    + apply UnionAx in Hy as [p [Hp Hy]].
+      apply ReplAx in Hp as [f [Hf Heq]]. subst.
+      apply ranE in Hy as [x Hp]. eapply ranI.
+      apply UnionAx. exists f. split...
 Qed.
 
 (** add point **)
@@ -927,7 +985,9 @@ Proof with eauto; try congruence.
   assert (Hmap: F: A ⇒ B). { split... destruct Hf... }
   apply (func_swap_value _ _ _ _ Ha _ Hb) in Hmap
     as [[Hf' [Hd' Hr']] Hreq].
-  split... split; split... split. apply ranE in H...
+  split... split; split...
+  intros y Hy. rewrite <- unique_existence.
+  split. apply ranE in Hy as [x1 H1]...
   intros x1 x2 H1 H2.
   apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [].
   apply SepE in H2 as [H21 H22]. apply CProdE2 in H21 as []. zfc_simple.
@@ -1061,35 +1121,4 @@ Proof with eauto; try congruence.
   }
   destruct Hinj as [Hi [Hd _]].
   destruct Hsurj as [_ [_ Hr]]. split; [|split]...
-Qed.
-
-(* ==需要选择公理== *)
-(* 满射的右逆是单射 *)
-Lemma right_inv_of_surjection_injective : AC_I → ∀ F A B,
-  F: A ⟹ B → ∃ G, G: B ⇔ A ∧ F ∘ G = Ident B.
-Proof with eauto.
-  intros AC1 * [Hf [Hd Hr]].
-  assert (H: is_rel F⁻¹) by apply inv_rel.
-  apply AC1 in H as [G [H1 [H2 H3]]].
-  (* G: B ⇔ A *)
-  exists G. split. {
-    split; split...
-    - split. apply ranE in H...
-      intros y1 y2 Hp1 Hp2. apply H2 in Hp1. apply H2 in Hp2.
-      rewrite <- inv_op in Hp1, Hp2. eapply func_sv; revgoals...
-    - rewrite inv_dom in H3. subst B...
-    - intros x Hx. apply ranE in Hx as [y Hx].
-      apply H2, ranI in Hx. rewrite inv_ran in Hx. subst A...
-  }
-  (* F ∘ G = Ident B *)
-  apply ExtAx. intros y. split; intros Hy.
-  - apply SepE in Hy as [_ [Hp [x [Hp1 Hp2]]]].
-    apply H2 in Hp1. rewrite <- inv_op in Hp1.
-    apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
-    apply op_η in Hp. rewrite Hp at 3. apply op_iff. split...
-    clear H1. eapply func_sv...
-  - apply ReplAx in Hy as [a [Hp Heq]].
-    subst y. subst B. rewrite <- inv_dom in Hp. rewrite <- H3 in Hp. 
-    apply domE in Hp as [b Hpg]. assert (Hpf := Hpg).
-    apply H2 in Hpf. rewrite <- inv_op in Hpf. eapply compoI...
 Qed.

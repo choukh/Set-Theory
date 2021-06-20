@@ -14,13 +14,14 @@ Check EST7_5.CardAx2.
 (* Theorem CardAx2 : ∀ A, finite A → |A| = FinCard A. *)
 
 Definition is_card := λ 𝜅, ∃ K, 𝜅 = |K|.
+Notation 𝐂𝐃 := is_card.
 
-Lemma card_is_card : ∀ A, is_card (|A|).
+Lemma card_is_card : ∀ A, |A| ⋵ 𝐂𝐃.
 Proof. intros. exists A. reflexivity. Qed.
 Global Hint Immediate card_is_card : core.
 
 (* 基数的基数等于自身 *)
-Lemma card_of_card : ∀ 𝜅, is_card 𝜅 → 𝜅 = |𝜅|.
+Lemma card_of_card : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 = |𝜅|.
 Proof.
   intros 𝜅 [K H𝜅]. rewrite H𝜅 at 1.
   apply CardAx1. rewrite H𝜅. apply CardAx0.
@@ -34,20 +35,22 @@ Proof with auto.
 Qed.
 
 (* 自然数是基数 *)
-Lemma nat_is_card : ∀n ∈ ω, is_card n.
+Lemma nat_is_card : ω ⪽ 𝐂𝐃.
 Proof. intros n Hn. exists n. apply (card_of_nat _ Hn). Qed.
 
-Lemma embed_is_card : ∀ n : nat, is_card n.
+Lemma embed_is_card : ∀ n : nat, n ⋵ 𝐂𝐃.
 Proof. intros. apply nat_is_card. apply embed_ran. Qed.
 Global Hint Immediate embed_is_card : number_hint.
 
 (* 有限基数 *)
-Definition fincard := λ n, is_card n ∧ finite n.
+Definition fincard := λ n, n ⋵ 𝐂𝐃 ∧ finite n.
+Notation 𝐂𝐃ᶠⁱⁿ := fincard.
 (* 无限基数 *)
-Definition infcard := λ 𝜅, is_card 𝜅 ∧ infinite 𝜅.
+Definition infcard := λ 𝜅, 𝜅 ⋵ 𝐂𝐃 ∧ infinite 𝜅.
+Notation 𝐂𝐃ⁱⁿᶠ := infcard.
 
 (* 自然数等价于有限基数 *)
-Lemma nat_iff_fincard : ∀ n, n ∈ ω ↔ fincard n.
+Lemma nat_iff_fincard : ∀ n, n ∈ ω ↔ n ⋵ 𝐂𝐃ᶠⁱⁿ.
 Proof with auto; try congruence.
   split.
   - intros Hn. split. apply nat_is_card... apply nat_finite...
@@ -125,10 +128,10 @@ Proof with nauto.
 Qed.
 
 (* 任意集合都可以在任意非零基数的集合里 *)
-Lemma any_set_in_set_with_any_nonzero_card : ∀ a 𝜅,
-  is_card 𝜅 → ⦿ 𝜅 → ∃ A, |A| = 𝜅 ∧ a ∈ A.
+Lemma any_set_in_set_with_any_nonzero_card :
+  ∀ a, ∀𝜅 ⋵ 𝐂𝐃, ⦿ 𝜅 → ∃ A, |A| = 𝜅 ∧ a ∈ A.
 Proof with auto; try congruence.
-  intros * [K H𝜅] Hi. subst 𝜅.
+  intros a 𝜅 [K H𝜅] Hi. subst 𝜅.
   apply set_nonzero_card_nonzero in Hi as [k Hk].
   destruct (classic (a ∈ K)) as [|Ha]. exists K. split...
   pose proof (bijection_exists_between_set_and_element_replaced
@@ -153,17 +156,17 @@ Notation "𝜅 ⋅ 𝜆" := (CardMul 𝜅 𝜆) : Card_scope.
 Notation "𝜅 ^ 𝜆" := (CardExp 𝜅 𝜆) : Card_scope.
 
 (* 基数加法的和是基数 *)
-Lemma cardAdd_is_card : ∀ 𝜅 𝜆, is_card (𝜅 + 𝜆).
+Lemma cardAdd_is_card : ∀ 𝜅 𝜆, 𝜅 + 𝜆 ⋵ 𝐂𝐃.
 Proof. intros. apply card_is_card. Qed.
 Global Hint Immediate cardAdd_is_card : core.
 
 (* 基数乘法的积是基数 *)
-Lemma cardMul_is_card : ∀ 𝜅 𝜆, is_card (𝜅 ⋅ 𝜆).
+Lemma cardMul_is_card : ∀ 𝜅 𝜆, 𝜅 ⋅ 𝜆 ⋵ 𝐂𝐃.
 Proof. intros. apply card_is_card. Qed.
 Global Hint Immediate cardMul_is_card : core.
 
 (* 基数乘方的幂是基数 *)
-Lemma cardExp_is_card : ∀ 𝜅 𝜆, is_card (𝜅 ^ 𝜆).
+Lemma cardExp_is_card : ∀ 𝜅 𝜆, 𝜅 ^ 𝜆 ⋵ 𝐂𝐃.
 Proof. intros. apply card_is_card. Qed.
 Global Hint Immediate cardExp_is_card : core.
 
@@ -513,7 +516,7 @@ Lemma cardExp : ∀ A B, (|A| ^ |B|) = |B ⟶ A|.
 Proof. intros. now apply cardExp_iff. Qed.
 
 (* 零是基数加法单位元 *)
-Lemma cardAdd_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 + 0 = 𝜅.
+Lemma cardAdd_ident : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 + 0 = 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. apply card_of_card in Hcd.
   rewrite Hcd at 2. apply CardAx1.
@@ -534,7 +537,7 @@ Proof.
 Qed.
 
 (* 1是基数乘法单位元 *)
-Lemma cardMul_ident : ∀ 𝜅, is_card 𝜅 → 𝜅 ⋅ 1 = 𝜅.
+Lemma cardMul_ident : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ⋅ 1 = 𝜅.
 Proof.
   intros 𝜅 Hcd. apply card_of_card in Hcd.
   rewrite Hcd at 2. apply CardAx1. symmetry.
@@ -570,7 +573,7 @@ Proof with neauto; try congruence.
 Qed.
 
 (* 基数的1次幂等于自身 *)
-Lemma cardExp_1_r : ∀ 𝜅, is_card 𝜅 → 𝜅 ^ 1 = 𝜅.
+Lemma cardExp_1_r : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ^ 1 = 𝜅.
 Proof.
   intros 𝜅 Hcd. apply card_of_card in Hcd.
   rewrite Hcd at 2. apply CardAx1. apply arrow_from_one.
@@ -654,7 +657,7 @@ Proof with auto.
 Qed.
 
 (* 任意基数不等于2的该基数次幂 *)
-Lemma card_neq_exp : ∀ 𝜅, is_card 𝜅 → 𝜅 ≠ 2 ^ 𝜅.
+Lemma card_neq_exp : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 2 ^ 𝜅.
 Proof.
   intros 𝜅 Hcd Heq. apply card_of_card in Hcd.
   rewrite Hcd, <- card_of_power in Heq.
@@ -714,7 +717,7 @@ Qed.
 Theorem cardAdd_assoc : ∀ 𝜅 𝜆 𝜇, (𝜅 + 𝜆) + 𝜇 = 𝜅 + (𝜆 + 𝜇).
 Proof with neauto; try congruence; try easy.
   intros. apply CardAx1.
-  assert (Hnq: Embed 1 = Embed 2 → ⊥). {
+  assert (Hnq: Embed 1 = Embed 2 → False). {
     intros. apply (nat_irrefl 2)...
     rewrite <- H at 1. apply suc_has_n.
   }
@@ -1077,11 +1080,11 @@ Qed.
 Lemma cardAdd_suc : ∀ 𝜅 𝜆, 𝜅 + (𝜆 + 1) = (𝜅 + 𝜆) + 1.
 Proof. intros. rewrite cardAdd_assoc. auto. Qed.
 
-Lemma cardMul_suc : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 ⋅ (𝜆 + 1) = 𝜅 ⋅ 𝜆 + 𝜅.
-Proof. intros. rewrite cardMul_distr, cardMul_ident; auto. Qed.
+Lemma cardMul_suc : ∀𝜅 ⋵ 𝐂𝐃, ∀ 𝜆, 𝜅 ⋅ (𝜆 + 1) = 𝜅 ⋅ 𝜆 + 𝜅.
+Proof. intros 𝜅 H 𝜆. rewrite cardMul_distr, cardMul_ident; auto. Qed.
 
-Lemma cardExp_suc : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 ^ (𝜆 + 1) = 𝜅 ^ 𝜆 ⋅ 𝜅.
-Proof. intros. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
+Lemma cardExp_suc : ∀𝜅 ⋵ 𝐂𝐃, ∀ 𝜆, 𝜅 ^ (𝜆 + 1) = 𝜅 ^ 𝜆 ⋅ 𝜅.
+Proof. intros 𝜅 H 𝜆. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
 
 Lemma card_suc : ∀n ∈ ω, n + 1 = n⁺.
 Proof with auto; try easy.

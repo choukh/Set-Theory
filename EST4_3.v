@@ -45,18 +45,18 @@ Proof with auto.
   apply IH. apply suc_preserve_lt...
 Qed.
 
-Lemma nat_not_lt_gt : ∀ m n ∈ ω, m ∈ n → n ∈ m → ⊥.
+Lemma nat_not_lt_gt : ∀ m n ∈ ω, m ∈ n → n ∈ m → False.
 Proof.
   intros m Hm n Hn Hlt Hgt. eapply nat_irrefl. apply Hm.
   eapply nat_trans; eauto.
 Qed.
 
-Lemma nat_not_lt_self : ∀ m n ∈ ω, m = n → n ∈ m → ⊥.
+Lemma nat_not_lt_self : ∀ m n ∈ ω, m = n → n ∈ m → False.
 Proof.
   intros m Hm n Hn Heq Hlt. subst. eapply nat_irrefl; eauto.
 Qed.
 
-Lemma nat_not_leq_gt : ∀ m n ∈ ω, m ⋸ n → n ∈ m → ⊥.
+Lemma nat_not_leq_gt : ∀ m n ∈ ω, m ⋸ n → n ∈ m → False.
 Proof with eauto.
   intros m Hm n Hn Hleq Hgt. destruct Hleq.
   - eapply nat_not_lt_gt; revgoals...
@@ -493,6 +493,14 @@ Proof with neauto.
   - rewrite add_ident in H...
   - rewrite add_m_n in H... apply IH...
     eapply nat_trans; revgoals...
+Qed.
+
+Lemma lt_mul_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, n ≠ 0 → p ∈ m ⋅ n.
+Proof with nauto.
+  intros m Hm n Hn p Hpm Hnq0.
+  ω_destruct n. rewrite zero in Hnq0. congruence.
+  subst n. rewrite mul_m_n...
+  apply lt_add_enlarge... apply mul_ran...
 Qed.
 
 Lemma leq_mul_enlarge : ∀ m n ∈ ω, m ⋸ m ⋅ n⁺.

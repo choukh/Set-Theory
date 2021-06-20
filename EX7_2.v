@@ -17,11 +17,11 @@ Definition IntLtWo := BinRel ℤ (λ a b,
     | inl _ =>
       match (ixm (intNeg b)) with
         | inl _ => b <𝐳 a
-        | inr _ => ⊥
+        | inr _ => False
       end
     | inr _ =>
       match (ixm (intNeg b)) with
-        | inl _ => ⊤
+        | inl _ => True
         | inr _ => a <𝐳 b
       end
   end
@@ -257,22 +257,22 @@ Qed.
 
 End ImportOrderedStruct.
 
-Lemma int_0_not_neg : intNeg (Int 0) → ⊥.
+Lemma int_0_not_neg : intNeg (Int 0) → False.
 Proof. intros. eapply intLt_irrefl; eauto. Qed.
 
-Lemma int_1_not_neg : intNeg (Int 1) → ⊥.
+Lemma int_1_not_neg : intNeg (Int 1) → False.
 Proof.
   intros. assert (intPos (Int 1)) by apply intPos_sn.
   eapply intLt_irrefl; eapply intLt_tranr; eauto.
 Qed.
 
-Lemma int_sn_not_neg : ∀ n, intNeg (Int (S n)) → ⊥.
+Lemma int_sn_not_neg : ∀ n, intNeg (Int (S n)) → False.
 Proof.
   intros. assert (intPos (Int (S n))) by apply intPos_sn.
   eapply intLt_irrefl; eapply intLt_tranr; eauto.
 Qed.
 
-Lemma int_n_not_neg : ∀ n, intNeg (Int n) → ⊥.
+Lemma int_n_not_neg : ∀ n, intNeg (Int n) → False.
 Proof with eauto.
   intros. destruct n.
   apply int_0_not_neg... eapply int_sn_not_neg...

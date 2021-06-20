@@ -1,8 +1,9 @@
 (** Solutions to "Elements of Set Theory" Chapter 7 Part 1 **)
 (** Coq coding by choukh, Nov 2020 **)
 
+Require ZFC.lib.Choice.
 Require Import ZFC.lib.Real.
-Require Import ZFC.lib.Choice.
+Require Import ZFC.lib.ChoiceFacts.
 Require Import ZFC.lib.Cardinal.
 Require Import ZFC.lib.WosetMin.
 Close Scope Real_scope.
@@ -86,8 +87,8 @@ Proof with nauto.
     + intros a Ha b Hb Heq.
       apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
       apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]].
-      pose proof (intProj m Hm n Hn) as [s [Hs [t [Ht [H11 H12]]]]].
-      pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
+      pose proof (intProj m Hm n Hn) as [s [Hs [t [Ht [H11 [H12 _]]]]]].
+      pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 [H22 _]]]]]].
       subst. rewrite H11, H21 in Heq.
       apply op_iff in Heq as []; subst.
       apply planeEquiv in H12... apply planeEquiv in H22...
@@ -95,7 +96,6 @@ Proof with nauto.
         [apply intEqSymm; apply H22|apply H12|..]...
 Qed.
 
-(* == we use Hilbert's epsilon for convenience reasons == *)
 Lemma card_rat_eq_aleph0 : |ℚ| = ℵ₀.
 Proof with nauto.
   apply CardAx1. symmetry.
@@ -209,7 +209,7 @@ Proof with neauto.
         apply Hlt1. subst x1...
   } {
     apply set_not_all_ex_not in Hmax as [m [Hm Hmax]].
-    set (A - ⎨m⎬)%zfc as B.
+    set (A - ⎨m⎬)%set as B.
     set (Next A (RealLt ⥏ A)) as next.
     set (λ x y z, x <𝐫 y ∧ y <𝐫 z) as bt.
     set (λ Q, ∃x ∈ B, ∀r ∈ ℚ, bt x RatEmbed[r] (next x) → r ∈ Q) as P.
@@ -336,7 +336,8 @@ Lemma descending_chain_injective : ∀ f A R, poset A R →
 Proof with eauto; try congruence.
   intros f A R [_ [_ [Htr Hir]]] Hdesc.
   assert (H := Hdesc). destruct H as [[Hf [Hd Hr]] _].
-  split... intros y Hy. split. apply ranE in Hy...
+  split... intros y Hy. rewrite <- unique_existence.
+  split. apply ranE in Hy...
   intros n m Hpn Hpm.
   apply domI in Hpn as Hn; rewrite Hd in Hn.
   apply domI in Hpm as Hm; rewrite Hd in Hm.
@@ -349,6 +350,8 @@ Proof with eauto; try congruence.
   - pose proof (Hdesc m Hm n Hn Hmn) as Hlt.
     rewrite Hpm in Hlt. eapply Hir...
 Qed.
+
+Import ZFC.lib.Choice.
 
 (* ==可以不用选择公理== *)
 (* 有限集的线序是良序 *)
@@ -381,7 +384,7 @@ Proof with eauto; try congruence.
   assert (Hcard: |A S| = n). {
     rewrite (card_of_nat n)... apply CardAx1. exists f...
   }
-  set (Seg n 𝛚) as N.
+  set (Seg n ℕ̃) as N.
   assert (Heqn: A N = n). {
     unfold N. rewrite seg_a_eq... rewrite seg_of_nat...
   }

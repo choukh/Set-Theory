@@ -11,13 +11,17 @@ Coq 8.13.1
 
 ## Build
 ```
-./build_all.sh
+make
 ```
 
-## ZFC0.v
+## Meta.v
 - Metatheory
   - Law of excluded middle
-  - Hilbert's ε-operator
+  - Church's iota operator
+  - Informative excluded middle
+  - Decidable inhabitance of type
+
+## ZFC0.v
 - Axiom of extensionality
 - Axiom of empty set
 - Axiom of union
@@ -38,7 +42,7 @@ Coq 8.13.1
 
 ## ZFC3.v
 - Axiom of infinity
-- Hilbert's ε-operator implies AC
+- Axiom of choice
 
 ## EST2.v
 - Complement
@@ -207,6 +211,15 @@ Coq 8.13.1
 ## EST8_4.v
 - Multiplication of order types
 - Laws of order type arithmetic
+
+## EST8_5.v
+- Order type arithmetic on well-ordered structure
+
+## EST8_6.v
+- Ordinal Arithmetic (defined as order type arithmetic)
+
+## EST8_7.v
+- Ordinal Arithmetic (defined by recursion)
 
 ## EX{n}.v
 - Solution to exercises of Chapter n

@@ -30,7 +30,7 @@ Notation "~" := CauchyEquiv : CauchyReal_scope.
 Notation "r ~ s" := (<r, s> ∈ CauchyEquiv)
   (at level 10) : CauchyReal_scope.
 
-Definition ℝ : set := (CauchySeq/~)%zfc.
+Definition ℝ : set := (CauchySeq/~)%set.
 
 End CauchyReal.
 
@@ -823,11 +823,11 @@ Qed.
 
 Lemma real_suc_neq_0 : ∀ n, Real (S n) ≠ Real 0.
 Proof with neauto.
-  intros n H. rewrite ExtAx in H.
+  intros n H.
   assert (Rat 0 ∈ Real (S n)). {
     apply SepI... apply ratPos_sn.
   }
-  apply H in H0. apply SepE in H0 as [_ H0].
+  rewrite H in H0. apply SepE in H0 as [_ H0].
   eapply ratLt_irrefl...
 Qed.
 Global Hint Immediate real_suc_neq_0 : number_hint.

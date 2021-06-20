@@ -28,9 +28,10 @@ Lemma op_repl_is_func :
 Proof with auto.
   intros. repeat split.
   - intros p Hp. apply ReplAx in Hp as [x [_ H]]; subst...
-  - rewrite dom_of_op_repl in H.
+  - intros x H. rewrite <- unique_existence.
+    split. rewrite dom_of_op_repl in H.
     exists (G x). apply ReplAx. exists x. split...
-  - intros y1 y2 H1 H2.
+    intros y1 y2 H1 H2.
     apply ReplAx in H1 as [x1 [Hx1 H1]].
     apply ReplAx in H2 as [x2 [Hx2 H2]].
     apply op_iff in H1 as []; apply op_iff in H2 as []; subst...
@@ -49,12 +50,11 @@ Import TransfiniteRecursion.
 
 Definition F := λ γ δ, constr δ (MemberRel δ) γ.
 
-Local Lemma F_spec : ∀ γ δ,
-  (∀ f, ∃! y, γ f y) → is_ord δ →
-  is_function (F γ δ) ∧ dom (F γ δ) = δ ∧
+Local Lemma F_spec : ∀ γ, (∀ f, ∃! y, γ f y) →
+  ∀δ ⋵ 𝐎𝐍, is_function (F γ δ) ∧ dom (F γ δ) = δ ∧
   ∀α ∈ δ, γ (F γ δ ↾ α) (F γ δ)[α].
 Proof with auto.
-  intros γ δ Hoδ Hγ.
+  intros γ Hγ δ Hoδ.
   pose proof (spec_intro δ (MemberRel δ) γ) as [HfF [HdF HrF]]... {
     apply ord_woset...
   }
@@ -63,12 +63,11 @@ Proof with auto.
   apply HrF in Hα as H. rewrite seg_of_ord in H...
 Qed.
 
-Local Lemma F_agree_on_smaller_partial : ∀ γ δ ε,
-  (∀ f, ∃! y, γ f y) →
-  δ ∈ ε → is_ord δ → is_ord ε →
+Local Lemma F_agree_on_smaller_partial : ∀ γ, (∀ f, ∃! y, γ f y) →
+  ∀δ ⋵ 𝐎𝐍, ∀ε ⋵ 𝐎𝐍, δ ∈ ε →
   ∀α ∈ δ ∩ ε, (F γ δ)[α] = (F γ ε)[α].
 Proof with eauto; try congruence.
-  intros γ δ ε Hγ Hlt Hoδ Hoε α Hα.
+  intros γ Hγ δ Hoδ ε Hoε Hlt α Hα.
   assert (Hsm: δ ∩ ε = δ). {
     apply ExtAx. split; intros Hx.
     - apply BInterE in Hx as []...
@@ -81,8 +80,8 @@ Proof with eauto; try congruence.
   split. intros α Hα. apply SepE1 in Hα...
   intros α Hαδ Hseg. apply SepI...
   rewrite seg_of_ord in Hseg...
-  pose proof (F_spec γ δ Hγ Hoδ) as [Hfδ [Hdδ Hγδ]].
-  pose proof (F_spec γ ε Hγ Hoε) as [Hfε [Hdε Hγε]].
+  pose proof (F_spec γ Hγ δ Hoδ) as [Hfδ [Hdδ Hγδ]].
+  pose proof (F_spec γ Hγ ε Hoε) as [Hfε [Hdε Hγε]].
   assert (Hαε: α ∈ ε). eapply ord_trans...
   assert (Heqf: F γ δ ↾ α = F γ ε ↾ α). {
     apply ExtAx. intros p. split; intros Hp.
@@ -95,29 +94,28 @@ Proof with eauto; try congruence.
       apply restrI... apply func_ap in Hp...
       apply func_point... eapply ord_trans...
   }
-  apply Hγδ in Hαδ.
-  apply Hγε in Hαε. eapply Hγ...
+  apply Hγδ in Hαδ. apply Hγε in Hαε.
+  eapply unique_existence...
 Qed.
 
-Local Lemma F_agree_on_smaller : ∀ γ δ ε,
-  (∀ f, ∃! y, γ f y) →
-  is_ord δ → is_ord ε →
+Local Lemma F_agree_on_smaller : ∀ γ, (∀ f, ∃! y, γ f y) →
+  ∀δ ⋵ 𝐎𝐍, ∀ε ⋵ 𝐎𝐍, 
   ∀α ∈ δ ∩ ε, (F γ δ)[α] = (F γ ε)[α].
 Proof with auto; try congruence.
-  intros γ δ ε Hγ Hoδ Hoε α Hα.
+  intros γ Hγ δ Hoδ ε Hoε α Hα.
   destruct (classic (δ = ε)) as [|Hnq]...
   apply ord_connected in Hnq as []...
-  apply (F_agree_on_smaller_partial γ δ ε)... symmetry.
-  apply (F_agree_on_smaller_partial γ ε δ)... rewrite binter_comm...
+  apply F_agree_on_smaller_partial... symmetry.
+  apply F_agree_on_smaller_partial... rewrite binter_comm...
 Qed.
 
 Definition Recursion := λ γ α, (F γ α⁺)[α].
 
 Theorem recursion_spec : ∀ γ α, (∀ f, ∃! y, γ f y) →
-  is_ord α → γ {λ β, <β, Recursion γ β> | β ∊ α} (Recursion γ α).
+  α ⋵ 𝐎𝐍 → γ {λ β, <β, Recursion γ β> | β ∊ α} (Recursion γ α).
 Proof with eauto.
   intros γ α Hγ Hoα. unfold Recursion.
-  pose proof (F_spec γ α⁺) as [Hf [Hd Hr]]...
+  pose proof (F_spec γ Hγ α⁺) as [Hf [Hd Hr]]...
   assert (Hα: α ∈ α⁺). apply suc_has_n.
   apply Hr in Hα.
   replace (F γ α⁺ ↾ α) with {λ β, <β, Recursion γ β> | β ∊ α} in Hα...
@@ -141,13 +139,14 @@ Import RecursionSchemaOnOrdinals.
 
 Definition Recursion := λ F, Recursion (λ f y, y = F (ran f)).
 
-Theorem recursion_spec : ∀ F α, is_ord α → 
+Theorem recursion_spec : ∀ F, ∀α ⋵ 𝐎𝐍,
   Recursion F α = F {Recursion F | β ∊ α}.
 Proof with auto; try congruence.
   intros F α Hoα. unfold Recursion.
   set (λ f y, y = F (ran f)) as γ.
   assert (Hγ: ∀ f, ∃! y, γ f y). {
-    intros f. split... exists (F (ran f))...
+    intros f. rewrite <- unique_existence.
+    split... exists (F (ran f))...
   }
   rewrite (recursion_spec γ α Hγ Hoα). f_equal.
   apply ran_of_op_repl.
@@ -156,11 +155,11 @@ Qed.
 End RecursionOnOrdinals.
 
 Lemma count_by_ord :
-  ∀ A, countable A → ∃ α, is_ord α ∧ α ⋸ ω ∧ ∃ f, f: α ⟺ A.
+  ∀ A, countable A → ∃α ⋵ 𝐎𝐍, α ⋸ ω ∧ ∃ f, f: α ⟺ A.
 Proof with auto.
   intros A Hcnt.
   apply countable_iff in Hcnt as [[n [Hn Hqn]]|Hqn];
   symmetry in Hqn; destruct Hqn as [f Hf].
-  - exists n. repeat split... apply nat_is_ord... exists f...
+  - exists n. repeat split... apply ω_is_ords... exists f...
   - exists ω. repeat split... exists f...
 Qed.

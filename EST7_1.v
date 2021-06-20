@@ -10,7 +10,7 @@ Notation "x <ᵣ y" := (relLt x y) (at level 60).
 Definition relLe := λ x y R, <x, y> ∈ R ∨ x = y.
 Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
 
-Lemma relLt_irrefl : ∀ x R, irrefl R → (x <ᵣ x) R → ⊥.
+Lemma relLt_irrefl : ∀ x R, irrefl R → (x <ᵣ x) R → False.
 Proof. intros. eapply H. apply H0. Qed.
 
 Lemma relLt_tranr : ∀ x y z R, tranr R →
@@ -108,7 +108,7 @@ Definition poset := λ A R, is_binRel R A ∧ partialOrder R.
 Definition loset := λ A R, linearOrder R A.
 
 Lemma lo_not_leq_gt : ∀ A R, loset A R →
-  ∀ x y, (x ≤ᵣ y) R → (y <ᵣ x) R → ⊥.
+  ∀ x y, (x ≤ᵣ y) R → (y <ᵣ x) R → False.
 Proof.
   intros A R Hlo x y Hle Hgt.
   apply lo_irrefl in Hlo as Hir.
@@ -318,7 +318,7 @@ Proof.
   subst. apply CProdI; auto.
 Qed.
 
-Notation "a ⋸ b" := (a ∈ b ∨ a = b) (at level 70) : ZFC_scope.
+Notation "a ⋸ b" := (a ∈ b ∨ a = b) (at level 70) : set_scope.
 
 Definition ε_minimal := λ a A, a ∈ A ∧ ∀b ∈ A, b ∉ a ∨ a = b.
 Definition ε_maximal := λ a A, a ∈ A ∧ ∀b ∈ A, a ∉ b ∨ a = b.

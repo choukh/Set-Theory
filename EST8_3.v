@@ -1,16 +1,12 @@
 (** Based on "Elements of Set Theory" Chapter 8 Part 3 **)
 (** Coq coding by choukh, Mar 2021 **)
 
-Global Set Warnings "-unrecognized-unicode".
+Require ZFC.EX7_1.
+Require ZFC.lib.NatIsomorphism.
 
-Require Export ZFC.EST8_2.
+Require Export ZFC.lib.Ordinal.
 Require Import ZFC.lib.LoStruct.
 Require Import ZFC.lib.ScottsTrick.
-
-Require ZFC.EX7_1.
-Require ZFC.lib.Real.
-Require ZFC.lib.NatIsomorphism.
-Require Coq.micromega.Lia.
 
 (*** EST第八章3：序类型，序类型加法 ***)
 
@@ -36,64 +32,53 @@ Proof.
   apply eq_intro; auto. apply iso_equiv.
 Qed.
 
-(* 结构投射 *)
-Definition proj :=
-  λ x, epsilon (inhabits ø) (λ S, ot S = x).
-
+(* 序类型类 *)
 Definition is_ot := λ ρ, ∃ S, ρ = ot S.
+Notation 𝐎𝐓 := is_ot.
 
-Lemma ot_is_ot : ∀ S, is_ot (ot S).
+Lemma ot_is_ot : ∀ S, ot S ⋵ 𝐎𝐓.
 Proof. intros. exists S. auto. Qed.
 Global Hint Immediate ot_is_ot : core.
-
-Lemma ot_proj_id : ∀ ρ, is_ot ρ → ot (proj ρ) = ρ.
-Proof.
-  intros ρ [S Heqρ]. unfold proj.
-  apply epsilon_spec. exists S. auto.
-Qed.
-
-Lemma proj_ot_id : ∀ S, proj (ot S) ≅ S.
-Proof.
-  intros S. apply ot_correct. rewrite ot_proj_id; auto.
-Qed.
 
 Lemma inv_loset : ∀ S, loset (A S) (R S)⁻¹.
 Proof. intros. apply ex3_43. apply lo. Qed.
 
 (* 逆序 *)
-Definition LoInv :=
-  λ S, constr (A S) (R S)⁻¹ (inv_loset S).
-Definition OtInv :=
-  λ ρ, ot (LoInv (proj ρ)).
+Definition LoInv := λ S, constr (A S) (R S)⁻¹ (inv_loset S).
+Definition otInv_spec := λ ρ ρ', ∀ S, ρ = ot S → ρ' = ot (LoInv S).
+
+Lemma otInv_exists : ∀ρ ⋵ 𝐎𝐓, ∃! ρ', otInv_spec ρ ρ'.
+Proof with auto.
+  intros ρ [S HS]. rewrite <- unique_existence. split.
+  - exists (ot (LoInv S)). intros T HT. subst.
+    apply ot_correct. apply ot_correct in HT as [f [Hf Hop]].
+    exists f. split... intros x Hx y Hy.
+    split; intros H; apply inv_op in H;
+    apply Hop in H; auto; apply inv_op in H...
+  - intros x y Hx Hy.
+    pose proof (Hx S HS). pose proof (Hy S HS).
+    subst. reflexivity.
+Qed.
+
+Definition OtInv := λ ρ, describe (otInv_spec ρ).
 Notation "- ρ" := (OtInv ρ) : OrderType_scope.
+
+Lemma otInv_spec_intro : ∀ρ ⋵ 𝐎𝐓, otInv_spec ρ (-ρ).
+Proof.
+  intros ρ Hρ. apply (desc_spec (otInv_spec ρ)).
+  apply otInv_exists. apply Hρ.
+Qed.
 
 Lemma otInv_struct : ∀ S,
   -ot S = ot (constr (A S) (R S)⁻¹ (inv_loset S)).
-Proof with auto.
-  intros. apply ot_correct. unfold LoInv.
-  pose proof (proj_ot_id S) as [f [Hf Hopf]].
-  exists f. split; simpl...
-  intros x Hx y Hy. split; intros Hxy.
-  - apply inv_op in Hxy. apply Hopf in Hxy...
-    apply inv_op in Hxy...
-  - apply inv_op in Hxy. apply Hopf in Hxy...
-    apply inv_op in Hxy...
+Proof.
+  intros. rewrite (otInv_spec_intro (ot S) (ot_is_ot S) S); auto.
 Qed.
 
-Import ZFC.lib.Real.
-
-Lemma Lt_linearOrder : linearOrder Lt ω.
-Proof. apply Lt_wellOrder. Qed.
-
-Notation "ℕ̃" := (constr ω Lt Lt_linearOrder).
-Notation "ℤ̃" := (constr ℤ IntLt intLt_linearOrder).
-Notation "ℚ̃" := (constr ℚ RatLt ratLt_linearOrder).
-Notation "ℝ̃" := (constr ℝ RealLt realLt_linearOrder).
-
-Notation "ℕ̅" := (ot ℕ̃).
-Notation "ℤ̅" := (ot ℤ̃).
-Notation "ℚ̅" := (ot ℚ̃).
-Notation "ℝ̅" := (ot ℝ̃).
+Notation "ℕ̅" := (ot ℕ̃) : OrderType_scope.
+Notation "ℤ̅" := (ot ℤ̃) : OrderType_scope.
+Notation "ℚ̅" := (ot ℚ̃) : OrderType_scope.
+Notation "ℝ̅" := (ot ℝ̃) : OrderType_scope.
 
 End OrderType.
 
@@ -151,7 +136,7 @@ Qed.
 
 Lemma loDisj_loset :
   ∀ S i, loset (LoDisj_A S i) (LoDisj_R S i).
-Proof with eauto.
+Proof.
   intros S i.
   apply loset_iff_connected_poset. repeat split.
   apply loDisj_connected. apply loDisj_is_binRel.
@@ -192,10 +177,10 @@ Lemma loDisj_disjoint : ∀ S T i j, i ≠ j →
 Proof. intros S T i j Hnq. apply cprod_disjointify; auto. Qed.
 
 (* ex8_11 任意两个序类型可以不交化 *)
-Lemma ot_disjointifiable : ∀ ρ σ, is_ot ρ → is_ot σ →
+Lemma ot_disjointifiable : ∀ ρ σ ⋵ 𝐎𝐓,
   ∃ S T, ρ = ot S ∧ σ = ot T ∧ disjoint (A S) (A T).
 Proof.
-  intros ρ σ [S Heqρ] [T Heqσ].
+  intros ρ [S Heqρ] σ [T Heqσ].
   exists (LoDisj S 0), (LoDisj T 1). repeat split.
   - subst. apply ot_correct. apply loDisj_iso.
   - subst. apply ot_correct. apply loDisj_iso.
@@ -406,14 +391,27 @@ Proof with eauto; try congruence.
     apply CProdE2 in H as [_ H]; apply SingE in H...
 Qed.
 
-Definition OtAdd :=
-  λ ρ σ, ot (proj ρ + proj σ).
+Definition otAdd_spec := λ ρ σ τ,
+  ∀ S T, ρ = ot S → σ = ot T → τ = ot (S + T).
+Definition OtAdd := λ ρ σ, describe (otAdd_spec ρ σ).
 Notation "ρ + σ" := (OtAdd ρ σ) : OrderType_scope.
+
+Lemma otAdd_spec_intro : ∀ ρ σ ⋵ 𝐎𝐓, otAdd_spec ρ σ (ρ + σ).
+Proof.
+  intros ρ [S HS] σ [T HT]. apply (desc_spec (otAdd_spec ρ σ)).
+  rewrite <- unique_existence. split.
+  - exists (ot (S + T)%lo). intros S' T' H1 H2. subst.
+    apply ot_correct in H1. apply ot_correct in H2.
+    apply ot_correct. apply loAdd_well_defined; auto.
+  - intros τ1 τ2 H1 H2.
+    pose proof (H1 S T HS HT).
+    pose proof (H2 S T HS HT). congruence.
+Qed.
 
 Lemma otAdd_eq_ot_of_loAdd : ∀ S T, ot S + ot T = ot (S + T)%lo.
 Proof.
-  intros. apply ot_correct.
-  apply loAdd_well_defined; apply proj_ot_id.
+  intros. erewrite otAdd_spec_intro.
+  reflexivity. auto. auto. reflexivity. reflexivity.
 Qed.
 
 Theorem otAdd_well_defined : ∀ S S' T T',
@@ -423,13 +421,21 @@ Proof.
   apply ot_correct. apply loAdd_well_defined; auto.
 Qed.
 
+Lemma otAdd_iff_loAdd : ∀ S T U,
+  ot S + ot T = ot U ↔ (S + T ≅ U)%lo.
+Proof.
+  intros. split; intros H.
+  - apply ot_correct. rewrite <- otAdd_eq_ot_of_loAdd. apply H.
+  - rewrite otAdd_eq_ot_of_loAdd. apply ot_correct. apply H.
+Qed.
+
 Module Import StructureCasting.
 Import WoStruct.
 
 Lemma woset_impl_loset : ∀ S : WoStruct, loset (A S) (R S).
 Proof. intros. apply wo. Qed.
 
-Lemma ord_loset : ∀ α, is_ord α → loset α (MemberRel α).
+Lemma ord_loset : ∀α ⋵ 𝐎𝐍, loset α (MemberRel α).
 Proof. intros α Ho. apply ord_woset. apply Ho. Qed.
 
 Definition OSˡ := LoStruct.parent.
@@ -437,14 +443,15 @@ Definition OSʷ := WoStruct.parent.
 
 Definition LOʷ := λ S: WoStruct,
   LoStruct.constr (A S) (R S) (woset_impl_loset S).
-Definition WOᵒ := λ α (Ho: is_ord α),
+Definition WOᵒ := λ α (Ho: α ⋵ 𝐎𝐍),
   WoStruct.constr α (MemberRel α) (ord_woset α Ho).
-Definition LOᵒ := λ α (Ho: is_ord α),
+Definition LOᵒ := λ α (Ho: α ⋵ 𝐎𝐍),
   LoStruct.constr α (MemberRel α) (ord_loset α Ho).
-Definition LOⁿ := λ n : nat, LOᵒ n (embed_is_ord n).
+Definition LOⁿ := λ n : nat, LOᵒ n (nat_is_ord n).
+Definition WOⁿ := λ n : nat, WOᵒ n (nat_is_ord n).
 
 Definition otʷ := λ S: WoStruct, ot (LOʷ S) .
-Definition otᵒ := λ α (Ho: is_ord α), ot (LOᵒ α Ho).
+Definition otᵒ := λ α (Ho: α ⋵ 𝐎𝐍), ot (LOᵒ α Ho).
 Definition otⁿ := λ n : nat, ot (LOⁿ n).
 
 Lemma LOʷ_iso_iff : ∀ S T, (LOʷ S ≅ LOʷ T)%lo ↔ S ≅ T.
@@ -457,27 +464,48 @@ Proof.
   rewrite <- LOʷ_iso_iff. apply ot_correct.
 Qed.
 
+Import EpsilonImage.
+
+Lemma WOᵒ_ord_id : ∀ S, WOᵒ (ord S) (ord_is_ord S) ≅ S.
+Proof.
+  intros. rewrite (iso_epsilon S) at 3.
+  replace (WOᵒ (ord S) (ord_is_ord S)) with (Epsilon S). reflexivity.
+  apply eq_intro; auto.
+Qed.
+
+Lemma ord_WOᵒ_id : ∀ α (Ho: α ⋵ 𝐎𝐍), ord (WOᵒ α Ho) = α.
+Proof with auto.
+  intros α Ho. assert (H := Ho). destruct H as [S Hα].
+  rewrite Hα. apply ord_well_defined.
+  rewrite (iso_epsilon S).
+  replace (WOᵒ α Ho) with (Epsilon S). reflexivity.
+  apply eq_intro... simpl. unfold ε. rewrite Hα...
+Qed.
+
+Lemma ord_WOⁿ_id : ∀ n : nat, ord (WOⁿ n) = n.
+Proof. intros. apply ord_WOᵒ_id. Qed.
+
 End StructureCasting.
 
 Section OtAddExample.
-Import Coq.micromega.Lia.
 Import ZFC.lib.NatIsomorphism.
 
 Lemma loAdd_n_m : ∀ n m : nat, (LOⁿ n + LOⁿ m)%lo ≅ LOⁿ (n + m)%nat.
 Proof with neauto; try congruence.
-  intros. unfold LoAdd. simpl. rewrite add_isomorphic_n.
+  intros. rewrite add_isomorphic_n.
   assert (Hcontra: ∀ a b ∈ ω, (a + b)%n ∉ a). {
     intros a Ha b Hb. apply leq_iff_not_gt... apply add_ran...
     apply leq_add_enlarge...
   }
-  unfold LoDisj_A. simpl.
+  pose proof contra_0_1 as H01.
+  unfold LoAdd, LoDisj, LoDisj_A; simpl.
+  unfold LOⁿ, LOᵒ at 7.
   set (n × ⎨0⎬ ∪ m × ⎨1⎬) as Dom.
   set (n + m)%n as Ran.
   set (Func Dom Ran (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
     | inr _ => (n + π1 x)%n
   end)) as F.
-  pose proof contra_0_1 as H01.
   assert (Hbi: F: Dom ⟺ Ran). {
     apply meta_bijection.
     - intros x Hx.
@@ -558,17 +586,15 @@ Open Scope OrderType_scope.
 
 Example otAdd_1_3 : otⁿ 1 + otⁿ 3 = otⁿ 4.
 Proof.
-  apply ot_correct. unfold otⁿ.
-  erewrite loAdd_well_defined; revgoals.
-  apply proj_ot_id. apply proj_ot_id. rewrite loAdd_n_m.
-  replace (1 + 3)%nat with 4. reflexivity. lia.
+  unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
+  erewrite loAdd_well_defined; revgoals. easy. easy.
+  rewrite loAdd_n_m. now replace (1 + 3)%nat with 4.
 Qed.
 
 Example otAdd_1_ω : otⁿ 1 + ℕ̅ = ℕ̅.
 Proof with neauto; try congruence.
-  apply ot_correct. unfold otⁿ.
-  erewrite loAdd_well_defined; revgoals.
-  apply proj_ot_id. apply proj_ot_id.
+  unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
+  erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd. simpl. unfold LoDisj_A. simpl.
   set (1 × ⎨0⎬ ∪ ω × ⎨1⎬) as Dom.
   set (Func Dom ω (λ x, match (ixm (π2 x = 0)) with
@@ -647,9 +673,8 @@ Qed.
 
 Example otAdd_ω_1 : ℕ̅ + otⁿ 1 = otᵒ ω⁺ (ord_suc_is_ord ω ω_is_ord).
 Proof with neauto; try congruence.
-  apply ot_correct. unfold otⁿ.
-  erewrite loAdd_well_defined; revgoals.
-  apply proj_ot_id. apply proj_ot_id.
+  unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
+  erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd. simpl. unfold LoDisj_A. simpl.
   set (ω × ⎨0⎬ ∪ 1 × ⎨1⎬) as Dom.
   set (Func Dom ω⁺ (λ x, match (ixm (π2 x = 0)) with
@@ -731,12 +756,12 @@ Import ZFC.EX7_1.
 Import ZFC.lib.Real.
 Import OrderType.
 
-Fact otInv_finord_id : ∀ ρ, is_ot ρ →
-  finite (A (proj ρ)) → -ρ = ρ.
-Proof.
-  intros ρ [S HS] Hfin. subst. apply ot_correct.
-  eapply iso_tran; revgoals. apply proj_ot_id.
-  apply parent_iso. apply ex7_19; auto. apply lo. apply lo.
+Fact otInv_finord_id : ∀ρ ⋵ 𝐎𝐓,
+  (∀ S, ρ = ot S → finite (A S)) → -ρ = ρ.
+Proof with auto.
+  intros ρ [S HS] Hfin. subst. rewrite otInv_struct.
+  apply ot_correct. apply parent_iso.
+  apply ex7_19... apply lo. apply lo. simpl. apply Hfin...
 Qed.
 
 Fact otInv_nat_not_id : -ℕ̅ ≠ ℕ̅.
@@ -792,9 +817,9 @@ Qed.
 
 Fact otAdd_otInv_ℕ : -ℕ̅ + ℕ̅ = ℤ̅.
 Proof with neauto; try congruence.
-  rewrite otInv_struct. apply ot_correct.
-  erewrite loAdd_well_defined; revgoals.
-  apply proj_ot_id. apply proj_ot_id.
+  rewrite otInv_struct.
+  rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
+  erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd, LoDisj, LoDisj_A. simpl.
   set (Func (ω × ⎨0⎬ ∪ ω × ⎨1⎬) ℤ (λ x,
     match (ixm (π2 x = 0)) with

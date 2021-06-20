@@ -43,7 +43,7 @@ Qed.
 
 (* 有限线序与某个自然数同构 *)
 Lemma finite_loset_iso_nat : ∀ S, finite (A S) →
-  ∃ T, T ⊑ 𝛚 ∧ A T ∈ ω ∧ S ≅ T.
+  ∃ T, T ⊑ ℕ̃ ∧ A T ∈ ω ∧ S ≅ T.
 Proof with eauto.
   intros S Hfin.
   assert (H := Hfin). destruct Hfin as [n [Hn Hqn]].
@@ -56,7 +56,7 @@ Proof with eauto.
   set (LoStruct.constr n (Lt ⥏ n) HloT) as T.
   Import WoStruct.
   Import WoStruct.EpsilonImageOfNats.
-  set (Seg n 𝛚) as Tʷ.
+  set (Seg n ℕ̃) as Tʷ.
   assert (Hiso: Sʷ ≅ Tʷ). {
     apply ord_well_defined.
     rewrite finite_ord_eq_card... simpl.
@@ -81,7 +81,7 @@ Proof with eauto.
 Qed.
 
 Import LoStruct.
-Import SimpleVer.
+Import WosetMin.SimpleVer.
 
 (* 可数无穷稠密线序集有可数无穷稠密无界子集 *)
 Lemma countable_dense_loset_has_unbounded_subset :
@@ -192,7 +192,8 @@ Proof with neauto; try congruence.
   assert (Hihₗ: hₗ : ω ⇔ B). {
     destruct Hhₗ as [Hf [Hd Hr]].
     split; split...
-    - intros y Hy. split. apply ranE in Hy...
+    - intros y Hy. rewrite <- unique_existence. 
+      split. apply ranE in Hy...
       intros x1 x2 H1 H2.
       apply domI in H1 as Hx1. rewrite Hd in Hx1.
       apply domI in H2 as Hx2. rewrite Hd in Hx2.
@@ -215,7 +216,8 @@ Proof with neauto; try congruence.
   assert (Hihᵣ: hᵣ : ω ⇔ B). {
     destruct Hhᵣ as [Hf [Hd Hr]].
     split; split...
-    - intros y Hy. split. apply ranE in Hy...
+    - intros y Hy. rewrite <- unique_existence.
+      split. apply ranE in Hy...
       intros x1 x2 H1 H2.
       apply domI in H1 as Hx1. rewrite Hd in Hx1.
       apply domI in H2 as Hx2. rewrite Hd in Hx2.
@@ -311,7 +313,7 @@ Qed.
 
 (* 可数无穷稠密线序集有可数无穷良序子集 *)
 Lemma countable_dense_loset_has_wo_subset :
-  ∀ S, ω ≈ A S → dense (R S) → ∃ T, T ⊑ S ∧ 𝛚 ≅ T.
+  ∀ S, ω ≈ A S → dense (R S) → ∃ T, T ⊑ S ∧ ℕ̃ ≅ T.
 Proof with neauto; try congruence.
   intros S Hqn Hdn.
   pose proof (countable_dense_loset_has_unbounded_subset
@@ -366,7 +368,8 @@ Proof with neauto; try congruence.
   assert (Hbh: h: ω ⟺ ran h). {
     destruct Hh as [Hfh [Hd Hr]].
     split; split...
-    intros y Hy. split. apply ranE in Hy...
+    intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply domI in H1 as Hx1. rewrite Hd in Hx1.
     apply domI in H2 as Hx2. rewrite Hd in Hx2.
@@ -498,7 +501,7 @@ Proof with auto.
     apply func_correct... congruence.
 Qed.
 
-Import SimpleVer.
+Import WosetMin.SimpleVer.
 
 (* 对任意可数无穷线序集A和B，如果B无界稠密，
   那么存在以ω为定义域的函数F作为从A到B的部分嵌入的枚举 *)
@@ -969,13 +972,14 @@ Proof with neauto; try congruence.
   assert (H := Hma). destruct H as [Hfa [Hda _]].
   pose proof (enumeration_of_partial_embeddings)
     as [G [HfG [HdG Hstar]]]...
-  set (⋃ᵢ (ap G)) as f.
+  set (⋃ᵢ (Ap G)) as f.
   assert (Hf: f: A ⇔ B). {
     split; split.
     - (* is_function f *)
       split. intros p Hp.
       apply IFUnionE in Hp as [n [Hn Hp]]. apply (Hstar n Hn)...
-      intros x Hx. split. apply domE in Hx...
+      intros x Hx. rewrite <- unique_existence.
+      split. apply domE in Hx...
       intros y1 y2 H1 H2.
       apply IFUnionE in H1 as [n [Hn H1]].
       apply IFUnionE in H2 as [m [Hm H2]].
@@ -989,7 +993,8 @@ Proof with neauto; try congruence.
       apply nat_connected in H as []...
       symmetry. apply Hin1... apply Hin2...
     - (* single_rooted f *)
-      intros y Hy. split. apply ranE in Hy...
+      intros y Hy. rewrite <- unique_existence.
+      split. apply ranE in Hy...
       intros y1 y2 H1 H2.
       apply IFUnionE in H1 as [n [Hn H1]].
       apply IFUnionE in H2 as [m [Hm H2]].

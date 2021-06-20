@@ -974,7 +974,7 @@ Proof with neauto.
     assert (Hrr: r⁻¹ ∈ ℚ). { apply nzRatE1. apply ratMulInv_ran... }
     assert (Hposrr: ratPos r⁻¹) by (apply ratPos_mulInv; auto).
     cut (r⁻¹ ∈ (x⁻¹⁺)%r). intros Hrqrx.
-    intros H. rewrite ExtAx in H. apply H in Hrqrx.
+    intros H. rewrite <- H in Hrqrx.
     apply SepE in Hrqrx as [_ Hnrr].
     eapply ratLt_irrefl. eapply ratLt_tranr...
     apply SepI... exists q. repeat split... rewrite ratMul_comm...

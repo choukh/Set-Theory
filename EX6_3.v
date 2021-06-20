@@ -1,9 +1,9 @@
 (** Solutions to "Elements of Set Theory" Chapter 6 Part 3 **)
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Export ZFC.EST6_6.
 Require Import ZFC.lib.IndexedFamilyUnion.
-Require Import ZFC.lib.Choice.
+Require Import ZFC.lib.ChoiceFacts.
+Require Export ZFC.EST6_6.
 
 (* ex6_26 see EST6_5 Theorem cardLeq_union_cardMul *)
 (* ex6_28 see https://math.stackexchange.com/questions/201410/open-measurable-sets-containing-all-rational-numbers *)
@@ -110,7 +110,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 同一无限基数的可数无限累加与自身相等 *)
-Lemma cardInfSum_self : AC_VI → ∀ 𝜅, infcard 𝜅 → ∑ᵢ (λ _, 𝜅) = 𝜅.
+Lemma cardInfSum_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∑ᵢ (λ _, 𝜅) = 𝜅.
 Proof with nauto.
   intros AC6 𝜅 [Hcd Hinf].
   rewrite cardInfSum_of_same_card, cardMul_comm...
@@ -137,7 +137,7 @@ Proof with neauto.
     + intros x1 H1 x2 H2 Heq. apply single_injective...
   - (* |𝗙𝗶𝗻 A| = ∑ᵢ(𝗙𝗶𝗻ᵢ A) ≤ ∑ᵢ|A| = ℵ₀⋅|A| = |A| *)
     apply cardLeq_iff. rewrite card_of_finCardSubSets.
-    rewrite <- cardInfSum_self; [|auto|split]...
+    rewrite <- (cardInfSum_self AC6 (|A|)); [|split]...
     apply cardInfSum_preserve_leq... intros i Hi.
     rewrite <- (card_of_card (|A|))...
     (* |(𝗙𝗶𝗻ᵢ A)[n]| ≤ |A| *)
@@ -176,7 +176,7 @@ Proof with nauto.
   apply cardLeq_iff. eapply cardLeq_tran. {
     apply cardLeq_sq_infSum_pow_n...
   }
-  rewrite <- cardInfSum_self; [|auto|split]...
+  rewrite <- (cardInfSum_self AC6 (|A|)); [|split]...
   apply cardInfSum_preserve_leq... intros i Hi.
   rewrite <- card_of_card, <- (card_of_card (|A|))...
   apply cardExp_infcard_leq... split...
@@ -185,7 +185,7 @@ Qed.
 (* ==需要选择公理== *)
 (* ex6_34: 无限基数的幂等于2的幂 *)
 Theorem cardExp_infcard_infcard : AC_VI →
-  ∀ 𝜅 𝜆, infcard 𝜆 → 2 ≤ 𝜅 → 𝜅 ≤ 𝜆 →
+  ∀ 𝜅, ∀𝜆 ⋵ 𝐂𝐃ⁱⁿᶠ, 2 ≤ 𝜅 → 𝜅 ≤ 𝜆 →
   𝜅 ^ 𝜆 = 2 ^ 𝜆.
 Proof with nauto.
   intros AC6 𝜅 𝜆 Hicl Hle1 Hle2.
@@ -214,8 +214,7 @@ Proof with nauto.
   exists n'0. split...
 Qed.
 
-Lemma card_neq_0_and_1 : ∀ 𝜅, is_card 𝜅 →
-  𝜅 ≠ 0 → 𝜅 ≠ 1 → 2 ≤ 𝜅.
+Lemma card_neq_0_and_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 𝜅 ≠ 1 → 2 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd H0 H1.
   destruct (classic (finite 𝜅)).
@@ -328,8 +327,8 @@ Lemma infinite_shuffle_exists : AC_VI → ∀ A,
 Proof with eauto; try congruence.
   intros AC6 A Hinf.
   apply set_infinite_iff_card_infinite in Hinf.
-  assert (Hinfc: infcard (|A|)) by (split; auto).
-  pose proof (cardAdd_infcard_self AC6 (|A|) Hinfc).
+  assert (Hinfc: |A| ⋵ 𝐂𝐃ⁱⁿᶠ) by (split; auto).
+  pose proof (cardAdd_infcard_self AC6 (|A|) Hinfc). simpl in H.
   rewrite cardAdd in H. apply CardAx1 in H as [f Hf].
   apply inv_bijection in Hf as Hf'.
   apply bijection_is_func in Hf as [Hf [Hif Hrf]].
@@ -340,17 +339,17 @@ Proof with eauto; try congruence.
     | inl _ => f[<π1 f⁻¹[a], 1>]
     | inr _ => f[<π1 f⁻¹[a], 0>]
   end)) as g.
-  assert (Hf'ap: ∀x ∈ A, f⁻¹[x] ∈ A × ⎨ 0 ⎬ ∪ A × ⎨ 1 ⎬). {
+  assert (Hf'Ap: ∀x ∈ A, f⁻¹[x] ∈ A × ⎨ 0 ⎬ ∪ A × ⎨ 1 ⎬). {
     intros x Hx. rewrite <- Hdf' in Hx. eapply ap_ran...
   }
   assert (Hπ1: ∀x ∈ A, π1 f⁻¹[x] ∈ A). {
-    intros x Hx. apply Hf'ap in Hx.
+    intros x Hx. apply Hf'Ap in Hx.
     apply BUnionE in Hx as [];
     apply CProdE1 in H as [a [Ha [b [_ H]]]];
     rewrite H; zfc_simple.
   }
   assert (Hpair: ∀x ∈ A, is_pair f⁻¹[x]). {
-    intros x Hx. apply Hf'ap in Hx.
+    intros x Hx. apply Hf'Ap in Hx.
     apply BUnionE in Hx as []; apply cprod_is_pairs in H...
   }
   assert (Hπ2: ∀x ∈ A, π2 f⁻¹[x] ≠ 0 → π2 f⁻¹[x] = 1). {
@@ -451,7 +450,7 @@ Qed.
 (* ==需要选择公理== *)
 (* 无限基数的阶乘大于等于自身 *)
 Lemma cardLeq_infcard_factorial : AC_VI →
-  ∀ 𝜅, infcard 𝜅 → 𝜅 ≤ 𝜅!.
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 ≤ 𝜅!.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [Hcd Hinf].
   assert (AC3': AC_III'). { apply AC_VI_to_III'... }
@@ -521,7 +520,7 @@ Qed.
 (* ==需要选择公理== *)
 (* 无限基数的阶乘是无限基数 *)
 Lemma cardFactorial_infinite : AC_VI →
-  ∀ 𝜅, infcard 𝜅 → infinite (𝜅!).
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, infinite (𝜅!).
 Proof with eauto.
   intros AC6 𝜅 Hinf.
   assert (AC3: AC_III). { apply AC_VI_to_III... }
@@ -533,7 +532,7 @@ Qed.
 (* ==需要选择公理== *)
 (* ex6_36: 无限基数的阶乘等于2的幂 *)
 Theorem cardFactorial_infcard_eq_2_pow : AC_VI →
-  ∀ 𝜅, infcard 𝜅 → 𝜅! = 2 ^ 𝜅.
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅! = 2 ^ 𝜅.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [Hcd Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }

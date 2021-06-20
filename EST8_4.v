@@ -1,8 +1,12 @@
 (** Based on "Elements of Set Theory" Chapter 8 Part 4 **)
 (** Coq coding by choukh, Mar 2021 **)
 
+Require ZFC.lib.NatIsomorphism.
+Require Coq.micromega.Lia.
+
 Require Export ZFC.EST8_3.
 Require Import ZFC.lib.LoStruct.
+Import StructureCasting.
 
 (*** EST第八章4：序类型乘法，序类型算术定律 ***)
 
@@ -116,14 +120,27 @@ Qed.
 
 Import OrderType.
 
-Definition OtMul :=
-  λ ρ σ, ot (proj ρ ⋅ proj σ).
+Definition otMul_spec := λ ρ σ τ,
+  ∀ S T, ρ = ot S → σ = ot T → τ = ot (S ⋅ T).
+Definition OtMul := λ ρ σ, describe (otMul_spec ρ σ).
 Notation "ρ ⋅ σ" := (OtMul ρ σ) : OrderType_scope.
+
+Lemma otMul_spec_intro : ∀ ρ σ ⋵ 𝐎𝐓, otMul_spec ρ σ (ρ ⋅ σ).
+Proof.
+  intros ρ [S HS] σ [T HT]. apply (desc_spec (otMul_spec ρ σ)).
+  rewrite <- unique_existence. split.
+  - exists (ot (S ⋅ T)%lo). intros S' T' H1 H2. subst.
+    apply ot_correct in H1. apply ot_correct in H2.
+    apply ot_correct. apply loMul_well_defined; auto.
+  - intros τ1 τ2 H1 H2.
+    pose proof (H1 S T HS HT).
+    pose proof (H2 S T HS HT). congruence.
+Qed.
 
 Lemma otMul_eq_ot_of_loMul : ∀ S T, ot S ⋅ ot T = ot (S ⋅ T)%lo.
 Proof.
-  intros. apply ot_correct.
-  apply loMul_well_defined; apply proj_ot_id.
+  intros. rewrite otMul_spec_intro.
+  reflexivity. auto. auto. reflexivity. reflexivity.
 Qed.
 
 Theorem otMul_well_defined : ∀ S S' T T',
@@ -131,6 +148,196 @@ Theorem otMul_well_defined : ∀ S S' T T',
 Proof.
   intros * HisoS HisoT. do 2 rewrite otMul_eq_ot_of_loMul.
   apply ot_correct. apply loMul_well_defined; auto.
+Qed.
+
+Lemma otMul_iff_loMul : ∀ S T U,
+  ot S ⋅ ot T = ot U ↔ (S ⋅ T ≅ U)%lo.
+Proof.
+  intros. split; intros H.
+  - apply ot_correct. rewrite <- otMul_eq_ot_of_loMul. apply H.
+  - rewrite otMul_eq_ot_of_loMul. apply ot_correct. apply H.
+Qed.
+
+Import Coq.micromega.Lia.
+Import ZFC.lib.NatIsomorphism.
+Open Scope Nat_scope.
+
+Lemma lt_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
+  a ∈ n → b ∈ d → n ⋅ b + a ∈ n ⋅ d + c.
+Proof with nauto.
+  intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd.
+  apply nat_subtr' in Hbd as [e [He [Hsum He0]]]...
+  rewrite <- Hsum, mul_distr, add_assoc; auto; [|apply mul_ran..]...
+  apply add_preserve_lt'... apply add_ran...
+  apply mul_ran... apply mul_ran...
+  apply lt_add_enlarge... apply mul_ran...
+  apply lt_mul_enlarge...
+Qed.
+
+Lemma nq_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
+  a ∈ n → b ∈ d → n ⋅ b + a ≠ n ⋅ d + c.
+Proof with eauto.
+  intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd Heq.
+  pose proof (lt_nba_ndc n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd).
+  eapply nat_not_lt_self; revgoals...
+  apply add_ran... apply mul_ran...
+  apply add_ran... apply mul_ran...
+Qed.
+
+Lemma lt_nba_nm : ∀ n m a b ∈ ω,
+  a ∈ n → b ∈ m → n ⋅ b + a ∈ n ⋅ m.
+Proof with nauto.
+  intros n Hn m Hm a Ha b Hb Han Hbm.
+  apply nat_subtr' in Hbm as [e [He [Hsum Hne]]]...
+  rewrite <- Hsum, mul_distr...
+  apply add_preserve_lt'... apply mul_ran... apply mul_ran...
+  apply lt_mul_enlarge...
+Qed.
+
+Lemma loMul_n_m : ∀ n m : nat, (LOⁿ n ⋅ LOⁿ m)%lo ≅ LOⁿ (n * m)%nat.
+Proof with neauto; try congruence.
+  intros. rewrite mul_isomorphic_n.
+  set (Func (n × m) (n ⋅ m) (λ p, n ⋅ π2 p + π1 p)) as F.
+  assert (Hbi: F: n × m ⟺ n ⋅ m). {
+    apply meta_bijection.
+    - intros x Hx.
+      apply CProdE1 in Hx as [a [Ha [b [Hb Hp]]]]. subst. zfc_simple.
+      ω_destruct (Embed m)... rewrite H in Hb. exfalso0.
+      rename n' into m'. rename Hn' into Hm'. rename Hn'eq into Hm'eq.
+      assert (Haw: a ∈ ω). eapply ω_trans...
+      assert (Hbw: b ∈ ω). eapply ω_trans...
+      rewrite Hm'eq, mul_m_n, add_comm; neauto; [|apply mul_ran]...
+      assert (Hle: n ⋅ b ⋸ n ⋅ m'). {
+        destruct (classic (b = m')) as [|Hnq]. right... left.
+        apply mul_preserve_lt'...
+        - intros H0. rewrite H0 in Ha. exfalso0.
+        - rewrite Hm'eq in Hb. apply BUnionE in Hb as []...
+          apply SingE in H...
+      }
+      destruct Hle.
+      + apply add_preserve_lt_tran... apply mul_ran... apply mul_ran...
+      + rewrite H. apply add_preserve_lt... apply mul_ran...
+    - intros x1 H1 x2 H2 Heq.
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+      subst. zfc_simple.
+      assert (Haw: a ∈ ω). eapply ω_trans...
+      assert (Hbw: b ∈ ω). eapply ω_trans...
+      assert (Hcw: c ∈ ω). eapply ω_trans...
+      assert (Hdw: d ∈ ω). eapply ω_trans...
+      assert (Hn0: Embed n ≠ 0). {
+        intros H0. rewrite H0 in Ha. exfalso0.
+      }
+      destruct (classic (a = c ∧ b = d)). apply op_iff...
+      exfalso. apply not_and_or in H as [];
+      apply nat_connected in H as []...
+      + apply nat_subtr' in H as [e [He [Hsum Hnq0]]]...
+        rewrite (add_comm (n ⋅ b)) in Heq; [|apply mul_ran|]...
+        rewrite (add_comm (n ⋅ d)) in Heq; [|apply mul_ran|]...
+        rewrite <- Hsum, add_assoc in Heq; [..|apply mul_ran]...
+        apply add_cancel' in Heq; [|apply mul_ran|apply add_ran;[|apply mul_ran]|auto]...
+        rewrite add_comm in Heq; [..|apply mul_ran]...
+        destruct (classic (b = d)). {
+          subst. rewrite <- (add_ident (n ⋅ d)) in Heq at 1; [|apply mul_ran]...
+          apply add_cancel' in Heq; [..|apply mul_ran]...
+        }
+        apply nat_connected in H as []; auto;
+        (rewrite <- (add_ident (n ⋅ b)) in Heq; [|apply mul_ran])...
+        * apply (nq_nba_ndc n (embed_ran n) 0 (embed_ran 0) b Hbw e He d Hdw)...
+          apply nq_0_gt_0...
+        * apply (nq_nba_ndc n (embed_ran n) e He d Hdw 0 (embed_ran 0) b Hbw)...
+          rewrite <- Hsum, add_comm in Hc...
+          eapply lt_add_shrink; revgoals...
+      + apply nat_subtr' in H as [e [He [Hsum Hnq0]]]...
+        rewrite (add_comm (n ⋅ b)) in Heq; [|apply mul_ran|]...
+        rewrite (add_comm (n ⋅ d)) in Heq; [|apply mul_ran|]...
+        rewrite <- Hsum, add_assoc in Heq; [..|apply mul_ran]...
+        apply add_cancel' in Heq; [|apply add_ran;[|apply mul_ran]|apply mul_ran|auto]...
+        rewrite add_comm in Heq; [..|apply mul_ran]...
+        destruct (classic (b = d)). {
+          subst. rewrite <- (add_ident (n ⋅ d)) in Heq at 2; [|apply mul_ran]...
+          apply add_cancel' in Heq; [..|apply mul_ran]...
+        }
+        apply nat_connected in H as []; auto;
+        (rewrite <- (add_ident (n ⋅ d)) in Heq; [|apply mul_ran])...
+        * apply (nq_nba_ndc n (embed_ran n) e He b Hbw 0 (embed_ran 0) d Hdw)...
+          rewrite <- Hsum, add_comm in Ha...
+          eapply lt_add_shrink; revgoals...
+        * apply (nq_nba_ndc n (embed_ran n) 0 (embed_ran 0) d Hdw e He b Hbw)...
+          apply nq_0_gt_0...
+      + apply (nq_nba_ndc n (embed_ran n) a Haw b Hbw c Hcw d Hdw)...
+      + apply (nq_nba_ndc n (embed_ran n) c Hcw d Hdw a Haw b Hbw)...
+    - intros y Hy.
+      assert (Hn0: Embed n ≠ 0). {
+        intros H0. rewrite H0, mul_0_l in Hy... exfalso0.
+      }
+      assert (Hm0: Embed m ≠ 0). {
+        intros H0. rewrite H0, mul_0_r in Hy... exfalso0.
+      }
+      assert (Hyw: y ∈ ω). eapply ω_trans... apply mul_ran...
+      generalize dependent Hy.
+      set {k ∊ ω | λ k, k ∈ n ⋅ m → ∃x ∈ n × m, n ⋅ π2 x + π1 x = k} as N.
+      ω_induction N Hyw; intros Hy.
+      + exists <0, 0>. split. apply CProdI.
+        apply nq_0_gt_0... apply nq_0_gt_0...
+        zfc_simple. rewrite mul_0_r, add_ident...
+      + rename m0 into k. rename Hm into Hk.
+        rewrite add_suc in Hy...
+        apply lt_add_shrink in Hy as Hy'; [..|apply mul_ran]...
+        apply IH in Hy' as [p [Hp Heq]].
+        apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+        subst. zfc_simple.
+        assert (Haw: a ∈ ω). eapply ω_trans...
+        assert (Hbw: b ∈ ω). eapply ω_trans...
+        destruct (classic (a + 1 = n)).
+        * rewrite add_assoc, H in Hy; [|apply mul_ran|..]...
+          rewrite <- (mul_ident n) in Hy at 2...
+          rewrite <- mul_distr in Hy...
+          apply mul_preserve_lt' in Hy; [|apply add_ran|..]...
+          exists <0, b + 1>. split. apply CProdI...
+          apply nq_0_gt_0... zfc_simple.
+          rewrite add_ident, add_suc, add_assoc, H...
+          rewrite <- (mul_ident n) at 3...
+          apply mul_distr... apply mul_ran...
+          apply mul_ran... apply add_ran...
+        * apply nat_connected in H as []; [| |apply add_ran|]...
+          --- exists <a + 1, b>. split. apply CProdI... zfc_simple.
+              rewrite add_suc, add_assoc... apply mul_ran...
+          --- exfalso. apply (ω_not_dense a)...
+              exists n. split... split... rewrite add_suc...
+  }
+  apply bijection_is_func in Hbi as HF. destruct HF as [HF _].
+  exists F. split; simpl; (rewrite embed_proj_id; [|apply mul_ran])...
+  intros x Hx y Hy. unfold F.
+  rewrite meta_func_ap, meta_func_ap...
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]]; subst; zfc_simple.
+  assert (Haw: a ∈ ω). eapply ω_trans...
+  assert (Hbw: b ∈ ω). eapply ω_trans...
+  assert (Hcw: c ∈ ω). eapply ω_trans...
+  assert (Hdw: d ∈ ω). eapply ω_trans...
+  assert (Hn0: Embed n ≠ 0). {
+    intros H0. rewrite H0 in Ha. exfalso0.
+  }
+  split; intros Hxy.
+  - apply binRelE3 in Hxy as []; zfc_simple.
+    + apply binRelE3 in H. apply binRelI.
+      apply lt_nba_nm... apply lt_nba_nm...
+      apply lt_nba_ndc...
+    + destruct H as [Hac Hbd]. apply binRelE3 in Hac.
+      subst. apply binRelI.
+      apply lt_nba_nm... apply lt_nba_nm...
+      apply add_preserve_lt'... apply mul_ran...
+  - apply binRelE3 in Hxy. apply binRelI.
+    apply CProdI... apply CProdI... zfc_simple.
+    destruct (classic (b = d)); [right|left].
+    + split... subst. apply binRelI...
+      apply add_preserve_lt' in Hxy... apply mul_ran...
+    + apply binRelI... apply nat_connected in H as []...
+      exfalso. eapply nat_not_lt_gt; revgoals.
+      apply Hxy. apply lt_nba_ndc...
+      apply add_ran... apply mul_ran...
+      apply add_ran... apply mul_ran...
 Qed.
 
 (** 序类型算术定律 **)
@@ -600,8 +807,8 @@ Proof with auto; try congruence.
   set (A S × ⎨0⎬ ∪ 0 × ⎨1⎬) as Dom.
   set (Func Dom (A S) (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
-    | inr _ => ∅ end
-  )) as F.
+    | inr _ => ∅
+  end)) as F.
   pose proof contra_0_1 as H01.
   pose proof contra_1_0 as H10.
   assert (Hbi: F: Dom ⟺ A S). {
@@ -634,19 +841,78 @@ Proof with auto; try congruence.
   apply BUnionE in Hy as [Hy|Hy];
   apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
   apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
-  apply SingE in Hb; apply SingE in Hd; subst; zfc_simple;
-  [(apply BUnionE in Hxy as [Hxy|Hxy]; [
-    apply BUnionE in Hxy as [Hxy|Hxy];
-    apply ReplAx in Hxy as [p [Hp H]]; 
-    apply op_iff in H as [H1 H2];
-    apply op_iff in H1 as [H1 H1'];
-    apply op_iff in H2 as [H2 H2']; subst; zfc_simple
-  |])..| | | |]; try exfalso0.
+  apply SingE in Hb; apply SingE in Hd; subst; zfc_simple; [(
+    apply BUnionE in Hxy as [Hxy|Hxy]; [
+      apply BUnionE in Hxy as [Hxy|Hxy];
+      apply ReplAx in Hxy as [p [Hp H]]; 
+      apply op_iff in H as [H1 H2];
+      apply op_iff in H1 as [H1 H1'];
+      apply op_iff in H2 as [H2 H2']; subst; zfc_simple
+    |]
+  )..| | | |]; try exfalso0.
   - unfold relLt. rewrite <- (rel_pair (R S))...
     eapply binRel_is_rel. apply lo.
   - apply CProdE2 in Hxy as [_ H].
     apply CProdE2 in H as [_ H]. apply SingE in H...
   - apply BUnionI1. apply BUnionI1. apply ReplAx.
+    exists <a, c>. split; zfc_simple...
+Qed.
+
+Lemma loAdd_ident' : ∀ S, LOⁿ 0 + S ≅ S.
+Proof with auto; try congruence.
+  intros. unfold LoAdd. simpl.
+  unfold LoDisj_A. simpl.
+  set (0 × ⎨0⎬ ∪ A S × ⎨1⎬) as Dom.
+  set (Func Dom (A S) (λ x, match (ixm (π2 x = 0)) with
+    | inl _ => ∅
+    | inr _ => π1 x
+  end)) as F.
+  pose proof contra_0_1 as H01.
+  pose proof contra_1_0 as H10.
+  assert (Hbi: F: Dom ⟺ A S). {
+    apply meta_bijection.
+    - intros x Hx.
+      apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
+      apply CProdE0 in H as []...
+      exfalso0. exfalso0. apply SingE in H0...
+    - intros x1 H1 x2 H2 Heq.
+      destruct (ixm (π2 x1 = 0)) as [Hx1|Hx1];
+      destruct (ixm (π2 x2 = 0)) as [Hx2|Hx2];
+      apply BUnionE in H1 as [H1|H1];
+      apply BUnionE in H2 as [H2|H2];
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]];
+      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]];
+      apply SingE in Hb; apply SingE in Hd; subst; zfc_simple.
+      exfalso0. exfalso0. exfalso0.
+    - intros y Hy. exists <y, 1>. split.
+      + apply BUnionI2. apply CProdI...
+      + zfc_simple. destruct (ixm (Embed 1 = 0))...
+  }
+  apply bijection_is_func in Hbi as HF. destruct HF as [HF _].
+  exists F. split; simpl...
+  intros x Hx y Hy. unfold F.
+  rewrite meta_func_ap, meta_func_ap...
+  split; intros Hxy;
+  destruct (ixm (π2 x = 0));
+  destruct (ixm (π2 y = 0));
+  apply BUnionE in Hx as [Hx|Hx];
+  apply BUnionE in Hy as [Hy|Hy];
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply SingE in Hb; apply SingE in Hd; subst; zfc_simple; [(
+    apply BUnionE in Hxy as [Hxy|Hxy]; [
+      apply BUnionE in Hxy as [Hxy|Hxy];
+      apply ReplAx in Hxy as [p [Hp H]]; 
+      apply op_iff in H as [H1 H2];
+      apply op_iff in H1 as [H1 H1'];
+      apply op_iff in H2 as [H2 H2']; subst; zfc_simple
+    |]
+  )..| | | |]; try exfalso0.
+  - unfold relLt. rewrite <- (rel_pair (R S))...
+    eapply binRel_is_rel. apply lo.
+  - apply CProdE2 in Hxy as [H _].
+    apply CProdE2 in H as [_ H]. apply SingE in H...
+  - apply BUnionI1. apply BUnionI2. apply ReplAx.
     exists <a, c>. split; zfc_simple...
 Qed.
 
@@ -683,6 +949,38 @@ Proof with nauto; try congruence.
     right. split...
 Qed.
 
+Lemma loMul_ident' : ∀ S, LOⁿ 1 ⋅ S ≅ S.
+Proof with nauto; try congruence.
+  intros. unfold LoMul. simpl.
+  set (Func (1 × A S) (A S) π2) as F.
+  assert (Hbi: F: 1 × A S ⟺ A S). {
+    apply meta_bijection.
+    - intros x Hx. apply CProdE0 in Hx as []...
+    - intros x1 H1 x2 H2 Heq.
+      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+      rewrite one in Ha, Hc.
+      apply SingE in Ha. apply SingE in Hc. subst. zfc_simple.
+    - intros y Hy. exists <0, y>. split; zfc_simple.
+      apply CProdI... apply BUnionI2...
+  }
+  apply bijection_is_func in Hbi as HF. destruct HF as [HF _].
+  exists F. split; simpl...
+  intros x Hx y Hy. unfold F.
+  rewrite meta_func_ap, meta_func_ap...
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]].
+  rewrite one in Ha, Hc.
+  apply SingE in Ha. apply SingE in Hc. subst. zfc_simple.
+  split; intros Hxy.
+  - apply binRelE3 in Hxy as [|[]]; zfc_simple.
+    apply SepE2 in H. zfc_simple.
+    exfalso. apply (nat_irrefl ∅)...
+  - apply binRelI; zfc_simple.
+    apply CProdI... apply BUnionI2...
+    apply CProdI... apply BUnionI2... left...
+Qed.
+
 Lemma loMul_0 : ∀ S, S ⋅ LOⁿ 0 ≅ LOⁿ 0.
 Proof with auto; try congruence.
   intros. unfold LoMul. simpl.
@@ -691,28 +989,33 @@ Proof with auto; try congruence.
   intros x Hx. apply CProdE0 in Hx as [_ H]. exfalso0.
 Qed.
 
+Lemma loMul_0' : ∀ S, LOⁿ 0 ⋅ S ≅ LOⁿ 0.
+Proof with auto; try congruence.
+  intros. unfold LoMul. simpl.
+  exists ∅. split; simpl.
+  rewrite cprod_0_l. apply empty_bijection.
+  intros x Hx. apply CProdE0 in Hx as [H _]. exfalso0.
+Qed.
+
 Open Scope OrderType_scope.
 
-Theorem otAdd_assoc : ∀ ρ σ τ, is_ot ρ → is_ot σ → is_ot τ → 
-  ρ + σ + τ = ρ + (σ + τ).
+Theorem otAdd_assoc : ∀ ρ σ τ ⋵ 𝐎𝐓, ρ + σ + τ = ρ + (σ + τ).
 Proof with auto.
-  intros * [S HS] [T HT] [U HU]. subst.
+  intros ρ [S HS] σ [T HT] τ [U HU]. subst.
   do 4 rewrite otAdd_eq_ot_of_loAdd.
   apply ot_correct. apply loAdd_assoc.
 Qed.
 
-Theorem otMul_assoc : ∀ ρ σ τ, is_ot ρ → is_ot σ → is_ot τ → 
-  ρ ⋅ σ ⋅ τ = ρ ⋅ (σ ⋅ τ).
+Theorem otMul_assoc : ∀ ρ σ τ ⋵ 𝐎𝐓, ρ ⋅ σ ⋅ τ = ρ ⋅ (σ ⋅ τ).
 Proof with auto.
-  intros * [S HS] [T HT] [U HU]. subst.
+  intros ρ [S HS] σ [T HT] τ [U HU]. subst.
   do 4 rewrite otMul_eq_ot_of_loMul.
   apply ot_correct. apply loMul_assoc.
 Qed.
 
-Theorem otMul_distr : ∀ ρ σ τ, is_ot ρ → is_ot σ → is_ot τ → 
-  ρ ⋅ (σ + τ) = ρ ⋅ σ + ρ ⋅ τ.
+Theorem otMul_distr : ∀ ρ σ τ ⋵ 𝐎𝐓, ρ ⋅ (σ + τ) = ρ ⋅ σ + ρ ⋅ τ.
 Proof with auto.
-  intros * [S HS] [T HT] [U HU]. subst.
+  intros ρ [S HS] σ [T HT] τ [U HU]. subst.
   rewrite (otAdd_eq_ot_of_loAdd T U).
   rewrite (otMul_eq_ot_of_loMul S T).
   rewrite (otMul_eq_ot_of_loMul S U).
@@ -721,23 +1024,44 @@ Proof with auto.
   apply ot_correct. apply loMul_distr.
 Qed.
 
-Theorem otAdd_ident : ∀ ρ, is_ot ρ → ρ + otⁿ 0 = ρ.
+Theorem otAdd_ident : ∀ρ ⋵ 𝐎𝐓, ρ + otⁿ 0 = ρ.
 Proof with auto.
   intros ρ [S HS]. subst.
   unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd.
   apply ot_correct. apply loAdd_ident.
 Qed.
 
-Theorem otMul_ident : ∀ ρ, is_ot ρ → ρ ⋅ otⁿ 1 = ρ.
+Theorem otAdd_ident' : ∀ρ ⋵ 𝐎𝐓, otⁿ 0 + ρ = ρ.
+Proof with auto.
+  intros ρ [S HS]. subst.
+  unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd.
+  apply ot_correct. apply loAdd_ident'.
+Qed.
+
+Theorem otMul_ident : ∀ρ ⋵ 𝐎𝐓, ρ ⋅ otⁿ 1 = ρ.
 Proof with auto.
   intros ρ [S HS]. subst.
   unfold otⁿ. rewrite otMul_eq_ot_of_loMul.
   apply ot_correct. apply loMul_ident.
 Qed.
 
-Theorem otMul_0 : ∀ ρ, is_ot ρ → ρ ⋅ otⁿ 0 = otⁿ 0.
+Theorem otMul_ident' : ∀ρ ⋵ 𝐎𝐓, otⁿ 1 ⋅ ρ = ρ.
+Proof with auto.
+  intros ρ [S HS]. subst.
+  unfold otⁿ. rewrite otMul_eq_ot_of_loMul.
+  apply ot_correct. apply loMul_ident'.
+Qed.
+
+Theorem otMul_0 : ∀ρ ⋵ 𝐎𝐓, ρ ⋅ otⁿ 0 = otⁿ 0.
 Proof with auto.
   intros ρ [S HS]. subst.
   unfold otⁿ. rewrite otMul_eq_ot_of_loMul.
   apply ot_correct. apply loMul_0.
+Qed.
+
+Theorem otMul_0' : ∀ρ ⋵ 𝐎𝐓, otⁿ 0 ⋅ ρ = otⁿ 0.
+Proof with auto.
+  intros ρ [S HS]. subst.
+  unfold otⁿ. rewrite otMul_eq_ot_of_loMul.
+  apply ot_correct. apply loMul_0'.
 Qed.

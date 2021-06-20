@@ -1,11 +1,12 @@
 (** Solutions to "Elements of Set Theory" Chapter 6 Part 2 **)
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Export ZFC.EST6_4.
+Require ZFC.lib.Choice.
+Require Import ZFC.lib.WosetMin.
+Require Import ZFC.lib.ChoiceFacts.
 Require Import ZFC.lib.NatIsomorphism.
 Require Import ZFC.lib.IndexedFamilyUnion.
-Require Import ZFC.lib.WosetMin.
-Require Import ZFC.lib.Choice.
+Require Export ZFC.EST6_4.
 Import WosetMin.SimpleVer.
 
 (* 所有集合的支配集不能构成一个集合 *)
@@ -193,6 +194,8 @@ Proof with auto.
   - apply PeanoNat.Nat.le_succ_r in Hle as []; [|subst]...
     eapply sub_tran. apply IHm... apply Hinc.
 Qed.
+
+Import ZFC.lib.Choice.
 
 (* ==需要选择公理== *)
 Example ex6_25 : AC_III → ∀ Q A, incr_seq Q → A ⊆ ⋃ᵢ Q →

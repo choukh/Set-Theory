@@ -31,9 +31,14 @@ Notation "∃ x .. y ⋵ A , P" :=
 Definition is_set := λ C, ∃ A, ∀ x, x ∈ A ↔ x ⋵ C.
 
 (* 子类 *)
-Definition Subclass := λ C D : Class, ∀ x, C x → D x.
+Definition Subclass := λ C D : Class, ∀ x, x ⋵ C → x ⋵ D.
 Notation "C ⫃ D" := (Subclass C D) (at level 70) : Class_scope.
 Global Hint Unfold Subclass : core.
+
+(* 类的子集 *)
+Definition SubsetOfClass := λ A C, ∀ x, x ∈ A → x ⋵ C.
+Notation "A ⪽ C" := (SubsetOfClass A C) (at level 70) : Class_scope.
+Global Hint Unfold SubsetOfClass : core.
 
 (* 类函数 *)
 Definition class_func := λ F D R, ∀x ⋵ D, F x ⋵ R.

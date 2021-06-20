@@ -29,7 +29,7 @@ Proof with eauto.
       apply op_η in Hpp. rewrite Hpp. apply inv_op in H2...
   - intros H.
     assert (Hr: is_rel R). {
-      intros p Hp. rewrite ExtAx in H. apply H in Hp.
+      intros p Hp. rewrite H in Hp.
       apply SepE in Hp as [_ []]...
     }
     assert (Hsy: symm R). {
@@ -186,10 +186,11 @@ Example ex3_44: ∀ R A f, linearOrder R A → f: A ⇒ A →
 Proof with eauto.
   intros * [Hrl [Htr Htri]] [Hf [Hd Hr]] H.
   apply trich_iff in Htri as [Hir Hco]... split. split...
-  - intros y Hy. split. apply ranE in Hy...
+  - intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply domI in H1 as Hd1. apply domI in H2 as Hd2.
-    rewrite Hd in Hd1, Hd2. apply Hr in Hy.
+    rewrite Hd in Hd1, Hd2.
     apply func_ap in H1... apply func_ap in H2... subst y.
     destruct (classic (x1 = x2))... exfalso.
     apply Hco in H0 as []...
@@ -295,18 +296,17 @@ Qed.
 Example ex3_52: ∀ A B C D, ⦿ A → ⦿ B → ⦿ C → ⦿ D →
   A × B = C × D → A = C ∧ B = D.
 Proof with eauto.
-  intros * [a Ha] [b Hb] [c Hc] [d Hd] H.
-  rewrite ExtAx in H. split.
+  intros * [a Ha] [b Hb] [c Hc] [d Hd] H. split.
   - apply ExtAx. split; intros.
     + assert (Hab: <x, b> ∈ A × B) by (apply CProdI; auto).
-      apply H in Hab as Hcd. apply CProdE2 in Hcd as []...
+      rewrite H in Hab. apply CProdE2 in Hab as []...
     + assert (Hab: <x, d> ∈ C × D) by (apply CProdI; auto).
-      apply H in Hab as Hcd. apply CProdE2 in Hcd as []...
+      rewrite <- H in Hab. apply CProdE2 in Hab as []...
   - apply ExtAx. split; intros.
     + assert (Hab: <a, x> ∈ A × B) by (apply CProdI; auto).
-      apply H in Hab as Hcd. apply CProdE2 in Hcd as []...
+      rewrite H in Hab. apply CProdE2 in Hab as []...
     + assert (Hab: <c, x> ∈ C × D) by (apply CProdI; auto).
-      apply H in Hab as Hcd. apply CProdE2 in Hcd as []...
+      rewrite <- H in Hab. apply CProdE2 in Hab as []...
 Qed.
 
 Example ex3_53_a: ∀ R S, (R ∪ S)⁻¹ = R⁻¹ ∪ S ⁻¹.

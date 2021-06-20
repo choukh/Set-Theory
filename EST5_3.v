@@ -2,6 +2,8 @@
 (** Coq coding by choukh, June 2020 **)
 
 Require Export ZFC.EST5_2.
+Require Import ZFC.lib.WosetMin.
+Import WosetMin.SimpleVer.
 
 Local Ltac mr := apply intMul_ran; nauto.
 Local Ltac ar := apply intAdd_ran; nauto.
@@ -11,7 +13,7 @@ Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
   有理数算术：加法，加法逆元，乘法，乘法逆元 ***)
 
 (* 非零整数 *)
-Definition ℤ' := (ℤ - ⎨Int 0⎬)%zfc.
+Definition ℤ' := (ℤ - ⎨Int 0⎬)%set.
 
 Lemma nzIntI0 : ∀a ∈ ℤ, a ≠ Int 0 → a ∈ ℤ'.
 Proof with auto.
@@ -277,7 +279,8 @@ Qed.
 
 Theorem ratAddInv_unique : ∀r ∈ ℚ, ∃!s, s ∈ ℚ ∧ r + s = Rat 0.
 Proof with auto.
-  intros r Hr. split. apply ratAddInv_exists...
+  intros r Hr. rewrite <- unique_existence.
+  split. apply ratAddInv_exists...
   intros s s' [Hs H1] [Hs' H2].
   rewrite <- ratAdd_ident, <- (ratAdd_ident s')...
   rewrite <- H2 at 1. rewrite <- H1.
@@ -307,14 +310,20 @@ Proof with auto.
   rewrite intMul_addInv_l, intMul_addInv_r; nz... congruence.
 Qed.
 
-(* == we use Hilbert's epsilon for convenience reasons == *)
 (* 有理数投射 *)
-Definition RatPosDenom : set → set := λ r,
+Definition PosDenoms := λ r,
   {p ∊ r | λ p, intPos (π2 p)}.
-Definition RatProj : set → set := λ r, SetChoice (RatPosDenom r).
+Definition NatDenoms := λ r,
+  {λ p, π1 (IntProj (π2 p)) | p ∊ PosDenoms r}.
+Definition MinNatDenom := λ r,
+  (Min Lt)[NatDenoms r].
+Definition PreRatProj := λ r,
+  {p ∊ PosDenoms r | λ p, π2 p = ω_Embed[MinNatDenom r]}.
+Definition RatProj := λ r,
+  ⋃ (PreRatProj r).
 
-Lemma ratPosDenom_inhabited : ∀a ∈ ℤ, ∀b ∈ ℤ',
-  ⦿ RatPosDenom ([<a, b>]~).
+Lemma posDenoms_nonempty : ∀a ∈ ℤ, ∀b ∈ ℤ',
+  ⦿ PosDenoms ([<a, b>]~).
 Proof with nauto.
   intros a Ha b Hb.
   destruct ratEquiv_equiv as [_ [Hrefl _]].
@@ -327,23 +336,126 @@ Proof with nauto.
     apply Hrefl. apply CProdI... zfc_simple...
 Qed.
 
+Lemma natDenoms_nonempty : ∀a ∈ ℤ, ∀b ∈ ℤ',
+  ⦿ NatDenoms ([<a, b>]~).
+Proof with nauto.
+  intros a Ha b Hb.
+  pose proof (posDenoms_nonempty a Ha b Hb) as [s Hs].
+  apply SepE in Hs as [Hs Hpos].
+  apply eqvcE in Hs. apply planeEquivE1 in Hs
+    as [a' [Ha' [b' [Hb' [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
+  apply op_iff in H1 as []; subst a' b' s. zfc_simple.
+  exists (π1 (IntProj d)). apply ReplAx.
+  exists <c, d>. split; zfc_simple.
+  apply SepI. apply eqvcI. apply planeEquiv... zfc_simple.
+Qed.
+
+Lemma natDenoms_is_nats : ∀a ∈ ℤ, ∀b ∈ ℤ',
+  NatDenoms ([<a, b>]~) ⊆ ω.
+Proof with nauto.
+  intros a Ha b Hb n Hn.
+  apply ReplAx in Hn as [s [Hs Heq]].
+  apply SepE1 in Hs. apply eqvcE in Hs.
+  apply planeEquivE1 in Hs
+    as [a' [Ha' [b' [Hb' [c [Hc [d [Hd [H1 [H2 _]]]]]]]]]].
+  apply op_iff in H1 as []; subst a' b' s n. zfc_simple.
+  apply SepE1 in Hd.
+  apply pQuotE in Hd as [m [Hm [n [Hn Hd]]]]. subst d.
+  pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 _]]]]].
+  rewrite H1. zfc_simple.
+Qed.
+
+Lemma natDenoms : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀n ∈ NatDenoms ([<a, b>]~),
+  ∃c ∈ ℤ, <a, b> ~ <c, ω_Embed[n]> ∧ intPos ω_Embed[n].
+Proof with nauto.
+  intros a Ha b Hb n Hn.
+  apply ReplAx in Hn as [s [Hs Heq]].
+  apply SepE in Hs as [Hs Hpos]. apply eqvcE in Hs.
+  apply planeEquivE1 in Hs
+    as [a' [Ha' [b' [Hb' [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
+  apply op_iff in H1 as []; subst a' b' s n. zfc_simple.
+  exists c. split... apply SepE in Hd as [Hd Hd'].
+  apply pQuotE in Hd as [m [Hm [n [Hn Hd]]]]. subst d.
+  pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 [H2 H0]]]]]].
+  rewrite H1. zfc_simple. rewrite ω_embed_n...
+  cut ([<p, 0>]~%pz = [<m, n>]~%pz). {
+    intros. rewrite H. split...
+    apply planeEquiv... apply SepI... apply pQuotI...
+  }
+  apply planeEquiv in H2... unfold IntEq in H2.
+  apply int_ident... destruct H0; subst...
+  exfalso. destruct (classic (q = 0)); subst.
+  - apply SingNE in Hd'. apply Hd'. apply int_ident...
+  - apply intLt in Hpos...
+    rewrite add_ident, add_ident' in Hpos...
+    rewrite add_ident' in H2... rewrite <- H2 in Hpos.
+    rewrite <- (add_ident m) in Hpos at 2...
+    apply add_preserve_lt' in Hpos... exfalso0.
+Qed.
+
+Lemma preRatProjE : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀x ∈ PreRatProj ([<a, b>]~),
+  ∃c ∈ ℤ, ∃d ∈ ℤ', x = <c, d> ∧ <a, b> ~ <c, d> ∧
+    d = ω_Embed[MinNatDenom ([<a, b>]~)] ∧ intPos d.
+Proof with auto.
+  intros a Ha b Hb x Hx.
+  apply SepE in Hx as [Hx Heq].
+  apply SepE in Hx as [Hx Hpos].
+  apply eqvcE in Hx. apply planeEquivE1 in Hx
+    as [a' [Ha' [b' [Hb' [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
+  apply op_iff in H1 as []; subst a' b' x. zfc_simple.
+  exists c. split... exists d. split...
+  split... split... apply planeEquivI...
+Qed.
+
+Lemma preRatProj_unique : ∀r ∈ ℚ, ∃! p, p ∈ PreRatProj r.
+Proof with neauto; try congruence.
+  intros r Hr.
+  apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
+  subst r. rewrite <- unique_existence. split.
+  - set (MinNatDenom ([<a, b>]~)) as n.
+    pose proof (natDenoms a Ha b Hb n) as [c [Hc [Heq Hpos]]].
+    apply ω_min. apply natDenoms_nonempty...
+    apply natDenoms_is_nats...
+    exists <c, ω_Embed[n]>. apply SepI. apply SepI.
+    apply eqvcI... zfc_simple. zfc_simple. reflexivity.
+  - intros x1 x2 H1 H2.
+    apply preRatProjE in H1 as [c1 [Hc1 [d1 [Hd1 [H11 [H12 [H13 _]]]]]]]...
+    apply preRatProjE in H2 as [c2 [Hc2 [d2 [Hd2 [H21 [H22 [H23 _]]]]]]]...
+    subst x1 x2. apply op_iff. split...
+    assert (RatEq c1 d1 c2 d1). {
+      rewrite H23, <- H13 in H22.
+      apply planeEquiv in H12...
+      apply planeEquiv in H22...
+      eapply ratEqTran; revgoals...
+    }
+    apply SepE in Hd1 as [H1 H2].
+    apply intMul_cancel in H... apply SingNE in H2...
+Qed.
+
+Lemma preRatProj : ∀r ∈ ℚ, ∃p, PreRatProj r = ⎨p⎬.
+Proof with auto.
+  intros r Hr.
+  apply preRatProj_unique in Hr as [p [Hp Hu]].
+  exists p. apply ExtAx. split; intros Hx.
+  - cut (p = x). intros Heq. subst... apply Hu...
+  - apply SingE in Hx. subst...
+Qed.
+
 Lemma ratProj : ∀a ∈ ℤ, ∀b ∈ ℤ', ∃c ∈ ℤ, ∃d ∈ ℤ',
   RatProj ([<a, b>]~) = <c, d> ∧ <a, b> ~ <c, d> ∧
   (a ∈ ℤ' → c ∈ ℤ') ∧ intPos d.
 Proof with auto.
   intros a Ha b Hb.
-  pose proof (chosen_contained (RatPosDenom ([<a, b>]~))
-    (ratPosDenom_inhabited a Ha b Hb)).
-  apply SepE in H as [H Hpos]. apply eqvcE in H.
-  apply planeEquivE1 in H
-    as [a' [_ [b' [_ [c [Hc [d [Hd [H1 [H2 H3]]]]]]]]]].
-  apply op_iff in H1 as []; subst a' b'.
-  exists c. split... exists d. split...
-  split... split. apply planeEquivI... split.
-  - intros Ha'. unfold RatEq in H3.
+  pose proof (preRatProj ([<a, b>]~)) as [x Hsg].
+  apply pQuotI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
+  rewrite <- Hsg in Hx. apply preRatProjE in Hx
+    as [c [Hc [d [Hd [Hx [H1 [H2 H3]]]]]]]...
+  exists c. split... exists d. repeat split...
+  - rewrite <- Hx. unfold RatProj. rewrite Hsg.
+    apply union_single.
+  - intros Ha'. apply planeEquiv in H1... unfold RatEq in H1.
     assert (H: (a ⋅ d)%z ∈ ℤ') by (apply nzIntMul_ranI; auto).
-    rewrite H3 in H. apply nzIntMul_ranE in H as []... nz.
-  - rewrite H2 in Hpos. zfc_simple.
+    rewrite H1 in H. apply nzIntMul_ranE in H as []... nz.
 Qed.
 
 Lemma ratProj_η : ∀r ∈ ℚ, r = [RatProj r]~.
@@ -359,7 +471,6 @@ Qed.
 Close Scope Int_scope.
 Open Scope Rat_scope.
 
-(* == we use Hilbert's epsilon for convenience reasons == *)
 (** 有理数加法逆元 **)
 Definition RatAddInv : set → set := λ r,
   let p := (RatProj r) in [<(-π1 p)%z, π2 p>]~.
@@ -631,7 +742,7 @@ Proof with eauto.
 Qed.
 
 (* 非零有理数 *)
-Definition ℚ' := (ℚ - ⎨Rat 0⎬)%zfc.
+Definition ℚ' := (ℚ - ⎨Rat 0⎬)%set.
 
 Lemma nzRatI0 : ∀r ∈ ℚ, r ≠ Rat 0 → r ∈ ℚ'.
 Proof with auto.
@@ -703,7 +814,7 @@ Qed.
 
 Theorem ratMulInv_unique : ∀r ∈ ℚ', ∃!q, q ∈ ℚ' ∧ r ⋅ q = Rat 1.
 Proof with auto.
-  intros r Hr. split.
+  intros r Hr. rewrite <- unique_existence. split.
   pose proof (ratMulInv_exists r Hr)...
   intros q q' [Hq H1] [Hq' H2].
   rewrite <- ratMul_ident, <- (ratMul_ident q'); nz_q...
@@ -741,7 +852,6 @@ Proof with auto.
   pose proof (nzRatMul_ran r Hr' s Hs'). apply nzRatE0 in H...
 Qed.
 
-(* == we use Hilbert's epsilon for convenience reasons == *)
 (** 有理数乘法逆元 **)
 Definition RatMulInv : set → set := λ r,
   let p := (RatProj r) in [<π2 p, π1 p>]~.

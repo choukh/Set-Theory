@@ -22,8 +22,10 @@ Proof with eauto.
   intros * [Hqv [[Hf [Hdf Hrf]] Hcom]]. repeat split.
   - (* is_rel *) intros p Hp.
     apply ReplAx in Hp as [x []]. subst p. eexists...
-  - apply domE in H...
-  - (* single-valued *) intros y1 y2 Hy1 Hy2.
+  - (* single-valued *)
+    intros x H. rewrite <- unique_existence.
+    split. apply domE in H...
+    intros y1 y2 Hy1 Hy2.
     apply domE in H as [y0 Hy0].
     apply ReplAx in Hy0 as [a0 [_ Heq0]].
     apply ReplAx in Hy1 as [a1 [Ha1 Heq1]].
@@ -112,7 +114,7 @@ Theorem quotionFunc_unique: ∀ R A F,
   ∃!F', F': (A/R) × (A/R) ⇒ A/R ∧
     ∀ x y ∈ A, F'[<[x]R, [y]R>] = [F[<x, y>]]R.
 Proof with eauto.
-  intros * Hcom. split.
+  intros * Hcom. rewrite <- unique_existence. split.
   exists (QuotionFunc R A F). split.
   apply quotionFunc_function...
   apply binCompatibleE...
@@ -283,8 +285,10 @@ Proof with eauto.
   intros * HF1 HF2. repeat split.
   - (* is_rel *) intros x Hx.
     apply SepE in Hx as [Hx _]. apply cprod_is_pairs in Hx...
-  - apply domE in H...
-  - (* single-valued *) intros y1 y2 H1 H2.
+  - (* single-valued *)
+    intros x H. rewrite <- unique_existence.
+    split. apply domE in H...
+    intros y1 y2 H1 H2.
     apply planeArithE in H1
       as [m1 [Hm1 [n1 [Hn1 [p1 [Hp1 [q1 [Hq1 [Hx1 Hy1]]]]]]]]].
     apply planeArithE in H2
@@ -517,7 +521,8 @@ Qed.
 
 Theorem intAddInv_unique : ∀a ∈ ℤ, ∃!b, b ∈ ℤ ∧ a + b = Int 0.
 Proof with auto.
-  intros a Ha. split. apply intAddInv_exists...
+  intros a Ha. rewrite <- unique_existence.
+  split. apply intAddInv_exists...
   intros b b' [Hb H1] [Hb' H2].
   rewrite <- intAdd_ident, <- (intAdd_ident b')...
   rewrite <- H2 at 1. rewrite <- H1.
@@ -529,9 +534,9 @@ Close Scope Int_scope.
 Open Scope Nat_scope.
 
 (* 整数投射 *)
-Definition PreIntProj : set → set := λ a,
+Definition PreIntProj := λ a,
   {p ∊ a | λ p, π1 p = 0 ∨ π2 p = 0}.
-Definition IntProj : set → set := λ a,
+Definition IntProj := λ a,
   ⋃ (PreIntProj a).
 
 Lemma preIntProjI1 : ∀ m n p ∈ ω,
@@ -564,11 +569,11 @@ Proof with auto.
   exists p. split... exists 0... split...
 Qed.
 
-Lemma preIntProj_single : ∀a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
+Lemma preIntProj_unique : ∀a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
 Proof with neauto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
-  subst a. split.
+  subst a. rewrite <- unique_existence. split.
   - destruct (classic (m = n)) as [Hmn|Hmn].
     + exists <0, 0>. apply preIntProjI1... rewrite add_ident...
     + apply nat_connected in Hmn as []...
@@ -600,24 +605,24 @@ Proof with neauto.
       eapply add_cancel; revgoals...
 Qed.
 
-Lemma preIntProj : ∀ a ∈ ℤ, ∃p, PreIntProj a = ⎨p⎬.
+Lemma preIntProj : ∀a ∈ ℤ, ∃p, PreIntProj a = ⎨p⎬.
 Proof with auto.
   intros a Ha.
-  apply preIntProj_single in Ha as [[p Hp] Hu].
+  apply preIntProj_unique in Ha as [p [Hp Hu]].
   exists p. apply ExtAx. split; intros Hx.
-  pose proof (Hu x p Hx Hp). subst...
+  pose proof (Hu x Hx). subst...
   apply SingE in Hx. subst...
 Qed.
 
 Lemma intProj : ∀ m n ∈ ω, ∃ p q ∈ ω,
-  IntProj ([<m, n>]~) = <p, q> ∧ <m, n> ~ <p, q>.
+  IntProj ([<m, n>]~) = <p, q> ∧ <m, n> ~ <p, q> ∧ (p = 0 ∨ q = 0).
 Proof with auto.
   intros m Hm n Hn.
   pose proof (preIntProj ([<m, n>]~)) as [x Hsg].
   apply pQuotI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
   rewrite <- Hsg in Hx. apply preIntProjE in Hx
-    as [p [Hp [q [Hq [Hx [H H0]]]]]]...
-  exists p. split... exists q. split... split...
+    as [p [Hp [q [Hq [Hx [H1 H2]]]]]]...
+  exists p. split... exists q. repeat split...
   rewrite <- Hx. unfold IntProj. rewrite Hsg.
   apply union_single.
 Qed.
@@ -627,7 +632,7 @@ Proof with auto.
   intros a Ha.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   pose proof (intProj m Hm n Hn)
-    as [p [Hp [q [Hq [H1 H2]]]]].
+    as [p [Hp [q [Hq [H1 [H2 _]]]]]].
   apply planeEquiv in H2... unfold IntEq. subst a.
   rewrite H1. apply int_ident...
 Qed.
@@ -644,7 +649,7 @@ Notation "a - b" := (a + (-b)) : Int_scope.
 Lemma intAddInv : ∀ m n ∈ ω, (-[<m, n>]~) = [<n, m>]~.
 Proof with eauto.
   intros m Hm n Hn.
-  pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 H2]]]]].
+  pose proof (intProj m Hm n Hn) as [p [Hp [q [Hq [H1 [H2 _]]]]]].
   destruct intEquiv_equiv as [_ [_ [_ Htr]]].
   apply ExtAx. split; intros Hx.
   - apply eqvcE in Hx. rewrite H1 in Hx. zfc_simple.

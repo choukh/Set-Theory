@@ -118,10 +118,10 @@ Lemma preArith_correct : ∀ F a, F: ω ⇒ ω → a ∈ ω →
   h[0] = a ∧ ∀n ∈ ω, h[n⁺] = F[h[n]].
 Proof with eauto; try congruence.
   intros F a HF Ha.
-  pose proof (ω_recursion_uniqueness F ω a HF Ha) as [[h Hh] Hu].
+  pose proof (ω_recursion_uniqueness F ω a HF Ha) as [h [Hh Hu]].
   exists h. split. destruct Hh as []... split.
   apply ExtAx. intros f. split; intros Hf.
-  - cut (f = h). intros. rewrite H... apply Hu...
+  - cut (f = h). intros. rewrite H... symmetry. apply Hu...
     apply SepE in Hf as [Hf [Hf0 Hf1]].
     apply SepE in Hf as [_ Hf]. split...
   - destruct Hh as [[Hh [Hdh Hrh]] [Hh0 Hh1]].
@@ -182,11 +182,12 @@ Definition BinOp : set → (set → set) → set := λ A F,
 
 Lemma binop_is_func : ∀ A F, is_function (BinOp A F).
 Proof with auto.
-  repeat split.
+  split.
   - intros x Hx. apply SepE in Hx as [Hx _].
     apply cprod_is_pairs in Hx...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
+    intros y1 y2 H1 H2.
     apply SepE in H1 as [_ [_ [_ Hp1]]].
     apply SepE in H2 as [_ [_ [_ Hp2]]]. zfc_simple.
 Qed.

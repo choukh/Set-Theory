@@ -7,7 +7,7 @@ Require Export ZFC.lib.Essential.
 
 (** 补集 **)
 Definition Complement : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
-Notation "A - B" := (Complement A B) : ZFC_scope.
+Notation "A - B" := (Complement A B) : set_scope.
 
 Lemma CompI : ∀ A B, ∀x ∈ A, x ∉ B → x ∈ A - B.
 Proof. intros A B x Hx H. apply SepI. apply Hx. apply H. Qed.
@@ -113,12 +113,13 @@ Proof with auto.
 Qed.
 
 (** 真子集 **)
-Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70) : ZFC_scope.
+Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70) : set_scope.
 
 Lemma properSub_intro : ∀ A B, B ⊆ A → (∃ a, a ∈ A ∧ a ∉ B) → B ⊂ A.
-Proof with auto.
-  intros A B Hsub [a [Ha Ha']]. split... intros Heq.
-  rewrite ExtAx in Heq. apply Heq in Ha...
+Proof.
+  intros A B Hsub [a [Ha Ha']].
+  split. apply Hsub. intros Heq.
+  apply Ha'. congruence.
 Qed.
 
 Lemma comp_nonempty : ∀ B A, B ⊂ A → ⦿ (A - B).

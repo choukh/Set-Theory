@@ -1,8 +1,8 @@
 (** Based on "Elements of Set Theory" Chapter 6 Part 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
+Require Import ZFC.lib.ChoiceFacts.
 Require Export ZFC.EST6_5.
-Require Import ZFC.lib.Choice.
 
 (*** EST第六章6：无限基数的运算律：自乘等于自身，加法和乘法的吸收律 ***)
 
@@ -294,19 +294,19 @@ Proof.
 Qed.
 
 (* 有限基数的和是有限基数 *)
-Lemma cardAdd_finite : ∀ 𝜅 𝜆, fincard 𝜅 → fincard 𝜆 → finite (𝜅 + 𝜆).
+Lemma cardAdd_finite : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃ᶠⁱⁿ, finite (𝜅 + 𝜆).
 Proof with auto.
-  intros * Hfck Hfcl.
+  intros 𝜅 Hfck 𝜆 Hfcl.
   assert (Hk: 𝜅 ∈ ω). { apply nat_iff_fincard... }
   assert (Hl: 𝜆 ∈ ω). { apply nat_iff_fincard... }
   apply nat_iff_fincard. rewrite cardAdd_nat... apply add_ran...
 Qed.
 
 (* 如果两个基数的和是有限基数那么这两个基数都是有限基数 *)
-Lemma finite_cardAdd : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 →
+Lemma finite_cardAdd : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   finite (𝜅 + 𝜆) → finite 𝜅 ∧ finite 𝜆.
 Proof with eauto.
-  intros * Hcdk Hcdl Hfin.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hfin.
   apply cardLt_aleph0_iff_finite in Hfin... split.
   - apply cardLt_aleph0_iff_finite...
     eapply cardLeq_lt_tran... rewrite <- cardAdd_ident at 1...
@@ -317,61 +317,58 @@ Proof with eauto.
 Qed.
 
 (* 两个基数的和是有限基数当且仅当这两个基数都是有限基数 *)
-Theorem cardAdd_finite_iff : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 →
+Theorem cardAdd_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 + 𝜆).
 Proof with auto.
-  intros * Hcdk Hcdl. split.
+  intros 𝜅 Hcdk 𝜆 Hcdl. split.
   - intros [Hfink Hfinl]. apply cardAdd_finite; split...
   - apply finite_cardAdd...
 Qed.
 
 (* 如果两个基数的和是无限基数那么这两个基数中至少有一个是无限基数 *)
-Corollary infinite_cardAdd : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 
+Corollary infinite_cardAdd : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   infinite (𝜅 + 𝜆) → infinite 𝜅 ∨ infinite 𝜆.
 Proof.
-  intros * Hcdk Hcdl Hinf. apply not_and_or.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hinf. apply not_and_or.
   intros [Hfink Hfinl]. apply Hinf.
   apply cardAdd_finite; split; auto.
 Qed.
 
 (* 无限基数与任意基数的和是无限基数 *)
-Corollary cardAdd_infinite : ∀ 𝜅 𝜆,
-  infcard 𝜅 → is_card 𝜆 → infinite (𝜅 + 𝜆).
+Corollary cardAdd_infinite : ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, infinite (𝜅 + 𝜆).
 Proof.
-  intros * [Hcdk Hinf] Hcdl Hfin. apply Hinf.
-  apply (finite_cardAdd 𝜅 𝜆); auto.
+  intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl Hfin. apply Hinf.
+  apply (finite_cardAdd 𝜅 Hcdk 𝜆); auto.
 Qed.
 
-Corollary cardAdd_infinite' : ∀ 𝜅 𝜆,
-  infcard 𝜅 → is_card 𝜆 → infinite (𝜆 + 𝜅).
+Corollary cardAdd_infinite' : ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, infinite (𝜆 + 𝜅).
 Proof with auto.
-  intros * [Hcdk Hinf] Hcdl Hfin. apply Hinf.
-  apply (finite_cardAdd 𝜆 𝜅); auto.
+  intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl Hfin. apply Hinf.
+  apply (finite_cardAdd 𝜆 Hcdl 𝜅); auto.
 Qed.
 
 (* 两个基数的和是无限基数当且仅当这两个基数中至少有一个是无限基数 *)
-Corollary cardAdd_infinite_iff : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 →
+Corollary cardAdd_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 + 𝜆).
 Proof.
-  intros * Hcdk Hcdl. unfold infinite.
-  rewrite <- cardAdd_finite_iff; tauto.
+  intros 𝜅 Hcdk 𝜆 Hcdl. unfold infinite.
+  rewrite <- (cardAdd_finite_iff 𝜅 Hcdk 𝜆 Hcdl); tauto.
 Qed.
 
 (* 有限基数的积是有限基数 *)
-Lemma cardMul_finite : ∀ 𝜅 𝜆,
-  fincard 𝜅 → fincard 𝜆 → finite (𝜅 ⋅ 𝜆).
+Lemma cardMul_finite : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃ᶠⁱⁿ, 𝜅 ⋅ 𝜆 ⋵ 𝐂𝐃ᶠⁱⁿ.
 Proof with auto.
-  intros * Hk Hl.
+  intros 𝜅 Hk 𝜆 Hl.
   apply nat_iff_fincard in Hk.
   apply nat_iff_fincard in Hl.
   apply nat_iff_fincard. rewrite cardMul_nat... apply mul_ran...
 Qed.
 
 (* 如果基数𝜅与非零基数的积是有限基数那么𝜅是有限基数 *)
-Lemma finite_cardMul_l : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 →
-  finite (𝜅 ⋅ 𝜆) → finite 𝜅.
+Lemma finite_cardMul_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜆 ≠ 0 → finite (𝜅 ⋅ 𝜆) → finite 𝜅.
 Proof with eauto.
-  intros * Hcdk Hcdl Hnel Hfin.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnel Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
   eapply cardLeq_lt_tran... rewrite <- cardMul_ident at 1...
@@ -379,79 +376,78 @@ Proof with eauto.
 Qed.
 
 (* 如果非零基数与基数𝜆的积是有限基数那么𝜆是有限基数 *)
-Lemma finite_cardMul_r : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 0 →
-  finite (𝜅 ⋅ 𝜆) → finite 𝜆.
+Lemma finite_cardMul_r : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜅 ≠ 0 → finite (𝜅 ⋅ 𝜆) → finite 𝜆.
 Proof with eauto.
-  intros * Hcdk Hcdl Hnek Hfin.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hfin.
   rewrite cardMul_comm in Hfin.
-  apply (finite_cardMul_l 𝜆 𝜅)...
+  apply (finite_cardMul_l 𝜆 Hcdl 𝜅)...
 Qed.
 
 (* 如果两个非零基数的积是有限基数那么这两个基数都是有限基数 *)
-Lemma finite_cardMul : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 0 → 𝜆 ≠ 0 →
-  finite (𝜅 ⋅ 𝜆) → finite 𝜅 ∧ finite 𝜆.
+Lemma finite_cardMul : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜅 ≠ 0 → 𝜆 ≠ 0 → finite (𝜅 ⋅ 𝜆) → finite 𝜅 ∧ finite 𝜆.
 Proof with auto.
-  intros * Hcdk Hcdl Hnek Hnel Hfin. split.
-  apply (finite_cardMul_l 𝜅 𝜆)... apply (finite_cardMul_r 𝜅 𝜆)...
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel Hfin. split.
+  apply (finite_cardMul_l 𝜅 Hcdk 𝜆)...
+  apply (finite_cardMul_r 𝜅 Hcdk 𝜆)...
 Qed.
 
 (* 两个非零基数的积是有限基数当且仅当这两个基数都是有限基数 *)
-Theorem cardMul_finite_iff : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 0 → 𝜆 ≠ 0 →
-  finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ⋅ 𝜆).
+Theorem cardMul_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜅 ≠ 0 → 𝜆 ≠ 0 → finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ⋅ 𝜆).
 Proof with auto.
-  intros * Hcdk Hcdl Hnek Hnel. split.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. split.
   - intros [Hfink Hfinl]. apply cardMul_finite; split...
   - apply finite_cardMul...
 Qed.
 
 (* 如果两个基数的积是无限基数那么这两个基数中至少有一个是无限基数 *)
-Corollary infinite_cardMul : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 
+Corollary infinite_cardMul : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   infinite (𝜅 ⋅ 𝜆) → infinite 𝜅 ∨ infinite 𝜆.
 Proof.
-  intros * Hcdk Hcdl Hinf. apply not_and_or.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hinf. apply not_and_or.
   intros [Hfink Hfinl]. apply Hinf.
   apply cardMul_finite; split; auto.
 Qed.
 
 (* 无限基数与非零基数的积是无限基数 *)
-Corollary cardMul_infinite : ∀ 𝜅 𝜆,
-  infcard 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 → infinite (𝜅 ⋅ 𝜆).
+Corollary cardMul_infinite :
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → infinite (𝜅 ⋅ 𝜆).
 Proof.
-  intros * [Hcdk Hinf] Hcdl H0 Hfin. apply Hinf.
-  apply (finite_cardMul_l 𝜅 𝜆); auto.
+  intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
+  apply (finite_cardMul_l 𝜅 Hcdk 𝜆); auto.
 Qed.
 
-Corollary cardMul_infinite' : ∀ 𝜅 𝜆,
-  infcard 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 → infinite (𝜆 ⋅ 𝜅).
+Corollary cardMul_infinite' :
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → infinite (𝜆 ⋅ 𝜅).
 Proof.
-  intros * [Hcdk Hinf] Hcdl H0 Hfin. apply Hinf.
-  apply (finite_cardMul_r 𝜆 𝜅); auto.
+  intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
+  apply (finite_cardMul_r 𝜆 Hcdl 𝜅); auto.
 Qed.
 
 (* 两个非空基数的积是无限基数当且仅当这两个基数中至少有一个是无限基数 *)
-Corollary cardMul_infinite_iff : ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 𝜅 ≠ 0 → 𝜆 ≠ 0 →
-  infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ⋅ 𝜆).
+Corollary cardMul_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜅 ≠ 0 → 𝜆 ≠ 0 → infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ⋅ 𝜆).
 Proof.
-  intros * Hcdk Hcdl Hnek Hnel. unfold infinite.
-  rewrite <- cardMul_finite_iff; tauto.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. unfold infinite.
+  rewrite <- (cardMul_finite_iff 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel); tauto.
 Qed.
 
 (* 有限基数的幂是有限基数 *)
-Lemma cardExp_finite : ∀ 𝜅 𝜆,
-  fincard 𝜅 → fincard 𝜆 → fincard (𝜅 ^ 𝜆).
+Lemma cardExp_finite : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃ᶠⁱⁿ, 𝜅 ^ 𝜆 ⋵ 𝐂𝐃ᶠⁱⁿ.
 Proof with auto.
-  intros * Hk Hl.
+  intros 𝜅 Hk 𝜆 Hl.
   apply nat_iff_fincard in Hk.
   apply nat_iff_fincard in Hl.
   apply nat_iff_fincard. rewrite cardExp_nat... apply exp_ran...
 Qed.
 
 (* 如果基数𝜅的非零基数次幂是有限基数那么𝜅是有限基数 *)
-Lemma finite_cardExp_l : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 →
-  finite (𝜅 ^ 𝜆) → finite 𝜅.
+Lemma finite_cardExp_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  𝜆 ≠ 0 → finite (𝜅 ^ 𝜆) → finite 𝜅.
 Proof with eauto.
-  intros * Hcdk Hcdl H0 Hfin.
+  intros 𝜅 Hcdk 𝜆 Hcdl H0 Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
   eapply cardLeq_lt_tran... rewrite <- cardExp_1_r at 1...
@@ -461,10 +457,10 @@ Proof with eauto.
 Qed.
 
 (* 如果不小于2的基数的𝜆次幂是有限基数那么𝜆是有限基数 *)
-Lemma finite_cardExp_r : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 2 ≤ 𝜅 →
-  finite (𝜅 ^ 𝜆) → finite 𝜆.
+Lemma finite_cardExp_r : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  2 ≤ 𝜅 → finite (𝜅 ^ 𝜆) → finite 𝜆.
 Proof with eauto.
-  intros * Hcdk Hcdl H0 Hfin.
+  intros 𝜅 Hcdk 𝜆 Hcdl H0 Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
   eapply cardLeq_lt_tran... eapply cardLt_leq_tran...
@@ -472,57 +468,54 @@ Proof with eauto.
 Qed.
 
 (* 如果不小于2的基数𝜅的非零基数𝜆次幂是有限基数那么𝜅和𝜆都是有限基数 *)
-Lemma finite_cardExp : ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 2 ≤ 𝜅 → 𝜆 ≠ 0 → 
-  finite (𝜅 ^ 𝜆) → finite 𝜅 ∧ finite 𝜆.
+Lemma finite_cardExp : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  2 ≤ 𝜅 → 𝜆 ≠ 0 → finite (𝜅 ^ 𝜆) → finite 𝜅 ∧ finite 𝜆.
 Proof with auto.
-  intros * Hcdk Hcdl H0 H2 Hfin. split.
-  - apply (finite_cardExp_l 𝜅 𝜆)...
-  - apply (finite_cardExp_r 𝜅 𝜆)...
+  intros 𝜅 Hcdk 𝜆 Hcdl H0 H2 Hfin. split.
+  - apply (finite_cardExp_l 𝜅 Hcdk 𝜆)...
+  - apply (finite_cardExp_r 𝜅 Hcdk 𝜆)...
 Qed.
 
 (* 如果𝜅是非零基数且𝜆是大于1的基数，那么𝜅的𝜆次幂是有限基数当且仅当𝜅和𝜆都是有限基数 *)
-Theorem cardExp_finite_iff : ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 2 ≤ 𝜅 → 𝜆 ≠ 0 →
-  finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ^ 𝜆).
+Theorem cardExp_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  2 ≤ 𝜅 → 𝜆 ≠ 0 → finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ^ 𝜆).
 Proof with auto.
-  intros * Hcdk Hcdl H0 H2. split.
+  intros 𝜅 Hcdk 𝜆 Hcdl H0 H2. split.
   - intros [Hfink Hfinl]. apply cardExp_finite; split...
   - apply finite_cardExp...
 Qed.
 
 (* 如果两个基数的幂是无限基数那么这两个基数中至少有一个是无限基数 *)
-Corollary infinite_cardExp : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 
+Corollary infinite_cardExp : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
   infinite (𝜅 ^ 𝜆) → infinite 𝜅 ∨ infinite 𝜆.
 Proof.
-  intros * Hcdk Hcdl Hinf. apply not_and_or.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hinf. apply not_and_or.
   intros [Hfink Hfinl]. apply Hinf.
   apply cardExp_finite; split; auto.
 Qed.
 
 (* 无限基数的非零基数次幂是无限基数 *)
-Corollary cardExp_infinite_base : ∀ 𝜅 𝜆,
-  infcard 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 → infinite (𝜅 ^ 𝜆).
+Corollary cardExp_infinite_base :
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → infinite (𝜅 ^ 𝜆).
 Proof.
-  intros * [Hcdk Hinf] Hcdl H0 Hfin. apply Hinf.
-  apply (finite_cardExp_l 𝜅 𝜆); auto.
+  intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
+  apply (finite_cardExp_l 𝜅 Hcdk 𝜆); auto.
 Qed.
 
 (* 不小于2的基数的无限基数次幂是无限基数 *)
-Corollary cardExp_infinite_exponent : ∀ 𝜅 𝜆,
-  is_card 𝜅 → 2 ≤ 𝜅 → infcard 𝜆 → infinite (𝜅 ^ 𝜆).
+Corollary cardExp_infinite_exponent :
+  ∀𝜅 ⋵ 𝐂𝐃, ∀𝜆 ⋵ 𝐂𝐃ⁱⁿᶠ, 2 ≤ 𝜅 → infinite (𝜅 ^ 𝜆).
 Proof.
-  intros * Hcdk H2 [Hcdl Hinf] Hfin. apply Hinf.
-  apply (finite_cardExp_r 𝜅 𝜆); auto.
+  intros 𝜅 Hcdk 𝜆 [Hcdl Hinf] H2 Hfin. apply Hinf.
+  apply (finite_cardExp_r 𝜅 Hcdk 𝜆); auto.
 Qed.
 
 (* 不小于2的基数的非零基数次幂是无限基数当且仅当这两个基数中至少有一个是无限基数 *)
-Corollary cardExp_infinite_iff : ∀ 𝜅 𝜆,
-  is_card 𝜅 → is_card 𝜆 → 2 ≤ 𝜅 → 𝜆 ≠ 0 →
-  infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ^ 𝜆).
+Corollary cardExp_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
+  2 ≤ 𝜅 → 𝜆 ≠ 0 → infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ^ 𝜆).
 Proof.
-  intros * Hcdk Hcdl Hnek Hnel. unfold infinite.
-  rewrite <- cardExp_finite_iff; tauto.
+  intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. unfold infinite.
+  rewrite <- (cardExp_finite_iff 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel); tauto.
 Qed.
 
 (* 无限集的幂集是无限集 *)
@@ -530,13 +523,13 @@ Corollary power_infinite : ∀ A, infinite A → infinite 𝒫 A.
 Proof with nauto.
   intros. apply set_infinite_iff_card_infinite.
   rewrite card_of_power. apply cardExp_infinite_exponent...
-  apply cardLeq_refl... split...
-  rewrite <- set_infinite_iff_card_infinite...
+  split... rewrite <- set_infinite_iff_card_infinite...
+  apply cardLeq_refl...
 Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自乘等于自身 *)
-Theorem cardMul_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ⋅ 𝜅 = 𝜅.
+Theorem cardMul_infcard_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 ⋅ 𝜅 = 𝜅.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [[B Heq𝜅] Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }
@@ -579,7 +572,8 @@ Proof with neauto; try congruence.
           apply SepE in Hf as [_ []]. subst f. apply empty_is_func.
           destruct H as [C [_ [_ [[] _]]]]...
         + intros f Hf g Hg. apply Hchn...
-      - split. apply ranE... intros x1 x2 H1 H2.
+      - intros y H. rewrite <- unique_existence.
+        split. apply ranE... intros x1 x2 H1 H2.
         apply UnionAx in H1 as [f [Hf H1]].
         apply UnionAx in H2 as [g [Hg H2]].
         pose proof (Hchn _ Hf _ Hg) as [].
@@ -668,7 +662,7 @@ Proof with neauto; try congruence.
   destruct H as [A₀ [HinfA₀ [HsubA₀ Hf₀]]].
   apply set_infinite_iff_card_infinite in HinfA₀...
   set (|A₀|) as 𝜆. fold 𝜆 in HinfA₀.
-  assert (Hcd: is_card 𝜆). { exists A₀... }
+  assert (Hcd: 𝜆 ⋵ 𝐂𝐃). { exists A₀... }
   assert (Hmul: 𝜆 ⋅ 𝜆 = 𝜆). {
     apply CardAx1. eapply Equivalence_Transitive.
     apply cardMul_well_defined; symmetry; apply CardAx0.
@@ -682,7 +676,8 @@ Proof with neauto; try congruence.
   rewrite <- Hmul.
   eapply cardLeq_tran; revgoals. {
     apply cardMul_preserve_leq.
-    apply (cardLt_infcard_n _ 2)... split...
+    apply cardLt_infcard_n. split...
+    apply (embed_ran 2).
   }
   rewrite <- cardAdd_k_k.
   assert (Heq: |A₀| + |B - A₀| = |B|). {
@@ -694,7 +689,7 @@ Proof with neauto; try congruence.
       apply SepE in H2 as [_ H2]...
   }
   rewrite Heq𝜅, <- Heq... clear Heq.
-  pose proof (card_comparability AC5 (|B - A₀|) 𝜆) as []... {
+  pose proof (card_comparability AC5 (|B - A₀|)) as []... {
     eapply cardLeq_tran; revgoals. {
       apply cardAdd_preserve_leq'. apply H.
     }
@@ -727,7 +722,8 @@ Proof with neauto; try congruence.
     rewrite <- Hmul at 4.
     replace (𝜆 + 𝜆 + 𝜆) with (3 ⋅ 𝜆). {
       apply cardMul_preserve_leq.
-      apply (cardLt_infcard_n _ 3)... split...
+      apply cardLt_infcard_n. split...
+      apply (embed_ran 3).
     }
     rewrite pred, <- card_suc...
     rewrite cardMul_comm, cardMul_distr, cardMul_ident...
@@ -815,10 +811,10 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的非零有限次幂等于自身 *)
-Corollary cardExp_infcard_id : AC_VI → ∀ 𝜅, ∀n ∈ ω,
-  infcard 𝜅 → n ≠ ∅ → 𝜅 ^ n = 𝜅.
+Corollary cardExp_infcard_id : AC_VI →
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, n ≠ ∅ → 𝜅 ^ n = 𝜅.
 Proof with auto.
-  intros AC6 𝜅 n Hn [Hinf Hcd].
+  intros AC6 𝜅 [Hinf Hcd] n Hn.
   set {n ∊ ω | λ n, n ≠ ∅ → 𝜅 ^ n = 𝜅} as N.
   ω_induction N Hn.
   - intros. exfalso...
@@ -830,10 +826,10 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的有限次幂不大于自身 *)
-Corollary cardExp_infcard_leq : AC_VI → ∀ 𝜅, ∀n ∈ ω,
-  infcard 𝜅 → 𝜅 ^ n ≤ 𝜅.
+Corollary cardExp_infcard_leq : AC_VI →
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, 𝜅 ^ n ≤ 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 n Hn [Hinf Hcd].
+  intros AC6 𝜅 [Hinf Hcd] n Hn.
   destruct (classic (n = 0)). {
     subst n. rewrite cardExp_0_r.
     apply cardLt_infcard_n... split...
@@ -843,7 +839,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自加等于自身 *)
-Theorem cardAdd_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 𝜅 = 𝜅.
+Theorem cardAdd_infcard_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 + 𝜅 = 𝜅.
 Proof with nauto.
   intros AC6 𝜅 Hic. apply cardLeq_antisym.
   - rewrite cardAdd_k_k. eapply cardLeq_tran.
@@ -854,11 +850,12 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数加1等于自身 *)
-Theorem cardAdd_infcard_1 : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 + 1 = 𝜅.
+Theorem cardAdd_infcard_1 : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 + 1 = 𝜅.
 Proof with nauto.
   intros AC6 𝜅 Hic. apply cardLeq_antisym.
-  - rewrite <- cardAdd_infcard_self, cardAdd_comm...
-    apply cardAdd_preserve_leq. apply (cardLt_infcard_n 𝜅)...
+  - rewrite <- (cardAdd_infcard_self AC6 𝜅) at 2...
+    rewrite cardAdd_comm... apply cardAdd_preserve_leq.
+    apply (cardLt_infcard_n 𝜅)...
   - apply cardAdd_enlarge... apply Hic.
 Qed.
 
@@ -888,7 +885,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自乘方等于2的幂 *)
-Theorem cardExp_infcard_self : AC_VI → ∀ 𝜅, infcard 𝜅 → 𝜅 ^ 𝜅 = 2 ^ 𝜅.
+Theorem cardExp_infcard_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 ^ 𝜅 = 2 ^ 𝜅.
 Proof with nauto.
   intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_antisym.
   - rewrite <- (cardMul_infcard_self AC6 𝜅) at 3; [|split]...

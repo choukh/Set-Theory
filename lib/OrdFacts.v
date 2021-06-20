@@ -5,18 +5,20 @@ Require Import ZFC.EST6_2.
 Require Import ZFC.lib.FuncFacts.
 
 (* 有限序数 *)
-Definition finord := λ α, is_ord α ∧ finite α.
+Definition finord := λ α, α ⋵ 𝐎𝐍 ∧ finite α.
+Notation 𝐎𝐍ᶠⁱⁿ := finord.
 
 (* 无限序数 *)
-Definition inford := λ α, is_ord α ∧ infinite α.
+Definition inford := λ α, α ⋵ 𝐎𝐍 ∧ infinite α.
+Notation 𝐎𝐍ⁱⁿᶠ := inford.
 
 (* 自然数集的非空有限子集有极大元 *)
-Lemma finite_ords_is_bounded : ∀ A, ⦿ A → is_ords A →
+Lemma finite_ords_is_bounded : ∀ A, ⦿ A → A ⪽ 𝐎𝐍 →
   finite A → ∃ α, sub_maximum α A.
 Proof with auto; try congruence.
   intros A Hne Hords [n [Hn Hqn]].
   generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, ⦿ A → is_ords A → A ≈ n → ∃ α, sub_maximum α A} as N.
+  set {n ∊ ω | λ n, ∀ A, ⦿ A → A ⪽ 𝐎𝐍 → A ≈ n → ∃ α, sub_maximum α A} as N.
   ω_induction N Hn; intros A Hne Hords Hqn. {
     apply eqnum_empty in Hqn. apply EmptyNI in Hne. exfalso...
   }
@@ -50,58 +52,58 @@ Proof with auto; try congruence.
 Qed.
 
 (* 非零极限序数是无限序数 *)
-Lemma limit_is_inford : ∀ α, α ≠ ∅ → is_limit α → inford α.
+Lemma limord_is_inford : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, α ≠ ∅ → α ⋵ 𝐎𝐍ⁱⁿᶠ.
 Proof with eauto; try congruence.
-  intros α Hne Hlim. split. apply Hlim. intros Hfin.
-  apply limit_ord_no_maximum in Hlim as Hbnd.
+  intros α Hlim Hne. split. apply Hlim. intros Hfin.
+  apply limord_no_maximum in Hlim as Hbnd.
   apply Hbnd. apply finite_ords_is_bounded...
   apply EmptyNE... apply ord_is_ords. apply Hlim.
 Qed.
 
 (* 非零有限序数是后继序数 *)
-Lemma nonzero_finord_is_suc : ∀ α, α ≠ ∅ → finord α → is_suc α.
+Lemma nonzero_finord_is_suc : ∀α ⋵ 𝐎𝐍ᶠⁱⁿ, α ≠ ∅ → α ⋵ 𝐎𝐍ˢᵘᶜ.
 Proof with auto.
-  intros α Hne [Hord Hfin].
-  apply ord_is_suc_or_limit in Hord as []...
-  apply limit_is_inford in H as [_ Hinf]... exfalso...
+  intros α [Hord Hfin] Hne.
+  apply sucord_or_limord in Hord as []...
+  apply limord_is_inford in H as [_ Hinf]... exfalso...
 Qed.
 
 (* 任意序数与自身的单集不交 *)
-Lemma ord_disjoint : ∀ α, is_ord α → disjoint α ⎨α⎬.
+Lemma ord_disjoint : ∀α ⋵ 𝐎𝐍, disjoint α ⎨α⎬.
 Proof.
   intros n Hn. apply disjointI. intros [x [H1 H2]].
   apply SingE in H2. subst. eapply ord_irrefl; eauto.
 Qed.
 
 (* 自然数等价于有限序数 *)
-Lemma nat_iff_finord : ∀ n, n ∈ ω ↔ finord n.
+Lemma nat_iff_finord : ∀ n, n ∈ ω ↔ n ⋵ 𝐎𝐍ᶠⁱⁿ.
 Proof with neauto.
   split. {
     intros Hn. split.
-    apply nat_is_ord... apply nat_finite...
+    apply ω_is_ords... apply nat_finite...
   }
   intros [Hord [k [Hk Hqn]]].
   generalize dependent n.
-  set {k ∊ ω | λ k, ∀ n, is_ord n → n ≈ k → n ∈ ω} as N.
+  set {k ∊ ω | λ k, ∀ n, n ⋵ 𝐎𝐍 → n ≈ k → n ∈ ω} as N.
   ω_induction N Hk; intros n Hn Hqn.
   - apply eqnum_empty in Hqn. subst...
-  - apply ord_is_suc_or_limit in Hn as [Hsuc|Hlim].
+  - apply sucord_or_limord in Hn as [Hsuc|Hlim].
     + destruct Hsuc as [p [Hp Heq]]. subst n.
       apply ω_inductive. apply IH...
       eapply eqnum_sets_removing_one_element_still_eqnum...
       apply ord_disjoint...
       apply nat_disjoint...
     + destruct (classic (n = ∅)). subst...
-      exfalso. apply limit_is_inford in Hlim as [_ Hinf]...
+      exfalso. apply limord_is_inford in Hlim as [_ Hinf]...
       apply Hinf. exists (m⁺). split... apply ω_inductive...
 Qed.
 
 (* ω是无限序数 *)
-Lemma ω_is_inford : inford ω.
+Lemma ω_is_inford : ω ⋵ 𝐎𝐍ⁱⁿᶠ.
 Proof. split. apply ω_is_ord. apply ω_infinite. Qed.
 
 (* 大于等于ω的序数是无限序数 *)
-Lemma ord_geq_ω_infinite : ∀ α, is_ord α → ω ⋸ α → inford α.
+Lemma ord_geq_ω_infinite : ∀α ⋵ 𝐎𝐍, ω ⋸ α → α ⋵ 𝐎𝐍ⁱⁿᶠ.
 Proof with eauto.
   intros α Hα Hle.
   apply ord_leq_iff_sub in Hle... split...
@@ -110,14 +112,14 @@ Proof with eauto.
 Qed.
 
 (* 无限序数大于等于ω *)
-Lemma inford_geq_ω : ∀ α, inford α → ω ⋸ α.
+Lemma inford_geq_ω : ∀α ⋵ 𝐎𝐍ⁱⁿᶠ, ω ⋸ α.
 Proof with auto.
   intros α [Hα Hinf]. apply ord_leq_iff_not_gt...
   intros Hlt. apply Hinf. apply nat_finite...
 Qed.
 
 (* 序数大于等于ω当且仅当该序数是无限序数 *)
-Lemma ord_geq_ω_iff_inford : ∀ α, is_ord α ∧ ω ⋸ α ↔ inford α.
+Lemma ord_geq_ω_iff_inford : ∀ α, α ⋵ 𝐎𝐍 ∧ ω ⋸ α ↔ α ⋵ 𝐎𝐍ⁱⁿᶠ.
 Proof with auto.
   split.
   - intros [Hα Hle]. apply ord_geq_ω_infinite...
@@ -125,7 +127,7 @@ Proof with auto.
 Qed.
 
 (* 无限序数与自身的后继等势 *)
-Lemma inford_eqnum_its_suc : ∀ α, inford α → α⁺ ≈ α.
+Lemma inford_eqnum_its_suc : ∀α ⋵ 𝐎𝐍ⁱⁿᶠ, α⁺ ≈ α.
 Proof with neauto; try congruence.
   intros α Hinf.
   apply inford_geq_ω in Hinf as Hgeω.
@@ -174,10 +176,10 @@ Proof with neauto; try congruence.
 Qed.
 
 (* 无限序数的前驱（如果存在）是无限序数 *)
-Lemma pred_of_inford_infinite : ∀ α β, inford α → α = β⁺ → inford β.
+Lemma pred_of_inford_infinite : ∀α ⋵ 𝐎𝐍ⁱⁿᶠ, ∀ β, α = β⁺ → β ⋵ 𝐎𝐍ⁱⁿᶠ.
 Proof with eauto.
-  intros α β [Hα Hinf] Heq.
-  assert (Hβ: is_ord β). {
+  intros α [Hα Hinf] β Heq.
+  assert (Hβ: β ⋵ 𝐎𝐍). {
     eapply ord_is_ords... rewrite Heq. apply suc_has_n.
   }
   split... apply (remove_one_member_from_infinite β) in Hinf.
@@ -186,11 +188,10 @@ Proof with eauto.
 Qed.
 
 (* 初始无限序数是极限序数 *)
-Fact initial_inford_is_limit : ∀ α,
-  initial_ord α → inford α → is_limit α.
+Fact initial_inford_is_limit : ∀α ⋵ 𝐎𝐍ⁱⁿⁱᵗ, α ⋵ 𝐎𝐍ⁱⁿᶠ → α ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof with eauto.
   intros α [Hα Hinit] Hinf.
-  destruct (ord_is_suc_or_limit α)... exfalso.
+  destruct (sucord_or_limord α)... exfalso.
   destruct H as [β [Hβ Heq]].
   apply (Hinit β); rewrite Heq.
   - apply suc_has_n.

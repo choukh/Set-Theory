@@ -196,11 +196,12 @@ Qed.
 Example ex3_14_a:  ∀ f g,
   is_function f → is_function g → is_function (f ∩ g).
 Proof with eauto.
-  intros * Hf Hg. repeat split.
+  intros * Hf Hg. split.
   - intros x Hx. apply BInterE in Hx as [Hx _].
     apply func_pair in Hx... exists (π1 x), (π2 x)...
-  - apply domE in H...
-  - intros y y' Hy Hy'. apply BInterE in Hy as [Hy _].
+  - intros y Hy. apply domE in Hy as [x Hy]...
+    exists x. split... intros y' Hy'.
+    apply BInterE in Hy as [Hy _].
     apply BInterE in Hy' as [Hy' _]. clear Hg. eapply func_sv...
 Qed.
 
@@ -209,21 +210,22 @@ Example ex3_14_b:  ∀ f g,
   (∀x ∈ dom f ∩ dom g, f[x] = g[x]) ↔ is_function (f ∪ g).
 Proof with eauto.
   intros * Hf Hg. split; intros.
-  - repeat split.
+  - split.
     + intros p Hp. apply BUnionE in Hp as [Hp|Hp];
         apply func_pair in Hp; eauto; exists (π1 p), (π2 p)...
-    + apply domE in H0...
-    + intros y y' Hy Hy'.
-      apply BUnionE in Hy as []; apply BUnionE in Hy' as [].
+    + intros x Hx. apply domE in Hx as [y Hy]...
+      exists y. split... intros y' Hy'.
+      apply BUnionE in Hy as [Hy|Hy];
+      apply BUnionE in Hy' as [Hy'|Hy'].
       * clear Hg. eapply func_sv...
-      * apply domI in H1 as Hdf. apply domI in H2 as Hdg.
-        apply func_ap in H1... apply func_ap in H2...
-        assert (x ∈ dom f ∩ dom g) by (apply BInterI; auto).
-        apply H in H3. congruence.
-      * apply domI in H1 as Hdf. apply domI in H2 as Hdg.
-        apply func_ap in H1... apply func_ap in H2...
-        assert (x ∈ dom f ∩ dom g) by (apply BInterI; auto).
-        apply H in H3. congruence.
+      * apply domI in Hy as Hdf. apply domI in Hy' as Hdg.
+        apply func_ap in Hy... apply func_ap in Hy'...
+        assert (x ∈ dom f ∩ dom g). apply BInterI...
+        apply H in H0. congruence.
+      * apply domI in Hy as Hdf. apply domI in Hy' as Hdg.
+        apply func_ap in Hy... apply func_ap in Hy'...
+        assert (x ∈ dom f ∩ dom g). apply BInterI...
+        apply H in H0. congruence.
       * clear Hf. eapply func_sv...
   - intros x Hx. apply BInterE in Hx as [Hdf Hdg].
     apply func_correct in Hdf... apply func_correct in Hdg...
@@ -237,13 +239,13 @@ Proof with eauto.
   - intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
     apply H in Hf. apply func_pair in Hf. apply Hf in Hp.
     exists (π1 p), (π2 p)...
-  - apply domE in H1...
-  - intros y y' Hy Hy'.
+  - intros x Hx. apply domE in Hx as [y Hy]...
+    exists y. split... intros y' Hy'.
     apply UnionAx in Hy  as [f [Hf Hpf]].
     apply UnionAx in Hy' as [g [Hg Hpg]].
     destruct (H0 f Hf g Hg).
-    + apply H2 in Hpf. eapply func_sv... apply H...
-    + apply H2 in Hpg. eapply func_sv... apply H...
+    + apply H1 in Hpf. eapply func_sv... apply H...
+    + apply H1 in Hpg. eapply func_sv... apply H...
 Qed.
 
 Example ex3_16: ¬ ∃ F, ∀ f, is_function f → f ∈ F.
@@ -274,8 +276,8 @@ Qed.
 Example ex3_17_a: ∀ F G,
   single_rooted F → single_rooted G → single_rooted (F ∘ G).
 Proof with eauto.
-  intros * Hsf Hsg y Hy. split. apply ranE in Hy...
-  intros x x' Hx Hx'.
+  intros * Hsf Hsg y Hy. apply ranE in Hy as [x Hx]...
+  exists x. split... intros x' Hx'.
   apply compoE in Hx  as [t [Htg Htf]].
   apply compoE in Hx' as [u [Hug Huf]].
   assert (t = u) by (clear Hsg; eapply singrE; eauto).
@@ -410,12 +412,12 @@ Proof with eauto.
     apply func_ap in Hp... subst y. rewrite Hdg.
     assert (f⟦x⟧ ⊆ ran f) by apply img_included.
     apply PowerAx. eapply sub_tran...
-  - split... intros y Hy. split. apply ranE in Hy...
-    intros X X' HX HX'. subst A.
+  - split... intros y Hy. apply ranE in Hy as [X HX]...
+    exists X. split... intros X' HX'. subst A.
     apply domI in HX as Hd. apply domI in HX' as Hd'.
     apply func_ap in HX... apply func_ap in HX'...
     rewrite Hapeq in HX... rewrite Hapeq in HX'... subst y.
-    clear Hrf Hfg Hapeq Hy.
+    clear Hrf Hfg Hapeq.
     apply ExtAx. intros x. split; intros Hx.
     + rewrite Hdgeq in Hd. rewrite PowerAx in Hd. 
       apply Hd in Hx as Hpx. apply func_correct in Hpx...
@@ -434,8 +436,8 @@ Example ex3_29: ∀ f A B G,
   (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) → injective G.
 Proof with eauto.
   intros * [Hff [Hdf Hrf]] [Hgf [Hdg _]] H. subst A B.
-  split... intros y Hy. split. apply ranE in Hy... clear Hy.
-  intros b b' Hb Hb'. 
+  split... intros y Hy. apply ranE in Hy as [b Hb]...
+  exists b. split... intros b' Hb'. 
   apply domI in Hb as Hd. apply domI in Hb' as Hd'.
   apply func_ap in Hb... apply func_ap in Hb'... subst y.
   apply H in Hd as Heq. apply H in Hd' as Heq'.
@@ -508,13 +510,11 @@ Proof with eauto.
     + (* B ⊆ X *) intros b Hb.
       apply InterE in Hb as [_ Hb]. apply Hb.
       apply SepI. apply Hr. rewrite <- Heq. eapply ranI.
-      apply func_correct... rewrite ExtAx in Heq.
-      intros x Hx. apply Heq...
+      apply func_correct... rewrite <- Heq at 2...
     + (* X ⊆ C *) intros c Hc.
       apply UnionAx. exists X. split...
       apply SepI. apply Hr. rewrite <- Heq. eapply ranI.
-      apply func_correct... rewrite ExtAx in Heq.
-      intros x Hx. apply Heq...
+      apply func_correct... rewrite <- Heq at 1...
 Qed.
 
 (* ex3_31: see EST3_2.v Theorem AC_I_iff_II *) 

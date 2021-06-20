@@ -28,7 +28,7 @@ Proof with eauto.
   eapply relLt_le_tranr... apply lo. apply Hle...
 Qed.
 
-Import SimpleVer.
+Import WosetMin.SimpleVer.
 
 Definition LeftInterval := λ x R f,
   {y ∊ dom f | λ y, (y <ᵣ x) R}.
@@ -881,13 +881,14 @@ Proof with neauto; try congruence.
   assert (H := Hmb). destruct H as [Hfb [Hdb _]].
   pose proof (enumeration_of_partial_back_and_forth_embeddings A)
     as [G [HfG [HdG Hstar]]]...
-  set (⋃ᵢ (ap G)) as f.
+  set (⋃ᵢ (Ap G)) as f.
   assert (Hf: f: A ⟺ B). {
     split; split.
     - (* is_function f *)
       split. intros p Hp.
       apply IFUnionE in Hp as [n [Hn Hp]]. apply (Hstar n Hn)...
-      intros x Hx. split. apply domE in Hx...
+      intros x Hx. rewrite <- unique_existence.
+      split. apply domE in Hx...
       intros y1 y2 H1 H2.
       apply IFUnionE in H1 as [n [Hn H1]].
       apply IFUnionE in H2 as [m [Hm H2]].
@@ -901,7 +902,8 @@ Proof with neauto; try congruence.
       apply nat_connected in H as []...
       symmetry. apply Hin1... apply Hin2...
     - (* single_rooted f *)
-      intros y Hy. split. apply ranE in Hy...
+      intros y Hy. rewrite <- unique_existence.
+      split. apply ranE in Hy...
       intros y1 y2 H1 H2.
       apply IFUnionE in H1 as [n [Hn H1]].
       apply IFUnionE in H2 as [m [Hm H2]].

@@ -180,8 +180,9 @@ Proof with eauto; try congruence.
   repeat split.
   - intros p Hp. apply ReplAx in Hp as [x [_ Hp]].
     rewrite <- Hp. eexists...
-  - apply domE in H...
-  - intros y1 y2 H1 H2.
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply domE in Hx...
+    intros y1 y2 H1 H2.
     apply ReplAx in H1 as [u [_ H1]]. apply op_iff in H1 as [].
     apply ReplAx in H2 as [v [_ H2]]. apply op_iff in H2 as []...
   - apply ExtAx. split; intros.
@@ -198,7 +199,8 @@ Qed.
 Lemma σ_bijective : σ: ω ⟺ ω - ⎨∅⎬.
 Proof with eauto.
   pose proof σ_function as [Hf [Hd Hr]]. split; split...
-  - split. apply ranE in H...
+  - intros x Hx. rewrite <- unique_existence.
+    split. apply ranE in Hx...
     intros y1 y2 H1 H2.
     apply ReplAx in H1 as [m [Hm H1]].
     apply ReplAx in H2 as [n [Hn H2]].
@@ -231,7 +233,8 @@ Proof with eauto.
   - intros H. apply ranE in H as [x Hp].
     apply ReplAx in Hp as [n [Hn H]].
     apply op_iff in H as [_ H]. eapply suc_neq_0...
-  - split... intros y Hy. split. apply ranE in Hy...
+  - split... intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     intros x1 x2 H1 H2.
     apply ReplAx in H1 as [n [Hx1 Hn]].
     apply ReplAx in H2 as [m [Hx2 Hm]].
@@ -295,8 +298,8 @@ Proof with eauto; try congruence.
     split. intros p Hp. apply UnionAx in Hp as [v [Hv Hp]].
     des Hv. apply func_pair in Hp as Hpeq...
     rewrite Hpeq. eexists...
-    intros n Hn. split. apply domE in Hn...
-    apply Hdhω in Hn.
+    intros n Hn. rewrite <- unique_existence.
+    split. apply domE in Hn... apply Hdhω in Hn.
     set {n ∊ ω | λ n, ∀ y1 y2,
       <n, y1> ∈ h → <n, y2> ∈ h → y1 = y2} as N.
     ω_induction N Hn; intros y1 y2 H1 H2.
@@ -338,10 +341,11 @@ Proof with eauto; try congruence.
   assert (H0dh: ∅ ∈ dom h). {
     set ⎨<∅, a>⎬ as f0.
     assert (Hf: is_function f0). {
-      repeat split.
+      split.
       - intros x Hx. apply SingE in Hx. subst x. eexists...
-      - eapply domE in H...
-      - intros y1 y2 H1 H2.
+      - intros x Hx. rewrite <- unique_existence.
+        split. apply domE in Hx...
+        intros y1 y2 H1 H2.
         apply SingE in H1. apply op_iff in H1 as [_ H1].
         apply SingE in H2. apply op_iff in H2 as [_ H2]...
     }
@@ -372,22 +376,23 @@ Proof with eauto; try congruence.
     set (h ∪ ⎨p1⎬) as v.
     assert (Hp1: p1 ∈ v) by (apply BUnionI2; apply SingI).
     assert (Hf: is_function v). {
-      repeat split.
+      split.
       - intros p Hp. apply BUnionE in Hp as [].
         + apply func_pair in H... rewrite H. eexists...
         + apply SingE in H. subst p. exists k⁺, (F[h[k]])...
-      - apply domE in H...
-      - intros y1 y2 H1 H2.
+      - intros x Hx. rewrite <- unique_existence.
+        split. apply domE in Hx...
+        intros y1 y2 H1 H2.
         apply BUnionE in H1 as []; apply BUnionE in H2 as [].
         + eapply func_sv...
-        + apply domI in H0. apply SingE in H1.
-          apply op_iff in H1 as [H1 _]. subst x.
-          exfalso. apply Hc...
-        + apply domI in H1. apply SingE in H0.
+        + apply domI in H. apply SingE in H0.
           apply op_iff in H0 as [H0 _]. subst x.
           exfalso. apply Hc...
-        + apply SingE in H0. apply op_iff in H0 as [_ H0].
-          apply SingE in H1. apply op_iff in H1 as [_ H1]...
+        + apply domI in H0. apply SingE in H.
+          apply op_iff in H as [H _]. subst x.
+          exfalso. apply Hc...
+        + apply SingE in H. apply op_iff in H as [_ H].
+          apply SingE in H0. apply op_iff in H0 as [_ H0]...
     }
     assert (Hd: dom v ⊆ ω). {
       intros x Hx. apply domE in Hx as [y Hp].
@@ -458,7 +463,8 @@ Theorem ω_recursion_uniqueness : ∀ F A a, F: A ⇒ A → a ∈ A →
   h[∅] = a ∧
   ∀n ∈ ω, h[n⁺] = F[h[n]].
 Proof with eauto; try congruence.
-  intros * HF Ha. split. apply ω_recursion...
+  intros * HF Ha. rewrite <- unique_existence.
+  split. apply ω_recursion...
   intros h1 h2 [[H1f [H1d _]] [H10 H1]] [[H2f [H2d _]] [H20 H2]].
   apply func_ext_intro... intros n Hn. rewrite H1d in Hn.
   set {n ∊ ω | λ n, h1[n] = h2[n]} as S.
@@ -477,7 +483,8 @@ Proof with eauto; try congruence.
   destruct H1 as [Hf [Hd Hr]].
   exists h. split. split; split...
   - (* single_rooted h *)
-    intros y Hy. split. apply ranE in Hy...
+    intros y Hy. rewrite <- unique_existence.
+    split. apply ranE in Hy...
     assert (Hnq0: ∀p ∈ ω, h[∅] ≠ h[p⁺]). {
       intros p Hp. apply H3 in Hp as Heq. rewrite H2, Heq.
       intros Hc. apply Hi. rewrite Hc. destruct HS as [HfS [HdS _]].

@@ -3,12 +3,13 @@
 
 Require Export ZFC.lib.Natural.
 Require Import ZFC.lib.FuncFacts.
+Require Import ZFC.lib.ChoiceFacts.
 
 (*** EST第七章2：良序，超限归纳原理，超限递归定理，传递闭包 ***)
 
 (* 良序结构 *)
-Definition woset : set → set → Prop := λ A R,
-  wellOrder R A.
+Print woset.
+(* Definition woset := λ A R, wellOrder R A. *)
 
 (* Theorem 7J *)
 Theorem subRel_woset : ∀ A R B, woset A R → B ⊆ A → woset B (R ⥏ B).
@@ -240,8 +241,9 @@ Fact transfinite_recursion_schema_to_preliminary_form :
 Proof with eauto; try congruence.
   intros Schema A R B G Hwo HG.
   set (λ f y, y = G[f]) as γ.
-  pose proof (Schema A R γ Hwo) as [[F [HF [Hd Hrec]]] Hu]. {
-    intros f. split. exists (G[f])... intros...
+  pose proof (Schema A R γ Hwo) as [F [[HF [Hd Hrec]] Hu]]. {
+    intros f. rewrite <- unique_existence.
+    split. exists (G[f])... intros...
   }
   set {x ∊ A | λ x, F[x] ∈ B} as A'.
   replace A with A' in *. {
@@ -250,10 +252,10 @@ Proof with eauto; try congruence.
       apply domI in Hp as Hx. rewrite Hd in Hx.
       apply func_ap in Hp... apply SepE2 in Hx...
     }
-    split.
-    - exists F. split. split... intros t Ht. rewrite Hrec...
-    - intros f1 f2 [[Hf1 [Hd1 Hr1]] H1] [[Hf2 [Hd2 Hr2]] H2].
-      apply Hu; split...
+    rewrite <- unique_existence. split.
+    exists F. split. split... intros t Ht. rewrite Hrec...
+    intros f1 f2 [[Hf1 [Hd1 Hr1]] H1] [[Hf2 [Hd2 Hr2]] H2].
+    rewrite <- Hu... rewrite <- Hu at 1...
   }
   eapply transfinite_induction... split.
   - intros x Hx. apply SepE1 in Hx...
@@ -310,7 +312,7 @@ Proof with eauto; try congruence.
     assert (Hmt₂: (m ≤ᵣ t₂) R) by (apply (relLe_tranr m t₁ t₂ R); auto).
     assert (Hmd₁: m ∈ head t₁) by (apply SepI; auto).
     assert (Hmd₂: m ∈ head t₂) by (apply SepI; auto).
-    eapply Hu. apply Hr₁...
+    eapply unique_existence. eapply Hu. apply Hr₁...
     replace (ν₁ ↾ seg m) with (ν₂ ↾ seg m). apply Hr₂...
     apply ExtAx. split; intros Hx.
     - apply restrE1 in Hx as [a [b [Ha [Hp Heqx]]]].
@@ -351,7 +353,8 @@ Proof with eauto; try congruence.
   set (ϕ_Repl ϕ A') as ℋ.
   set (⋃ ℋ) as F.
   assert (Hϕ: ∀t ∈ A', ∃! ν, ϕ t ν). {
-    intros t Ht. apply SepE in Ht as [Ht H]. split...
+    intros t Ht. apply SepE in Ht as [Ht H].
+    rewrite <- unique_existence. split...
     intros ν μ [] []. eapply HL1_2...
   }
   assert (Hrepl: ∀ ν, ν ∈ ℋ ↔ is_function ν ∧ ∃t ∈ A, γ_constr t ν). {
@@ -376,8 +379,9 @@ Proof with eauto; try congruence.
     repeat split.
     - intros p Hp. apply UnionAx in Hp as [ν [Hν Hp]].
       apply Hrepl in Hν as [[Hrel _] _]. apply Hrel...
-    - apply domE in H...
-    - intros y₁ y₂ Hp₁ Hp₂.
+    - intros x H. rewrite <- unique_existence.
+      split. apply domE in H...
+      intros y₁ y₂ Hp₁ Hp₂.
       apply Hstar in Hp₁ as [ν₁ [Hν₁ Hp₁]].
       apply Hstar in Hp₂ as [ν₂ [Hν₂ Hp₂]].
       apply Hrepl in Hν₁ as [Hf₁ [t₁ [Ht₁ Hγ₁]]].
@@ -456,7 +460,7 @@ Proof with eauto; try congruence.
         apply domI in Hp as Hx. rewrite Hdν in Hx.
         apply SepE in Hx as [_ Hxs]. left. eapply relLt_le_tranr...
     }
-    specialize Hu with F as [[y Hγ] _].
+    specialize Hu with F as [y [Hγ _]].
     set (F ∪ ⎨<t, y>⎬) as ν.
     assert (Hfs : is_function ⎨<t, y>⎬)
       by apply single_pair_is_func.
@@ -506,7 +510,7 @@ Proof with eauto; try congruence.
       congruence.
   }
   rewrite HL3 in HL2.
-  split. exists F. split...
+  rewrite <- unique_existence. split. exists F. split...
   (* uniqueness *)
   intros F₁ F₂ [HfF₁ [HdF₁ Hγ₁]] [HfF₂ [HdF₂ Hγ₂]].
   apply func_ext_intro...
@@ -517,7 +521,8 @@ Proof with eauto; try congruence.
   split. intros t Ht. apply SepE1 in Ht...
   intros t Ht Hsub. apply SepI...
   apply Hγ₁ in Ht as H1. apply Hγ₂ in Ht as H2.
-  replace (F₂ ↾ EST7_2.seg t R) with (F₁ ↾ EST7_2.seg t R) in H2. eapply Hu...
+  replace (F₂ ↾ EST7_2.seg t R) with (F₁ ↾ EST7_2.seg t R) in H2.
+  eapply unique_existence. eapply Hu. apply H1. apply H2.
   apply ExtAx. intros w. split; intros Hw.
   - apply restrE1 in Hw as [a [b [Ha [Hp Hw]]]]. subst w.
     apply restrI... apply Hsub in Ha. apply SepE in Ha as [Ha Heq].
@@ -533,18 +538,17 @@ Proof.
   apply transfinite_recursion.
 Qed.
 
-(* == we use Hilbert's epsilon for convenience reasons == *)
 Module Import TransfiniteRecursion.
 
 Definition spec := λ A R γ F,
   is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
 
-Definition constr := λ A R γ, ClassChoice (spec A R γ).
+Definition constr := λ A R γ, describe (spec A R γ).
 
 Lemma spec_intro : ∀ A R γ, woset A R →
   (∀ x, ∃! y, γ x y) → spec A R γ (constr A R γ).
 Proof.
-  intros. apply (class_choice_spec (spec A R γ)).
+  intros. apply (desc_spec (spec A R γ)).
   apply transfinite_recursion; auto.
 Qed.
 
@@ -560,7 +564,8 @@ Definition F := λ A, constr ω Lt (γ A).
 Lemma f_spec : ∀ A, spec ω Lt (γ A) (F A).
 Proof.
   intros. apply spec_intro. apply Lt_wellOrder.
-  intros f. split. exists (A ∪ ⋃ ⋃ (ran f)). congruence. congruence.
+  intros f. rewrite <- unique_existence.
+  split. exists (A ∪ ⋃ ⋃ (ran f)). congruence. congruence.
 Qed.
 
 Fact f_0 : ∀ A, (F A)[0] = A.

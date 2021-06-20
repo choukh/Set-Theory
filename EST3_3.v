@@ -94,7 +94,7 @@ Qed.
 (* 等价类 *)
 Definition EquivClass : set → set → set := λ x R,
   {t ∊ ran R | λ t, <x, t> ∈ R}.
-Notation "[ x ] R" := (EquivClass x R) (at level 35, format "[ x ] R") : ZFC_scope.
+Notation "[ x ] R" := (EquivClass x R) (at level 35, format "[ x ] R") : set_scope.
 
 Lemma eqvcI : ∀ R x y, <x, y> ∈ R → y ∈ [x]R.
 Proof with eauto. intros. apply SepI... eapply ranI... Qed.
@@ -126,7 +126,7 @@ Definition partition : set → set → Prop := λ Π A,
 (* 商集：等价类的集合 *)
 Definition Quotient : set → set → set := λ R A,
   {λ x, [x]R | x ∊ A}.
-Notation "A / R" := (Quotient R A) : ZFC_scope.
+Notation "A / R" := (Quotient R A) : set_scope.
 
 Lemma quotI : ∀ R A, ∀a ∈ A, [a]R ∈ A / R.
 Proof. intros * a Ha. apply ReplAx. exists a. split; auto. Qed.
@@ -167,22 +167,20 @@ Proof with eauto.
   intros * Hqv [Hf [Hdf Hrf]] Hc.
   set ({λ x, <[x]R, [F[x]]R> | x ∊ A}) as F'.
   assert (Hf': is_function F'). {
-    repeat split.
+    split.
     (* is_rel *)
     - intros p Hp. apply ReplAx in Hp as [x []]. subst p. eexists...
-    - apply domE in H...
-    (* single value *)
-    - intros y1 y2 Hy1 Hy2. apply domE in H as [y0 Hy0].
-      apply ReplAx in Hy0 as [a0 [_ Heq0]].
+    - intros x Hx. rewrite <- unique_existence.
+      split. apply domE in Hx...
+      intros y1 y2 Hy1 Hy2.
       apply ReplAx in Hy1 as [a1 [Ha1 Heq1]].
       apply ReplAx in Hy2 as [a2 [Ha2 Heq2]].
-      apply op_iff in Heq0 as [Heq0 _].
       apply op_iff in Heq1 as [Heq1 Hy1].
       apply op_iff in Heq2 as [Heq2 Hy2].
-      subst x y1 y2. rewrite <- Heq2 in Heq1. clear Heq2.
-      eapply eqvc_ident in Heq1... apply Hc in Heq1...
-      subst A. apply func_correct in Ha1... apply func_correct in Ha2...
-      eapply eqvc_ident; eauto + apply Hrf; eapply ranI...
+      subst. symmetry in Heq2.
+      eapply eqvc_ident in Heq2... apply Hc in Heq2...
+      apply func_correct in Ha1... apply func_correct in Ha2...
+      eapply eqvc_ident; [| |eauto..]; apply Hrf; eapply ranI...
   }
   assert (Hdf': dom F' = A/R). {
     apply ExtAx. split; intros Hx.
@@ -214,8 +212,10 @@ Qed.
 Theorem compatibleE : ∀ R A F, equiv R A → F: A ⇒ A →
   compatible R A F → ∃!F', F': A/R ⇒ A/R ∧ ∀x ∈ A, F'[[x]R] = [F[x]]R.
 Proof with eauto.
-  intros * Hqv Hf Hc. split. apply compatibleE0...
-  intros F1 F2 [[HF1 [Hd1 Hr1]] H1] [[HF2 [Hd2 Hr2]] H2].
+  intros * Hqv Hf Hc.
+  pose proof compatibleE0 as [F1 [[HF1 [Hd1 Hr1]] H1]]...
+  exists F1. split. split... split...
+  intros F2 [[HF2 [Hd2 Hr2]] H2].
   apply func_ext_intro... rewrite Hd1, Hd2...
   intros x Hx. rewrite Hd1 in Hx. apply quotE in Hx as [a [Ha Heq]].
   apply H1 in Ha as Heq1. apply H2 in Ha as Heq2. congruence.

@@ -2,6 +2,7 @@
 
 Require Import ZFC.EST7_6.
 Require Import ZFC.EX7_3.
+Require Import ZFC.EST8_2.
 Require Import ZFC.EST8_4.
 Require Import ZFC.lib.LoStruct.
 
@@ -18,21 +19,21 @@ Proof with nauto.
   set {α ∊ ω | λ α, t α = 5 + α} as N.
   ω_induction N Hα; unfold t in *.
   - rewrite operation_0, add_ident...
-  - rewrite operation_suc, IH; [|apply nat_is_ord]...
+  - rewrite operation_suc, IH; [|apply ω_is_ords]...
     rewrite add_suc, add_suc, add_assoc... apply add_ran...
 Qed.
 
-Example ex8_2_b : ∀ α, is_ord α → ω ⋸ α → t α = α.
+Example ex8_2_b : ∀α ⋵ 𝐎𝐍, ω ⋸ α → t α = α.
 Proof with neauto.
   set (λ α, ω ⋸ α → t α = α) as ϕ.
   apply (transfinite_induction_schema_on_ordinals ϕ).
   intros α Hoα IH Hle. unfold t.
-  destruct (ord_is_suc_or_limit α) as [|Hlim]...
+  destruct (sucord_or_limord α) as [|Hlim]...
   - destruct H as [β [Hoβ Heq]]. subst.
     destruct Hle as [Hlt|Heq].
     + rewrite operation_suc... f_equal.
       apply IH... apply ord_leq_iff_lt_suc...
-    + exfalso. apply (ord_is_limit_iff_not_suc ω)...
+    + exfalso. apply (limord_iff_not_sucord ω)...
       exists β. split...
   - destruct (classic (α = ∅)). {
       subst. destruct Hle. exfalso0. exfalso. apply ω_neq_0...
@@ -40,7 +41,7 @@ Proof with neauto.
     rewrite operation_limit...
     apply ExtAx. split; intros Hx.
     + apply FUnionE in Hx as [n [Hn Hx]].
-      assert (Hon: is_ord n). eapply ord_is_ords...
+      assert (Hon: n ⋵ 𝐎𝐍). eapply ord_is_ords...
       destruct (classic (ω ⋸ n)) as [Hω|Hω]. {
         rewrite IH in Hx... eapply ord_trans...
       }
@@ -51,10 +52,10 @@ Proof with neauto.
       rewrite ex8_2_a in Hx...
       apply ord_leq_iff_sub in Hle... apply Hle.
       eapply ord_trans... apply add_ran...
-    + assert (Hox: is_ord x). eapply ord_is_ords...
+    + assert (Hox: x ⋵ 𝐎𝐍). eapply ord_is_ords...
       destruct (classic (ω ⋸ x⁺)) as [Hω|Hω]. {
-        eapply FUnionI. apply suc_in_limit...
-        rewrite IH... apply suc_in_limit...
+        eapply FUnionI. apply sucord_in_limord...
+        rewrite IH... apply sucord_in_limord...
       }
       assert (Hxpω: x⁺ ∈ ω). {
         destruct (classic (x⁺ ∈ ω))... exfalso.
@@ -226,7 +227,7 @@ Proof with neauto; try congruence.
     apply kard_intro. reflexivity.
     intros x Hx. symmetry in Hx.
     apply eqnum_two_iff in Hx as [a [b [Hnq Hx]]]. subst x.
-    assert (Ho: is_ord (rank a ∪ rank b)). {
+    assert (Ho: rank a ∪ rank b ⋵ 𝐎𝐍). {
       apply union_of_ords_is_ord.
       intros x Hx. apply PairE in Hx as []; subst...
     }
@@ -277,7 +278,7 @@ Proof with auto.
     apply BUnionI2; apply CProdI; auto].
 Qed.
 
-Local Lemma lt_0_0 : (0 <ᵣ 0) (MemberRel 2) → ⊥.
+Local Lemma lt_0_0 : (0 <ᵣ 0) (MemberRel 2) → False.
 Proof.
   intros H. apply binRelE3 in H. exfalso0.
 Qed.
@@ -288,12 +289,12 @@ Proof with auto.
   apply BUnionI2... apply BUnionI2...
 Qed.
 
-Local Lemma lt_1_0 : (1 <ᵣ 0) (MemberRel 2) → ⊥.
+Local Lemma lt_1_0 : (1 <ᵣ 0) (MemberRel 2) → False.
 Proof.
   intros H. apply binRelE3 in H. exfalso0.
 Qed.
 
-Local Lemma lt_1_1 : (1 <ᵣ 1) (MemberRel 2) → ⊥.
+Local Lemma lt_1_1 : (1 <ᵣ 1) (MemberRel 2) → False.
 Proof.
   intros H. apply binRelE3 in H.
   eapply nat_irrefl; revgoals; neauto.
@@ -450,16 +451,29 @@ Proof.
   apply EST8_3.loAdd_well_defined; auto.
 Qed.
 
-Definition OtAdd :=
-  λ ρ σ, ot (proj ρ +' proj σ).
+Definition otAdd_spec := λ ρ σ τ,
+  ∀ S T, ρ = ot S → σ = ot T → τ = ot (S +' T).
+Definition OtAdd := λ ρ σ, describe (otAdd_spec ρ σ).
 Notation "ρ +' σ" := (OtAdd ρ σ) : OrderType_scope.
 
 Open Scope OrderType_scope.
 
+Lemma otAdd_spec_intro : ∀ ρ σ ⋵ 𝐎𝐓, otAdd_spec ρ σ (ρ +' σ).
+Proof.
+  intros ρ [S HS] σ [T HT]. apply (desc_spec (otAdd_spec ρ σ)).
+  rewrite <- unique_existence. split.
+  - exists (ot (S +' T)%lo). intros S' T' H1 H2. subst.
+    apply ot_correct in H1. apply ot_correct in H2.
+    apply ot_correct. apply loAdd_well_defined; auto.
+  - intros τ1 τ2 H1 H2.
+    pose proof (H1 S T HS HT).
+    pose proof (H2 S T HS HT). congruence.
+Qed.
+
 Lemma otAdd_eq_ot_of_loAdd : ∀ S T, ot S +' ot T = ot (S +' T)%lo.
 Proof.
-  intros. apply ot_correct.
-  apply loAdd_well_defined; apply proj_ot_id.
+  intros. rewrite otAdd_spec_intro.
+  reflexivity. auto. auto. reflexivity. reflexivity.
 Qed.
 
 Theorem otAdd_well_defined : ∀ S S' T T',
@@ -477,24 +491,23 @@ End AlternativeOtAdd.
 Import OrderType.
 Import StructureCasting.
 
-Example ex8_14 : ∀ ρ σ, is_ot ρ → is_ot σ →
+Example ex8_14 : ∀ ρ σ ⋵ 𝐎𝐓,
   ρ ⋅ σ = otⁿ 0 → ρ = otⁿ 0 ∨ σ = otⁿ 0.
 Proof with auto.
-  intros * [S HS] [T HT] H0. subst. unfold OtMul, otⁿ in H0.
+  intros ρ [S HS] σ [T HT] H0. subst.
+  rewrite otMul_eq_ot_of_loMul in H0. unfold otⁿ in H0.
   apply ot_correct in H0 as [f [Hf _]]. simpl in Hf.
   apply bijection_to_empty in Hf.
   apply cprod_to_0 in Hf as []; [left|right];
   apply ot_correct.
-  - replace (LOⁿ 0) with (proj (ot S)).
-    symmetry. apply proj_ot_id. apply eq_intro...
-    apply ExtAx. split; intros Hx.
-    + destruct (lo (proj (ot S))) as [Hbr _].
+  - replace (LOⁿ 0) with S. reflexivity.
+    apply eq_intro... apply ExtAx. split; intros Hx.
+    + destruct (lo S) as [Hbr _].
       apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
     + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
-  - replace (LOⁿ 0) with (proj (ot T)).
-    symmetry. apply proj_ot_id. apply eq_intro...
-    apply ExtAx. split; intros Hx.
-    + destruct (lo (proj (ot T))) as [Hbr _].
+  - replace (LOⁿ 0) with T. reflexivity.
+    apply eq_intro... apply ExtAx. split; intros Hx.
+    + destruct (lo T) as [Hbr _].
       apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
     + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
 Qed.

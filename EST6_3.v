@@ -11,7 +11,7 @@ Require Export ZFC.EX6_1.
 
 (* 基数的序 *)
 Definition CardLeq : set → set → Prop := λ 𝜅 𝜆,
-  is_card 𝜅 ∧ is_card 𝜆 ∧ 𝜅 ≼ 𝜆.
+  𝜅 ⋵ 𝐂𝐃 ∧ 𝜆 ⋵ 𝐂𝐃 ∧ 𝜅 ≼ 𝜆.
 Notation "𝜅 ≤ 𝜆" := (CardLeq 𝜅 𝜆) (at level 70) : Card_scope.
 
 (* 两个集合的基数有序关系当且仅当这两个集合有支配关系 *)
@@ -82,11 +82,11 @@ Lemma cardLt : ∀ 𝜅 𝜆, 𝜅 <𝐜 𝜆 → |𝜅| <𝐜 |𝜆|.
 Proof with auto.
   intros * [[Hk [Hl H]] Hnq].
   apply cardLt_iff. split... intros Hqn. apply Hnq.
-  rewrite card_of_card, (card_of_card 𝜅)... apply CardAx1...
+  rewrite card_of_card, (card_of_card 𝜆)... apply CardAx1...
 Qed.
 
 Lemma cardLeq_iff_lt_or_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 ↔ 𝜅 <𝐜 𝜆 ∨
-  (is_card 𝜅 ∧ is_card 𝜆 ∧ 𝜅 = 𝜆).
+  (𝜅 ⋵ 𝐂𝐃 ∧ 𝜆 ⋵ 𝐂𝐃 ∧ 𝜅 = 𝜆).
 Proof with auto.
   intros. split.
   - intros. destruct (classic (𝜅 = 𝜆)).
@@ -116,18 +116,18 @@ Proof with auto.
   intros * Hleq. assert (H := Hleq). destruct H as [Hk [Hl _]].
   apply cardLeq_sub_exists in Hleq as [K [L [H1 [H2 H]]]].
   exists K, L. repeat split...
-  rewrite card_of_card... apply CardAx1...
-  rewrite card_of_card... apply CardAx1...
+  rewrite (card_of_card 𝜅)... apply CardAx1...
+  rewrite (card_of_card 𝜆)... apply CardAx1...
 Qed.
 
 (* 任意基数大于等于零 *)
-Fact cardLeq_0 : ∀ 𝜅, is_card 𝜅 → 0 ≤ 𝜅.
+Fact cardLeq_0 : ∀𝜅 ⋵ 𝐂𝐃, 0 ≤ 𝜅.
 Proof.
   intros 𝜅 Hcd. split; [|split]; nauto. apply empty_dominated.
 Qed.
 
 (* 非零基数大于等于1 *)
-Fact cardLeq_1 : ∀ 𝜅, is_card 𝜅 → 𝜅 ≠ 0 → 1 ≤ 𝜅.
+Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 1 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
   apply EmptyNE in H as [k Hk].
@@ -169,9 +169,9 @@ Proof with eauto.
 Qed.
 
 (* 任意基数都小于自身的幂集的基数 *)
-Lemma cardLt_power : ∀ 𝜅, is_card 𝜅 → 𝜅 <𝐜 2 ^ 𝜅.
+Lemma cardLt_power : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 2 ^ 𝜅.
 Proof with auto.
-  intros. rewrite (card_of_card 𝜅), <- card_of_power...
+  intros 𝜅 H. rewrite (card_of_card 𝜅), <- card_of_power...
   apply cardLt_iff. split; [|apply Cantor's].
   set (Func 𝜅 (𝒫 𝜅) (λ x, ⎨x⎬)) as f.
   exists f. apply meta_injection.
@@ -182,15 +182,15 @@ Proof with auto.
 Qed.
 
 (* 基数的序关系是自反的 *)
-Lemma cardLeq_refl : ∀ 𝜅, is_card 𝜅 → 𝜅 ≤ 𝜅.
+Lemma cardLeq_refl : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜅.
 Proof with auto.
-  intros. rewrite (card_of_card 𝜅)... apply cardLeq_iff...
+  intros 𝜅 H. rewrite (card_of_card 𝜅)... apply cardLeq_iff...
 Qed.
 
 (* 相等的基数满足序关系 *)
-Lemma eq_cardLeq : ∀ 𝜅 𝜆, is_card 𝜅 → 𝜅 = 𝜆 → 𝜅 ≤ 𝜆.
+Lemma eq_cardLeq : ∀𝜅 ⋵ 𝐂𝐃, ∀ 𝜆, 𝜅 = 𝜆 → 𝜅 ≤ 𝜆.
 Proof.
-  intros. subst. apply cardLeq_refl. apply H.
+  intros 𝜅 H 𝜆 Heq. subst. apply cardLeq_refl. apply H.
 Qed.
 
 (* 基数的序关系是传递的 *)
@@ -282,15 +282,15 @@ Proof.
   apply cardMul_preserve_leq. apply Hleq.
 Qed.
 
-Corollary cardAdd_enlarge : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜅 ≤ 𝜅 + 𝜆.
+Corollary cardAdd_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜅 + 𝜆.
 Proof with auto.
-  intros * Hk Hl. rewrite <- cardAdd_ident at 1...
+  intros 𝜅 Hk 𝜆 Hl. rewrite <- cardAdd_ident at 1...
   apply cardAdd_preserve_leq'. apply cardLeq_0...
 Qed.
 
-Corollary cardMul_enlarge : ∀ 𝜅 𝜆, is_card 𝜅 → is_card 𝜆 → 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
+Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
 Proof with auto.
-  intros * Hk Hl H0. rewrite <- cardMul_ident at 1...
+  intros 𝜅 Hk 𝜆 Hl H0. rewrite <- cardMul_ident at 1...
   apply cardMul_preserve_leq'. apply cardLeq_1...
 Qed.
 
@@ -342,8 +342,9 @@ Proof with neauto.
     + apply bunion_is_func... {
         repeat split.
         - apply cprod_is_rel.
-        - apply domE in H...
-        - intros y1 y2 Hp1 Hp2.
+        - intros x H. rewrite <- unique_existence.
+          split. apply domE in H...
+          intros y1 y2 Hp1 Hp2.
           apply CProdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
           apply CProdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
           apply op_iff in H1 as []; subst x y1.
@@ -391,7 +392,7 @@ Qed.
 (** 阿列夫零 **)
 Notation ℵ₀ := (|ω|).
 
-Lemma aleph0_is_card : is_card ℵ₀.
+Lemma aleph0_is_card : ℵ₀ ⋵ 𝐂𝐃.
 Proof. exists ω. reflexivity. Qed.
 
 Fact card_of_power_ω : |𝒫 ω| = 2 ^ ℵ₀.
@@ -424,8 +425,7 @@ Proof with eauto.
 Qed.
 
 (* 小于阿列夫零的基数是有限基数 *)
-Lemma cardLt_aleph0_is_finite : ∀ 𝜅,
-  is_card 𝜅 → 𝜅 <𝐜 ℵ₀ → finite 𝜅.
+Lemma cardLt_aleph0_is_finite : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 ℵ₀ → finite 𝜅.
 Proof with auto.
   intros 𝜅 [A Heq𝜅] Hlt. subst 𝜅.
   apply cardLt_iff in Hlt as [Hdm Hqn].
@@ -435,8 +435,7 @@ Proof with auto.
 Qed.
 
 (* 基数是有限基数当且仅当它小于阿列夫零 *)
-Lemma cardLt_aleph0_iff_finite : ∀ 𝜅,
-  is_card 𝜅 → 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
+Lemma cardLt_aleph0_iff_finite : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
   - apply cardLt_aleph0_is_finite...
@@ -445,8 +444,7 @@ Proof with auto.
 Qed.
 
 (* 大于等于阿列夫零的基数是无限基数 *)
-Corollary cardGeq_aleph0_infinite : ∀ 𝜅,
-  is_card 𝜅 → ℵ₀ ≤ 𝜅 → infinite 𝜅.
+Corollary cardGeq_aleph0_infinite : ∀𝜅 ⋵ 𝐂𝐃, ℵ₀ ≤ 𝜅 → infinite 𝜅.
 Proof with auto.
   intros AC3 𝜅 Hcd Hfin.
   apply cardLt_aleph0_iff_finite in Hfin as [Hle Hnq]...
@@ -460,7 +458,7 @@ Proof with auto.
 Qed.
 Global Hint Resolve aleph0_infinite : core.
 
-Corollary aleph0_is_infcard : infcard ℵ₀.
+Corollary aleph0_is_infcard : ℵ₀ ⋵ 𝐂𝐃ⁱⁿᶠ.
 Proof. split; auto. Qed.
 Global Hint Resolve aleph0_is_infcard : core.
 

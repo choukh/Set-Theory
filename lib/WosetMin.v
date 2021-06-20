@@ -1,6 +1,8 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import ZFC.EST7_2.
+Require Import ZFC.lib.Natural.
+
+Local Definition tail := λ t A R, {x ∊ A | λ x, (t <ᵣ x) R}.
 
 Module SimpleVer.
 
@@ -23,7 +25,8 @@ Proof with eauto.
   intros * [Hlo Hmin] Heq. subst A. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
     apply cprod_is_pairs in Hp...
-  - intros B HB. split. apply domE in HB...
+  - intros B HB. rewrite <- unique_existence.
+    split. apply domE in HB...
     intros a b H1 H2.
     apply minE in H1 as [_ [Ha H1]].
     apply minE in H2 as [_ [Hb H2]].
@@ -215,7 +218,8 @@ Proof with eauto.
   intros * [Hlo Hmin]. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
     apply cprod_is_pairs in Hp...
-  - intros B HB. split. apply domE in HB...
+  - intros B HB. rewrite <- unique_existence.
+    split. apply domE in HB...
     intros a b H1 H2.
     apply minE in H1 as [_ [Ha H1]].
     apply minE in H2 as [_ [Hb H2]].

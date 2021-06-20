@@ -375,9 +375,9 @@ Proof with auto.
   intros m Hm n Hn p Hp q Hq Hlt.
   apply binRelI. apply pQuotI... apply pQuotI...
   pose proof (intProj m Hm n Hn)
-    as [m' [Hm' [n' [Hn' [H11 H12]]]]].
+    as [m' [Hm' [n' [Hn' [H11 [H12 _]]]]]].
   pose proof (intProj p Hp q Hq)
-    as [p' [Hp' [q' [Hq' [H21 H22]]]]].
+    as [p' [Hp' [q' [Hq' [H21 [H22 _]]]]]].
   pose proof intEquiv_equiv as [_ [_ [Hsym _]]].
   rewrite H11, H21. simpl. zfc_simple. eapply int_orderable.
   apply Hsym. apply H12. apply Hsym. apply H22. apply Hlt.
@@ -392,8 +392,8 @@ Proof with auto.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst.
   exists m. split... exists n. split...
   exists p. split... exists q. split... split... split...
-  pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 H12]]]]].
-  pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
+  pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 [H12 _]]]]]].
+  pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 [H22 _]]]]]].
   rewrite H11, H21 in H2. simpl in H2. zfc_simple.
   eapply int_orderable; eauto.
 Qed.
@@ -404,8 +404,8 @@ Proof.
   intros m Hm n Hn p Hp q Hq. split; intros.
   - apply SepE in H as [H1 H2].
     apply CProdE2 in H1 as [Ha Hb]. zfc_simple.
-    pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 H12]]]]].
-    pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 H22]]]]].
+    pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 [H12 _]]]]]].
+    pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 [H22 _]]]]]].
     rewrite H11, H21 in H2. simpl in H2. zfc_simple.
     eapply int_orderable; eauto.
   - apply intLtI; auto.
