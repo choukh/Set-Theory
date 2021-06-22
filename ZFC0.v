@@ -15,32 +15,31 @@ Qed.
 
 (** Sub是集合的子集关系。
     我们用 A ⊆ B 表示 "A是B的子集"，用 A ⊈ B 表示 "A不是B的子集"。 *)
-Definition Sub : set → set → Prop :=
-  λ A B, ∀x ∈ A, x ∈ B.
+Definition Sub := λ A B, ∀x ∈ A, x ∈ B.
 Notation "A ⊆ B" := ( Sub A B) (at level 70) : set_scope.
 Notation "A ⊈ B" := (¬Sub A B) (at level 70) : set_scope.
 
 (* 子集关系是自反的 *)
 Lemma sub_refl : ∀ A, A ⊆ A.
-Proof. unfold Sub. intros A x H. apply H. Qed.
+Proof. easy. Qed.
 Global Hint Immediate sub_refl : core.
 
 (* 子集关系是传递的 *)
 Lemma sub_tran : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
 Proof.
-  unfold Sub. intros * H1 H2 x H.
+  intros * H1 H2 x H.
   apply H2. apply H1. apply H.
 Qed.
 
 (* 子集关系是反对称的 *)
 Lemma sub_antisym: ∀ A B, A ⊆ B → B ⊆ A → A = B.
 Proof.
-  unfold Sub. intros A B H1 H2. apply ExtAx.
+  intros A B H1 H2. apply ExtAx.
   split. apply H1. apply H2.
 Qed.
 
 (* 链：子集关系下的全序集 *)
-Definition is_chain := λ ℬ, ∀ C D ∈ ℬ, C ⊆ D ∨ D ⊆ C.
+Definition is_chain := λ 𝒜, ∀ A B ∈ 𝒜, A ⊆ B ∨ B ⊆ A.
 
 (**=== 公理2: 空集公理 ===**)
 (* 空集公理保证了集合类型是居留的，即存在最底层的集合，
@@ -115,9 +114,8 @@ Proof. intros A x Hx. exfalso0. Qed.
 Lemma sub_empty : ∀ A, A ⊆ ∅ ↔ A = ∅.
 Proof.
   split; intros.
-  - apply EmptyI. unfold not. intros.
-    apply H in H0. eapply EmptyAx. apply H0.
-  - subst. intros x H. apply H.
+  - apply EmptyI. intros x Hx. apply H in Hx. exfalso0.
+  - subst. apply empty_sub_all.
 Qed.
 
 (* 任意集合要么是空集要么是居留的 *)

@@ -61,29 +61,24 @@ Definition iota := λ {A} i P, proj1_sig (classical_definite_description A P i).
 Definition iota_spec := λ {A} i P, proj2_sig (classical_definite_description A P i).
 
 (** 排中律是信息丰富的 **)
-Definition informative_excluded_middle :=
-  ∀ P : Prop, P + ¬P.
-
-Theorem ixm : informative_excluded_middle.
+Theorem informative_excluded_middle : ∀ P : Prop, P + ¬P.
 Proof.
   intros P.
-  assert (H := classic P).
-  assert (I: inhabited (P + ¬P)). {
-    destruct H.
-    - apply inhabits. apply inl. apply H.
-    - apply inhabits. apply inr. apply H.
+  assert (i: inhabited (P + ¬P)). {
+    destruct (classic P).
+    - apply inhabits. now apply inl.
+    - apply inhabits. now apply inr.
   }
-  apply (iota I (λ _, True)).
+  apply (iota i (λ _, True)).
 Qed.
+Notation ixm := informative_excluded_middle.
 
 (** 类型的居留性是可判定的 **)
-Definition decidable_inhabitance_of_type :=
-  ∀ T : Type, T + (T → False).
-
-Theorem dit : decidable_inhabitance_of_type.
+Theorem decidable_inhabitance_of_type : ∀ T : Type, T + (T → False).
 Proof.
   intros T.
-  destruct (ixm (inhabited T)) as [I|I].
-  - left. apply (iota I (λ _, True)).
-  - right. intros t. apply I. apply inhabits. apply t.
+  destruct (ixm (inhabited T)) as [i|i].
+  - left. apply (iota i (λ _, True)).
+  - right. intros t. now apply i.
 Qed.
+Notation dit := decidable_inhabitance_of_type.
