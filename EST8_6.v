@@ -42,7 +42,7 @@ Qed.
 Lemma ordAddₜ_ran : ∀ α β ⋵ 𝐎𝐍, α + β ⋵ 𝐎𝐍.
 Proof.
   intros α [S HS] β [T HT]. subst.
-  rewrite ordSum_spec_intro; auto.
+  erewrite ordSum_spec_intro; auto.
 Qed.
 
 Lemma ordAddₜ_eq_ord_of_woAdd : ∀ S T, ord S + ord T = ord (S + T)%wo.
@@ -116,7 +116,7 @@ Qed.
 Lemma ordMulₜ_ran : ∀ α β ⋵ 𝐎𝐍, α ⋅ β ⋵ 𝐎𝐍.
 Proof.
   intros α [S HS] β [T HT]. subst.
-  rewrite ordPrd_spec_intro; auto.
+  erewrite ordPrd_spec_intro; auto.
 Qed.
 
 Lemma ordMulₜ_eq_ord_of_woMul : ∀ S T, ord S ⋅ ord T = ord (S ⋅ T)%wo.

@@ -14,7 +14,7 @@ Definition BinRel : set → (set → set → Prop) → set :=
 Lemma binRelI : ∀ A (P : set → set → Prop), ∀ a b ∈ A,
   P a b → <a, b> ∈ BinRel A P.
 Proof.
-  intros * a Ha b Hb H. apply SepI.
+  intros A P a Ha b Hb H. apply SepI.
   apply CProdI; auto. zfc_simple.
 Qed.
 
@@ -129,11 +129,11 @@ Definition Quotient : set → set → set := λ R A,
 Notation "A / R" := (Quotient R A) : set_scope.
 
 Lemma quotI : ∀ R A, ∀a ∈ A, [a]R ∈ A / R.
-Proof. intros * a Ha. apply ReplAx. exists a. split; auto. Qed.
+Proof. intros R A a Ha. apply ReplAx. exists a. split; auto. Qed.
 
 Lemma quotE : ∀ R A, ∀x ∈ A / R, ∃a ∈ A, [a]R = x.
 Proof.
-  intros * x Hx. apply ReplAx in Hx as [a [Ha Heq]].
+  intros R A x Hx. apply ReplAx in Hx as [a [Ha Heq]].
   exists a. split; auto.
 Qed.
 

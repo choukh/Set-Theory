@@ -471,10 +471,7 @@ Proof.
 Qed.
 
 Lemma otAdd_eq_ot_of_loAdd : ∀ S T, ot S +' ot T = ot (S +' T)%lo.
-Proof.
-  intros. rewrite otAdd_spec_intro.
-  reflexivity. auto. auto. reflexivity. reflexivity.
-Qed.
+Proof. intros. erewrite otAdd_spec_intro; auto. Qed.
 
 Theorem otAdd_well_defined : ∀ S S' T T',
   S ≅ S' → T ≅ T' → ot S +' ot T = ot S' +' ot T'.

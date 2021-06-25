@@ -106,7 +106,7 @@ Proof with eauto.
   - apply op_iff in H1 as [H11 H12].
     apply CProdE0 in Hb as [Hb1 Hb2].
     eapply eqvc_ident in H11...
-    eapply eqvc_ident in H12... apply Hc...
+    eapply eqvc_ident in H12...
 Qed.
 
 Theorem quotionFunc_unique: ∀ R A F,
@@ -134,7 +134,7 @@ Notation "A ²" := (A × A) (at level 9).
 Lemma plane2E : ∀ A B, ∀x ∈ (A × B)²,
   ∃m ∈ A, ∃n ∈ B, ∃p ∈ A, ∃q ∈ B, x = <<m, n>, <p, q>>.
 Proof with auto.
-  intros * x Hx.
+  intros A B x Hx.
   apply CProdE1 in Hx as [u [Hu [v [Hv Hx]]]].
   apply CProdE1 in Hu as [m [Hm [n [Hn Hu]]]].
   apply CProdE1 in Hv as [p [Hp [q [Hq Hv]]]].
@@ -161,7 +161,7 @@ Lemma planeEquivI : ∀ A B (Eq : PlaneEq),
   ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
   Eq m n p q → (<m, n> ~ <p, q>) A B Eq.
 Proof with auto.
-  intros * m Hm n Hn p Hp q Hq Heq.
+  intros A B Eq m Hm n Hn p Hp q Hq Heq.
   apply SepI. apply CProdI; apply CProdI... zfc_simple...
 Qed.
 
@@ -190,7 +190,7 @@ Qed.
 Lemma planeEquiv : ∀ A B Eq, ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
   (<m, n> ~ <p, q>) A B Eq ↔ Eq m n p q.
 Proof with eauto.
-  intros * m Hm n Hn p Hp q Hq. split; intros.
+  intros A B Eq m Hm n Hn p Hp q Hq. split; intros.
   - eapply planeEquivE2...
   - apply planeEquivI...
 Qed.
@@ -232,12 +232,12 @@ Definition PlaneQuotient : set → set → PlaneEq → set := λ A B Eq,
 
 Lemma pQuotI : ∀ A B Eq, ∀m ∈ A, ∀n ∈ B,
   [<m, n>]~ A B Eq ∈ PlaneQuotient A B Eq.
-Proof. intros * m Hm n Hn. apply quotI. apply CProdI; auto. Qed.
+Proof. intros A B Eq m Hm n Hn. apply quotI. apply CProdI; auto. Qed.
 
 Lemma pQuotE : ∀ A B Eq, ∀x ∈ PlaneQuotient A B Eq,
   ∃m ∈ A, ∃n ∈ B, x = [<m, n>]~ A B Eq.
 Proof with auto.
-  intros * x Hx. apply quotE in Hx as [p [Hx Heq1]].
+  intros A B Eq x Hx. apply quotE in Hx as [p [Hx Heq1]].
   apply CProdE1 in Hx as [a [Ha [b [Hb Heq2]]]].
   exists a. split... exists b. split... congruence.
 Qed.
@@ -247,7 +247,8 @@ Lemma pQuot_ident : ∀ A B Eq,
   ∀m ∈ A, ∀n ∈ B, ∀p ∈ A, ∀q ∈ B,
   Eq m n p q ↔ [<m, n>]~ A B Eq = [<p, q>]~ A B Eq.
 Proof with eauto.
-  intros * Hrefl Hsymm Htran m Hm n Hn p Hp q Hq. split; intros Heq.
+  intros A B Eq Hrefl Hsymm Htran m Hm n Hn p Hp q Hq.
+  split; intros Heq.
   - eapply eqvc_ident; swap 1 3. apply planeEquiv_equiv...
     apply CProdI... apply CProdI... apply planeEquivI...
   - cut ((<m, n> ~ <p, q>) A B Eq). intros H.
@@ -302,7 +303,7 @@ Proof with eauto.
       apply CProdE2 in Hx as []...
     + assert (Hx' := Hx).
       apply plane2E in Hx' as [m [Hm [n [Hn [p [Hp [q [Hq Hx']]]]]]]].
-      eapply domI. apply SepI. apply CProdI...
+      eapply domI. apply SepI. apply CProdI. apply Hx.
       apply HF1. apply Hm. apply Hn. apply Hp. apply Hq.
       subst x. zfc_simple. simpl. reflexivity.
   - (* ran planeArith = A² *)
@@ -362,9 +363,9 @@ Definition ℤ : set := ω²/~.
 
 Lemma int_ident : ∀ m n p q ∈ ω,
   m + q = p + n ↔ [<m, n>]~ = [<p, q>]~.
-Proof with eauto.
-  apply pQuot_ident.
-  apply intEqRefl. apply intEqSymm. apply intEqTran.
+Proof.
+  intros m Hm n Hn p Hp q Hq.
+  now apply (pQuot_ident ω ω IntEq intEqRefl intEqSymm intEqTran).
 Qed.
 
 Definition PreIntAdd : set :=
@@ -444,8 +445,11 @@ Qed.
 
 Lemma intAdd_a_b : ∀ a b ∈ ω², [a]~ + [b]~ = [a +ᵥ b]~.
 Proof.
-  apply binCompatibleE. apply preIntAdd_binCompatible.
+  intros a Ha b Hb. apply binCompatibleE; auto.
+  apply preIntAdd_binCompatible.
 Qed.
+
+Global Opaque IntAdd.
 
 Lemma intAdd_m_n_p_q : ∀ m n p q ∈ ω,
   [<m, n>]~ + [<p, q>]~ = ([<m + p, n + q>]~)%n.
@@ -507,7 +511,7 @@ Qed.
 
 Corollary intAdd_ident' : ∀a ∈ ℤ, Int 0 + a = a.
 Proof with nauto.
-  intros a Ha. rewrite intAdd_comm, intAdd_ident...
+  intros a Ha. simpl. rewrite intAdd_comm, intAdd_ident...
 Qed.
 
 Theorem intAddInv_exists : ∀a ∈ ℤ, ∃b ∈ ℤ, a + b = Int 0.
@@ -565,8 +569,8 @@ Proof with auto.
     as [m' [Hm' [n' [Hn' [p [Hp [q [Hq [H1 [H2 _]]]]]]]]]].
   apply op_iff in H1 as []; subst m' n'.
   subst x. zfc_simple. destruct H0; subst.
-  exists 0. split... exists q... split...
-  exists p. split... exists 0... split...
+  exists 0. split... exists q...
+  exists p. split... exists 0...
 Qed.
 
 Lemma preIntProj_unique : ∀a ∈ ℤ, ∃! p, p ∈ PreIntProj a.
@@ -663,6 +667,8 @@ Proof with eauto.
     apply planeEquiv in H2... unfold IntEq in H2.
     rewrite (add_comm n), (add_comm q)...
 Qed.
+
+Global Opaque IntAddInv.
 
 Lemma intAddInv_double : ∀a ∈ ℤ, --a = a.
 Proof with auto.

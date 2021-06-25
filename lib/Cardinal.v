@@ -211,7 +211,7 @@ Proof with auto.
   intros [A H]. apply Burali_Forti.
   exists (⋃ A). intros α Hoα. apply UnionAx.
   apply all_ord_ex_larger_card in Hoα as [𝜅 [Hcd Hα]].
-  exists 𝜅. split... apply H...
+  exists 𝜅. split...
 Qed.
 
 (* 不存在一个集合包括所有无限基数 *)

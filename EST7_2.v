@@ -540,7 +540,7 @@ Qed.
 
 Module Import TransfiniteRecursion.
 
-Definition spec := λ A R γ F,
+Definition spec := λ A R (γ : set → set → Prop) F,
   is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
 
 Definition constr := λ A R γ, describe (spec A R γ).

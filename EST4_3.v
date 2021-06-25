@@ -169,7 +169,7 @@ Proof with auto.
   apply nat_connected in H as []...
 Qed.
 
-Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
+Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ Embed 0 ↔ 0 ∈ n.
 Proof with nauto.
   intros n Hn. split; intros.
   - apply nat_connected in H as []... exfalso0.
@@ -257,10 +257,10 @@ Proof with auto.
   apply add_preserve_lt...
 Qed.
 
-Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ 0 →
+Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ Embed 0 →
   m ∈ n ↔ m ⋅ p ∈ n ⋅ p.
 Proof with eauto.
-  assert (Hright: ∀ m n p ∈ ω, p ≠ 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
+  assert (Hright: ∀ m n p ∈ ω, p ≠ Embed 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
     intros m Hm n Hn p Hp Hnq0 H.
     apply pred_exists in Hnq0 as [k [Hk Hkeq]]... subst p. clear Hp.
     generalize dependent n. generalize dependent m.
@@ -289,7 +289,7 @@ Proof with eauto.
     exfalso. eapply nat_irrefl; revgoals. apply H2. apply mul_ran...
 Qed.
 
-Corollary mul_preserve_lt' : ∀ m n p ∈ ω, p ≠ 0 →
+Corollary mul_preserve_lt' : ∀ m n p ∈ ω, p ≠ Embed 0 →
   m ∈ n ↔ p ⋅ m ∈ p ⋅ n.
 Proof with auto.
   intros m Hm n Hn p Hp.
@@ -344,7 +344,7 @@ Proof with eauto.
   eapply add_cancel... rewrite add_comm, (add_comm n)...
 Qed.
 
-Corollary mul_cancel : ∀ m n p ∈ ω, p ≠ 0 → m ⋅ p = n ⋅ p → m = n.
+Corollary mul_cancel : ∀ m n p ∈ ω, p ≠ Embed 0 → m ⋅ p = n ⋅ p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   destruct (classic (m = n))... exfalso.
@@ -355,14 +355,14 @@ Proof with eauto.
     eapply nat_irrefl; revgoals... apply mul_ran...
 Qed.
 
-Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ 0 → p ⋅ m = p ⋅ n → m = n.
+Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ Embed 0 → p ⋅ m = p ⋅ n → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   eapply mul_cancel... rewrite mul_comm, (mul_comm n)...
 Qed.
 
-Corollary mul_preserve_leq : ∀ m n p ∈ ω,
-  p ≠ 0 → m ⋸ n ↔ m ⋅ p ⋸ n ⋅ p.
+Corollary mul_preserve_leq : ∀ m n p ∈ ω, p ≠ Embed 0 →
+  m ⋸ n ↔ m ⋅ p ⋸ n ⋅ p.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0. split; intros [].
   - left. apply mul_preserve_lt...
@@ -372,8 +372,7 @@ Proof with eauto.
 Qed.
 
 (* 良序 *)
-Definition wellOrder : set → set → Prop := λ R A,
-  linearOrder R A ∧
+Definition wellOrder := λ R A, linearOrder R A ∧
   ∀ B, ⦿ B → B ⊆ A → ∃ m, minimum m B R.
 
 (* 自然数的小于关系构成自然数上的良序 *)
@@ -388,8 +387,8 @@ Proof with eauto.
   intros n Hn. clear a Ha.
   set {n ∊ ω | λ n, ∀m ∈ ω, m ∈ n → m ∉ A} as N.
   ω_induction N Hn; intros k Hk H0. exfalso0.
-  apply leq_iff_lt_suc in H0 as []... apply IH...
-  subst k. intros Hma. apply H. clear H n Hn N Hk. 
+  apply leq_iff_lt_suc in H0 as []...
+  subst k. intros Hma. eapply H. clear H n Hn N Hk. 
   exists m. split... intros n Hn. apply Hsub in Hn as Hnω.
   destruct (classic (m = n)). right... left.
   apply nat_connected in H as []...
@@ -481,8 +480,7 @@ Proof with eauto.
   ω_induction N Hn; intros k Hk p Hp.
   - rewrite add_ident...
   - assert (Hpw: p ∈ ω) by (eapply ω_trans; eauto).
-    rewrite add_m_n... apply leq_iff_lt_suc...
-    apply add_ran... left. apply IH...
+    rewrite add_m_n... apply leq_iff_lt_suc... apply add_ran...
 Qed.
 
 Lemma lt_add_shrink : ∀ m n p ∈ ω, m + n ∈ p → m ∈ p.
@@ -495,7 +493,7 @@ Proof with neauto.
     eapply nat_trans; revgoals...
 Qed.
 
-Lemma lt_mul_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, n ≠ 0 → p ∈ m ⋅ n.
+Lemma lt_mul_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, n ≠ Embed 0 → p ∈ m ⋅ n.
 Proof with nauto.
   intros m Hm n Hn p Hpm Hnq0.
   ω_destruct n. rewrite zero in Hnq0. congruence.

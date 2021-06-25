@@ -30,7 +30,7 @@ Qed.
 (* 自然数的基数等于自身 *)
 Lemma card_of_nat : ∀n ∈ ω, n = |n|.
 Proof with auto.
-  intros n Hn. rewrite CardAx2.
+  intros n Hn. simpl. rewrite CardAx2.
   rewrite fin_card_n... apply nat_finite...
 Qed.
 
@@ -392,7 +392,6 @@ Proof with eauto; try congruence.
         rewrite compo_dom in Hw... apply SepE1 in Hw... apply H3...
       * intros x Hx. rewrite compo_correct, compo_correct...
         rewrite <- Hdf, <- inv_ran. eapply ranI. apply func_correct...
-        apply H2... apply H4... apply H3...
     + assert (Hfy' := Hfy). destruct Hfy' as [Hrel _].
       rewrite compo_assoc, compo_assoc, compo_inv_ran_ident...
       rewrite compo_assoc, right_compo_ident.
@@ -518,7 +517,7 @@ Proof. intros. now apply cardExp_iff. Qed.
 (* 零是基数加法单位元 *)
 Lemma cardAdd_ident : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 + 0 = 𝜅.
 Proof with auto.
-  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1.
   rewrite cprod_0_l, bunion_empty. symmetry.
   set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
@@ -539,7 +538,7 @@ Qed.
 (* 1是基数乘法单位元 *)
 Lemma cardMul_ident : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ⋅ 1 = 𝜅.
 Proof.
-  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1. symmetry.
   rewrite one. apply eqnum_cprod_single.
 Qed.
@@ -575,7 +574,7 @@ Qed.
 (* 基数的1次幂等于自身 *)
 Lemma cardExp_1_r : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ^ 1 = 𝜅.
 Proof.
-  intros 𝜅 Hcd. apply card_of_card in Hcd.
+  intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1. apply arrow_from_one.
 Qed.
 
@@ -846,7 +845,6 @@ Proof with eauto; try congruence.
     assert (Hf: f: s ∪ t ⇒ 𝜅). {
       apply meta_function. intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (x ∈ s))...
-      apply Hgr... exfalso. eapply disjointE... apply Hhr...
     }
     exists f. split. apply SepI... apply PowerAx.
     intros p Hp. apply SepE1 in Hp...
@@ -1088,7 +1086,8 @@ Proof. intros 𝜅 H 𝜆. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
 
 Lemma card_suc : ∀n ∈ ω, n + 1 = n⁺.
 Proof with auto; try easy.
-  intros n Hn. rewrite (card_of_nat n⁺); [|apply ω_inductive]...
+  intros n Hn. simpl.
+  rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...
   - rewrite <- eqnum_cprod_single, eqnum_single...

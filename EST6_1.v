@@ -227,13 +227,13 @@ Proof with neauto.
     apply PowerAx in H1. apply PowerAx in H2.
     apply ExtAx. intros a. split; intros Hab.
     + assert (Hp: <a, 1> ∈ ℱ B1). {
-        apply SepI. apply CProdI... apply H1... zfc_simple.
+        apply SepI. apply CProdI... zfc_simple.
         destruct (ixm (a ∈ B1))... exfalso...
       }
       rewrite Heq in Hp. apply SepE2 in Hp. zfc_simple.
       destruct (ixm (a ∈ B2))... exfalso. eapply suc_neq_0...
     + assert (Hp: <a, 1> ∈ ℱ B2). {
-        apply SepI. apply CProdI... apply H2... zfc_simple.
+        apply SepI. apply CProdI... zfc_simple.
         destruct (ixm (a ∈ B2))... exfalso...
       }
       rewrite <- Heq in Hp. apply SepE2 in Hp. zfc_simple.
@@ -799,7 +799,7 @@ Qed.
 Corollary finite_set_remove_one_element : ∀ A a, ∀n ∈ ω,
   (A - ⎨a⎬) ∪ ⎨a⎬ ≈ n⁺ → A - ⎨a⎬ ≈ n.
 Proof with eauto.
-  intros * n Hn Hqn.
+  intros A a n Hn Hqn.
   eapply eqnum_sets_removing_one_element_still_eqnum...
   apply disjointI. intros [x [H1 H2]]. apply SepE2 in H1...
   apply nat_disjoint...

@@ -104,7 +104,7 @@ Proof.
   rewrite <- H in Hc. apply SingE in Hc. split; congruence.
 Qed.
 
-Theorem pair_iff : ∀ a b c d,
+Theorem pair_eq_pair : ∀ a b c d,
   {a, b} = {c, d} ↔ a = c ∧ b = d ∨ a = d ∧ b = c.
 Proof with auto; try congruence.
   split; intros.
@@ -122,7 +122,7 @@ Proof with auto; try congruence.
 Qed.
 
 (* 如果单集与单集相等那么它们的成员相等 *)
-Lemma single_injective : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
+Lemma single_eq_single : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
 Proof.
   intros. apply single_eq_pair in H as [H _]. apply H.
 Qed.

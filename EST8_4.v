@@ -138,10 +138,7 @@ Proof.
 Qed.
 
 Lemma otMul_eq_ot_of_loMul : ∀ S T, ot S ⋅ ot T = ot (S ⋅ T)%lo.
-Proof.
-  intros. rewrite otMul_spec_intro.
-  reflexivity. auto. auto. reflexivity. reflexivity.
-Qed.
+Proof. intros. erewrite otMul_spec_intro; auto. Qed.
 
 Theorem otMul_well_defined : ∀ S S' T T',
   S ≅ S' → T ≅ T' → ot S ⋅ ot T = ot S' ⋅ ot T'.
@@ -162,7 +159,7 @@ Import Coq.micromega.Lia.
 Import ZFC.lib.NatIsomorphism.
 Open Scope Nat_scope.
 
-Lemma lt_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
+Lemma lt_nba_ndc : ∀ n a b c d ∈ ω, n ≠ Embed 0 →
   a ∈ n → b ∈ d → n ⋅ b + a ∈ n ⋅ d + c.
 Proof with nauto.
   intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd.
@@ -174,7 +171,7 @@ Proof with nauto.
   apply lt_mul_enlarge...
 Qed.
 
-Lemma nq_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
+Lemma nq_nba_ndc : ∀ n a b c d ∈ ω, n ≠ Embed 0 →
   a ∈ n → b ∈ d → n ⋅ b + a ≠ n ⋅ d + c.
 Proof with eauto.
   intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd Heq.

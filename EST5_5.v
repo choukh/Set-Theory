@@ -56,7 +56,7 @@ Lemma realE0 : ∀x ∈ ℝ, ∃r ∈ ℚ, r ∈ x.
 Proof with auto.
   intros x Hx. apply real_sub_rat in Hx as Hsub.
   apply SepE in Hx as [_ [[H _] _]]. apply EmptyNE in H as [r Hr].
-  exists r. split... apply Hsub...
+  exists r. split...
 Qed.
 
 (* 右集也存在有理数 *)
@@ -88,7 +88,7 @@ Proof with auto.
   intros x Hx p Hp q Hq Hpx Hqx.
   destruct (classic (p = q)). subst. exfalso...
   apply ratLt_connected in H as []...
-  apply realE2 in Hx. apply Hx in H... exfalso...
+  exfalso. apply Hqx. apply (realE2 x Hx q Hq p)...
 Qed.
 
 (* 大于右集的都在右集 *)
@@ -206,7 +206,7 @@ Proof with eauto.
   - intros p Hpq q Hqq Hq Hlt.
     apply UnionAx in Hq as [x [Hx Hq]].
     apply UnionAx. exists x. split...
-    apply Hsub in Hx. apply realE2 in Hx. eapply Hx...
+    apply Hsub in Hx. eapply realE2...
   - intros p Hp. apply UnionAx in Hp as [x [Hx Hp]].
     apply Hsub in Hx as Hxr. apply realE3 in Hp as [q [_ [Hq Hlt]]]...
     exists q. split... apply UnionAx. exists x. split...
@@ -221,7 +221,7 @@ Proof with eauto.
   apply union_reals_boundedAbove_is_real in Hbnd as Hur...
   exists (⋃A). split.
   - repeat split...
-    intros x Hxa. apply realLeq... apply Hsub... apply ex2_3...
+    intros x Hxa. apply realLeq... apply ex2_3...
   - intros y Hub. apply realLeqI... apply Hub.
     apply union_reals_sub_upperBound... apply Hub.
 Qed.
@@ -268,7 +268,7 @@ Proof with auto.
   assert (H0: ⦿ N). {
     apply EmptyNE in Hne as [c Hc]. assert (Hc' := Hc).
     apply Hemb in Hc' as [k [Hk Heqk]]...
-    exists k. apply SepI... rewrite <- Heqk... apply HA'...
+    exists k. apply SepI... rewrite <- Heqk...
   }
   assert (H1: N ⊆ ω). {
     intros n Hn. apply SepE1 in Hn...
@@ -343,9 +343,12 @@ Proof with neauto.
       assert (Hnp: -p ∈ ℚ) by (apply ratAddInv_ran; auto).
       assert (Hemb: IntEmbed [(- Int 1)%z] ∈ ℚ) by (apply intEmbed_ran; nauto).
       assert (Hadd: p ⋅ IntEmbed [c] - p ∈ ℚ) by (apply ratAdd_ran; nauto).
-      rewrite intEmbed_add, ratMul_distr, intEmbed_addInv,
-        ratMul_addInv_r, <- intEmbed_a, intEmbed, ratMul_ident,
-        ratAdd_comm, ratAdd_assoc, (ratAdd_comm (-p)),
+      rewrite intEmbed_add; [|nauto..].
+      rewrite (ratMul_distr p Hp IntEmbed[c] Hcq IntEmbed[(- Int 1)%z] Hemb).
+      rewrite intEmbed_addInv; [|nauto].
+      rewrite (ratMul_addInv_r p Hp ([<Int 1, Int 1>]~)); [|nauto].
+      rewrite <- intEmbed_a, intEmbed, ratMul_ident,
+        ratAdd_comm, ratAdd_assoc, (ratAdd_comm (-p) Hnp p Hp),
         ratAddInv_annih, ratAdd_ident; [auto|nauto..].
 Qed.
 
@@ -410,7 +413,7 @@ Proof with eauto.
     cut (∀p ∈ x + y, p <𝐪 (q + r)%q). intros Hlt. apply Hlt...
     intros p Hp. apply realAddE in Hp
       as [s [Hs [t [Ht [[Hsx Hty] Hst]]]]]... subst.
-    eapply ratAdd_preserve_lt_tran... apply H1... apply H2...
+    eapply ratAdd_preserve_lt_tran...
   - intros p Hp s Hs H Hlt. apply realAddE in H
       as [q [Hq [r [Hr [[Hqx Hry] Hqr]]]]]... subst s.
     assert (Hnq: (-q)%q ∈ ℚ) by (apply ratAddInv_ran; auto).
@@ -426,8 +429,8 @@ Proof with eauto.
     + eapply realE2; revgoals... apply ratAdd_ran...
   - intros p Hp. apply realAddE in Hp
       as [q [Hq [r [Hr [[Hqx Hry] Hqr]]]]]... subst.
-    apply realE3 in Hx as Hx3. apply Hx3 in Hqx as [s [_ [Hs H1]]].
-    apply realE3 in Hy as Hy3. apply Hy3 in Hry as [t [_ [Ht H2]]].
+    pose proof (realE3 x Hx q Hqx) as [s [_ [Hs H1]]].
+    pose proof (realE3 y Hy r Hry) as [t [_ [Ht H2]]].
     exists (s + t)%q. split. apply realAddI2...
     apply ratAdd_preserve_lt_tran; auto;
       eapply real_sub_rat; revgoals...
@@ -504,7 +507,7 @@ Qed.
 
 Corollary realAdd_ident' : ∀ x ∈ ℝ, Real 0 + x = x.
 Proof with nauto.
-  intros x Hx. rewrite realAdd_comm, realAdd_ident...
+  intros x Hx. simpl. rewrite realAdd_comm, realAdd_ident...
 Qed.
 
 (** 实数加法逆元 **)
@@ -526,8 +529,8 @@ Proof with neauto.
   - pose proof (realE1 _ Hx) as [t [Htq Htx]].
     assert (Hntq : (-t)%q ∈ ℚ) by (apply ratAddInv_ran; auto).
     pose proof (rat_archimedean' _ Hntq) as [s [Hsq Hsnt]].
-    apply EmptyNI. exists s. apply SepI... exists (-t)%q.
-    repeat split... rewrite ratAddInv_double...
+    apply EmptyNI. exists s. apply SepI. apply Hsq.
+    exists (-t)%q. repeat split... rewrite ratAddInv_double...
   - pose proof (realE0 _ Hx) as [p [Hp Hpx]]. apply ExtNI.
     assert (Hnpq : (-p)%q ∈ ℚ) by (apply ratAddInv_ran; auto).
     exists (-p)%q. split... intros H.
@@ -540,11 +543,12 @@ Proof with neauto.
       <- (ratAddInv_annih s) in Hlt; try assumption.
     apply ratAdd_preserve_lt' in Hlt; try assumption.
   - intros p Hp q Hq Hqx Hpq.
-    apply SepE in Hqx as [_ [s [Hs [Hqs Hsx]]]]. apply SepI...
+    apply SepE in Hqx as [_ [s [Hs [Hqs Hsx]]]].
+    apply SepI. apply Hp.
     exists s. split... split... eapply ratLt_tranr...
   - intros p Hp. apply SepE in Hp as [Hp [s [Hs [Hps Hsx]]]].
     apply rat_dense in Hps as [r [Hr [Hpr Hrs]]]...
-    exists r. split... apply SepI... exists s. split...
+    exists r. split... apply SepI...
 Qed.
 
 Lemma ratLt_r2_1 : (Rat 2)⁻¹%q <𝐪 Rat 1.
@@ -599,7 +603,7 @@ Open Scope Real_scope.
 
 Corollary realAddInv_double : ∀x ∈ ℝ, --x = x.
 Proof with auto.
-  intros x Hx.
+  intros x Hx. simpl.
   assert (Hn: -x ∈ ℝ) by (apply realAddInv_ran; auto).
   assert (Hnn: --x ∈ ℝ) by (apply realAddInv_ran; auto).
   rewrite <- (realAdd_ident (--x)), <- (realAddInv_annih x),
@@ -667,7 +671,7 @@ Proof with eauto.
   apply realAdd_ran... apply realAdd_ran...
   intros p Hp. apply realAddE in Hp
     as [q [Hq [r [Hr [[Hqx Hrz] Heq]]]]]...
-  eapply realAddI1... apply Hleq...
+  eapply realAddI1...
 Qed.
 
 Theorem realAdd_preserve_lt : ∀ x y z ∈ ℝ,
@@ -727,7 +731,6 @@ Proof with auto.
   apply realAddInv_ran... apply realAddInv_ran... split.
   - intros q Hq. apply SepE in Hq as [Hq [s [Hs [Hlt Hout]]]].
     apply SepI... exists s. repeat split...
-    intros Hin. apply Hout. apply Hsub...
   - intros Heq. apply Hnq. assert (--y = --x) by congruence.
     rewrite realAddInv_double, realAddInv_double in H...
 Qed.

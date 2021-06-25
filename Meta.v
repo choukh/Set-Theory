@@ -19,26 +19,28 @@ Notation "x ∉ y" := (¬In x y) (at level 70) : set_scope.
 
 (* 集合论中配合量词的惯例写法 *)
 
-Definition all_in := λ A (P : set → Prop) x, x ∈ A → P x.
+Notation all_in A P := (∀ x, x ∈ A → P x).
 Notation "∀ x .. y ∈ A , P" :=
-  (all (all_in A (λ x, .. (all (all_in A (λ y, P))) ..)))
+  (all_in A (λ x, .. (all_in A (λ y, P)) ..))
   (at level 200, x binder, right associativity) : set_scope.
 
-Definition ex_in := λ A (P : set → Prop) x, x ∈ A ∧ P x.
+Notation ex_in A P := (λ x, x ∈ A ∧ P x).
 Notation "∃ x .. y ∈ A , P" :=
   (ex (ex_in A (λ x, .. (ex (ex_in A (λ y, P))) ..)))
   (at level 200, x binder, right associativity) : set_scope.
 
 (* 关于集合的经典逻辑引理 *)
 
-Lemma set_not_all_not_ex : ∀ A P, ¬(∀x ∈ A, ¬P x) ↔ (∃x ∈ A, P x).
+Lemma set_not_all_not_ex : ∀ A (P : set → Prop),
+  ¬(∀x ∈ A, ¬P x) ↔ (∃x ∈ A, P x).
 Proof.
   split; intros.
   - destruct (classic (∃x ∈ A, P x)); firstorder.
   - firstorder.
 Qed.
 
-Lemma set_not_all_ex_not : ∀ A P, ¬(∀x ∈ A, P x) ↔ (∃x ∈ A, ¬P x).
+Lemma set_not_all_ex_not : ∀ A (P : set → Prop),
+  ¬(∀x ∈ A, P x) ↔ (∃x ∈ A, ¬P x).
 Proof.
   intros. pose proof (set_not_all_not_ex A (λ x, ¬P x)).
   simpl in H. rewrite <- H. clear H.

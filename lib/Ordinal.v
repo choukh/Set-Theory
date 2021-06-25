@@ -40,7 +40,7 @@ Qed.
 Lemma ap_of_op_repl :
   ∀ A G, ∀ x ∈ A, {λ x, <x, G x> | x ∊ A}[x] = G x.
 Proof with auto.
-  intros * x Hx. apply func_ap. apply op_repl_is_func.
+  intros A G x Hx. apply func_ap. apply op_repl_is_func.
   apply ReplAx. exists x. split...
 Qed.
 

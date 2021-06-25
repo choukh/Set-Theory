@@ -10,7 +10,7 @@ Notation "'⋃ᵢ' F" := (IFUnion F)
 
 Lemma IFUnionI : ∀ F : set → set, ∀n ∈ ω, F n ⊆ ⋃ᵢ F.
 Proof.
-  intros * n Hn. apply FUnionI. apply Hn.
+  intros F n Hn. unfold Sub. now apply FUnionI.
 Qed.
 
 Lemma IFUnionE : ∀ F : set → set, ∀x ∈ ⋃ᵢ F, ∃n ∈ ω, x ∈ F n.

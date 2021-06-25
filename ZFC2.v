@@ -96,8 +96,7 @@ Proof.
 Qed.
 
 (** 任意交 **)
-Definition Inter : set -> set :=
-  λ Y, {x ∊ ⋃Y | (λ x, ∀y ∈ Y, x ∈ y)}.
+Definition Inter := λ Y, {x ∊ ⋃Y | λ x, ∀y ∈ Y, x ∈ y}.
 Notation "⋂ X" := (Inter X) (at level 9, right associativity) : set_scope.
 
 Lemma InterI : ∀ x Y, ⦿ Y → (∀y ∈ Y, x ∈ y) → x ∈ ⋂Y.
@@ -169,7 +168,7 @@ Proof.
   apply H. apply BInterI; eauto.
 Qed.
 
-(* 非空集合的二元并具有单射性 *)
+(* 不交集的二元并具有单射性 *)
 Lemma disjoint_bunion_injective : ∀ A B C,
   disjoint A C → disjoint B C →
   A ∪ C = B ∪ C → A = B.
@@ -185,13 +184,12 @@ Proof with auto.
 Qed.
 
 (** 有序对 **)
-Definition OPair : set → set → set := λ x y, {⎨x⎬, {x, y}}.
+Definition OPair := λ x y, {⎨x⎬, {x, y}}.
 Notation "< x , y , .. , z >" := ( OPair .. ( OPair x y ) .. z )
   (z at level 69, format "< x ,  y ,  .. ,  z >") : set_scope.
 
-Definition π1 : set → set := λ p, ⋃ ⋂ p.
-Definition π2 : set → set := λ p,
-  ⋃ {x ∊ ⋃p | λ x, x ∈ ⋂p → ⋃p = ⋂p}.
+Definition π1 := λ p, ⋃ ⋂ p.
+Definition π2 := λ p, ⋃ {x ∊ ⋃p | λ x, x ∈ ⋂p → ⋃p = ⋂p}.
 
 Lemma op_union : ∀ x y, ⋃<x, y> = {x, y}.
 Proof.
@@ -225,31 +223,6 @@ Proof.
   rewrite union_single. reflexivity. 
 Qed.
 
-Lemma pair_eq_pair_i : ∀ a b c d, {a, b} = {c, d} ->
-  (a = c ∧ b = d) ∨ (a = d ∧ b = c).
-Proof.
-  intros.
-  assert (a ∈ {c, d}). rewrite <- H. apply PairI1.
-  assert (b ∈ {c, d}). rewrite <- H. apply PairI2.
-  assert (c ∈ {a, b}). rewrite H. apply PairI1.
-  assert (d ∈ {a, b}). rewrite H. apply PairI2.
-  apply PairE in H0. apply PairE in H1.
-  apply PairE in H2. apply PairE in H3.
-  destruct H0, H1, H2, H3; auto.
-Qed.
-
-Lemma sing_eq_pair_i : ∀ a b c, ⎨a⎬ = {b, c} → a = b ∧ a = c.
-Proof. intros. apply pair_eq_pair_i in H. firstorder. Qed.
-
-Lemma pair_eq_sing_i : ∀ a b c, {b, c} = ⎨a⎬ → a = b ∧ a = c.
-Proof.
-  intros. apply eq_sym in H.
-  apply sing_eq_pair_i. apply H.
-Qed.
-
-Lemma sing_eq_sing_i : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
-Proof. intros. apply sing_eq_pair_i in H. firstorder. Qed.
-
 Lemma π2_correct : ∀ x y, π2 <x, y> = y.
 Proof.
   unfold π2. intros.
@@ -259,8 +232,8 @@ Proof.
   - apply UnionAx in H... destruct H as [A [H1 H2]].
     apply SepE in H1 as [H3 H4].
     apply PairE in H3. destruct H3.
-    + subst. pose proof (H4 (SingI x)).
-      apply pair_eq_sing_i in H as [_ H].
+    + subst. pose proof (H4 (SingI x)). symmetry in H.
+      apply single_eq_pair in H as [_ H].
       subst. apply H2.
     + subst. apply H2.
   - eapply UnionI; [|apply H].

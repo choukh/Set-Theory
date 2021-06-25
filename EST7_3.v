@@ -410,7 +410,7 @@ Import TransfiniteRecursion.
 
 Definition Recursion := λ S γ, constr (A S) (R S) γ.
 
-Definition recrusion_spec := λ S γ F,
+Definition recrusion_spec := λ S (γ : set → set → Prop) F,
   is_function F ∧ dom F = A S ∧ ∀t ∈ A S, γ (F ↾ seg t (R S)) F[t].
 
 Lemma recrusion_spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
@@ -475,8 +475,7 @@ Proof with eauto.
   assert (H := Hx). rewrite e_ap in H...
   apply ReplAx in H as [s [Hs Heq]].
   apply SepE in Hs as [Hs Hst].
-  eapply dom_binRel in Hs...
-  exists s. split... apply wo.
+  eapply dom_binRel in Hs... apply wo.
 Qed.
 
 Theorem e_irrefl : ∀ S, ∀t ∈ A S, (E S)[t] ∉ (E S)[t].

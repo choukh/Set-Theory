@@ -364,7 +364,7 @@ Proof with eauto.
   - apply BUnionI1...
   - destruct H as [q [_ [r [_ [[Hq Hr] [[Hnnq Hnnr] Heq]]]]]].
     destruct Hnny as [Hpy|Hy0].
-    + rewrite Heq. apply realNonNegMulI1... apply Hleq...
+    + rewrite Heq. apply realNonNegMulI1...
     + exfalso. subst. apply Hleq in Hq.
       apply SepE in Hq as [Hq Hq0].
       apply ratNonNeg_not_neg in Hnnq...
@@ -525,15 +525,18 @@ Proof with nauto.
           apply ratPos_mulInv... apply SepE2 in Hq...
         }
         assert (Hnnsum: ratNonNeg (q/s + t)). {
-          unfold ratNonNeg. rewrite <- (ratMul_ident t),
-            <- (ratMulInv_annih s), <- ratMul_assoc, (ratMul_comm t),
+          unfold ratNonNeg.
+          rewrite <- (ratMul_ident t), <- (ratMulInv_annih s),
+            <- (ratMul_assoc t Htq s Hsq (s⁻¹)),
+            (ratMul_comm t Htq s Hsq),
             <- ratMul_distr', <- (ratMul_0_l s⁻¹); [|auto..].
           apply ratMul_preserve_leq... apply ratPos_mulInv...
         }
         replace (q + s ⋅ t) with (s ⋅ (q/s + t)).
         apply realNonNegMulI1... apply realAddI2...
         eapply realE2; revgoals; [eauto|nauto..]. apply realPos_rat0... left...
-        rewrite ratMul_distr, (ratMul_comm q), <- ratMul_assoc,
+        rewrite ratMul_distr, (ratMul_comm q Hqq s⁻¹ Hrsq),
+          <- (ratMul_assoc s Hsq s⁻¹ Hrsq q Hqq),
           ratMulInv_annih, ratMul_ident'; [|auto..]...
       * destruct Hq as [s [Hsq [t [Htq [[Hs Ht] [[Hnns Hnnt] Hqeq]]]]]].
         destruct Hnns; revgoals; subst.
@@ -550,8 +553,10 @@ Proof with nauto.
           apply ratPos_mulInv... apply SepE2 in Hr...
         }
         assert (Hnnsum: ratNonNeg (t + r/s)). {
-          unfold ratNonNeg. rewrite <- (ratMul_ident t),
-            <- (ratMulInv_annih s), <- ratMul_assoc, (ratMul_comm t),
+          unfold ratNonNeg.
+          rewrite <- (ratMul_ident t), <- (ratMulInv_annih s),
+            <- (ratMul_assoc t Htq s Hsq s⁻¹ Hrsq),
+            (ratMul_comm t Htq s Hsq),
             <- ratMul_distr', <- (ratMul_0_l s⁻¹); [|auto..].
           apply ratMul_preserve_leq; nauto. apply ratPos_mulInv... 
         }
@@ -559,7 +564,8 @@ Proof with nauto.
         apply realNonNegMulI1... apply realAddI2...
         eapply realE2; revgoals; [eauto|nauto..].
         apply realPos_rat0... left...
-        rewrite ratMul_distr, (ratMul_comm r), <- ratMul_assoc,
+        rewrite ratMul_distr, (ratMul_comm r Hrq s⁻¹ Hrsq),
+          <- (ratMul_assoc s Hsq s⁻¹ Hrsq r Hrq),
           ratMulInv_annih, ratMul_ident'; [|auto..]...
       * destruct Hq as [s [Hsq [t [Htq [[Hs Ht] [[Hnns Hnnt] Hqeq]]]]]].
         destruct Hr as [u [Huq [v [Hvq [[Hu Hv] [[Hnnu Hnnv] Hreq]]]]]].
@@ -613,8 +619,11 @@ Proof with nauto.
           replace (s⋅t + u⋅v) with (u⋅((s/u)⋅t + v)).
           apply realNonNegMulI1... apply realAddI2...
           eapply realE2; revgoals; [eauto|nauto..]. left...
-          rewrite ratMul_distr, (ratMul_comm s), <- ratMul_assoc,
-            <- (ratMul_assoc u), ratMulInv_annih, ratMul_ident';
+          rewrite ratMul_distr,
+            <- (ratMul_assoc u Huq (s/u) Hsuq t Htq),
+            (ratMul_comm s Hsq u⁻¹ Hruq),
+            <- (ratMul_assoc u Huq u⁻¹ Hruq s Hsq),
+            ratMulInv_annih, ratMul_ident';
             try apply ratMul_ran...
         } {
           assert (Hs': s ∈ ℚ'). {
@@ -641,8 +650,11 @@ Proof with nauto.
           replace (s⋅t + u⋅v) with (s⋅(t + (u/s)⋅v)).
           apply realNonNegMulI1... apply realAddI2...
           eapply realE2; revgoals; [eauto|nauto..]. left...
-          rewrite ratMul_distr, (ratMul_comm u), <- ratMul_assoc,
-            <- (ratMul_assoc s), ratMulInv_annih, ratMul_ident';
+          rewrite ratMul_distr,
+            <- (ratMul_assoc s Hsq (u/s) Husq v Hvq),
+            (ratMul_comm u Huq s⁻¹ Hrsq),
+            <- (ratMul_assoc s Hsq s⁻¹ Hrsq u Huq),
+            ratMulInv_annih, ratMul_ident';
             try apply ratMul_ran...
         }
 Qed.
@@ -879,22 +891,29 @@ Proof with nauto.
         assert (H2: -(r / Rat 3) ∈ ℚ) by (apply ratAddInv_ran; nauto).
         assert (H3: p ⋅ r ∈ ℚ) by (apply ratMul_ran; auto).
         assert (H4: p ⋅ r / Rat 3 ∈ ℚ) by (apply ratMul_ran; nauto).
-        assert (H5: - Rat 1 + p ∈ ℚ) by (apply ratAdd_ran; nauto).
+        assert (H5: - Rat 1 ∈ ℚ) by nauto.
+        assert (H6: - Rat 1 + p ∈ ℚ) by (apply ratAdd_ran; auto).
         rewrite ratAdd_comm; [|auto..]. unfold s, p'.
-        rewrite (ratAdd_comm p), ratMul_assoc, ratMul_distr',
-          <- ratMul_assoc, <- ratMul_assoc, <- ratMul_assoc,
-          ratMul_addInv_l, ratMul_ident', ratMul_addInv_l,
-          <- ratAdd_assoc; [|nauto..].
+        rewrite (ratAdd_comm p Hp (-Rat 1)),
+          (ratMul_assoc (-Rat 1 + p) H6 r Hr (Rat 3)⁻¹),
+          (ratMul_distr' (r / Rat 3) H1 (-Rat 1) H5 p Hp),
+          <- (ratMul_assoc (-Rat 1) H5 r Hr (Rat 3)⁻¹),
+          <- (ratMul_assoc p Hp r Hr (Rat 3)⁻¹),
+          <- (ratMul_assoc p Hp r Hr (Rat 2)⁻¹),
+          (ratMul_addInv_l (Rat 1) (rat_n 1) r), ratMul_ident',
+          (ratMul_addInv_l r Hr (Rat 3)⁻¹),
+          <- (ratAdd_assoc t Ht (-(r/Rat 3)) H2 (p⋅r/Rat 3));
+          clear H5 H6; [|nauto..].
         replace (p⋅r/Rat 2) with (p⋅r / Rat 6 + p⋅r / Rat 3). {
           apply ratAdd_preserve_lt. apply ratAdd_ran...
           repeat apply ratMul_ran... repeat apply ratMul_ran...
           cut (ratPos (p⋅r / Rat 6)). intros Hp6.
-          - destruct (classic (t = r/Rat 3)).
+          - destruct (classic (t = r / Rat 3)).
             + subst. rewrite ratAddInv_annih; assumption.
             + eapply ratLt_tranr; revgoals. apply Hp6.
               apply ratLt_connected in H0 as []; [|exfalso|auto..]...
-              rewrite <- (ratAddInv_annih (r/Rat 3)).
-              apply ratAdd_preserve_lt; assumption. apply H1.
+              rewrite <- (ratAddInv_annih (r/Rat 3)); [|auto].
+              apply ratAdd_preserve_lt...
           - apply ratMul_pos_prod; [auto|nauto|..|nauto].
             apply ratMul_pos_prod... eapply ratLt_tranr.
             apply ratPos_sn. apply H1p. 

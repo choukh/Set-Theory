@@ -21,7 +21,7 @@ Definition Rel : set → set → (set → set → Prop) → set :=
 Lemma rel_is_rel : ∀ A B P, is_rel (Rel A B P).
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
-  apply cprod_is_pairs in Hx. apply Hx.
+  eapply cprod_is_pairs; eauto.
 Qed.
 
 Lemma cprod_is_rel : ∀ A B, is_rel (A × B).
@@ -44,7 +44,7 @@ Qed.
 
 Lemma identI : ∀ X, ∀a ∈ X, <a, a> ∈ Ident X.
 Proof.
-  intros * a Ha. apply ReplAx. exists a. split; auto.
+  intros X a Ha. apply ReplAx. exists a. split; auto.
 Qed.
 
 Lemma identE : ∀ X a b, <a, b> ∈ Ident X → a ∈ X ∧ a = b.
@@ -636,7 +636,7 @@ Qed.
 Example compo_inv_dom_eq : ∀ G,
   injective G → ∀x ∈ dom (G⁻¹ ∘ G), (G⁻¹ ∘ G)[x] = x.
 Proof.
-  intros G Hinj x Hx. rewrite compo_correct.
+  intros G Hinj x Hx. simpl. rewrite compo_correct.
   - rewrite inv_dom_reduction. reflexivity. apply Hinj.
     rewrite compo_inv_dom in Hx. apply Hx. apply Hinj.
   - apply inv_func_iff_sr. destruct Hinj as [_ Hs]. apply Hs.

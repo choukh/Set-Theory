@@ -65,7 +65,7 @@ Hint Resolve real_grounded : core.
 (* 整数的秩 *)
 Lemma rank_of_int : ∀a ∈ ℤ, rank a = ω.
 Proof with neauto.
-  intros a Ha.
+  intros a Ha. simpl.
   rewrite rank_recurrence; [|apply (member_grounded ℤ)]...
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply ExtAx. split; intros Hx.
@@ -121,7 +121,7 @@ Qed.
 (* 有理数的秩 *)
 Lemma rank_of_rat : ∀r ∈ ℚ, rank r = ω⁺⁺⁺.
 Proof with neauto.
-  intros r Hr.
+  intros r Hr. simpl.
   rewrite rank_recurrence; [|apply (member_grounded ℚ)]...
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   apply ExtAx. split; intros Hx.
@@ -157,7 +157,7 @@ Qed.
 (* 戴德金实数的秩 *)
 Lemma rank_of_real : ∀x ∈ ℝ, rank x = ω⁺⁺⁺⁺.
 Proof with eauto.
-  intros x Hx.
+  intros x Hx. simpl.
   rewrite <- (subset_same_rank ℚ)... apply rank_of_rats.
   intros r Hr s Hs. rewrite rank_of_rat, rank_of_rat...
   apply SepE1 in Hx... apply realE0 in Hx as [q [_ Hq]].
@@ -300,11 +300,11 @@ Proof with eauto; try congruence.
   apply PairE in Hx as [].
   - subst u. split... apply PairE in Hp as [].
     + exfalso. eapply pair_regularity...
-    + apply pair_iff in H0 as [[]|[]]...
+    + apply pair_eq_pair in H0 as [[]|[]]...
   - apply PairE in Hp as [].
     + exfalso. apply (no_descending_chain_2 x {x, y}).
       apply PairI1. rewrite H1, H0. apply PairI1.
-    + apply pair_iff in H1 as [[]|[]]...
+    + apply pair_eq_pair in H1 as [[]|[]]...
       subst. exfalso. rewrite pair_ordering_agnostic in H1.
       eapply pair_regularity...
 Qed.
@@ -379,8 +379,7 @@ Proof with eauto.
   destruct (classic (b ∈ a)) as [|Hba]... exfalso.
   set {x ∊ α | λ x, ∃y ∈ α, x ≠ y ∧ x ∉ y ∧ y ∉ x} as A.
   pose proof (ex_epsilon_minimal A) as [m [Hm HminA]]. {
-    apply EmptyNI. exists a.
-    apply SepI... exists b. split...
+    apply EmptyNI. exists a. apply SepI...
   }
   apply SepE in Hm as H.
   destruct H as [Hmα [y [Hy [Hnqmy [Hmy Hym]]]]].
@@ -459,7 +458,7 @@ Proof with eauto.
   apply ranE in Hy as [n Hp].
   apply domI in Hp as Hn. rewrite Hd in Hn.
   apply func_ap in Hp... subst y.
-  eapply member_grounded; revgoals... apply fn_grounded...
+  eapply member_grounded; revgoals...
 Qed.
 
 (* ex7_36 任意集合与其传递闭包等秩 *)

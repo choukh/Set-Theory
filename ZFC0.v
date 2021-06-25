@@ -26,10 +26,7 @@ Global Hint Immediate sub_refl : core.
 
 (* 子集关系是传递的 *)
 Lemma sub_tran : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
-Proof.
-  intros * H1 H2 x H.
-  apply H2. apply H1. apply H.
-Qed.
+Proof. firstorder. Qed.
 
 (* 子集关系是反对称的 *)
 Lemma sub_antisym: ∀ A B, A ⊆ B → B ⊆ A → A = B.
@@ -208,7 +205,7 @@ Proof.
   exists x. split. apply Hx. reflexivity.
 Qed.
 
-Lemma repl_rewrite : ∀ G F A, (∀a ∈ A, F a = G a) →
+Lemma repl_ext : ∀ G F A, (∀a ∈ A, F a = G a) →
   {F | a ∊ A} = {G | a ∊ A}.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.

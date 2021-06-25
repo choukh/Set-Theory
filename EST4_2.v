@@ -83,15 +83,15 @@ Proof with auto.
 Qed.
 
 (* 集合论自然数与元语言自然数同构 *)
-Lemma proj_embed_id : ∀ n : nat, Proj n = n. 
+Lemma proj_embed_id : ∀ n : nat, Proj (Embed n) = n. 
 Proof.
   intros. unfold Proj.
   destruct (dit (sig (λ k, iter k Suc ∅ = Embed n))).
-  - destruct s as [k H]. apply embed_injective in H. apply H.
+  - destruct s as [k H]. now apply embed_injective in H.
   - exfalso. apply f. exists n. reflexivity.
 Qed.
 
-Lemma embed_proj_id : ∀n ∈ ω, Embed n = n.
+Lemma embed_proj_id : ∀n ∈ ω, Embed (Proj n) = n.
 Proof.
   intros n Hn. destruct (proj n Hn) as [m Heq].
   subst. rewrite proj_embed_id. reflexivity.

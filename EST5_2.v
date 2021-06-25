@@ -128,8 +128,11 @@ Qed.
 
 Lemma intMul_a_b : ∀ a b ∈ ω², [a]~ ⋅ [b]~ = [a ⋅ᵥ b]~.
 Proof.
-  apply binCompatibleE. apply preIntMul_binCompatible.
+  intros a Ha b Hb. apply binCompatibleE; auto.
+  apply preIntMul_binCompatible.
 Qed.
+
+Global Opaque IntMul.
 
 Lemma intMul_m_n_p_q : ∀ m n p q ∈ ω,
   [<m, n>]~ ⋅ [<p, q>]~ = ([<m⋅p + n⋅q, m⋅q + n⋅p>]~)%n.
@@ -268,13 +271,15 @@ Proof with nauto.
   assert (Hw: m⋅q + n⋅p ∈ ω) by (amr; auto).
   apply nat_connected in Hmn as [H1|H1];
   apply nat_connected in Hpq as [H2|H2]; auto;
-  intros Heq; eapply nat_irrefl; revgoals;
-  (eapply ex4_25 in H1; [apply H1 in H2| | | |]; [|auto..]);
-  try apply Hw; [|
-    |rewrite add_comm, (add_comm (n⋅p)) in H2; [|mr;auto..]
-    |rewrite add_comm, (add_comm (n⋅q)) in H2; [|mr;auto..]
-  ];
-  rewrite Heq in H2; apply H2.
+  intros Heq; eapply nat_irrefl; revgoals.
+  pose proof (ex4_25 m Hm n Hn p Hp q Hq H1 H2).
+  rewrite Heq in H. apply H. auto.
+  pose proof (ex4_25 m Hm n Hn q Hq p Hp H1 H2).
+  rewrite Heq in H. apply H. auto.
+  pose proof (ex4_25 n Hn m Hm p Hp q Hq H1 H2).
+  rewrite add_comm, (add_comm (n⋅p)), Heq in H; [|mr;auto..]. apply H. auto.
+  pose proof (ex4_25 n Hn m Hm q Hq p Hp H1 H2).
+  rewrite add_comm, (add_comm (n⋅q)), Heq in H; [|mr;auto..]. apply H. auto.
 Qed.
 
 Close Scope Nat_scope.
@@ -290,7 +295,7 @@ Qed.
 
 Corollary intMul_ident' : ∀a ∈ ℤ, Int 1 ⋅ a = a.
 Proof with nauto.
-  intros a Ha.
+  intros a Ha. simpl.
   rewrite intMul_comm, intMul_ident...
 Qed.
 
@@ -304,7 +309,10 @@ Proof with nauto.
 Qed.
 
 Lemma intMul_0_l : ∀a ∈ ℤ, Int 0 ⋅ a = Int 0.
-Proof. intros a Ha. rewrite intMul_comm, intMul_0_r; nauto. Qed.
+Proof.
+  intros a Ha. simpl.
+  rewrite intMul_comm, intMul_0_r; nauto.
+Qed.
 
 Lemma intMul_addInv_lr : ∀ a b ∈ ℤ, a ⋅ -b = -a ⋅ b.
 Proof with auto.

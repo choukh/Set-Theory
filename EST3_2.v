@@ -205,7 +205,7 @@ Qed.
 Lemma restrE1 : ∀ F A, ∀x ∈ F ↾ A,
   ∃ a b, a ∈ A ∧ <a, b> ∈ F ∧ x = <a, b>.
 Proof.
-  intros * x Hx. apply SepE in Hx as [Hx [[a [b Hp]] Ha]].
+  intros F A x Hx. apply SepE in Hx as [Hx [[a [b Hp]] Ha]].
   subst x. rewrite π1_correct in Ha. exists a, b; auto.
 Qed.
 
@@ -244,7 +244,7 @@ Proof with auto.
     + apply domE in Hx as [y Hp].
       apply restrE2 in Hp as []...
     + eapply domI. apply restrI...
-      apply func_correct... apply H...
+      apply func_correct...
   - rewrite <- H. apply restr_dom_included.
 Qed.
 
@@ -382,7 +382,7 @@ Proof with eauto.
   apply InterE in Hx as [[A HA] H].
   apply InterI. exists (F⟦A⟧). apply ReplI...
   intros Y HY. apply ReplAx in HY as [B [HB Heq]]. subst Y.
-  eapply imgI... apply H in HB...
+  eapply imgI...
 Qed.
 
 Theorem img_inter_distr : ∀ F 𝒜,
@@ -449,7 +449,7 @@ Proof with auto; try congruence.
   destruct H as [Hff [Hdf Hrf]].
   apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
   apply domI in Hp as Hd. apply ranI in Hp as Hr.
-  rewrite Heqp. apply CProdI... apply Hrf...
+  rewrite Heqp. apply CProdI...
 Qed.
 
 Theorem arrow_iff : ∀ F A B,

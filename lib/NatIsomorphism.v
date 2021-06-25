@@ -8,7 +8,7 @@ Proof.
   intros. rewrite <- (proj_embed_id (S n)). reflexivity.
 Qed.
 
-Lemma suc_isomorphic_ω : ∀n ∈ ω, n⁺ = S n.
+Lemma suc_isomorphic_ω : ∀ n : set, n ∈ ω → n⁺ = S n.
 Proof with auto.
   intros n Hn. rewrite suc_isomorphic_n.
   repeat rewrite embed_proj_id... apply ω_inductive...

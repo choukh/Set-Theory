@@ -13,36 +13,27 @@ Definition InClass := λ x (C : Class), C x.
 Notation "x ⋵ C" := (InClass x C) (at level 70) : Class_scope.
 Global Hint Unfold InClass : core.
 
-Definition all_in_class `(A : Class, P : set → Prop) : set → Prop :=
-  λ x, x ⋵ A → P x.
-
+Notation all_in_class A P := (∀ x, x ⋵ A → P x).
 Notation "∀ x .. y ⋵ A , P" :=
-  ( all ( all_in_class A ( λ x, .. ( all ( all_in_class A ( λ y, P ))) .. )))
+  (all_in_class A (λ x, .. (all_in_class A (λ y, P)) ..))
   (at level 200, x binder, y binder, right associativity) : Class_scope.
 
-Definition ex_in_class `(A : Class, P : set → Prop) : set → Prop :=
-  λ x, x ⋵ A ∧ P x.
-
+Notation ex_in_class A P := (λ x, x ⋵ A ∧ P x).
 Notation "∃ x .. y ⋵ A , P" :=
-  ( ex ( ex_in_class A ( λ x, .. ( ex ( ex_in_class A ( λ y, P ))) .. )))
+  (ex (ex_in_class A (λ x, .. (ex (ex_in_class A (λ y, P))) ..)))
   (at level 200, x binder, y binder, right associativity) : Class_scope.
 
 (* 能成为集合的类 *)
 Definition is_set := λ C, ∃ A, ∀ x, x ∈ A ↔ x ⋵ C.
 
 (* 子类 *)
-Definition Subclass := λ C D : Class, ∀ x, x ⋵ C → x ⋵ D.
-Notation "C ⫃ D" := (Subclass C D) (at level 70) : Class_scope.
-Global Hint Unfold Subclass : core.
+Notation "C ⫃ D" := (∀ x, x ⋵ C → x ⋵ D) (at level 70) : Class_scope.
 
 (* 类的子集 *)
-Definition SubsetOfClass := λ A C, ∀ x, x ∈ A → x ⋵ C.
-Notation "A ⪽ C" := (SubsetOfClass A C) (at level 70) : Class_scope.
-Global Hint Unfold SubsetOfClass : core.
+Notation "A ⪽ C" := (∀ x, x ∈ A → x ⋵ C) (at level 70) : Class_scope.
 
 (* 类函数 *)
-Definition class_func := λ F D R, ∀x ⋵ D, F x ⋵ R.
-Notation "F :ᶜ D ⇒ R" := (class_func F D R) (at level 60) : Class_scope.
+Notation "F :ᶜ D ⇒ R" := (∀x ⋵ D, F x ⋵ R) (at level 60) : Class_scope.
 
 (* 类单射 *)
 Definition class_injective := λ (F : set → set) D,

@@ -120,8 +120,8 @@ Definition ℚ : set := (ℤ × ℤ')/~.
 Lemma rat_ident : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
   a ⋅ d = c ⋅ b ↔ [<a, b>]~ = [<c, d>]~.
 Proof with eauto.
-  apply pQuot_ident.
-  apply ratEqRefl. apply ratEqSymm. apply ratEqTran. 
+  intros a Ha b Hb c Hc d Hd.
+  now apply (pQuot_ident ℤ ℤ' RatEq ratEqRefl ratEqSymm ratEqTran).
 Qed.
 
 Definition PreRatAdd : set :=
@@ -193,8 +193,11 @@ Qed.
 
 Lemma ratAdd_r_s : ∀ r s ∈ (ℤ × ℤ'), [r]~ + [s]~ = [r +ᵥ s]~.
 Proof.
-  apply binCompatibleE. apply preRatAdd_binCompatible.
+  intros r Hr s Hs. apply binCompatibleE; auto.
+  apply preRatAdd_binCompatible.
 Qed.
+
+Global Opaque RatAdd.
 
 Lemma ratAdd_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
   [<a, b>]~ + [<c, d>]~ = ([<a⋅d + c⋅b, b⋅d>]~)%z.
@@ -263,7 +266,7 @@ Qed.
 
 Corollary ratAdd_ident' : ∀r ∈ ℚ, Rat 0 + r = r.
 Proof.
-  intros r Hr. rewrite ratAdd_comm, ratAdd_ident; nauto.
+  intros r Hr. simpl. rewrite ratAdd_comm, ratAdd_ident; nauto.
 Qed.
 
 Theorem ratAddInv_exists : ∀r ∈ ℚ, ∃s ∈ ℚ, r + s = Rat 0.
@@ -458,6 +461,8 @@ Proof with auto.
     rewrite H1 in H. apply nzIntMul_ranE in H as []... nz.
 Qed.
 
+Global Opaque RatProj.
+
 Lemma ratProj_η : ∀r ∈ ℚ, r = [RatProj r]~.
 Proof with auto.
   intros r Hr.
@@ -496,6 +501,8 @@ Proof with eauto.
     apply planeEquiv in H2; [|auto..]. unfold RatEq in H2.
     rewrite intMul_addInv_l, intMul_addInv_l; nz; [|auto..]. congruence.
 Qed.
+
+Global Opaque RatAddInv.
 
 Lemma ratAddInv_double : ∀r ∈ ℚ, --r = r.
 Proof with auto.
@@ -605,8 +612,11 @@ Qed.
 
 Lemma ratMul_r_s : ∀ r s ∈ (ℤ × ℤ'), [r]~ ⋅ [s]~ = [r ⋅ᵥ s]~.
 Proof.
-  apply binCompatibleE. apply preRatMul_binCompatible.
+  intros r Hr s Hs. apply binCompatibleE; auto.
+  apply preRatMul_binCompatible.
 Qed.
+
+Global Opaque RatMul.
 
 Lemma ratMul_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
   [<a, b>]~ ⋅ [<c, d>]~ = ([<a ⋅ c, b ⋅ d>]~)%z.
@@ -666,9 +676,10 @@ Proof with auto.
   apply pQuotE in Hp as [a [Ha [b [Hb Hp]]]].
   apply pQuotE in Hq as [c [Hc [d [Hd Hq]]]].
   apply pQuotE in Hr as [e [He [f [Hf Hr]]]]. subst.
-  rewrite ratAdd_a_b_c_d; [|auto; nz..].
-  rewrite ratMul_a_b_c_d, ratMul_a_b_c_d, ratMul_a_b_c_d;
-    try assumption; [|amr;nz|nzmr].
+  rewrite (ratAdd_a_b_c_d c Hc d Hd e He f Hf).
+  rewrite (ratMul_a_b_c_d a Ha b Hb c Hc d Hd).
+  rewrite (ratMul_a_b_c_d a Ha b Hb e He f Hf).
+  rewrite ratMul_a_b_c_d; [|auto..|amr;nz|nzmr].
   rewrite ratAdd_a_b_c_d; [|try mr;try nzmr..].
   erewrite
     (intMul_assoc a), (intMul_comm c Hc (b⋅f)%z),
@@ -689,8 +700,9 @@ Qed.
 Corollary ratMul_distr' : ∀ p q r ∈ ℚ, (q + r) ⋅ p = q ⋅ p + r ⋅ p.
 Proof with auto.
   intros p Hp q Hq r Hr.
-  rewrite (ratMul_comm (q + r)), ratMul_distr, ratMul_comm,
-    (ratMul_comm r)... apply ratAdd_ran...
+  rewrite (ratMul_comm (q + r)), ratMul_distr...
+  rewrite (ratMul_comm p Hp q Hq), (ratMul_comm p Hp r Hr)...
+  apply ratAdd_ran...
 Qed.
 
 Lemma ratMul_ident : ∀r ∈ ℚ, r ⋅ Rat 1 = r.
@@ -703,7 +715,7 @@ Qed.
 
 Lemma ratMul_ident' : ∀r ∈ ℚ, Rat 1 ⋅ r = r.
 Proof.
-  intros a Ha. rewrite ratMul_comm, ratMul_ident; nauto.
+  intros a Ha. simpl. rewrite ratMul_comm, ratMul_ident; nauto.
 Qed.
 
 Lemma ratMul_addInv : ∀r ∈ ℚ, -Rat 1 ⋅ r = -r.
@@ -716,7 +728,9 @@ Proof with nauto.
 Qed.
 
 Lemma ratMul_0_l : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
-Proof. intros s Hs. rewrite ratMul_comm, ratMul_0_r; nauto. Qed.
+Proof.
+  intros s Hs. simpl. rewrite ratMul_comm, ratMul_0_r; nauto.
+Qed.
 
 Lemma zRat_zInt : ∀a ∈ ℤ, ∀b ∈ ℤ', [<a, b>]~ = Rat 0 → a = Int 0.
 Proof with nauto.
@@ -866,6 +880,8 @@ Proof with eauto.
   apply planeEquivE2 in H2 as [H2 _]. unfold RatEq in H2.
   rewrite intMul_comm, (intMul_comm b); nz...
 Qed.
+
+Global Opaque RatMulInv.
 
 Lemma ratMulInv_double : ∀r ∈ ℚ', r⁻¹⁻¹ = r.
 Proof with auto.

@@ -127,7 +127,7 @@ Proof.
 Qed.
 
 (* 非零基数大于等于1 *)
-Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 1 ≤ 𝜅.
+Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 1 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
   apply EmptyNE in H as [k Hk].
@@ -288,7 +288,7 @@ Proof with auto.
   apply cardAdd_preserve_leq'. apply cardLeq_0...
 Qed.
 
-Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
+Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
 Proof with auto.
   intros 𝜅 Hk 𝜆 Hl H0. rewrite <- cardMul_ident at 1...
   apply cardMul_preserve_leq'. apply cardLeq_1...
@@ -299,7 +299,6 @@ Proof with auto.
   intros * Hsub f Hf.
   apply arrow_iff in Hf as [Hf [Hd Hr]].
   apply arrow_iff. split; [|split]...
-  intros x Hx. apply Hsub. apply Hr...
 Qed.
 
 (* 基数乘方保持底数的序关系 *)
