@@ -299,7 +299,7 @@ Proof with auto.
   intros 𝜅 Hfck 𝜆 Hfcl.
   assert (Hk: 𝜅 ∈ ω). { apply nat_iff_fincard... }
   assert (Hl: 𝜆 ∈ ω). { apply nat_iff_fincard... }
-  apply nat_iff_fincard. rewrite cardAdd_nat... apply add_ran...
+  apply nat_iff_fincard. rewrite fin_cardAdd_eq_add... apply add_ran...
 Qed.
 
 (* 如果两个基数的和是有限基数那么这两个基数都是有限基数 *)
@@ -361,7 +361,7 @@ Proof with auto.
   intros 𝜅 Hk 𝜆 Hl.
   apply nat_iff_fincard in Hk.
   apply nat_iff_fincard in Hl.
-  apply nat_iff_fincard. rewrite cardMul_nat... apply mul_ran...
+  apply nat_iff_fincard. rewrite fin_cardMul_eq_mul... apply mul_ran...
 Qed.
 
 (* 如果基数𝜅与非零基数的积是有限基数那么𝜅是有限基数 *)
@@ -440,7 +440,7 @@ Proof with auto.
   intros 𝜅 Hk 𝜆 Hl.
   apply nat_iff_fincard in Hk.
   apply nat_iff_fincard in Hl.
-  apply nat_iff_fincard. rewrite cardExp_nat... apply exp_ran...
+  apply nat_iff_fincard. rewrite fin_cardExp_eq_exp... apply exp_ran...
 Qed.
 
 (* 如果基数𝜅的非零基数次幂是有限基数那么𝜅是有限基数 *)

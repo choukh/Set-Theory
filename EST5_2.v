@@ -11,7 +11,7 @@ Local Ltac amr := apply add_ran; apply mul_ran; auto.
 (*** EST第五章2：整数乘法，整数的序，自然数嵌入 ***)
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 Definition PreIntMul : set :=
   PlaneArith ω ω (λ m n p q, <m⋅p + n⋅q, m⋅q + n⋅p>).
@@ -111,7 +111,7 @@ Proof with auto.
   rewrite <- (add_assoc (n'⋅q')); [|mr;auto..]. apply H.
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Int_scope.
 
 (** 整数乘法 **)
@@ -135,7 +135,7 @@ Qed.
 Global Opaque IntMul.
 
 Lemma intMul_m_n_p_q : ∀ m n p q ∈ ω,
-  [<m, n>]~ ⋅ [<p, q>]~ = ([<m⋅p + n⋅q, m⋅q + n⋅p>]~)%n.
+  [<m, n>]~ ⋅ [<p, q>]~ = ([<m⋅p + n⋅q, m⋅q + n⋅p>]~)%ω.
 Proof with auto.
   intros m Hm n Hn p Hp q Hq.
   rewrite intMul_a_b, preIntMul_m_n_p_q...
@@ -169,7 +169,7 @@ Proof with nauto.
 Qed.
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 Theorem intMul_comm : ∀ a b ∈ ℤ, (a ⋅ b = b ⋅ a)%z.
 Proof with try assumption.
@@ -282,7 +282,7 @@ Proof with nauto.
   rewrite add_comm, (add_comm (n⋅q)), Heq in H; [|mr;auto..]. apply H. auto.
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Int_scope.
 
 Theorem intMul_ident : ∀a ∈ ℤ, a ⋅ Int 1 = a.
@@ -318,7 +318,7 @@ Proof with auto.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
   rewrite intAddInv, intAddInv, intMul_m_n_p_q, intMul_m_n_p_q,
-    add_comm, (add_comm (m⋅p)%n); auto; mr; auto.
+    add_comm, (add_comm (m⋅p)%ω); auto; mr; auto.
 Qed.
 
 Lemma intMul_addInv_r : ∀ a b ∈ ℤ, a ⋅ -b = -(a ⋅ b).
@@ -337,7 +337,7 @@ Proof with auto.
 Qed.
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 (** 整数的序 **)
 
@@ -476,7 +476,7 @@ Proof.
   apply intLt_tranr. apply intLt_trich.
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Int_scope.
 
 Definition intPos : set → Prop := λ a, Int 0 <𝐳 a.
@@ -518,7 +518,7 @@ Proof with nauto.
 Qed.
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 Theorem intAdd_preserve_lt : ∀ a b c ∈ ℤ,
   a <𝐳 b ↔ (a + c <𝐳 b + c)%z.
@@ -580,7 +580,7 @@ Proof with neauto.
   apply ex4_25; auto; ar...
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Int_scope.
 
 Corollary intAdd_preserve_lt_tran : ∀ a b c d ∈ ℤ,
@@ -661,22 +661,22 @@ Proof with neauto.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
   unfold Int. rewrite intAdd_m_n_p_q, add_ident...
-  assert (Heq: (m + q)%n⁺ = (m + 1 + q)%n). {
-    rewrite add_suc, add_assoc, (add_comm q),
+  assert (Heq: (m + q)%ω⁺ = (m + 1 + q)%ω). {
+    rewrite suc, add_assoc, (add_comm q),
       <- add_assoc; nauto; ar...
   } split; intros.
   - apply intLt in H...
-    destruct (classic (m + 1 + q = p + n)%n).
+    destruct (classic (m + 1 + q = p + n)%ω).
     + right. apply int_ident; auto; ar...
     + left. apply intLt; auto; [ar|]...
       apply nat_connected in H0 as []; [| |ar;ar|ar]...
-      exfalso. eapply (ω_not_dense (m + q)%n); [ar|]...
-      exists (p + n)%n. split. ar... split... rewrite Heq...
+      exfalso. eapply (ω_not_dense (m + q)%ω); [ar|]...
+      exists (p + n)%ω. split. ar... split... rewrite Heq...
   - apply intLt... destruct H.
     + apply intLt in H; auto; [|ar]... rewrite <- Heq in H.
       eapply nat_trans; revgoals... ar...
     + apply int_ident in H; auto; [|ar]...
-      assert ((m + q)%n ∈ (m + q)%n⁺) by nauto. congruence.
+      assert ((m + q)%ω ∈ (m + q)%ω⁺) by nauto. congruence.
 Qed.
 
 Lemma intNonNeg_iff : ∀a ∈ ℤ, ¬intNeg a ↔ Int 0 ≤ a.
@@ -732,7 +732,7 @@ Theorem ω_embed : ∀ n : nat, ω_Embed[n] = Int n.
 Proof. intros. rewrite ω_embed_n; nauto. Qed.
 
 Theorem ω_embed_add : ∀ m n ∈ ω,
-  ω_Embed[(m + n)%n] = ω_Embed[m] + ω_Embed[n].
+  ω_Embed[(m + n)%ω] = ω_Embed[m] + ω_Embed[n].
 Proof with nauto.
   intros m Hm n Hn.
   repeat rewrite ω_embed_n; [|auto;ar;auto..].
@@ -740,7 +740,7 @@ Proof with nauto.
 Qed.
 
 Theorem ω_embed_mul : ∀ m n ∈ ω,
-  ω_Embed[(m ⋅ n)%n] = ω_Embed[m] ⋅ ω_Embed[n].
+  ω_Embed[(m ⋅ n)%ω] = ω_Embed[m] ⋅ ω_Embed[n].
 Proof with nauto.
   intros m Hm n Hn.
   repeat rewrite ω_embed_n; [|auto;mr;auto..].

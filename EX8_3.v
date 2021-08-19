@@ -854,7 +854,7 @@ Proof with neauto; try congruence.
   apply Hin... apply Hout... apply Hsubd...
 Qed.
 
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 (* 所有部分来回嵌入的并是完整同构 *)
 Lemma union_of_partial_back_and_forth_embeddings :

@@ -48,14 +48,14 @@ Qed.
 Module RecursionSchemaOnOrdinals.
 Import TransfiniteRecursion.
 
-Definition F := λ γ δ, constr δ (MemberRel δ) γ.
+Definition F := λ γ δ, Recursion δ (MemberRel δ) γ.
 
 Local Lemma F_spec : ∀ γ, (∀ f, ∃! y, γ f y) →
   ∀δ ⋵ 𝐎𝐍, is_function (F γ δ) ∧ dom (F γ δ) = δ ∧
   ∀α ∈ δ, γ (F γ δ ↾ α) (F γ δ)[α].
 Proof with auto.
   intros γ Hγ δ Hoδ.
-  pose proof (spec_intro δ (MemberRel δ) γ) as [HfF [HdF HrF]]... {
+  pose proof (recursion_spec_intro δ (MemberRel δ) γ) as [HfF [HdF HrF]]... {
     apply ord_woset...
   }
   fold (F γ δ) in HfF, HdF, HrF.

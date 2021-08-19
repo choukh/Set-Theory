@@ -470,8 +470,8 @@ Proof with neauto; try congruence.
   apply disjointify_0_1. apply disjointify_0_1.
   set (Func (ω × ⎨0⎬ ∪ ω × ⎨1⎬) ω (λ x,
     match (ixm (π2 x = 0)) with
-    | inl _ => (2 ⋅ (π1 x))%n
-    | inr _ => (2 ⋅ (π1 x) + 1)%n
+    | inl _ => (2 ⋅ (π1 x))%ω
+    | inr _ => (2 ⋅ (π1 x) + 1)%ω
   end)) as f.
   exists f. apply meta_bijection.
   - intros x Hx. apply BUnionE in Hx as [].
@@ -496,22 +496,22 @@ Proof with neauto; try congruence.
     + destruct (ixm (Embed 0 = Embed 0))...
       destruct (ixm (Embed 1 = Embed 0)).
       split... apply mul_cancel' in Heq...
-      assert (H2m: (2 ⋅ m)%n ∈ ω) by (apply mul_ran; nauto).
-      exfalso. apply (no_even_and_odd (2 ⋅ m)%n H2m).
+      assert (H2m: (2 ⋅ m)%ω ∈ ω) by (apply mul_ran; nauto).
+      exfalso. apply (no_even_and_odd (2 ⋅ m)%ω H2m).
       split. exists m. split...
       rewrite Heq. exists p. split...
     + destruct (ixm (Embed 0 = Embed 0))...
       destruct (ixm (Embed 1 = Embed 0)).
       split... apply mul_cancel' in Heq...
-      assert (H2p: (2 ⋅ p)%n ∈ ω) by (apply mul_ran; nauto).
-      exfalso. apply (no_even_and_odd (2 ⋅ p)%n H2p).
+      assert (H2p: (2 ⋅ p)%ω ∈ ω) by (apply mul_ran; nauto).
+      exfalso. apply (no_even_and_odd (2 ⋅ p)%ω H2p).
       split. exists p. split...
       rewrite <- Heq. exists m. split...
     + destruct (ixm (Embed 1 = Embed 0)).
       * exfalso. eapply suc_neq_0...
-      * assert (H2m: (2 ⋅ m)%n ∈ ω) by (apply mul_ran; nauto).
-        assert (H2p: (2 ⋅ p)%n ∈ ω) by (apply mul_ran; nauto).
-        split... rewrite <- add_suc, <- add_suc in Heq...
+      * assert (H2m: (2 ⋅ m)%ω ∈ ω) by (apply mul_ran; nauto).
+        assert (H2p: (2 ⋅ p)%ω ∈ ω) by (apply mul_ran; nauto).
+        split... rewrite <- suc, <- suc in Heq...
         apply suc_injective in Heq... apply mul_cancel' in Heq...
   - intros y Hy. destruct (even_or_odd y Hy).
     + destruct H as [n [Hn Heqy]].

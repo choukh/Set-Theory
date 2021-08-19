@@ -87,6 +87,32 @@ Proof.
   repeat rewrite ord_WOⁿ_id in H. apply H.
 Qed.
 
+Example ordAddₜ_1_1 : 1 + 1 = 2.
+Proof. apply ordAddₜ_n_m. Qed.
+
+Example ordAddₜ_1_ω : 1 + ω = ω.
+Proof.
+  rewrite <- ord_WOⁿ_id, <- (ord_WOᵒ_id ω ω_is_ord).
+  apply ordAddₜ_iff_otAdd. apply otAdd_1_ω.
+Qed.
+
+Example ordAddₜ_ω_1 : ω + 1 = ω⁺.
+Proof.
+  rewrite <- ord_WOⁿ_id.
+  rewrite <- (ord_WOᵒ_id ω ω_is_ord) at 1.
+  rewrite <- (ord_WOᵒ_id ω⁺ (ord_suc_is_ord ω ω_is_ord)).
+  apply ordAddₜ_iff_otAdd. apply otAdd_ω_1.
+Qed.
+
+Lemma ordAddₜ_1 : ∀α ⋵ 𝐎𝐍, α + 1 = α⁺.
+Proof.
+  intros α Ho.
+  rewrite <- ord_WOⁿ_id.
+  rewrite <- (ord_WOᵒ_id α Ho) at 1.
+  rewrite <- (ord_WOᵒ_id α⁺ (ord_suc_is_ord α Ho)).
+  apply ordAddₜ_iff_woAdd. apply woAdd_suc.
+Qed.
+
 Definition ordPrd_spec := λ α β γ,
   ∀ S T, α = ord S → β = ord T → γ = ord (S ⋅ T).
 
@@ -161,34 +187,8 @@ Proof.
   repeat rewrite ord_WOⁿ_id in H. apply H.
 Qed.
 
-Example ordAddₜ_1_1 : 1 + 1 = 2.
-Proof. apply ordAddₜ_n_m. Qed.
-
-Example ordAddₜ_2_3 : 2 ⋅ 3 = 6.
+Example ordMulₜ_2_3 : 2 ⋅ 3 = 6.
 Proof. apply ordMulₜ_n_m. Qed.
-
-Example ordAddₜ_1_ω : 1 + ω = ω.
-Proof.
-  rewrite <- ord_WOⁿ_id, <- (ord_WOᵒ_id ω ω_is_ord).
-  apply ordAddₜ_iff_otAdd. apply otAdd_1_ω.
-Qed.
-
-Example ordAddₜ_ω_1 : ω + 1 = ω⁺.
-Proof.
-  rewrite <- ord_WOⁿ_id.
-  rewrite <- (ord_WOᵒ_id ω ω_is_ord) at 1.
-  rewrite <- (ord_WOᵒ_id ω⁺ (ord_suc_is_ord ω ω_is_ord)).
-  apply ordAddₜ_iff_otAdd. apply otAdd_ω_1.
-Qed.
-
-Lemma ordAddₜ_1 : ∀α ⋵ 𝐎𝐍, α + 1 = α⁺.
-Proof.
-  intros α Ho.
-  rewrite <- ord_WOⁿ_id.
-  rewrite <- (ord_WOᵒ_id α Ho) at 1.
-  rewrite <- (ord_WOᵒ_id α⁺ (ord_suc_is_ord α Ho)).
-  apply ordAddₜ_iff_woAdd. apply woAdd_suc.
-Qed.
 
 (** 序数算术定律 **)
 
@@ -286,9 +286,6 @@ Proof.
   apply otMul_0'. apply ot_is_ot.
 Qed.
 
-Theorem ordAddₜ_0 : ∀α ⋵ 𝐎𝐍, α + 0 = α.
-Proof. exact ordAddₜ_ident. Qed.
-
 Theorem ordAddₜ_suc : ∀ α β ⋵ 𝐎𝐍, α + β⁺ = (α + β)⁺.
 Proof with nauto.
   intros α Hoα β Hoβ.
@@ -301,6 +298,43 @@ Proof with nauto.
   intros α Hoα β Hoβ.
   rewrite <- ordAddₜ_1...
   rewrite ordMulₜ_distr, ordMulₜ_ident...
+Qed.
+
+(* 有限序数加法等效于自然数加法 *)
+Theorem fin_ordAddₜ_eq_add : ∀ m n ∈ ω, m + n = (m + n)%ω.
+Proof with nauto.
+  intros m Hm n Hn. generalize dependent m.
+  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%ω} as N.
+  ω_induction N Hn; intros k Hk.
+  - rewrite ordAddₜ_ident, add_ident...
+    apply (ord_is_ords ω)...
+  - rewrite ordAddₜ_suc, IH, suc, suc, add_assoc...
+    apply add_ran... apply (ord_is_ords ω)... apply (ord_is_ords ω)...
+Qed.
+
+(* 有限序数乘法等效于自然数乘法 *)
+Theorem fin_ordMulₜ_eq_mul : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%ω.
+Proof with nauto.
+  intros m Hm n Hn. generalize dependent m.
+  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%ω} as N.
+  ω_induction N Hn; intros k Hk.
+  - rewrite ordMulₜ_0, mul_0_r...
+    apply (ord_is_ords ω)...
+  - rewrite ordMulₜ_suc, IH, mul_suc, fin_ordAddₜ_eq_add, add_comm...
+    apply mul_ran... apply mul_ran...
+    apply (ord_is_ords ω)... apply (ord_is_ords ω)...
+Qed.
+
+(* 有限序数的和是自然数 *)
+Corollary fin_ordAddₜ_ran : ∀ m n ∈ ω, m + n ∈ ω.
+Proof with auto.
+  intros m Hm n Hn. rewrite fin_ordAddₜ_eq_add... apply add_ran...
+Qed.
+
+(* 有限序数的积是自然数 *)
+Corollary fin_ordMul_ran : ∀ m n ∈ ω, m ⋅ n ∈ ω.
+Proof with auto.
+  intros m Hm n Hn. rewrite fin_ordMulₜ_eq_mul... apply mul_ran...
 Qed.
 
 Section AddLimit.

@@ -540,15 +540,18 @@ Qed.
 
 Module Import TransfiniteRecursion.
 
-Definition spec := λ A R (γ : set → set → Prop) F,
+Definition recursion_spec :=
+  λ A R (γ : set → set → Prop) F,
   is_function F ∧ dom F = A ∧ ∀t ∈ A, γ (F ↾ seg t R) F[t].
 
-Definition constr := λ A R γ, describe (spec A R γ).
+Definition Recursion :=
+  λ A R γ, describe (recursion_spec A R γ).
 
-Lemma spec_intro : ∀ A R γ, woset A R →
-  (∀ x, ∃! y, γ x y) → spec A R γ (constr A R γ).
+Lemma recursion_spec_intro :
+  ∀ A R γ, woset A R → (∀ x, ∃! y, γ x y) →
+  recursion_spec A R γ (Recursion A R γ).
 Proof.
-  intros. apply (desc_spec (spec A R γ)).
+  intros. apply (desc_spec (recursion_spec A R γ)).
   apply transfinite_recursion; auto.
 Qed.
 
@@ -559,11 +562,11 @@ Module Import TransitiveClosureDef.
 
 Definition γ := λ A x y, y = A ∪ ⋃ ⋃ (ran x).
 
-Definition F := λ A, constr ω Lt (γ A).
+Definition F := λ A, Recursion ω Lt (γ A).
 
-Lemma f_spec : ∀ A, spec ω Lt (γ A) (F A).
+Lemma f_spec : ∀ A, recursion_spec ω Lt (γ A) (F A).
 Proof.
-  intros. apply spec_intro. apply Lt_wellOrder.
+  intros. apply recursion_spec_intro. apply Lt_wellOrder.
   intros f. rewrite <- unique_existence.
   split. exists (A ∪ ⋃ ⋃ (ran f)). congruence. congruence.
 Qed.

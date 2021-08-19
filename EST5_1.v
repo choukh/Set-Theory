@@ -380,7 +380,7 @@ Proof with nauto.
   - exists 0. split... exists 0. split... rewrite add_ident...
   - destruct IH as [a [Ha [b [Hb Heq]]]].
     exists a. split... exists (b⁺). split. apply ω_inductive...
-    rewrite add_m_n... congruence.
+    rewrite add_suc... congruence.
 Qed.
 
 Lemma preIntAdd_maps_onto : PreIntAdd: (ω²)² ⟹ ω².
@@ -426,7 +426,7 @@ Proof with eauto.
     try repeat apply add_ran... congruence.
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Declare Scope Int_scope.
 Open Scope Int_scope.
 Delimit Scope Int_scope with z.
@@ -452,7 +452,7 @@ Qed.
 Global Opaque IntAdd.
 
 Lemma intAdd_m_n_p_q : ∀ m n p q ∈ ω,
-  [<m, n>]~ + [<p, q>]~ = ([<m + p, n + q>]~)%n.
+  [<m, n>]~ + [<p, q>]~ = ([<m + p, n + q>]~)%ω.
 Proof with auto.
   intros m Hm n Hn p Hp q Hq.
   rewrite intAdd_a_b, preIntAdd_m_n_p_q...
@@ -535,7 +535,7 @@ Proof with auto.
 Qed.
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 (* 整数投射 *)
 Definition PreIntProj := λ a,
@@ -598,13 +598,13 @@ Proof with neauto.
       rewrite add_assoc, add_comm,
         add_assoc in H1; [|auto; apply add_ran..]...
       apply add_a_b_a in H1...
-      apply add_m_n_0 in H1 as []... apply add_ran...
+      apply add_suc_0 in H1 as []... apply add_ran...
     + rewrite add_ident in H1...
       rewrite add_ident' in H2... subst m.
       rewrite add_assoc, add_comm,
         add_assoc in H2; [|auto; apply add_ran..]...
       apply add_a_b_a in H2...
-      apply add_m_n_0 in H2 as []... apply add_ran...
+      apply add_suc_0 in H2 as []... apply add_ran...
     + split... rewrite add_ident in *... subst m.
       eapply add_cancel; revgoals...
 Qed.
@@ -641,7 +641,7 @@ Proof with auto.
   rewrite H1. apply int_ident...
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Int_scope.
 
 (** 整数加法逆元 **)
@@ -706,5 +706,5 @@ Example intAdd_2_n3 : Int 2 - Int 3 = -Int 1.
 Proof with nauto.
   unfold Int. rewrite intAddInv, intAddInv...
   rewrite intAdd_m_n_p_q, add_ident, add_ident'...
-  apply int_ident... rewrite (pred 1), add_m_n, add_ident, add_ident'...
+  apply int_ident... rewrite (pred 1), add_suc, add_ident, add_ident'...
 Qed.

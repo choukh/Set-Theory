@@ -1096,58 +1096,58 @@ Proof with auto; try easy.
 Qed.
 
 (* 有限基数加法等效于自然数加法 *)
-Theorem cardAdd_nat : ∀ m n ∈ ω, m + n = (m + n)%n.
+Theorem fin_cardAdd_eq_add : ∀ m n ∈ ω, m + n = (m + n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%ω} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardAdd_ident, add_ident... apply nat_is_card...
   - rewrite <- card_suc at 1...
-    rewrite <- cardAdd_assoc, IH, card_suc, add_m_n...
+    rewrite <- cardAdd_assoc, IH, card_suc, add_suc...
     apply add_ran...
 Qed.
 
 (* 有限基数乘法等效于自然数乘法 *)
-Theorem cardMul_nat : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%n.
+Theorem fin_cardMul_eq_mul : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%ω} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardMul_0_r, mul_0_r...
   - rewrite <- card_suc at 1...
-    rewrite cardMul_suc, IH, cardAdd_nat, mul_m_n, add_comm...
+    rewrite cardMul_suc, IH, fin_cardAdd_eq_add, mul_suc, add_comm...
     apply mul_ran... apply mul_ran... apply nat_is_card...
 Qed.
 
 (* 有限基数乘方等效于自然数乘方 *)
-Theorem cardExp_nat : ∀ m n ∈ ω, m ^ n = (m ^ n)%n.
+Theorem fin_cardExp_eq_exp : ∀ m n ∈ ω, m ^ n = (m ^ n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m ^ n = (m ^ n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m ^ n = (m ^ n)%ω} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardExp_0_r, exp_0_r...
   - rewrite <- card_suc at 1...
-    assert ((k ^ m)%n ∈ ω) by (apply exp_ran; auto).
-    rewrite cardExp_suc, IH, cardMul_nat, exp_m_n, mul_comm...
+    assert ((k ^ m)%ω ∈ ω) by (apply exp_ran; auto).
+    rewrite cardExp_suc, IH, fin_cardMul_eq_mul, exp_suc, mul_comm...
     apply nat_is_card...
 Qed.
 
 (* 有限基数的和是自然数 *)
-Corollary cardAdd_ω : ∀ m n ∈ ω, m + n ∈ ω.
+Corollary fin_cardAdd_ran : ∀ m n ∈ ω, m + n ∈ ω.
 Proof with auto.
-  intros m Hm n Hn. rewrite cardAdd_nat... apply add_ran...
+  intros m Hm n Hn. rewrite fin_cardAdd_eq_add... apply add_ran...
 Qed.
 
 (* 有限基数的积是自然数 *)
-Corollary cardMul_ω : ∀ m n ∈ ω, m ⋅ n ∈ ω.
+Corollary fin_cardMul_ran : ∀ m n ∈ ω, m ⋅ n ∈ ω.
 Proof with auto.
-  intros m Hm n Hn. rewrite cardMul_nat... apply mul_ran...
+  intros m Hm n Hn. rewrite fin_cardMul_eq_mul... apply mul_ran...
 Qed.
 
 (* 有限基数的幂是自然数 *)
-Corollary cardExp_ω : ∀ m n ∈ ω, m ^ n ∈ ω.
+Corollary fin_cardExp_ran : ∀ m n ∈ ω, m ^ n ∈ ω.
 Proof with auto.
-  intros m Hm n Hn. rewrite cardExp_nat... apply exp_ran...
+  intros m Hm n Hn. rewrite fin_cardExp_eq_exp... apply exp_ran...
 Qed.
 
 (* 有限集的二元并仍是有限集 *)
@@ -1159,7 +1159,7 @@ Proof with auto.
     apply (subset_of_finite_is_finite _ B)...
   }
   destruct Hfa as [m [Hm Ha]]. destruct Hfb' as [n [Hn Hb]].
-  exists (m + n). split. apply cardAdd_ω...
+  exists (m + n). split. apply fin_cardAdd_ran...
   unfold CardAdd. rewrite <- CardAx0.
   apply cardAdd_well_defined.
   - rewrite Ha. apply eqnum_cprod_single.
@@ -1173,7 +1173,7 @@ Corollary cprod_finite :
   ∀ A B, finite A → finite B → finite (A × B).
 Proof with auto.
   intros * [m [Hm Ha]] [n [Hn Hb]].
-  exists (m ⋅ n). split. apply cardMul_ω...
+  exists (m ⋅ n). split. apply fin_cardMul_ran...
   unfold CardMul. rewrite <- CardAx0.
   apply cardMul_well_defined...
 Qed.
@@ -1183,7 +1183,7 @@ Corollary arrow_finite :
   ∀ A B, finite A → finite B → finite (B ⟶ A).
 Proof with auto.
   intros * [m [Hm Ha]] [n [Hn Hb]].
-  exists (m ^ n). split. apply cardExp_ω...
+  exists (m ^ n). split. apply fin_cardExp_ran...
   unfold CardExp. rewrite <- CardAx0.
   apply cardExp_well_defined...
 Qed.

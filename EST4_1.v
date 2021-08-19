@@ -470,6 +470,20 @@ Proof with eauto; try congruence.
   apply H1 in Hm as Heq1. apply H2 in Hm as Heq2...
 Qed.
 
+Definition ω_recursion_spec := λ F A a h,
+  h: ω ⇒ A ∧ h[∅] = a ∧ ∀n ∈ ω, h[n⁺] = F[h[n]].
+
+Definition ω_Recursion := λ F A a,
+  describe (ω_recursion_spec F A a).
+
+Lemma ω_recursion_spec_intro : ∀ F A a,
+  F: A ⇒ A → a ∈ A →
+  ω_recursion_spec F A a (ω_Recursion F A a).
+Proof.
+  intros. apply (desc_spec (ω_recursion_spec F A a)).
+  apply ω_recursion_uniqueness; auto.
+Qed.
+
 (* 皮亚诺结构同构 *)
 Theorem Peano_isomorphism : ∀ N S e, is_Peano N S e →
   ∃ h, h: ω ⟺ N ∧

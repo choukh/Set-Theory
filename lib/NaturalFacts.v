@@ -169,8 +169,8 @@ Proof with neauto; try congruence.
     rewrite Hp in Hx. apply SepE in Hx as [_ Hx].
     apply Hn0x in Hx. apply (nat_irrefl x)...
   }
-  pose proof (injective_recursion _ _ _ HF Hn0') as [f [Hf _]].
-  exists f...
+  exists (ω_Recursionᵢₙⱼ F N n0).
+  apply ω_recursionᵢₙⱼ_spec_intro...
 Qed.
 
 (* 被ω支配的无限集与ω等势 *)

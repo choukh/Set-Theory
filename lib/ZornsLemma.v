@@ -471,7 +471,7 @@ Proof with eauto; try congruence.
     | inl _ => Embed 1
     | inr _ => 0
   end) as γ.
-  pose proof (recrusion_spec_intro S γ) as [Hff [Hdf Hrf]]. {
+  pose proof (recursion_spec_intro S γ) as [Hff [Hdf Hrf]]. {
     intros f. unfold γ. rewrite <- unique_existence.
     destruct (ixm (P f)); split...
   }

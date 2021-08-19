@@ -404,19 +404,19 @@ Proof with auto.
   - apply segI. apply seg_lt... apply SepE2 in Hlt...
 Qed.
 
-Section Recursion.
+Section RecursionOnWoStruct.
 Import TransfiniteRecursion.
 
-Definition Recursion := λ S γ, constr (A S) (R S) γ.
+Definition Recursion := λ S γ, Recursion (A S) (R S) γ.
 
-Definition recrusion_spec := λ S (γ : set → set → Prop) F,
+Definition recursion_spec := λ S (γ : set → set → Prop) F,
   is_function F ∧ dom F = A S ∧ ∀t ∈ A S, γ (F ↾ seg t (R S)) F[t].
 
-Lemma recrusion_spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
-  recrusion_spec S γ (Recursion S γ).
-Proof. intros. apply spec_intro; auto. Qed.
+Lemma recursion_spec_intro : ∀ S γ, (∀ x, ∃! y, γ x y) →
+  recursion_spec S γ (Recursion S γ).
+Proof. intros. apply recursion_spec_intro; auto. Qed.
 
-End Recursion.
+End RecursionOnWoStruct.
 
 (*  像 *)
 Module Import EpsilonImage.
@@ -426,9 +426,9 @@ Definition E := λ S, Recursion S γ.
 Definition α := λ S, ran (E S).
 Definition ε := λ S, MemberRel (α S).
 
-Lemma e_spec : ∀ S, recrusion_spec S γ (E S).
+Lemma e_spec : ∀ S, recursion_spec S γ (E S).
 Proof.
-  intros. apply recrusion_spec_intro. intros f.
+  intros. apply recursion_spec_intro. intros f.
   rewrite <- unique_existence. split.
   exists (ran f). congruence. congruence.
 Qed.
@@ -771,7 +771,7 @@ Proof with eauto; try congruence.
     | inr _ => e
   end) as γ.
   set (Recursion S γ) as F.
-  pose proof (recrusion_spec_intro S γ) as [HfF [HdF Hγ]]. {
+  pose proof (recursion_spec_intro S γ) as [HfF [HdF Hγ]]. {
     intros f. rewrite <- unique_existence. split... unfold γ.
     destruct (ixm (⦿ (A T - ran f))).
     - exists ((Min T)[A T - ran f])...

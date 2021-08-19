@@ -15,7 +15,7 @@ Definition monotone := λ F,
 
 (* 序数操作在极限处的连续性 *)
 Definition continuous := λ F,
-  ∀ 𝜆, 𝜆 ≠ ∅ → 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ → F 𝜆 = sup{F α | α ∊ 𝜆}.
+  ∀ 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ → F 𝜆 = sup{F α | α ∊ 𝜆}.
 
 (* 序数操作的规范性 *)
 Definition normal := λ F, monotone F ∧ continuous F.
@@ -134,7 +134,7 @@ Lemma monotone_operation_continuous_if_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 →
   monotone F → closed C → continuous F.
 Proof with eauto.
-  intros F C [HF HR] Hsub Hmono Hcld 𝜆 Hne Hlim.
+  intros F C [HF HR] Hsub Hmono Hcld 𝜆 Hlim Hne.
   assert (H := Hlim). destruct H as [Ho𝜆 _].
   set {F α | α ∊ 𝜆} as A.
   pose proof (ord_sup_is_ub A) as [_ Hub]. {
@@ -633,7 +633,7 @@ Qed.
 
 Theorem operation_limit : ∀ y₀ G, continuous (Operation y₀ G).
 Proof with eauto; try congruence.
-  intros * 𝜆 Hne Hlim. unfold Operation.
+  intros * 𝜆 Hlim Hne. unfold Operation.
   assert (H := Hlim). destruct H as [Ho𝜆 _].
   rewrite (recursion_spec (γ y₀ G) 𝜆), dom_of_op_repl...
   destruct (ixm (𝜆 = ∅))...

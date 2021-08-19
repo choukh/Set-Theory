@@ -110,19 +110,19 @@ Proof with neauto.
     assert (H2: Int 1 ⋅ b ≤ a ⋅ b)
       by (apply intMul_preserve_leq; nauto). clear H1.
     rewrite intMul_ident' in H2...
-    assert (Hm1: (m + 1)%n ∈ ω) by (apply add_ran; nauto).
-    assert (Hm1z: ω_Embed [(m + 1)%n] ∈ ℤ)
+    assert (Hm1: (m + 1)%ω ∈ ω) by (apply add_ran; nauto).
+    assert (Hm1z: ω_Embed [(m + 1)%ω] ∈ ℤ)
       by (apply ω_embed_ran; auto).
-    assert (H3: b <𝐳 ω_Embed[(m + 1)%n]). {
+    assert (H3: b <𝐳 ω_Embed[(m + 1)%ω]). {
       rewrite Heq, ω_embed_n... apply intLt...
       rewrite add_ident... apply lt_add_enlarge...
-      rewrite <- add_suc...
+      rewrite <- suc...
     }
-    assert (H4: a ⋅ b <𝐳 a ⋅ ω_Embed[(m + 1)%n]). {
+    assert (H4: a ⋅ b <𝐳 a ⋅ ω_Embed[(m + 1)%ω]). {
       rewrite intMul_comm, (intMul_comm a)...
       apply intMul_preserve_lt...
     } clear H3.
-    exists (m + 1)%n. split...
+    exists (m + 1)%ω. split...
     destruct H2. eapply intLt_tranr... rewrite H...
 Qed.
 
@@ -138,7 +138,7 @@ Proof with nauto.
 Qed.
 
 Close Scope Int_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 Example ex5_18: ∀ p r ∈ ℚ, ratPos p →
   ∃k ∈ ω, r <𝐪 (p ⋅ IntEmbed[ω_Embed[k]])%q.
@@ -207,7 +207,7 @@ Proof with auto.
   exists (ω_Embed [k]). split... apply ω_embed_ran...
 Qed.
 
-Close Scope Nat_scope.
+Close Scope omega_scope.
 Open Scope Rat_scope.
 
 Example ex5_18_2: ∀ p r ∈ ℚ, ratPos p →

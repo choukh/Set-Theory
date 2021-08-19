@@ -181,7 +181,7 @@ Proof with nauto.
     exists f. apply meta_injection.
     + intros n Hn. apply CProdI...
     + intros x1 _ x2 _ Heq. apply op_iff in Heq as []...
-  - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%n)) as f.
+  - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%ω)) as f.
     exists f. apply meta_injection.
     + intros p Hp.
       apply CProdE1 in Hp as [n [Hn [m [Hm Hp]]]].

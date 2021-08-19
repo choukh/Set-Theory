@@ -147,7 +147,7 @@ Proof with eauto; try congruence.
   set (HartogsNumber B) as α. fold α in Hα, Hndom.
   assert (H := Hα). destruct H as [S HS].
   set (Epsilon S) as S'. assert (Heqα: α = A S')...
-  pose proof (recrusion_spec_intro S' ϕ) as [HfF [HdF HrF]]. {
+  pose proof (recursion_spec_intro S' ϕ) as [HfF [HdF HrF]]. {
     unfold ϕ. intros f. rewrite <- unique_existence. split...
   }
   set (Recursion S' ϕ) as F. fold F in HfF, HdF, HrF.
@@ -278,7 +278,7 @@ Proof with eauto; try congruence.
     | inl _ => Embed 1
     | inr _ => 0
   end) as γ.
-  pose proof (recrusion_spec_intro S γ) as [HfF [HdF HrF]]. {
+  pose proof (recursion_spec_intro S γ) as [HfF [HdF HrF]]. {
     intros f. unfold γ. rewrite <- unique_existence.
     destruct (ixm (P f)); split...
   }

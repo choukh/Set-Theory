@@ -9,7 +9,7 @@ Require Import ZFC.lib.LoStruct.
 Section EX8_1_and_2.
 Import 𝐎𝐍Operation.
 Close Scope Card_scope.
-Open Scope Nat_scope.
+Open Scope omega_scope.
 
 Definition t := Operation 5 Suc.
 
@@ -20,7 +20,7 @@ Proof with nauto.
   ω_induction N Hα; unfold t in *.
   - rewrite operation_0, add_ident...
   - rewrite operation_suc, IH; [|apply ω_is_ords]...
-    rewrite add_suc, add_suc, add_assoc... apply add_ran...
+    rewrite suc, suc, add_assoc... apply add_ran...
 Qed.
 
 Example ex8_2_b : ∀α ⋵ 𝐎𝐍, ω ⋸ α → t α = α.
