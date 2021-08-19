@@ -48,7 +48,7 @@ Lemma cardLt_to_ord_lt : ∀ 𝜅 𝜆,
   𝜅 <𝐜 𝜆 → 𝜅 ∈ 𝜆.
 Proof with auto.
   intros 𝜅 𝜆 [[H𝜅 [H𝜆 Hdom]] Hnq].
-  destruct (classic (𝜅 ∈ 𝜆))... exfalso. apply Hnq.
+  contra. apply Hnq.
   rewrite (card_of_card 𝜅), (card_of_card 𝜆)... apply CardAx1.
   apply ord_leq_iff_not_gt in H...
   apply ord_leq_iff_sub in H...
@@ -150,7 +150,7 @@ Lemma card_suc_has_card : ∀ A, |A| ∈ A₊.
 Proof with auto; try easy.
   intros. unfold card.
   set (Min A₊ (MemberRel A₊)) as min.
-  set {ξ ∊ A₊ | λ ξ, ξ ≈ A} as B.
+  set {ξ ∊ A₊ | ξ ≈ A} as B.
   pose proof (hartog_spec_intro A) as [Hα [Hndom Hleast]].
   pose proof (min_correct A₊ (MemberRel A₊) B) as [Hm Hmin]... {
     apply ords_woset. intros b Hb. eapply ord_is_ords.

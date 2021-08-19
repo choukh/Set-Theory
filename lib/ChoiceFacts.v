@@ -18,7 +18,7 @@ Definition AC_II :=
 
 (* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
 Definition AC_III := ∀ A,
-  ∃ F, is_function F ∧ dom F = {x ∊ 𝒫 A | nonempty} ∧ 
+  ∃ F, is_function F ∧ dom F = {x ∊ 𝒫 A | nonempty x} ∧ 
   ∀ B, ⦿ B → B ⊆ A → F[B] ∈ B.
 
 (* 选择公理等效表述3'：非空集合所组成的集合上存在选择函数 *)
@@ -48,8 +48,8 @@ Definition AC_VI := ∀ 𝒜,
 Theorem AC_I_to_II : AC_I → AC_II.
 Proof with eauto.
   unfold AC_I, AC_II. intros * AC1 I ℱ Hxi.
-  set (I × ⋃{ℱ | i ∊ I}) as P.
-  set {p ∊ P | λ p, π2 p ∈ ℱ (π1 p)} as R.
+  set (I × ⋃{ℱ i | i ∊ I}) as P.
+  set {p ∊ P | π2 p ∈ ℱ (π1 p)} as R.
   specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
     apply sep_cp_is_rel.
   }
@@ -75,7 +75,7 @@ Theorem AC_I_iff_I' : AC_I ↔ AC_I'.
 Proof with eauto; try congruence.
   unfold AC_I, AC_I'. split.
   - intros AC1 A.
-    set {p ∊ ⋃A × A | λ p, π1 p ∈ π2 p} as R.
+    set {p ∊ ⋃A × A | π1 p ∈ π2 p} as R.
     specialize AC1 with R as [f [Hf [Hsub Hdeq]]]. {
       apply sep_cp_is_rel.
     }
@@ -155,8 +155,8 @@ Qed.
 Theorem AC_IV_to_III : AC_IV → AC_III.
 Proof with eauto.
   unfold AC_IV, AC_III. intros AC4 A.
-  set {x ∊ 𝒫 A | nonempty} as A'.
-  set {λ B, ⎨B⎬ × B | B ∊ A'} as 𝒜.
+  set {x ∊ 𝒫 A | nonempty x} as A'.
+  set {⎨B⎬ × B | B ∊ A'} as 𝒜.
   destruct AC4 with 𝒜 as [C Hsg]. {
     intros H. apply ReplAx in H as [B [HB H]].
     apply SepE in HB as [_ [b Hb]].
@@ -248,7 +248,7 @@ Proof with eauto.
     + intros A HA. rewrite (restr_ap f (dom f))...
       apply Hr. apply Hne... apply ex2_3...
   - intros AC3' A.
-    specialize AC3' with {x ∊ 𝒫 A | nonempty} as [f [Hf [Hd Hr]]]. {
+    specialize AC3' with {x ∊ 𝒫 A | nonempty x} as [f [Hf [Hd Hr]]]. {
       intros x Hx. apply SepE2 in Hx...
     }
     exists f. split; [|split]...
@@ -259,7 +259,7 @@ Theorem AC_III_to_I : AC_III → AC_I.
 Proof with auto.
   unfold AC_III, AC_I. intros AC3 R Hrel.
   specialize AC3 with (ran R) as [G [Hgf [Hgd Hgr]]].
-  set (λ x, {y ∊ ran R | λ y, <x, y> ∈ R}) as ℬ.
+  set (λ x, {y ∊ ran R | <x, y> ∈ R}) as ℬ.
   set (Func (dom R) (ran R) (λ x, G[ℬ x])) as F.
   assert (Hstar: ∀x ∈ dom R, <x, G[ℬ x]> ∈ R). {
     intros x Hx. cut (G[ℬ x] ∈ ℬ x).
@@ -282,7 +282,7 @@ Qed.
 Theorem AC_VI_to_I : AC_VI → AC_I.
 Proof with eauto.
   unfold AC_VI, AC_I. intros Zorn R Hrel.
-  set {f ∊ 𝒫 R | λ f, is_function f} as 𝒜.
+  set {f ∊ 𝒫 R | is_function f} as 𝒜.
   specialize Zorn with 𝒜 as [M [HM Hmax]]. {
     intros ℬ Hchn Hsub.
     assert (Hu: ⋃ ℬ ∈ 𝒫 R). {
@@ -306,7 +306,7 @@ Proof with eauto.
   }
   exists M. apply SepE in HM as [Hsub Hf].
   apply PowerAx in Hsub. split; [|split]...
-  destruct (classic (dom M = dom R)) as [|Hnq]... exfalso.
+  contra as Hnq.
   assert (Hps: dom M ⊂ dom R). {
     split... intros x Hx. apply domE in Hx as [y Hp].
     eapply domI. apply Hsub...
@@ -331,7 +331,7 @@ Qed.
 Theorem AC_VI_to_V : AC_VI → AC_V.
 Proof with eauto; try congruence.
   unfold AC_VI, AC_V. intros Zorn A B.
-  set {f ∊ 𝒫 (A × B) | λ f, injective f} as 𝒜.
+  set {f ∊ 𝒫 (A × B) | injective f} as 𝒜.
   specialize Zorn with 𝒜 as [M [HM Hmax]]. {
     intros ℬ Hchn Hsub.
     assert (Hu: ⋃ ℬ ∈ 𝒫 (A × B)). {
@@ -554,7 +554,7 @@ Definition AC_VII := ∀ 𝒜, ⦿ 𝒜 →
   𝗙𝗖 𝒜 → ∃ M, sub_maximal M 𝒜.
 
 (* 链集：集合的所有全序子集所组成的集合 *)
-Definition Chains := λ A, {B ∊ 𝒫 A | is_chain}.
+Definition Chains := λ A, {B ∊ 𝒫 A | is_chain B}.
 
 (* 极大链：链集的极大元 *)
 Definition max_chain := λ ℳ 𝒜, sub_maximal ℳ (Chains 𝒜).
@@ -586,7 +586,7 @@ Lemma finite_chain_has_max : ∀ ℬ, ⦿ ℬ →
   finite ℬ → is_chain ℬ → ∃ M, sub_maximal M ℬ.
 Proof with eauto; try congruence.
   intros ℬ Hne [n [Hn Hqn]]. generalize dependent ℬ.
-  set {n ∊ ω | λ n, ∀ ℬ,
+  set {n ∊ ω | ∀ ℬ,
     ⦿ ℬ → ℬ ≈ n → is_chain ℬ → ∃ M, sub_maximal M ℬ } as N.
   ω_induction N Hn; intros ℬ Hne Hqn Hchn. {
     exfalso. apply EmptyNI in Hne. apply eqnum_empty in Hqn...
@@ -631,7 +631,7 @@ Proof with eauto.
     intros [B [HB Hs3]]. apply Hs1 in HB.
     apply Hfc with B C in HB...
   }
-  set {p ∊ C × ℬ | λ p, π1 p ∈ π2 p} as R.
+  set {p ∊ C × ℬ | π1 p ∈ π2 p} as R.
   pose proof (AC_VI_to_I Zorn) as AC1.
   pose proof (AC1 R) as [F [HfF [HsF Hd]]]. { apply sep_cp_is_rel. }
   assert (HdF: dom F = C). {
@@ -665,7 +665,7 @@ Qed.
 
 (* 通过二元并从有限特征集构造具有有限特征的子集 *)
 Lemma construct_fc_subset_by_bunion : ∀ 𝒜, 𝗙𝗖 𝒜 →
-  ∀A ∈ 𝒜, 𝗙𝗖 {B ∊ 𝒜 | λ B, A ∪ B ∈ 𝒜}.
+  ∀A ∈ 𝒜, 𝗙𝗖 {B ∊ 𝒜 | A ∪ B ∈ 𝒜}.
 Proof with eauto.
   intros 𝒜 Hfc A HA. split.
   - intros HB C HfC HsC.
@@ -679,7 +679,7 @@ Proof with eauto.
       pose proof (H C HfC HsC) as HC. apply SepE1 in HC...
     + apply Hfc. intros C HfC HsC.
       set (B ∩ C) as D.
-      assert (HD: D ∈ {B ∊ 𝒜 | λ B, A ∪ B ∈ 𝒜}). {
+      assert (HD: D ∈ {B ∊ 𝒜 | A ∪ B ∈ 𝒜}). {
         apply H. apply (subset_of_finite_is_finite _ C)...
         intros x Hx. apply BInterE in Hx as []...
         intros x Hx. apply BInterE in Hx as []...
@@ -696,7 +696,7 @@ Lemma for_all_in_fc_set_ex_max_contains_it : AC_VII → ∀ 𝒜, 𝗙𝗖 𝒜 
   ∀A ∈ 𝒜, ∃ M, sub_maximal M 𝒜 ∧ A ⊆ M.
 Proof with eauto; try congruence.
   intros AC7 𝒜 Hfc A HA.
-  set {B ∊ 𝒜 | λ B, A ∪ B ∈ 𝒜} as 𝒜'.
+  set {B ∊ 𝒜 | A ∪ B ∈ 𝒜} as 𝒜'.
   pose proof (AC7 𝒜') as [M [HM Hmax]].
   - exists A. apply SepI... rewrite bunion_self...
   - apply construct_fc_subset_by_bunion...

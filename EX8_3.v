@@ -31,10 +31,10 @@ Qed.
 Import WosetMin.SimpleVer.
 
 Definition LeftInterval := λ x R f,
-  {y ∊ dom f | λ y, (y <ᵣ x) R}.
+  {y ∊ dom f | (y <ᵣ x) R}.
 
 Definition RightInterval := λ x R f,
-  {y ∊ dom f | λ y, (x <ᵣ y) R}.
+  {y ∊ dom f | (x <ᵣ y) R}.
 
 Definition MaxLeft := λ x R f,
   FinLoMax R (LeftInterval x R f).
@@ -44,16 +44,16 @@ Definition MinRight := λ x R f,
 
 Definition LeftNats := λ x R S b f,
   let aₗ := MaxLeft x R f in
-  {n ∊ ω | λ n, (f[aₗ] <ᵣ b[n]) S}.
+  {n ∊ ω | (f[aₗ] <ᵣ b[n]) S}.
 
 Definition RightNats := λ x R S b f,
   let aᵣ := MinRight x R f in
-  {n ∊ ω | λ n, (b[n] <ᵣ f[aᵣ]) S}.
+  {n ∊ ω | (b[n] <ᵣ f[aᵣ]) S}.
 
 Definition MidNats := λ x R S b f,
   let aₗ := MaxLeft x R f in
   let aᵣ := MinRight x R f in
-  {n ∊ ω | λ n, (f[aₗ] <ᵣ b[n]) S ∧ (b[n] <ᵣ f[aᵣ]) S}.
+  {n ∊ ω | (f[aₗ] <ᵣ b[n]) S ∧ (b[n] <ᵣ f[aᵣ]) S}.
 
 Definition PairLeft := λ x R S b f,
   let N := LeftNats x R S b f in
@@ -241,7 +241,7 @@ Proof with eauto; try congruence.
   intros x Hx. cut (x = x₀). {
     intros H. rewrite H. apply SingI.
   }
-  destruct (classic (x = x₀)) as [|Hnq]... exfalso.
+  contra as Hnq.
   apply (lo_connected R A) in Hnq as []; revgoals...
   - eapply (EmptyNI 𝐑)... exists x. apply SepI...
   - eapply (EmptyNI 𝐋)... exists x. apply SepI...
@@ -505,12 +505,12 @@ Proof with neauto; try congruence.
   assert (H := Hma). destruct H as [Hfa [Hda _]].
   assert (H := Hmb). destruct H as [Hfb [Hdb _]].
   set (λ f, ∀ x y ∈ dom f, (x <ᵣ y) R ↔ (f[x] <ᵣ f[y]) S) as op.
-  set (⋃{λ X, X ⟶ B | X ∊ 𝒫 A}) as fs0.
+  set (⋃{X ⟶ B | X ∊ 𝒫 A}) as fs0.
   set (λ f, good A R B S f) as good.
-  set {f ∊ fs0 | good} as fs.
+  set {f ∊ fs0 | good f} as fs.
   set (λ n f, Add a[n] R S b f) as Forth.
   set (λ n f, (Add b[n] S R a f⁻¹)⁻¹) as Back.
-  set {p ∊ ω × fs | λ p,
+  set {p ∊ ω × fs |
     let n := π1 p in
     let f := π2 p in
     match (ixm (odd n)) with
@@ -679,7 +679,7 @@ Proof with neauto; try congruence.
   }
   assert (Hindex: ∀n ∈ ω, π1 h[n] = n). {
     intros n Hn.
-    set {n ∊ ω | λ n, π1 h[n] = n} as N.
+    set {n ∊ ω | π1 h[n] = n} as N.
     ω_induction N Hn.
     - rewrite Hh0. unfold p₀. zfc_simple. rewrite zero...
     - rewrite Hhnp... unfold g.
@@ -729,7 +729,7 @@ Proof with neauto; try congruence.
   }
   assert (Hsubd: ∀n ∈ ω, ∀m ∈ n, dom G[m] ⊆ dom G[n]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀m ∈ n, dom G[m] ⊆ dom G[n]} as N.
+    set {n ∊ ω | ∀m ∈ n, dom G[m] ⊆ dom G[n]} as N.
     ω_induction N Hn; intros k Hk. exfalso0.
     apply BUnionE in Hk as [].
     - eapply sub_tran. apply IH... apply Hsubd0...
@@ -737,7 +737,7 @@ Proof with neauto; try congruence.
   }
   assert (Hsubr: ∀n ∈ ω, ∀m ∈ n, ran G[m] ⊆ ran G[n]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀m ∈ n, ran G[m] ⊆ ran G[n]} as N.
+    set {n ∊ ω | ∀m ∈ n, ran G[m] ⊆ ran G[n]} as N.
     ω_induction N Hn; intros k Hk. exfalso0.
     apply BUnionE in Hk as [].
     - eapply sub_tran. apply IH... apply Hsubr0...
@@ -820,7 +820,7 @@ Proof with neauto; try congruence.
   }
   assert (Hin: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ dom G[m], (G[m])[x] = (G[n])[x]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀k ∈ n, ∀x ∈ dom G[k], G[k][x] = G[n][x]} as N.
+    set {n ∊ ω | ∀k ∈ n, ∀x ∈ dom G[k], G[k][x] = G[n][x]} as N.
     ω_induction N Hn; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [].
     + rewrite IH... apply Hin0... eapply Hsubd...
@@ -828,7 +828,7 @@ Proof with neauto; try congruence.
   }
   assert (Hout: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ dom G[n] - dom G[m], (G[n])[x] ∉ ran G[m]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀m ∈ n, ∀x ∈ dom G[n] - dom G[m], G[n][x] ∉ ran G[m]} as N.
+    set {n ∊ ω | ∀m ∈ n, ∀x ∈ dom G[n] - dom G[m], G[n][x] ∉ ran G[m]} as N.
     ω_induction N Hn; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [Hkm|Hkm].
     - apply SepE in Hx as [Hx Hx'].

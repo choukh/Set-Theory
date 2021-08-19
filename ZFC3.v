@@ -1,5 +1,5 @@
 (*** Formal Construction of a Set Theory in Coq ***)
-(** based on the thesis by Jonas Kaiser, November 23, 2012 **)
+(** adapted from the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
 Require Export ZFC.ZFC2.

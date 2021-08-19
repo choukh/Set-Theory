@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Import Relation_Definitions.
@@ -238,7 +238,7 @@ Proof with neauto.
       }
       rewrite <- Heq in Hp. apply SepE2 in Hp. zfc_simple.
       destruct (ixm (a ∈ B1))... exfalso. eapply suc_neq_0...
-  - intros y Hy. set {x ∊ A | λ x, y[x] = 1} as B.
+  - intros y Hy. set {x ∊ A | y[x] = 1} as B.
     exists B. split. apply PowerAx. apply sep_sub.
     apply SepE in Hy as [Hy [Hfy [Hdy Hry]]]. apply PowerAx in Hy.
     apply ExtAx. intros x. split; intros Hxy.
@@ -270,7 +270,7 @@ Qed.
 Theorem Cantor's : ∀ A, A ≉ 𝒫 A.
 Proof with auto.
   intros A [f [[Hf _] [Hd Hr]]].
-  set {x ∊ A | λ x, x ∉ f[x]} as B.
+  set {x ∊ A | x ∉ f[x]} as B.
   assert (Hsub: B ⊆ A) by apply sep_sub.
   apply PowerAx in Hsub as HB. rewrite <- Hr in HB.
   apply ranE in HB as [x Hap]. apply domI in Hap as Hx.
@@ -285,7 +285,7 @@ Lemma injection_between_same_nat_surjective :
   ∀n ∈ ω, ∀ f, f: n ⇔ n → ran f = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ f, f: n ⇔ n → ran f = n} as N.
+  set {n ∊ ω | ∀ f, f: n ⇔ n → ran f = n} as N.
   ω_induction N Hn. {
     intros f [_ [_ Hr]]. apply sub_antisym...
     intros x Hx. exfalso0.
@@ -367,7 +367,7 @@ Lemma surjection_between_same_nat_injective :
   ∀n ∈ ω, ∀ f, f: n ⟹ n → injective f.
 Proof with eauto; try congruence.
   intros n Hn f [Hf [Hd Hr]].
-  set (λ y, {n ∊ ω | λ n, f[n] = y}) as 𝒩.
+  set (λ y, {n ∊ ω | f[n] = y}) as 𝒩.
   set (Func n n (λ y, (Min Lt)[𝒩 y])) as g.
   assert (Hg: g: n ⇒ n). {
     apply meta_function.
@@ -551,7 +551,7 @@ Corollary fin_set_eqnum_unique_nat : ∀ A, finite A →
 Proof with eauto.
   intros A Hfin. rewrite <- unique_existence. split...
   intros m n [Hm H1] [Hn H2].
-  destruct (classic (m = n))... exfalso.
+  contra.
   rewrite H1 in H2.
   apply nat_connected in H as []...
   - apply lt_iff_psub in H... apply (no_fin_set_eqnum_its_proper_subset n m)...
@@ -564,7 +564,7 @@ Qed.
 Corollary nat_eqnum_eq : ∀ m n ∈ ω, m ≈ n → m = n.
 Proof with auto.
   intros m Hm n Hn Hqn.
-  destruct (classic (m = n))... exfalso.
+  contra.
   apply nat_connected in H as []...
   - apply lt_iff_psub in H... apply (no_fin_set_eqnum_its_proper_subset n m)...
     apply nat_finite... symmetry...
@@ -573,7 +573,7 @@ Proof with auto.
 Qed.
 
 (* 有限基数 *)
-Definition FinCard : set → set := λ A, ⋃{n ∊ ω | λ n, A ≈ n}.
+Definition FinCard : set → set := λ A, ⋃{n ∊ ω | A ≈ n}.
 
 (* 有限基数定义为与有限集自身等势的自然数 *)
 Lemma fin_card_correct : ∀ A, finite A →
@@ -628,7 +628,7 @@ Lemma subset_of_ω_is_finite : ∀n ∈ ω, ∀ C,
   C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ C, C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m} as N.
+  set {n ∊ ω | ∀ C, C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m} as N.
   ω_induction N Hn; intros C [Hsub Hnq].
   - exfalso. apply Hnq. apply EmptyI.
     intros x Hx. apply Hsub in Hx. exfalso0.

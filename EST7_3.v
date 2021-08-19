@@ -1,11 +1,10 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Dec 2020 **)
 
 Global Set Warnings "-unrecognized-unicode".
 
 Require Import Relation_Definitions.
 Require Import RelationClasses.
-Require Import PropExtensionality.
 Require Import ZFC.lib.FuncFacts.
 Require Import ZFC.lib.WosetMin.
 Require Export ZFC.EST7_2.
@@ -322,7 +321,7 @@ Proof with eauto; try congruence.
   assert (H := Hg). destruct H as [Hfg [Hdg _]].
   apply func_pair' in Hp as [x [y [Hp Heqp]]]... subst p.
   apply domI in Hp as Hx. rewrite Hdf in Hx.
-  set {x ∊ A S | λ x, f[x] = g[x]} as AS'.
+  set {x ∊ A S | f[x] = g[x]} as AS'.
   replace (A S) with AS' in Hx. {
     apply SepE in Hx as [Hx Heq].
     apply func_ap in Hp... apply func_point...
@@ -330,7 +329,7 @@ Proof with eauto; try congruence.
   eapply transfinite_induction...
   split. intros a Ha. apply SepE1 in Ha...
   intros t Ht Hsub. apply SepI...
-  destruct (classic (f[t] = g[t]))... exfalso.
+  contra.
   apply (lo_connected (R T) (A T)) in H as []; revgoals...
   eapply ap_ran... eapply ap_ran... apply (wo T).
   - assert (Hgt: g[t] ∈ ran f). {
@@ -361,7 +360,7 @@ Qed.
 
 Section Seg.
 
-Let seg := λ t A R, {x ∊ A | λ x, (x <ᵣ t) R}.
+Let seg := λ t A R, {x ∊ A | (x <ᵣ t) R}.
 
 Lemma seg_woset : ∀ t A R, woset A R →
   let B := seg t A R in woset B (R ⥏ B).
@@ -441,7 +440,7 @@ Proof.
 Qed.
 
 Lemma e_ap : ∀ S,
-  ∀t ∈ A S, (E S)[t] = {λ x, (E S)[x] | x ∊ seg t (R S)}.
+  ∀t ∈ A S, (E S)[t] = {(E S)[x] | x ∊ seg t (R S)}.
 Proof with eauto.
   intros S t Ht. destruct (e_spec S) as [Hf [Hd Hγ]].
   apply Hγ in Ht. rewrite Ht.
@@ -482,7 +481,7 @@ Theorem e_irrefl : ∀ S, ∀t ∈ A S, (E S)[t] ∉ (E S)[t].
 Proof with eauto.
   intros S t Ht Hin.
   destruct (wo S) as [Hlo Hmin].
-  set {t ∊ A S | λ t, (E S)[t] ∈ (E S)[t]} as B.
+  set {t ∊ A S | (E S)[t] ∈ (E S)[t]} as B.
   specialize Hmin with B as [t₀ [Ht₀ Hmin]].
   - exists t. apply SepI...
   - intros x Hx. apply SepE1 in Hx...
@@ -502,7 +501,7 @@ Proof with eauto; try congruence.
   apply func_ap in Hs as H1... apply domI in Hs.
   apply func_ap in Ht as H2... apply domI in Ht.
   rewrite <- H2 in H1.
-  destruct (classic (s = t))... exfalso.
+  contra.
   eapply lo_connected in H as []...
   - apply e_ap_order in H...
     rewrite H1 in H. eapply e_irrefl...
@@ -610,7 +609,7 @@ Proof with eauto.
     eapply dom_binRel. apply wo. eapply domI...
   }
   generalize dependent Hst.
-  set {x ∊ A S | λ x, (x <ᵣ t) (R S) → (E (Seg t S))[x] = (E S)[x]} as AS'.
+  set {x ∊ A S | (x <ᵣ t) (R S) → (E (Seg t S))[x] = (E S)[x]} as AS'.
   replace (A S) with AS' in Hs. apply SepE2 in Hs... clear Hs s.
   eapply transfinite_induction... split.
   intros s Hs. apply SepE1 in Hs...
@@ -653,7 +652,7 @@ Module Export EpsilonImageOfNats.
 Example e_ω_nat : ∀n ∈ ω, (E ℕ̃)[n] = n.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, (E ℕ̃)[n] = n} as N.
+  set {n ∊ ω | (E ℕ̃)[n] = n} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
     + apply e_elim in Hx as [k [_ [Hk _]]]...
@@ -678,7 +677,7 @@ Qed.
 Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m ℕ̃))[n] = n.
 Proof with neauto.
   intros n Hn p Hp.
-  set {n ∊ ω | λ n, n ∈ p → (E (Seg p ℕ̃))[n] = n} as N.
+  set {n ∊ ω | n ∈ p → (E (Seg p ℕ̃))[n] = n} as N.
   ω_induction N Hn; intros Hnp.
   - apply ExtAx. split; intros Hx; [|exfalso0].
     apply (e_elim (Seg p ℕ̃)) in Hx as [k [_ [Hk _]]].
@@ -716,7 +715,7 @@ Qed.
 Example α_nat : ∀n ∈ ω, α (Seg n ℕ̃) = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | λ n, α (Seg n ℕ̃) = n} as N.
+  set {n ∊ ω | α (Seg n ℕ̃) = n} as N.
   ω_induction N Hn.
   - unfold α. replace (E (Seg ∅ ℕ̃)) with ∅.
     apply ran_of_empty. symmetry. apply e_empty.
@@ -792,7 +791,7 @@ Proof with eauto; try congruence.
   (* Case I *)
   destruct (classic (e ∈ ran F)) as [He|He]. {
     right; right.
-    set {x ∊ A S | λ x, F[x] = e} as B.
+    set {x ∊ A S | F[x] = e} as B.
     specialize HminS with B as [a [Ha HminS]]. {
       apply ranE in He as [a Hp]. apply domI in Hp as Ha.
       apply func_ap in Hp... exists a. apply SepI...
@@ -837,7 +836,7 @@ Proof with eauto; try congruence.
       apply SepE in Hy as [Hy Hya].
       eapply dom_binRel in Hx; [|apply wo].
       eapply dom_binRel in Hy; [|apply wo].
-      destruct (classic (x = y))... exfalso.
+      contra.
       eapply lo_connected in H as []; eauto;
       (eapply lo_irrefl; [apply (wo T)|]).
       + apply (HL2 _ Hx _ Hy) in Hya... rewrite Hpx, Hpy in Hya...
@@ -921,7 +920,7 @@ Proof with eauto; try congruence.
       apply domI in Hpx as Hx. apply func_ap in Hpx...
       apply domI in Hpy as Hy. apply func_ap in Hpy...
       rewrite HdF in Hx, Hy.
-      destruct (classic (x = y))... exfalso.
+      contra.
       eapply lo_connected in H as []; eauto;
       (eapply lo_irrefl; [apply (wo T)|]).
       + apply (HL2 _ Hx _ Hy) in H... rewrite Hpx, Hpy in H...
@@ -975,7 +974,7 @@ Proof with eauto; try congruence.
       + assert (e ∈ A S ∪ A T) by (apply BUnionI2; auto).
         eapply extraneous...
     - apply SepE in Hy as [Hy Hyb].
-      destruct (classic (y ∈ ran F)) as [|Hy']... exfalso.
+      contra as Hy'.
       assert (y ∈ A T - ran F) by (apply SepI; auto).
       apply Hminb in H as []; subst;
       (eapply lo_irrefl; [apply (wo T)|])...
@@ -988,7 +987,7 @@ Proof with eauto; try congruence.
     apply domI in Hpx as Hx. apply func_ap in Hpx...
     apply domI in Hpy as Hy. apply func_ap in Hpy...
     rewrite HdF in Hx, Hy.
-    destruct (classic (x = y))... exfalso.
+    contra.
     eapply lo_connected in H as []; eauto;
     (eapply lo_irrefl; [apply (wo T)|]).
     + apply (HL2 _ Hx _ Hy) in H... rewrite Hpx, Hpy in H...

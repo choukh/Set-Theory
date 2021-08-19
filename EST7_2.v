@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Nov 2020 **)
 
 Require Export ZFC.lib.Natural.
@@ -66,7 +66,7 @@ Lemma non_woset_ex_descending_chain : AC_I → ∀ A R, ⦿ A →
   ∃ f, descending_chain f A R.
 Proof with eauto.
   intros AC1 * [a Ha] Hpr.
-  set {p ∊ R | λ p, π1 p ∈ A ∧ π2 p ∈ A} as R'.
+  set {p ∊ R | π1 p ∈ A ∧ π2 p ∈ A} as R'.
   pose proof (inv_rel R') as Hrel'.
   apply AC1 in Hrel' as [F [HfF [HsF HdF]]].
   assert (HF: F: A ⇒ A). {
@@ -113,9 +113,9 @@ Qed.
 
 (* 前节 *)
 (* initial segment *)
-Definition seg := λ t R, {x ∊ dom R | λ x, (x <ᵣ t) R}.
-Definition head := λ t A R, {x ∊ A | λ x, (x ≤ᵣ t) R}.
-Definition tail := λ t A R, {x ∊ A | λ x, (t <ᵣ x) R}.
+Definition seg := λ t R, {x ∊ dom R | (x <ᵣ t) R}.
+Definition head := λ t A R, {x ∊ A | (x ≤ᵣ t) R}.
+Definition tail := λ t A R, {x ∊ A | (t <ᵣ x) R}.
 
 Lemma segI : ∀ x t R, (x <ᵣ t) R → x ∈ seg t R.
 Proof with eauto.
@@ -133,7 +133,7 @@ Lemma seg_injective : ∀ A R, loset A R → ∀ a b ∈ A,
   seg a R = seg b R → a = b.
 Proof with eauto.
   intros A R Hlo a Ha b Hb Heq.
-  destruct (classic (a = b))... exfalso.
+  contra.
   eapply lo_connected in H as []...
   - assert (a ∈ seg b R). apply segI...
     rewrite <- Heq in H0. apply SepE2 in H0. eapply lo_irrefl...
@@ -174,13 +174,13 @@ Theorem transfinite_induction : ∀ A R, woset A R →
   ∀ B, inductive_subset B A R → B = A.
 Proof with auto.
   intros A R [[Hbr [Htr Htri]] Hwo] B [Hsub Hind].
-  destruct (classic (B = A)) as [|Hnq]... exfalso.
+  contra as Hnq.
   assert (Hne: ⦿ (A - B)) by (apply comp_nonempty; split; auto).
   apply Hwo in Hne as [m [Hm Hmin]]...
   apply SepE in Hm as [Hm Hm']. apply Hm'. apply Hind...
   intros x Hx. apply SepE in Hx as [_ Hp].
   apply Hbr in Hp as Hx. apply CProdE2 in Hx as [Hx _].
-  destruct (classic (x ∈ B)) as [|Hx']... exfalso.
+  contra as Hx'.
   assert (x ∈ A - B) by (apply SepI; auto).
   apply Hmin in H as []; firstorder.
 Qed.
@@ -193,7 +193,7 @@ Proof with eauto; try congruence.
   split. { apply transfinite_induction. }
   intros Hind. split... intros C [c Hc] Hsub.
   (* strict lower bounds of C *)
-  set {t ∊ A | λ t, ∀x ∈ C, (t <ᵣ x) R} as B.
+  set {t ∊ A | ∀x ∈ C, (t <ᵣ x) R} as B.
   destruct (classic (inductive_subset B A R)).
   - exfalso. apply Hsub in Hc as Hc'.
     apply Hind in H. rewrite <- H in Hc'.
@@ -222,7 +222,7 @@ Qed.
 
 (* 以前节为定义域的所有函数 *)
 Definition SegFuncs : set → set → set → set := λ A R B,
-  {f ∊ 𝒫 (A × B) | λ f, ∃ t ∈ A, f: seg t R ⇒ B}.
+  {f ∊ 𝒫 (A × B) | ∃ t ∈ A, f: seg t R ⇒ B}.
 
 (* 超限递归定理初级表述 *)
 Definition transfinite_recursion_preliminary_form :=
@@ -245,7 +245,7 @@ Proof with eauto; try congruence.
     intros f. rewrite <- unique_existence.
     split. exists (G[f])... intros...
   }
-  set {x ∊ A | λ x, F[x] ∈ B} as A'.
+  set {x ∊ A | F[x] ∈ B} as A'.
   replace A with A' in *. {
     assert (Hr: ran F ⊆ B). {
       intros y Hy. apply ranE in Hy as [x Hp].
@@ -276,7 +276,7 @@ Qed.
 
 (* 替代公理再考 *)
 Local Fact sometimes_replacement_is_simpler_than_separation : ∀ A,
-  {λ a, 𝒫 a | a ∊ A} = {x ∊ 𝒫 𝒫 ⋃A | λ x, ∃a ∈ A, x = 𝒫 a}.
+  {𝒫 a | a ∊ A} = {x ∊ 𝒫 𝒫 ⋃A | ∃a ∈ A, x = 𝒫 a}.
 Proof with auto.
   intro. apply ExtAx. split; intros Hx.
   - apply ReplAx in Hx as [a [Ha Heq]]. subst x.
@@ -302,7 +302,7 @@ Proof with eauto; try congruence.
     destruct (classic (∀x ∈ A, (x ≤ᵣ t₁) R → ν₁[x] = ν₂[x]))...
     exfalso. apply set_not_all_ex_not in H as [s [Hs H]].
     apply imply_to_and in H as [Hst1 Hnqt].
-    set {x ∊ A | λ x, ν₁ [x] ≠ ν₂ [x]} as B.
+    set {x ∊ A | ν₁ [x] ≠ ν₂ [x]} as B.
     specialize Hmin with B as [m [Hm Hmin]].
       { exists s. apply SepI... }
       { intros x Hx. apply SepE1 in Hx... }
@@ -348,7 +348,7 @@ Proof with eauto; try congruence.
     eapply HL1_1... apply SepE1 in Hx... apply SepE2 in Hx...
   }
   set (λ t ν, is_function ν ∧ γ_constr t ν) as ϕ.
-  set {t ∊ A | λ t, ∃ ν, ϕ t ν} as A'.
+  set {t ∊ A | ∃ ν, ϕ t ν} as A'.
   (* first time that ϕ_Repl is a must *)
   set (ϕ_Repl ϕ A') as ℋ.
   set (⋃ ℋ) as F.
@@ -429,13 +429,13 @@ Proof with eauto; try congruence.
     congruence.
   }
   assert (HL3: dom F = A). {
-    destruct (classic (dom F = A)) as [|Hnq]... exfalso.
+    contra as Hnq.
     assert (Hps: dom F ⊂ A). {
       split... intros x Hx. apply domE in Hx as [y Hp].
       apply Hstar in Hp as [ν [Hν Hp]].
       apply Hrepl in Hν as [_ [t [_ Hγ]]]. eapply Hhd...
     }
-    set {x ∊ A | λ x, x ∉ dom F} as B.
+    set {x ∊ A | x ∉ dom F} as B.
     specialize Hmin with B as [t [Ht Hmin]]. {
       apply comp_nonempty in Hps as [a Ha].
       apply SepE in Ha as [Ha Ha']. exists a. apply SepI...
@@ -447,7 +447,7 @@ Proof with eauto; try congruence.
       apply ExtAx. split; intros Hx.
       - apply SepE in Hx as [Hx Hxt].
         apply (dom_binRel R A) in Hx...
-        destruct (classic (x ∈ dom F))... exfalso.
+        contra.
         assert (Hxb: x ∈ B) by (apply SepI; auto).
         apply Hmin in Hxb. eapply lo_not_leq_gt...
       - apply Hps in Hx as Hxa. apply segI...
@@ -515,7 +515,7 @@ Proof with eauto; try congruence.
   intros F₁ F₂ [HfF₁ [HdF₁ Hγ₁]] [HfF₂ [HdF₂ Hγ₂]].
   apply func_ext_intro...
   intros x Hx. rewrite HdF₁ in Hx.
-  set {t ∊ A | λ t, F₁[t] = F₂[t]} as B.
+  set {t ∊ A | F₁[t] = F₂[t]} as B.
   replace A with B in Hx. apply SepE2 in Hx...
   eapply transfinite_induction...
   split. intros t Ht. apply SepE1 in Ht...
@@ -641,7 +641,7 @@ Qed.
 Lemma f_inclusion : ∀ A, ∀n ∈ ω, ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺].
 Proof with neauto.
   intros A n Hn.
-  set {n ∊ ω | λ n, ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺]} as N.
+  set {n ∊ ω | ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺]} as N.
   ω_induction N Hn; intros a Ha x Hx.
   - rewrite f_0 in Ha. rewrite f_1.
     apply BUnionI2. apply UnionAx. exists a. split...

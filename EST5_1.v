@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, June 2020 **)
 
 Require Export ZFC.lib.Natural.
@@ -13,7 +13,7 @@ Definition binCompatible : set → set → set → Prop := λ R A F,
 
 (* 相容函数在商集上的相似函数 *)
 Definition QuotionFunc : set → set → set → set := λ R A F,
-  {λ p, <<[π1 p]R, [π2 p]R>, [F[<π1 p, π2 p>]]R> | p ∊ A × A}.
+  {<<[π1 p]R, [π2 p]R>, [F[<π1 p, π2 p>]]R> | p ∊ A × A}.
 
 Lemma quotionFunc_function : ∀ R A F,
   binCompatible R A F →
@@ -375,7 +375,7 @@ Notation "a +ᵥ b" := (PreIntAdd[<a, b>]) (at level 50) : PreInt_scope.
 Lemma add_split : ∀x ∈ ω, ∃ m n ∈ ω, x = m + n.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∃ a b ∈ ω, n = a + b} as N.
+  set {n ∊ ω | ∃ a b ∈ ω, n = a + b} as N.
   ω_induction N Hn.
   - exists 0. split... exists 0. split... rewrite add_ident...
   - destruct IH as [a [Ha [b [Hb Heq]]]].
@@ -511,7 +511,7 @@ Qed.
 
 Corollary intAdd_ident' : ∀a ∈ ℤ, Int 0 + a = a.
 Proof with nauto.
-  intros a Ha. simpl. rewrite intAdd_comm, intAdd_ident...
+  intros a Ha. rewrite intAdd_comm, intAdd_ident...
 Qed.
 
 Theorem intAddInv_exists : ∀a ∈ ℤ, ∃b ∈ ℤ, a + b = Int 0.
@@ -528,7 +528,7 @@ Proof with auto.
   intros a Ha. rewrite <- unique_existence.
   split. apply intAddInv_exists...
   intros b b' [Hb H1] [Hb' H2].
-  rewrite <- intAdd_ident, <- (intAdd_ident b')...
+  rewrite <- (intAdd_ident b), <- (intAdd_ident b')...
   rewrite <- H2 at 1. rewrite <- H1.
   rewrite <- intAdd_assoc, (intAdd_comm a), (intAdd_comm b')...
   apply intAdd_ran...
@@ -539,7 +539,7 @@ Open Scope Nat_scope.
 
 (* 整数投射 *)
 Definition PreIntProj := λ a,
-  {p ∊ a | λ p, π1 p = 0 ∨ π2 p = 0}.
+  {p ∊ a | π1 p = 0 ∨ π2 p = 0}.
 Definition IntProj := λ a,
   ⋃ (PreIntProj a).
 

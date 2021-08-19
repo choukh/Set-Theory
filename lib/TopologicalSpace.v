@@ -34,11 +34,11 @@ Definition Opens := {A ∊ 𝒫 S.(X) | S.(is_open) }.
 Notation τ := Opens.
 
 (* 邻域系 *)
-Definition Neighbours := λ x, {A ∊ τ | λ A, x ∈ A}.
+Definition Neighbours := λ x, {A ∊ τ | x ∈ A}.
 Notation U := Neighbours.
 
 (* 闭包 *)
-Definition Closure := λ A, {x ∊ S.(X) | λ x, ∀B ∈ U x, A ∩ B ≠ ∅ }.
+Definition Closure := λ A, {x ∊ S.(X) | ∀B ∈ U x, A ∩ B ≠ ∅ }.
 Notation "A ⁻" := (Closure A) (at level 60).
 
 (* 空集的闭包是空集 *)

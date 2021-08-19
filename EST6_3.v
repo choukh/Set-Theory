@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.lib.NaturalFacts.
@@ -82,7 +82,7 @@ Lemma cardLt : ∀ 𝜅 𝜆, 𝜅 <𝐜 𝜆 → |𝜅| <𝐜 |𝜆|.
 Proof with auto.
   intros * [[Hk [Hl H]] Hnq].
   apply cardLt_iff. split... intros Hqn. apply Hnq.
-  rewrite card_of_card, (card_of_card 𝜆)... apply CardAx1...
+  rewrite (card_of_card 𝜅), (card_of_card 𝜆)... apply CardAx1...
 Qed.
 
 Lemma cardLeq_iff_lt_or_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 ↔ 𝜅 <𝐜 𝜆 ∨
@@ -127,7 +127,7 @@ Proof.
 Qed.
 
 (* 非零基数大于等于1 *)
-Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 1 ≤ 𝜅.
+Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 1 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
   apply EmptyNE in H as [k Hk].
@@ -288,7 +288,7 @@ Proof with auto.
   apply cardAdd_preserve_leq'. apply cardLeq_0...
 Qed.
 
-Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
+Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
 Proof with auto.
   intros 𝜅 Hk 𝜆 Hl H0. rewrite <- cardMul_ident at 1...
   apply cardMul_preserve_leq'. apply cardLeq_1...
@@ -318,7 +318,7 @@ Theorem cardExp_preserve_exponent_leq : ∀ 𝜅 𝜆 𝜇, (𝜅 ≠ ∅ ∨ �
 Proof with neauto.
   intros * Hnq Hleq.
   destruct (classic (𝜇 = ∅)) as [|Hi]. destruct Hnq; [|exfalso]... {
-    subst. rewrite cardExp_0_l... rewrite card_of_nat...
+    subst. rewrite cardExp_0_l... rewrite (card_of_nat 0)...
     apply cardLeq_sub. apply empty_sub_all.
   }
   apply EmptyNE in Hi as [m Hm].
@@ -404,7 +404,7 @@ Proof. apply card_neq_exp. apply aleph0_is_card. Qed.
 Lemma fin_card_neq_aleph0 : ∀n ∈ ω, |n| ≠ ℵ₀.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, |n| ≠ ℵ₀} as N.
+  set {n ∊ ω | |n| ≠ ℵ₀} as N.
   ω_induction N Hn; intros H.
   - apply CardAx1 in H. symmetry in H.
     apply eqnum_empty in H. rewrite H in Hn. exfalso0.
@@ -418,7 +418,7 @@ Qed.
 (* 有限基数小于阿列夫零 *)
 Lemma cardLt_aleph0_if_finite : ∀n ∈ ω, n <𝐜 ℵ₀.
 Proof with eauto.
-  intros n Hn. rewrite card_of_nat... apply cardLt_iff.
+  intros n Hn. rewrite (card_of_nat n)... apply cardLt_iff.
   split. apply ω_dominate... intros Hqn.
   apply CardAx1 in Hqn. eapply fin_card_neq_aleph0...
 Qed.
@@ -429,7 +429,7 @@ Proof with auto.
   intros 𝜅 [A Heq𝜅] Hlt. subst 𝜅.
   apply cardLt_iff in Hlt as [Hdm Hqn].
   rewrite <- set_finite_iff_card_finite.
-  destruct (classic (finite A)) as [|Hinf]... exfalso.
+  contra as Hinf.
   apply Hqn. apply infinite_set_dominated_by_ω_eqnum_ω...
 Qed.
 
@@ -484,7 +484,7 @@ Proof with neauto; try congruence.
       * subst b. exfalso. eapply suc_neq_0...
       * apply add_ran... apply mul_ran...
   - intros x1 H1 x2 H2 Heq.
-    assert (H20: Embed 2 ≠ Embed 0). { intros H. eapply suc_neq_0... }
+    assert (H20: Embed 2 ≠ 0). { intros H. eapply suc_neq_0... }
     apply BUnionE in H1 as [H1|H1];
     apply BUnionE in H2 as [H2|H2];
     apply CProdE1 in H1 as [m [Hm [n [Hn H1]]]];
@@ -561,7 +561,7 @@ Qed.
 Fact cardExp_aleph0_n : ∀n ∈ ω, n ≠ ∅ → ℵ₀ ^ n = ℵ₀.
 Proof with auto.
   intros n Hn.
-  set {n ∊ ω | λ n, n ≠ ∅ → ℵ₀ ^ n = ℵ₀} as N.
+  set {n ∊ ω | n ≠ ∅ → ℵ₀ ^ n = ℵ₀} as N.
   ω_induction N Hn.
   - intros. exfalso...
   - intros _. destruct (classic (m = 0)).

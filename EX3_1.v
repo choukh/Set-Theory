@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 3 Part 1 **)
+(** Solutions to "Elements of Set Theory" Chapter 3 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST3_3.
@@ -40,7 +40,7 @@ Proof with auto.
     rewrite <- H in H1. apply CProdE2 in H1 as []...
 Qed.
 
-Example ex3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{λ X, A × X | X ∊ ℬ}.
+Example ex3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{A × X | X ∊ ℬ}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CProdE1 in H as [a [Ha [b [Hb Heq]]]].
@@ -55,7 +55,7 @@ Qed.
 Example ex3_4: ¬ ∃ S, ∀ a b, <a, b> ∈ S.
 Proof with auto.
   intros [S H]. apply ex2_8.
-  exists {Union | s ∊ S}. intros s.
+  exists {⋃ s | s ∊ S}. intros s.
   specialize H with s s.
   apply ReplAx. exists <s, s>. split...
   apply ExtAx. split; intros Hx.
@@ -65,7 +65,7 @@ Proof with auto.
     apply UnionAx. exists ⎨s⎬. split... apply PairI1.
 Qed.
 
-Example ex3_5_b: ∀ A B, A × B = ⋃{λ x, ⎨x⎬ × B | x ∊ A}.
+Example ex3_5_b: ∀ A B, A × B = ⋃{⎨x⎬ × B | x ∊ A}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CProdE1 in H as [a [Ha [b [Hb Heq]]]].
@@ -107,7 +107,7 @@ Proof.
       * apply BUnionI2. eapply ranI. apply Hq.
 Qed.
 
-Example ex3_8_a: ∀ 𝒜, dom ⋃𝒜 = ⋃{λ R, dom R | R ∊ 𝒜}.
+Example ex3_8_a: ∀ 𝒜, dom ⋃𝒜 = ⋃{dom R | R ∊ 𝒜}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply domE in H as [y Hxy].
@@ -118,7 +118,7 @@ Proof.
     apply UnionAx. exists A. split; eassumption.
 Qed.
 
-Example ex3_8_b: ∀ 𝒜, ran ⋃𝒜 = ⋃{λ R, ran R | R ∊ 𝒜}.
+Example ex3_8_b: ∀ 𝒜, ran ⋃𝒜 = ⋃{ran R | R ∊ 𝒜}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply ranE in H as [y Hxy].
@@ -129,7 +129,7 @@ Proof.
     apply UnionAx. exists A. split; eassumption.
 Qed.
 
-Example ex3_9_a: ∀ 𝒜, dom ⋂𝒜 ⊆ ⋂{λ R, dom R | R ∊ 𝒜}.
+Example ex3_9_a: ∀ 𝒜, dom ⋂𝒜 ⊆ ⋂{dom R | R ∊ 𝒜}.
 Proof.
   intros 𝒜 x H.
   apply domE in H as [y Hxy].
@@ -139,7 +139,7 @@ Proof.
   subst B. eapply domI. apply Hxy in HC. apply HC.
 Qed.
 
-Example ex3_9_b: ∀ 𝒜, ran ⋂𝒜 ⊆ ⋂{λ R, ran R | R ∊ 𝒜}.
+Example ex3_9_b: ∀ 𝒜, ran ⋂𝒜 ⊆ ⋂{ran R | R ∊ 𝒜}.
 Proof.
   intros 𝒜 x H.
   apply ranE in H as [y Hxy].
@@ -253,7 +253,7 @@ Proof with auto.
   intros [F H].
   set (λ f, ∀x ∈ dom f, ∀y ∈ dom f, x = y) as P1.
   set (λ f, ∀z ∈ dom f, <z, z> ∈ f) as P2.
-  set {f ∊ F | λ f, P1 f ∧ P2 f } as C.
+  set {f ∊ F | P1 f ∧ P2 f } as C.
   apply ex2_8. exists (⋃⋃C). intros.
   apply UnionAx. exists (⎨⎨a⎬⎬). split...
   apply UnionAx. exists (⎨⎨⎨a⎬⎬⎬). split...
@@ -368,7 +368,7 @@ Proof with eauto.
 Qed.
 
 Example ex3_24: ∀ F A,
-  is_function F → F⁻¹⟦A⟧ = {x ∊ dom F | λ x, F[x] ∈ A}.
+  is_function F → F⁻¹⟦A⟧ = {x ∊ dom F | F[x] ∈ A}.
 Proof with eauto.
   intros F A Hf. apply ExtAx. split; intros.
   - apply SepE in H as [_ [w Hp]]. apply SepE in Hp as [Hp [_ Hw]].
@@ -433,7 +433,7 @@ Qed.
 
 Example ex3_29: ∀ f A B G,
   f: A ⟹ B → G: B ⇒ 𝒫 A → 
-  (∀b ∈ dom G, G[b] = {x ∊ A | λ x, f[x] = b}) → injective G.
+  (∀b ∈ dom G, G[b] = {x ∊ A | f[x] = b}) → injective G.
 Proof with eauto.
   intros * [Hff [Hdf Hrf]] [Hgf [Hdg _]] H. subst A B.
   split... intros y Hy. apply ranE in Hy as [b Hb]...
@@ -454,8 +454,8 @@ Qed.
 (* 设L是完全格，F: L ⇒ L 是次序保持函数，则F在L中有最小不动点和最大不动点 *)
 Example ex3_30: ∀ F A, F: 𝒫 A ⇒ 𝒫 A →
   (∀ X Y, X ⊆ Y ∧ Y ⊆ A → F[X] ⊆ F[Y]) →
-  let ℬ := {X ∊ 𝒫 A | λ X, F[X] ⊆ X} in
-  let 𝒞 := {X ∊ 𝒫 A | λ X, X ⊆ F[X]} in
+  let ℬ := {X ∊ 𝒫 A | F[X] ⊆ X} in
+  let 𝒞 := {X ∊ 𝒫 A | X ⊆ F[X]} in
   let B := ⋂ℬ in let C := ⋃𝒞 in
   F[B] = B ∧ F[C] = C ∧ ∀X ∈ dom F, F[X] = X → B ⊆ X ∧ X ⊆ C.
 Proof with eauto.

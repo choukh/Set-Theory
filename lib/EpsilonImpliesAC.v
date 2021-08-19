@@ -18,7 +18,7 @@ Lemma chosen_contained : ∀ s, ⦿ s → SetChoice s ∈ s.
 Proof. intros s. apply set_choice_spec. Qed.
 
 (* “答案集包含在问题集的并集里” *)
-Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {SetChoice | s ∊ S} ⊆ ⋃S.
+Theorem chosen_included : ∀ S, (∀s ∈ S, ⦿s) → {SetChoice s | s ∊ S} ⊆ ⋃S.
 Proof.
   intros S H x Hx.
   apply ReplAx in Hx as [s [H1 H2]].
@@ -30,7 +30,7 @@ Qed.
 (* “单选题” *)
 Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
   (∀ s t ∈ S, s ≠ t → disjoint s t) →
-  ∀s ∈ S, ∃ x, s ∩ {SetChoice | s ∊ S} = ⎨x⎬.
+  ∀s ∈ S, ∃ x, s ∩ {SetChoice s | s ∊ S} = ⎨x⎬.
 Proof with eauto.
   intros S Hi Hdj s Hs.
   exists (SetChoice s). apply sub_antisym.

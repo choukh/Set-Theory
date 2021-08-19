@@ -1,9 +1,16 @@
 (*** Formal Construction of a Set Theory in Coq ***)
-(** based on the thesis by Jonas Kaiser, November 23, 2012 **)
+(** adapted from the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, June 2021 **)
 
 Require Export Coq.Unicode.Utf8_core.
 Require Export Coq.Logic.Classical.
+
+Ltac contra C := match goal with
+  |- ?G => destruct (classic G) as [?H|C]; [assumption|exfalso]
+end.
+
+Tactic Notation "contra" "as" simple_intropattern(H) := contra H.
+Tactic Notation "contra" := contra as ?H.
 
 Declare Scope set_scope.
 Delimit Scope set_scope with set.
@@ -19,14 +26,12 @@ Notation "x ∉ y" := (¬In x y) (at level 70) : set_scope.
 
 (* 集合论中配合量词的惯例写法 *)
 
-Notation all_in A P := (∀ x, x ∈ A → P x).
 Notation "∀ x .. y ∈ A , P" :=
-  (all_in A (λ x, .. (all_in A (λ y, P)) ..))
+  (∀ x, x ∈ A → (.. (∀ y, y ∈ A → P) ..))
   (at level 200, x binder, right associativity) : set_scope.
 
-Notation ex_in A P := (λ x, x ∈ A ∧ P x).
 Notation "∃ x .. y ∈ A , P" :=
-  (ex (ex_in A (λ x, .. (ex (ex_in A (λ y, P))) ..)))
+  (∃ x, x ∈ A ∧ (.. (∃ y, y ∈ A ∧ P) ..))
   (at level 200, x binder, right associativity) : set_scope.
 
 (* 关于集合的经典逻辑引理 *)

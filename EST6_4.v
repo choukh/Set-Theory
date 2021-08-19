@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 4 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Sep 2020 **)
 
 Require ZFC.lib.Choice.
@@ -54,7 +54,7 @@ Qed.
 Lemma nat_dominated_by_infinite : ∀ A, ∀n ∈ ω, infinite A → n ≺ A.
 Proof with eauto; try congruence.
   intros A n Hn Hinf.
-  set {n ∊ ω | λ n, n ≺ A} as N.
+  set {n ∊ ω | n ≺ A} as N.
   ω_induction N Hn. {
     split. apply empty_dominated...
     intros Hqn. symmetry in Hqn. apply eqnum_empty in Hqn.
@@ -104,7 +104,7 @@ Qed.
 Corollary cardLt_infcard_n : ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, n <𝐜 𝜅.
 Proof with auto.
   intros 𝜅 [Hcd Hinf] n Hn.
-  rewrite (card_of_card 𝜅), card_of_nat...
+  rewrite (card_of_card 𝜅), (card_of_nat n)...
   apply cardLt_iff. apply nat_dominated_by_infinite...
 Qed.
 
@@ -114,7 +114,7 @@ Theorem ω_is_the_least_infinite_set : AC_III → ∀ A, infinite A → ω ≼ A
 Proof with neauto; try congruence.
   intros AC3 A Hinf.
   pose proof (AC3 A) as [F [_ [_ Hch]]].
-  set {B ∊ 𝒫 A | λ B, finite B} as 𝒜.
+  set {B ∊ 𝒫 A | finite B} as 𝒜.
   set (Func 𝒜 𝒜 (λ B, B ∪ ⎨F[A - B]⎬)) as ℋ.
   assert (Hℋ: ℋ: 𝒜 ⇒ 𝒜). {
     apply meta_function. intros B HB.
@@ -147,7 +147,7 @@ Proof with neauto; try congruence.
     apply Hsub. apply Hch...
   - cut (∀ m n ∈ ω, m ∈ n → F [A - h[m]] ≠ F [A - h[n]]). {
       intros Hcut. intros m Hm n Hn Heq.
-      destruct (classic (m = n))... exfalso.
+      contra.
       apply nat_connected in H as []; auto;
       [|symmetry in Heq]; eapply Hcut; revgoals...
     }
@@ -161,7 +161,7 @@ Proof with neauto; try congruence.
       intros Hcut. apply Hcut in Hgm. apply SepE2 in Hgn...
     }
     clear Heq Hgm Hgn g. generalize dependent m.
-    set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ∈ n → h[m⁺] ⊆ h[n]} as N.
+    set {n ∊ ω | ∀ m, m ∈ ω → m ∈ n → h[m⁺] ⊆ h[n]} as N.
     ω_induction N Hn; intros k Hk Hlt. exfalso0.
     intros x Hx. apply BUnionE in Hlt as [].
     + apply IH in Hx... rewrite Hhn... unfold ℋ.
@@ -208,7 +208,7 @@ Corollary cardLt_aleph0_iff_finite :
   ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
-  - intros [Hleq Hnq]. destruct (classic (finite 𝜅))... exfalso.
+  - intros [Hleq Hnq]. contra.
     apply Hnq. apply cardLeq_antisym...
     apply aleph0_is_the_least_infinite_card. apply ac3. split...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
@@ -311,7 +311,7 @@ Qed.
 
 (* 基数的无限累加和 *)
 Definition CardInfSum : set → (set → set) → set := λ I ℱ,
-  |⋃{λ i, ℱ i × ⎨i⎬ | i ∊ I}|.
+  |⋃{ℱ i × ⎨i⎬ | i ∊ I}|.
 Notation "∑" := (CardInfSum) : Card_scope.
 Notation "∑ᵢ" := (CardInfSum ω) : Card_scope.
 
@@ -377,9 +377,9 @@ Theorem cardInfSum_well_defined : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| = |B i|) → ∑ I A = ∑ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
-  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⟺ B i}) as F_.
-  set (λ i, {FuncDisjointify i | f ∊ F_ i}) as F'_.
-  set {F'_ | i ∊ I} as ℱ.
+  set (λ i, {f ∊ A i ⟶ B i | f: A i ⟺ B i}) as F_.
+  set (λ i, {FuncDisjointify i f | f ∊ F_ i}) as F'_.
+  set {F'_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
     apply Heqcd in Hi. apply CardAx1 in Hi as [f Hf].
@@ -387,7 +387,7 @@ Proof with eauto; try congruence.
     exists f. split... apply SepI... apply arrowI.
     apply bijection_is_func...
   }
-  set {λ F, g[F] | F ∊ ℱ} as G.
+  set {g[F] | F ∊ ℱ} as G.
   assert (HpUG: ∀p ∈ ⋃G, ∃i ∈ I, p ∈ g[F'_ i]). {
     intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
     apply ReplAx in Hf as [F [HF Heqf]].
@@ -492,15 +492,15 @@ Theorem cardInfProd_well_defined : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| = |B i|) → ∏ I A = ∏ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
-  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⟺ B i}) as F_.
-  set {F_ | i ∊ I} as ℱ.
+  set (λ i, {f ∊ A i ⟶ B i | f: A i ⟺ B i}) as F_.
+  set {F_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
     apply Heqcd in Hi. apply CardAx1 in Hi as [f Hf].
     exists f. apply SepI... apply arrowI. apply bijection_is_func...
   }
-  set (⋃{B | i ∊ I}) as ℬ.
-  set (⋃{A | i ∊ I}) as 𝒜.
+  set (⋃{B i | i ∊ I}) as ℬ.
+  set (⋃{A i | i ∊ I}) as 𝒜.
   set (λ x, Func I ℬ (λ i, g[F_ i][x[i]])) as G.
   set (λ y, Func I 𝒜 (λ i, g[F_ i]⁻¹[y[i]])) as G'.
   assert (HFi: ∀i ∈ I, F_ i ∈ ℱ). {
@@ -586,9 +586,9 @@ Theorem cardInfSum_preserve_leq : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| ≤ |B i|) → ∑ I A ≤ ∑ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
-  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⇔ B i}) as F_.
-  set (λ i, {FuncDisjointify i | f ∊ F_ i}) as F'_.
-  set {F'_ | i ∊ I} as ℱ.
+  set (λ i, {f ∊ A i ⟶ B i | f: A i ⇔ B i}) as F_.
+  set (λ i, {FuncDisjointify i f | f ∊ F_ i}) as F'_.
+  set {F'_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
     apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
@@ -596,7 +596,7 @@ Proof with eauto; try congruence.
     exists f. split... apply SepI... apply arrowI.
     apply injection_is_func...
   }
-  set {λ F, g[F] | F ∊ ℱ} as G.
+  set {g[F] | F ∊ ℱ} as G.
   assert (HpUG: ∀p ∈ ⋃G, ∃i ∈ I, p ∈ g[F'_ i]). {
     intros p Hp. apply UnionAx in Hp as [f [Hf Hp]].
     apply ReplAx in Hf as [F [HF Heqf]].
@@ -690,15 +690,15 @@ Theorem cardInfProd_preserve_leq : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| ≤ |B i|) → ∏ I A ≤ ∏ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
-  set (λ i, {f ∊ A i ⟶ B i | λ f, f: A i ⇔ B i}) as F_.
-  set {F_ | i ∊ I} as ℱ.
+  set (λ i, {f ∊ A i ⟶ B i | f: A i ⇔ B i}) as F_.
+  set {F_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
     apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
     exists f. apply SepI... apply arrowI. apply injection_is_func...
   }
-  set (⋃{B | i ∊ I}) as ℬ.
-  set (⋃{A | i ∊ I}) as 𝒜.
+  set (⋃{B i | i ∊ I}) as ℬ.
+  set (⋃{A i | i ∊ I}) as 𝒜.
   set (λ x, Func I ℬ (λ i, g[F_ i][x[i]])) as G.
   set (λ y, Func I 𝒜 (λ i, g[F_ i]⁻¹[y[i]])) as G'.
   assert (HFi: ∀i ∈ I, F_ i ∈ ℱ). {
@@ -748,7 +748,7 @@ Qed.
 Theorem cardInfSum_of_same_card :
   ∀ I, ∀𝜅 ⋵ 𝐂𝐃, ∑ I (λ _, 𝜅) = |I| ⋅ 𝜅.
 Proof with auto; try congruence.
-  intros I 𝜅 Hcd. simpl.
+  intros I 𝜅 Hcd.
   rewrite (card_of_card 𝜅) at 1...
   rewrite cardMul_comm, cardMul. apply CardAx1.
   replace (⋃ (Repl (λ i, 𝜅 × ⎨i⎬) I)) with (𝜅 × I). easy.
@@ -765,11 +765,11 @@ Qed.
 (* 不交集的无限累加和 *)
 Lemma cardInfSum_of_disjoint : ∀ I ℱ,
   (∀ i j ∈ I, i ≠ j → disjoint (ℱ i) (ℱ j)) →
-  ∑ I ℱ = |⋃{λ i, ℱ i | i ∊ I}|.
+  ∑ I ℱ = |⋃{ℱ i | i ∊ I}|.
 Proof with eauto.
   intros * Hdj. apply CardAx1.
-  set (⋃{λ i, ℱ i × ⎨i⎬ | i ∊ I}) as X.
-  set (⋃{ℱ | i ∊ I}) as Y.
+  set (⋃{ℱ i × ⎨i⎬ | i ∊ I}) as X.
+  set (⋃{ℱ i | i ∊ I}) as Y.
   set (Func X Y π1) as f.
   exists f. apply meta_bijection.
   - intros x Hx. apply FUnionE in Hx as [i [Hi Hx]].
@@ -782,7 +782,7 @@ Proof with eauto.
     apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
     apply SingE in Hb. apply SingE in Hd.
     subst. zfc_simple. apply op_iff. split...
-    destruct (classic (i = j))... exfalso.
+    contra.
     apply Hdj in H... eapply disjointE... congruence.
   - intros y Hy. apply FUnionE in Hy as [i [Hi Hx]].
     exists <y, i>. split; zfc_simple.

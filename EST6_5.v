@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 5 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Import ZFC.lib.WosetMin.
@@ -77,7 +77,7 @@ Theorem countable_union_of_coutable_set : AC_II →
   ∀ 𝒜, countable 𝒜 → (∀A ∈ 𝒜, countable A) → countable (⋃ 𝒜).
 Proof with eauto; try congruence.
   intros AC2 𝒜 Hcnt HcntA.
-  set {A ∊ 𝒜 | λ A, ⦿ A} as 𝒜'.
+  set {A ∊ 𝒜 | ⦿ A} as 𝒜'.
   assert (Hsub: 𝒜' ⊆ 𝒜). {
     intros x Hx. apply SepE1 in Hx...
   }
@@ -101,7 +101,7 @@ Proof with eauto; try congruence.
     intros m Hm. eapply ap_ran... apply surjection_is_func...
   }
   set (Func ω 𝒫 (ω ⟶ ⋃ 𝒜') (λ m,
-    {f ∊ ω ⟶ ⋃ 𝒜' | λ f, f: ω ⟹ g[m]}
+    {f ∊ ω ⟶ ⋃ 𝒜' | f: ω ⟹ g[m]}
   )) as h.
   assert (Hh: h: ω ⇒ 𝒫 (ω ⟶ ⋃ 𝒜')). {
     apply meta_function. intros m Hm. apply PowerAx.
@@ -173,7 +173,7 @@ Qed.
 
 (* 有限序列集 *)
 Definition FiniteSequences : set → set := λ A,
-  {f ∊ 𝒫 (ω × A) | λ f, ∃n ∈ ω, f: n ⇒ A}.
+  {f ∊ 𝒫 (ω × A) | ∃n ∈ ω, f: n ⇒ A}.
 Notation 𝗦𝗾 := FiniteSequences.
 
 (* 空集的有限序列等于1 *)
@@ -275,7 +275,7 @@ Theorem cardLeq_union : AC_I →
   ∀ 𝒜, ∀𝜅 ⋵ 𝐂𝐃, (∀A ∈ 𝒜, |A| ≤ 𝜅) → |⋃ 𝒜| ≤ |𝒜| ⋅ 𝜅.
 Proof with auto; try congruence.
   intros AC1 𝒜 𝜅 [K HK] Hle.
-  set {A ∊ 𝒜 | λ A, ⦿ A} as 𝒜'.
+  set {A ∊ 𝒜 | ⦿ A} as 𝒜'.
   assert (Hle': |𝒜'| ≤ |𝒜|). {
     apply cardLeq_sub. intros x Hx. apply SepE1 in Hx...
   }
@@ -296,7 +296,7 @@ Proof with auto; try congruence.
     apply cardMul_well_defined. apply CardAx0. apply CardAx0.
   }
   set (Func 𝒜' 𝒫 (K ⟶ ⋃ 𝒜') (λ A,
-    {f ∊ K ⟶ ⋃ 𝒜' | λ f, f: K ⟹ A}
+    {f ∊ K ⟶ ⋃ 𝒜' | f: K ⟹ A}
   )) as h.
   assert (Hh: h: 𝒜' ⇒ 𝒫 (K ⟶ ⋃ 𝒜')). {
     apply meta_function. intros m Hm. apply PowerAx.

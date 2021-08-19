@@ -89,14 +89,14 @@ Lemma Zorn's : AC_III' → general_Zorn.
 Proof with eauto; try congruence.
   intros AC3' A R Hpo Hub.
   (* 反证法 *)
-  destruct (classic (∃ m, maximal m A R)) as [|Harc]... exfalso.
+  contra as Harc.
   apply po_archimedean_iff_no_maximal in Harc...
   (* 子集的上界集 *)
-  set (λ B, {x ∊ A | λ x, ∀b ∈ B, (b <ᵣ x) R}) as Upper.
+  set (λ B, {x ∊ A | ∀b ∈ B, (b <ᵣ x) R}) as Upper.
   (* 全序子集族 *)
-  set {B ∊ 𝒫 A | λ B, loset B (R ⥏ B)} as ℬ.
+  set {B ∊ 𝒫 A | loset B (R ⥏ B)} as ℬ.
   (* 上界集族 *)
-  set {Upper | B ∊ ℬ} as 𝒜.
+  set {Upper B | B ∊ ℬ} as 𝒜.
   pose proof (AC3' 𝒜) as [F [HfF [HdF HrF]]]. {
     intros x Hx. apply ReplAx in Hx as [B [HB Hx]]. subst x.
     apply SepE in HB as [Hsub Hlo]. apply PowerAx in Hsub.
@@ -121,10 +121,10 @@ Proof with eauto; try congruence.
     apply HrF' in HB. apply SepE2 in HB. apply HB...
   }
   set (Recursion (λ B, f[B])) as a.
-  assert (HB: ∀α ⋵ 𝐎𝐍, {a | β ∊ α} ∈ ℬ). {
+  assert (HB: ∀α ⋵ 𝐎𝐍, {a β | β ∊ α} ∈ ℬ). {
     eapply transfinite_induction_schema_on_ordinals.
     intros α Hoα IH.
-    assert (Hsub: {a | β ∊ α} ⊆ A). {
+    assert (Hsub: {a β | β ∊ α} ⊆ A). {
       intros x Hx. apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
       assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
       unfold a. rewrite recursion_spec... eapply ap_ran...
@@ -148,14 +148,14 @@ Proof with eauto; try congruence.
     unfold a. rewrite (recursion_spec _ α)...
     apply f_strict. apply HB... apply ReplI...
   }
-  set {x ∊ A | λ x, ∃α ⋵ 𝐎𝐍, x = a α} as A'.
+  set {x ∊ A | ∃α ⋵ 𝐎𝐍, x = a α} as A'.
   set (ϕ_Repl (λ x α, α ⋵ 𝐎𝐍 ∧ x = a α) A') as Ω.
   apply Burali_Forti. exists Ω.
   intros α Hoα. apply ϕ_ReplAx.
   - intros x Hx. rewrite <- unique_existence. split.
     + apply SepE2 in Hx as [ξ [Hξ Hx]]...
     + intros δ ε [Hoδ H1] [Hoε H2]. subst x.
-      destruct (classic (δ = ε))... exfalso.
+      contra.
       apply ord_connected in H as []; auto;
       apply Hmono in H; auto; rewrite H2 in H;
       eapply relLt_irrefl; eauto; apply Hpo.
@@ -172,14 +172,14 @@ Proof with eauto; try congruence.
   intros AC3' A R Hpo Hub. assert (H := Hpo).
   destruct H as [_ [_ [Htr Hir]]].
   (* 反证法 *)
-  destruct (classic (∃ m, maximal m A R)) as [|Harc]... exfalso.
+  contra as Harc.
   apply po_archimedean_iff_no_maximal in Harc...
   (* 子集的上界集 *)
-  set (λ B, {x ∊ A | λ x, ∀b ∈ B, (b <ᵣ x) R}) as Upper.
+  set (λ B, {x ∊ A | ∀b ∈ B, (b <ᵣ x) R}) as Upper.
   (* 全序子集族 *)
-  set {B ∊ 𝒫 A | λ W, loset B (R ⥏ B)} as ℬ.
+  set {B ∊ 𝒫 A | loset B (R ⥏ B)} as ℬ.
   (* 上界集族 *)
-  set {Upper | B ∊ ℬ} as 𝒜.
+  set {Upper B | B ∊ ℬ} as 𝒜.
   pose proof (AC3' 𝒜) as [F [HfF [HdF HrF]]]. {
     intros x Hx. apply ReplAx in Hx as [B [HB Hx]]. subst x.
     apply SepE in HB as [Hsub Hlo]. apply PowerAx in Hsub.
@@ -203,7 +203,7 @@ Proof with eauto; try congruence.
     unfold f. rewrite meta_func_ap...
     apply HrF' in HB. apply SepE2 in HB. apply HB...
   }
-  set (λ t B, {x ∊ B | λ x, (x <ᵣ t) R}) as seg.
+  set (λ t B, {x ∊ B | (x <ᵣ t) R}) as seg.
   set (λ B, ∀x ∈ B, x = f[seg x B]) as inductive.
   set (λ B, B ⊆ A ∧
     (* a *) woset B (R ⥏ B) ∧
@@ -231,11 +231,11 @@ Proof with eauto; try congruence.
     apply SepE in Hb as [Hb Hb'].
     exists b. split... apply sub_antisym.
     + intros x Hx. apply SepE in Hx as [Hx Hxb].
-      destruct (classic (x ∈ C)) as [|Hx']... exfalso.
+      contra as Hx'.
       assert (x ∈ B - C). apply SepI... apply Hble in H.
       eapply (lo_irrefl _ B)... eapply relLt_le_tranr...
       apply HloB. apply SepI... apply CProdI...
-    + destruct (classic (C ⊆ seg b B)) as [|Hnsub]... exfalso.
+    + contra as Hnsub.
       pose proof (HminC (C - seg b B)) as [c [Hc Hcle]]... {
         apply EmptyNE. intros H. apply sub_iff_no_comp in H...
       }
@@ -252,7 +252,7 @@ Proof with eauto; try congruence.
       assert (Heq: d = c). {
         rewrite (HiB d), HiC... f_equal.
         apply ExtAx. split; intros Hx.
-        - destruct (classic (x ∈ seg c C))... exfalso.
+        - contra.
           apply SepE in Hx as [Hx Hxk].
           assert (Hx': x ∈ B - seg c C). apply SepI...
           apply Hdle in Hx'. eapply (lo_irrefl _ B)...
@@ -260,20 +260,20 @@ Proof with eauto; try congruence.
           apply SepI... apply CProdI...
         - apply SepE in Hx as [Hx Hxc].
           destruct (classic (d = b)) as [|Hnq]. {
-            subst d. destruct (classic (x ∈ seg b B))... exfalso.
+            subst d. contra.
             assert (Hx': x ∈ C - seg b B). apply SepI...
             apply Hcle in Hx'. eapply (lo_irrefl _ C)...
             eapply relLt_le_tranr... apply HloC.
             apply SepI... apply CProdI...
           }
           assert (HdC: d ∈ C). {
-            destruct (classic (d ∈ C)) as [|HdC]... exfalso.
+            contra as HdC.
             assert (HdB: d ∈ B - C). apply SepI... 
             apply Hble in HdB as []; destruct Hdb...
             eapply (lo_irrefl _ B)... eapply relLt_tranr... apply HloB.
           }
           assert (HxB: x ∈ B). {
-            destruct (classic (x ∈ B))... exfalso.
+            contra.
             assert (Hx': x ∈ C - seg b B). {
               apply SepI... intros H'. apply H. apply SepE1 in H'...
             }
@@ -303,7 +303,7 @@ Proof with eauto; try congruence.
     - apply Hy'. apply SepE2 in Hx.
       apply SepI... eapply relLt_tranr...
   }
-  set {B ∊ 𝒫 A | good} as 𝒞.
+  set {B ∊ 𝒫 A | good B} as 𝒞.
   assert (Hsubu: ⋃ 𝒞 ⊆ A). {
     intros x Hx. apply UnionAx in Hx as [C [HC Hx]].
     apply SepE1 in HC. apply PowerAx in HC. apply HC...
@@ -476,7 +476,7 @@ Proof with eauto; try congruence.
     destruct (ixm (P f)); split...
   }
   set (Recursion S γ) as f. fold f in Hff, Hdf, Hrf.
-  set {a ∊ A | λ A, f[a] = 1} as C.
+  set {a ∊ A | f[a] = 1} as C.
   assert (contra: Embed 0 ≠ 1). {
     intros H. apply (suc_neq_0 0)...
   }
@@ -510,7 +510,7 @@ Proof with eauto; try congruence.
       apply Hsubd in Hb as HbA...
       apply SepE2 in Hb as Hlt.
       apply Hinc... apply SepI...
-      rewrite restr_ap in Hfb; revgoals...
+      erewrite restr_ap in Hfb; revgoals...
   }
   assert (Hsub: C ⊆ A). {
     intros x Hx. apply SepE1 in Hx...
@@ -541,7 +541,7 @@ End ImportWoStruct.
 Theorem Zorn_to_WO : general_Zorn → WO.
 Proof with eauto; try congruence.
   intros Zorn X.
-  set {w ∊ 𝒫 X × 𝒫 (X × X) | λ w, woset (π1 w) (π2 w)} as 𝓦.
+  set {w ∊ 𝒫 X × 𝒫 (X × X) | woset (π1 w) (π2 w)} as 𝓦.
   set (BinRel 𝓦 (λ u v,
     let A := π1 u in let B := π1 v in
     let RA := π2 u in let RB := π2 v in
@@ -581,7 +581,7 @@ Proof with eauto; try congruence.
   } {
     (* chain 𝓒 has upper bound *)
     intros 𝓒 Hsub Hlo.
-    set (⋃ {π1 | w ∊ 𝓒}) as U.
+    set (⋃ {π1 w | w ∊ 𝓒}) as U.
     set (BinRel U (λ s t, ∃ C RC, (s <ᵣ t) RC ∧ <C, RC> ∈ 𝓒)) as RU.
     assert (HU: <U, RU> ∈ 𝓦). {
       apply SepI; zfc_simple. {
@@ -751,7 +751,7 @@ Proof with eauto; try congruence.
   apply CProdE1 in Hp as [M [Hsub [RM [_ Hp]]]].
   subst. zfc_simple. apply PowerAx in Hsub.
   exists RM. replace X with M...
-  destruct (classic (M = X)) as [|HMX]... exfalso.
+  contra as HMX.
   assert (Hpsub: M ⊂ X). split...
   apply comp_nonempty in Hpsub as [s Hs].
   apply SepE in Hs as [Hs Hs'].

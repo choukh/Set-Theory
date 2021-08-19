@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 3 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 3 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EX2.
@@ -9,14 +9,14 @@ Require Export ZFC.EX2.
 Definition is_rel : set → Prop := λ X, ∀x ∈ X, is_pair x.
 
 (* 关系是有序对的集合 *)
-Lemma rel_pair : ∀ R, is_rel R → ∀p ∈ R, p = <π1 p, π2 p>.
+Lemma rel_pair : ∀ R, ∀p ∈ R, is_rel R → p = <π1 p, π2 p>.
 Proof.
-  intros R Hr p Hp. apply Hr in Hp. apply op_η in Hp. apply Hp.
+  intros R p Hp Hr. apply Hr in Hp. apply op_η in Hp. apply Hp.
 Qed.
 
 (* 由命题构造集合论关系 *)
 Definition Rel : set → set → (set → set → Prop) → set :=
-  λ A B P, {p ∊ A × B | λ p, P (π1 p) (π2 p)}.
+  λ A B P, {p ∊ A × B | P (π1 p) (π2 p)}.
 
 Lemma rel_is_rel : ∀ A B P, is_rel (Rel A B P).
 Proof.
@@ -27,14 +27,14 @@ Qed.
 Lemma cprod_is_rel : ∀ A B, is_rel (A × B).
 Proof. intros * x Hx. apply cprod_is_pairs in Hx. apply Hx. Qed.
 
-Lemma sep_cp_is_rel : ∀ A B P, is_rel {p ∊ A × B | P}.
+Lemma sep_cp_is_rel : ∀ A B P, is_rel {p ∊ A × B | P p}.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
   apply cprod_is_pairs in Hx. apply Hx.
 Qed.
 
 (* 恒等关系 *)
-Definition Ident : set → set := λ A, {λ x, <x, x> | x ∊ A}.
+Definition Ident : set → set := λ A, {<x, x> | x ∊ A}.
 
 Lemma ident_is_rel : ∀ A, is_rel (Ident A).
 Proof.
@@ -73,11 +73,11 @@ Qed.
 
 (* 定义域 *)
 Definition dom : set → set :=
-  λ R, {x ∊ ⋃⋃R | λ x, ∃ y, <x, y> ∈ R}.
+  λ R, {x ∊ ⋃⋃R | ∃ y, <x, y> ∈ R}.
 
 (* 值域 *)
 Definition ran : set → set :=
-  λ R, {x ∊ ⋃⋃R | λ x, ∃ w, <w, x> ∈ R}.
+  λ R, {x ∊ ⋃⋃R | ∃ w, <w, x> ∈ R}.
 
 (* 关系的全域 *)
 Definition fld : set → set :=
@@ -152,7 +152,7 @@ Lemma func_pair : ∀ F, is_function F →
   ∀p ∈ F, p = < π1 p, π2 p >.
 Proof.
   intros F Hf p Hp. destruct Hf as [Hr _].
-  exact (rel_pair F Hr p Hp).
+  exact (rel_pair F p Hp Hr).
 Qed.
 
 Lemma func_pair' : ∀ F, is_function F →
@@ -214,7 +214,7 @@ Qed.
 (* 函数应用 *)
 (* PreAp F x := {<a, b> ∈ F | a = x} = {<x, b>} *)
 Definition PreAp : set → set → set := λ F x,
-  {p ∊ F | λ p, is_pair p ∧ π1 p = x}.
+  {p ∊ F | is_pair p ∧ π1 p = x}.
 (* Ap F x := {y | <x, y> ∈ F} *)
 Definition Ap : set → set → set := λ F x, π2 ⋃ (PreAp F x).
 Notation "F [ x ]" := (Ap F x) (at level 9, format "F [ x ]") : set_scope.
@@ -287,7 +287,7 @@ Proof with auto.
 Qed.
 
 Lemma ran_eq_repl_by_ap : ∀ f, is_function f →
-  ran f = {Ap f | x ∊ dom f}.
+  ran f = {f[x] | x ∊ dom f}.
 Proof with auto.
   intros f Hf.
   apply ExtAx. intros y. split; intros Hy.
@@ -384,7 +384,7 @@ Qed.
 
 (** 逆 **)
 Definition Inverse : set → set := λ F,
-  {p ∊ (ran F × dom F) | λ p, is_pair p ∧ <π2 p, π1 p> ∈ F}.
+  {p ∊ (ran F × dom F) | is_pair p ∧ <π2 p, π1 p> ∈ F}.
 Notation "F ⁻¹" := (Inverse F) (at level 9, format "F ⁻¹") : set_scope.
 
 Lemma inv_rel : ∀ R, is_rel R⁻¹.
@@ -513,23 +513,23 @@ Proof.
 Qed.
 
 Fact inv_as_repl : ∀ F, injective F →
-  F⁻¹ = {λ p, <π2 p, π1 p> | p ∊ F}.
+  F⁻¹ = {<π2 p, π1 p> | p ∊ F}.
 Proof with eauto.
   intros F Hinj.
   apply ExtAx. intros p. split; intros Hp.
   - apply ReplAx. exists <π2 p, π1 p>. split.
-    + rewrite (rel_pair F⁻¹) in Hp... apply inv_op...
+    + rewrite (rel_pair F⁻¹ p) in Hp... apply inv_op...
     + zfc_simple. symmetry. eapply func_pair...
       apply inv_func_iff_sr. apply Hinj.
   - apply ReplAx in Hp as [q [Hq Heq]].
-    rewrite (rel_pair F) in Hq; [|apply Hinj|auto].
+    rewrite (rel_pair F q) in Hq; [|auto|apply Hinj].
     subst p. apply SepI. apply CProdI.
     eapply ranI... eapply domI... split... zfc_simple.
 Qed.
 
 (** 复合 **)
 Definition Composition : set → set → set := λ F G,
-  {p ∊ (dom G × ran F) | λ p, is_pair p ∧
+  {p ∊ (dom G × ran F) | is_pair p ∧
     ∃ y, <π1 p, y> ∈ G ∧ <y, π2 p> ∈ F}.
 Notation "F ∘ G" := (Composition F G) (at level 60) : set_scope.
 
@@ -573,7 +573,7 @@ Qed.
 
 Lemma compo_dom : ∀ F G,
   is_function F → is_function G →
-  dom (F ∘ G) = {x ∊ dom G | λ x, G[x] ∈ dom F}.
+  dom (F ∘ G) = {x ∊ dom G | G[x] ∈ dom F}.
 Proof with eauto.
   intros F G Hf Hg. apply ExtAx. split; intros.
   - apply domE in H as [y Hp].
@@ -590,7 +590,7 @@ Qed.
 
 Lemma compo_ran : ∀ F G,
   injective F → is_function G →
-  ran (F ∘ G) = {x ∊ ran F | λ x, F⁻¹[x] ∈ ran G}.
+  ran (F ∘ G) = {x ∊ ran F | F⁻¹[x] ∈ ran G}.
 Proof with eauto.
   intros F G [Hf Hs] Hg.
   assert (Hf': is_function F ⁻¹) by (apply inv_func_iff_sr; auto).
@@ -636,7 +636,7 @@ Qed.
 Example compo_inv_dom_eq : ∀ G,
   injective G → ∀x ∈ dom (G⁻¹ ∘ G), (G⁻¹ ∘ G)[x] = x.
 Proof.
-  intros G Hinj x Hx. simpl. rewrite compo_correct.
+  intros G Hinj x Hx. rewrite compo_correct.
   - rewrite inv_dom_reduction. reflexivity. apply Hinj.
     rewrite compo_inv_dom in Hx. apply Hx. apply Hinj.
   - apply inv_func_iff_sr. destruct Hinj as [_ Hs]. apply Hs.

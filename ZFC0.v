@@ -1,5 +1,5 @@
 (*** Formal Construction of a Set Theory in Coq ***)
-(** based on the thesis by Jonas Kaiser, November 23, 2012 **)
+(** adapted from the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
 Require Export ZFC.Meta.
@@ -187,9 +187,9 @@ Axiom ϕ_ReplAx : ∀ (P : set → set → Prop) A,
 
 Definition Repl : (set → set) → set → set := λ F A,
   ϕ_Repl (λ x y, F x = y) A.
-Notation "{ F | x ∊ A }" := (Repl (λ x, F x) A) : set_scope.
+Notation "{ F | x ∊ A }" := (Repl (λ x, F) A) : set_scope.
 
-Theorem ReplAx : ∀ y F A, y ∈ {F | x ∊ A} ↔ ∃x ∈ A, F x = y.
+Theorem ReplAx : ∀ y F A, y ∈ {F x | x ∊ A} ↔ ∃x ∈ A, F x = y.
 Proof with auto.
   intros. split.
   - intros Hy. apply ϕ_ReplAx in Hy...
@@ -199,14 +199,14 @@ Proof with auto.
     + exists x. split...
 Qed.
 
-Lemma ReplI : ∀ A F, ∀x ∈ A, F x ∈ {F | x ∊ A}.
+Lemma ReplI : ∀ A F, ∀x ∈ A, F x ∈ {F x | x ∊ A}.
 Proof.
   intros A F x Hx. apply ReplAx.
   exists x. split. apply Hx. reflexivity.
 Qed.
 
 Lemma repl_ext : ∀ G F A, (∀a ∈ A, F a = G a) →
-  {F | a ∊ A} = {G | a ∊ A}.
+  {F a | a ∊ A} = {G a | a ∊ A}.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply ReplAx in Hx as [y [Hy Hx]].
@@ -216,14 +216,14 @@ Proof with auto.
 Qed.
 
 (* 空集的替代是空集 *)
-Fact repl_empty : ∀ F, {F | x ∊ ∅} = ∅.
+Fact repl_empty : ∀ F, {F x | x ∊ ∅} = ∅.
 Proof.
   intros. apply EmptyI. intros x H.
   apply ReplAx in H as [y [H _]]. exfalso0.
 Qed.
 
 (* 若某集合的替代是空集，那么该集合是空集 *)
-Fact repl_eq_empty : ∀ F A, {F | x ∊ A} = ∅ → A = ∅.
+Fact repl_eq_empty : ∀ F A, {F x | x ∊ A} = ∅ → A = ∅.
 Proof.
   intros. apply sub_empty. intros x Hx.
   eapply ReplI in Hx. rewrite H in Hx. exfalso0.

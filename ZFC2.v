@@ -1,5 +1,5 @@
 (*** Formal Construction of a Set Theory in Coq ***)
-(** based on the thesis by Jonas Kaiser, November 23, 2012 **)
+(** adapted from the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
 Require Export ZFC.ZFC1.
@@ -11,11 +11,11 @@ Definition Sep : set → (set → Prop) → set := λ A P,
   let F := (λ x, match (ixm (P x)) with
     | inl _ => ⎨x⎬
     | inr _ => ∅
-  end) in ⋃{F | x ∊ A}.
-Notation "{ x ∊ A | P }" := (Sep A (λ x, P x)) : set_scope.
+  end) in ⋃{F x | x ∊ A}.
+Notation "{ x ∊ A | P }" := (Sep A (λ x, P)) : set_scope.
 
 (* 从替代公理和空集公理导出Zermelo分类公理 *)
-Theorem sep_correct : ∀ A P x, x ∈ {x ∊ A | P} ↔ x ∈ A ∧ P x.
+Theorem sep_correct : ∀ A P x, x ∈ {x ∊ A | P x} ↔ x ∈ A ∧ P x.
 Proof with auto.
   split.
   - intros Hx. apply UnionAx in Hx as [y [Hy Hx]].
@@ -28,28 +28,28 @@ Proof with auto.
     destruct (ixm (P x))... exfalso...
 Qed.
 
-Lemma SepI : ∀ A (P : set → Prop), ∀x ∈ A, P x → x ∈ {x ∊ A | P}.
-Proof. intros A P x Hx HP. apply sep_correct. auto. Qed.
+Lemma SepI : ∀ A (P : set → Prop), ∀x ∈ A, P x → x ∈ {x ∊ A | P x}.
+Proof. intros A P x Hx HP. now apply sep_correct. Qed.
 
-Lemma SepE1 : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A.
-Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
+Lemma SepE1 : ∀ A P, ∀x ∈ {x ∊ A | P x}, x ∈ A.
+Proof. intros A P x Hx. now apply sep_correct in Hx. Qed.
 
-Lemma SepE2 : ∀ A P, ∀x ∈ {x ∊ A | P}, P x.
-Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
+Lemma SepE2 : ∀ A P, ∀x ∈ {x ∊ A | P x}, P x.
+Proof. intros A P x Hx. now apply sep_correct in Hx. Qed.
 
-Lemma SepE : ∀ A P, ∀x ∈ {x ∊ A | P}, x ∈ A ∧ P x.
-Proof. intros A P x Hx. apply sep_correct in Hx. easy. Qed.
+Lemma SepE : ∀ A P, ∀x ∈ {x ∊ A | P x}, x ∈ A ∧ P x.
+Proof. intros A P x Hx. now apply sep_correct in Hx. Qed.
 
-Lemma sep_sub : ∀ A P, {x ∊ A | P} ⊆ A.
+Lemma sep_sub : ∀ A P, {x ∊ A | P x} ⊆ A.
 Proof. unfold Sub. exact SepE1. Qed.
 
-Lemma sep_power : ∀ A P, {x ∊ A | P} ∈ 𝒫 A.
+Lemma sep_power : ∀ A P, {x ∊ A | P x} ∈ 𝒫 A.
 Proof. intros. apply PowerAx. apply sep_sub. Qed.
 
-Lemma sep_empty : ∀ P, {x ∊ ∅ | P} = ∅.
+Lemma sep_empty : ∀ P, {x ∊ ∅ | P x} = ∅.
 Proof. intros. apply sub_empty. apply sep_sub. Qed.
 
-Lemma sep_empty_inv : ∀ A P, {x ∊ A | P} = ∅ -> ∀x ∈ A, ¬P x.
+Lemma sep_empty_inv : ∀ A P, {x ∊ A | P x} = ∅ -> ∀x ∈ A, ¬P x.
 Proof.
   intros A P H x Hx HP.
   cut (x ∈ ∅). intros. exfalso0.
@@ -57,8 +57,8 @@ Proof.
 Qed.
 
 Lemma sep_sing : ∀ x P,
-  ( P x ∧ {x ∊ ⎨x⎬ | P} = ⎨x⎬) ∨
-  (¬P x ∧ {x ∊ ⎨x⎬ | P} = ∅).
+  ( P x ∧ {x ∊ ⎨x⎬ | P x} = ⎨x⎬) ∨
+  (¬P x ∧ {x ∊ ⎨x⎬ | P x} = ∅).
 Proof with auto.
   intros. pose proof (sep_sub ⎨x⎬ P).
   apply subset_of_single in H. destruct H.
@@ -69,7 +69,7 @@ Proof with auto.
 Qed.
 
 Lemma sep_ext : ∀ A P Q,
-  (∀x ∈ A, P x ↔ Q x) → {x ∊ A | P} = {x ∊ A | Q}.
+  (∀x ∈ A, P x ↔ Q x) → {x ∊ A | P x} = {x ∊ A | Q x}.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply SepE in Hx as [Hx HP].
@@ -78,7 +78,7 @@ Proof with auto.
     apply SepI... apply H...
 Qed.
 
-Definition Extraneous := λ A, {x ∊ A | λ x, x ∉ x}.
+Definition Extraneous := λ A, {x ∊ A | x ∉ x}.
 
 Lemma extraneous : ∀ A, Extraneous A ∉ A.
 Proof with auto.
@@ -96,7 +96,7 @@ Proof.
 Qed.
 
 (** 任意交 **)
-Definition Inter := λ Y, {x ∊ ⋃Y | λ x, ∀y ∈ Y, x ∈ y}.
+Definition Inter := λ Y, {x ∊ ⋃Y | ∀y ∈ Y, x ∈ y}.
 Notation "⋂ X" := (Inter X) (at level 9, right associativity) : set_scope.
 
 Lemma InterI : ∀ x Y, ⦿ Y → (∀y ∈ Y, x ∈ y) → x ∈ ⋂Y.
@@ -189,7 +189,7 @@ Notation "< x , y , .. , z >" := ( OPair .. ( OPair x y ) .. z )
   (z at level 69, format "< x ,  y ,  .. ,  z >") : set_scope.
 
 Definition π1 := λ p, ⋃ ⋂ p.
-Definition π2 := λ p, ⋃ {x ∊ ⋃p | λ x, x ∈ ⋂p → ⋃p = ⋂p}.
+Definition π2 := λ p, ⋃ {x ∊ ⋃p | x ∈ ⋂p → ⋃p = ⋂p}.
 
 Lemma op_union : ∀ x y, ⋃<x, y> = {x, y}.
 Proof.
@@ -271,7 +271,7 @@ Qed.
 
 (** 笛卡儿积 **)
 Definition CProd := λ A B,
-  {p ∊ 𝒫 𝒫 (A ∪ B) | λ p, ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
+  {p ∊ 𝒫 𝒫 (A ∪ B) | ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
 Notation "A × B" := (CProd A B) (at level 40) : set_scope.
 
 Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
@@ -323,11 +323,10 @@ Qed.
 
 Fact cprod_to_0 : ∀ A B, A × B = ∅ → A = ∅ ∨ B = ∅.
 Proof with eauto.
-  intros.
-  destruct (classic (A = ∅))...
-  destruct (classic (B = ∅))... exfalso.
-  apply EmptyNE in H0 as [a Ha].
-  apply EmptyNE in H1 as [b Hb].
+  intros. contra.
+  apply not_or_and in H0 as [H1 H2].
+  apply EmptyNE in H1 as [a Ha].
+  apply EmptyNE in H2 as [b Hb].
   eapply EmptyE in H. apply H. apply CProdI...
 Qed.
 
@@ -340,11 +339,11 @@ Proof with auto.
 Qed.
 
 Fact cprod_alternative_definition : ∀ A B,
-  A × B = ⋃ {λ a, {λ b, <a, b> | x ∊ B} | x ∊ A}.
+  A × B = ⋃ {{<a, b> | b ∊ B} | a ∊ A}.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-    apply UnionAx. exists {λ b, <a, b> | x∊B}. split.
+    apply UnionAx. exists {<a, b> | b ∊ B}. split.
     + apply ReplAx. exists a. split...
     + apply ReplAx. exists b. split...
   - apply UnionAx in Hx as [y [Hy Hx]].

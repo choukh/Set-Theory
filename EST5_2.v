@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, June 2020 **)
 
 Require Export ZFC.EST5_1.
@@ -295,8 +295,7 @@ Qed.
 
 Corollary intMul_ident' : ∀a ∈ ℤ, Int 1 ⋅ a = a.
 Proof with nauto.
-  intros a Ha. simpl.
-  rewrite intMul_comm, intMul_ident...
+  intros a Ha. rewrite intMul_comm, intMul_ident...
 Qed.
 
 Lemma intMul_addInv : ∀a ∈ ℤ, -Int 1 ⋅ a = -a.
@@ -310,8 +309,7 @@ Qed.
 
 Lemma intMul_0_l : ∀a ∈ ℤ, Int 0 ⋅ a = Int 0.
 Proof.
-  intros a Ha. simpl.
-  rewrite intMul_comm, intMul_0_r; nauto.
+  intros a Ha. rewrite intMul_comm, intMul_0_r; nauto.
 Qed.
 
 Lemma intMul_addInv_lr : ∀ a b ∈ ℤ, a ⋅ -b = -a ⋅ b.
@@ -598,7 +596,7 @@ Qed.
 Corollary intAdd_cancel : ∀ a b c ∈ ℤ, a + c = b + c → a = b.
 Proof with eauto.
   intros a Ha b Hb c Hc Heq.
-  destruct (classic (a = b))... exfalso.
+  contra.
   apply intLt_connected in H as []; auto;
   eapply intAdd_preserve_lt in H; eauto;
   rewrite Heq in H; eapply intLt_irrefl...
@@ -615,7 +613,7 @@ Corollary intMul_cancel : ∀ a b c ∈ ℤ,
   c ≠ Int 0 → a ⋅ c = b ⋅ c → a = b.
 Proof with neauto.
   intros a Ha b Hb c Hc Hnq0 Heq.
-  destruct (classic (a = b))... exfalso.
+  contra.
   apply intLt_connected in Hnq0 as [Hneg|Hpos]...
   - apply intNeg_pos in Hneg as Hpos.
     assert (Heq': a ⋅ -c = b ⋅ -c). {

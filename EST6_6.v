@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 6 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Import ZFC.lib.ChoiceFacts.
@@ -8,11 +8,11 @@ Require Export ZFC.EST6_5.
 
 (* finite_union的引理 *)
 Local Lemma finite_repl : ∀ a 𝒜,
-  finite {λ X, X - ⎨a⎬ | X ∊ 𝒜} → finite 𝒜.
+  finite {X - ⎨a⎬ | X ∊ 𝒜} → finite 𝒜.
 Proof with auto.
   intros * [n [Hn Hrpl]].
   generalize dependent 𝒜.
-  set {n ∊ ω | λ n, ∀ 𝒜, {λ X, X - ⎨a⎬ | X ∊ 𝒜} ≈ n → finite 𝒜} as N.
+  set {n ∊ ω | ∀ 𝒜, {X - ⎨a⎬ | X ∊ 𝒜} ≈ n → finite 𝒜} as N.
   ω_induction N Hn; intros 𝒜 Hqn. {
     apply eqnum_empty in Hqn. apply repl_eq_empty in Hqn. subst...
   }
@@ -21,8 +21,8 @@ Proof with auto.
   apply split_one_element in HA as HeqA. rewrite HeqA in Hqn.
   apply finite_set_remove_one_element in Hqn...
   destruct (classic (a ∈ A)).
-  - replace ({λ X, X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
-    with {λ X, X - ⎨a⎬ | X ∊ 𝒜} in Hqn. {
+  - replace ({X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
+    with {X - ⎨a⎬ | X ∊ 𝒜} in Hqn. {
       apply IH in Hqn...
     }
     apply ExtAx. split; intros Hx.
@@ -33,8 +33,8 @@ Proof with auto.
     + apply SepE in Hx as [Hx _].
       apply ReplAx in Hx as [X [HX Hx]].
       apply ReplAx. exists X. split...
-  - replace ({λ X, X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
-    with {λ X, X - ⎨a⎬ | X ∊ 𝒜 - ⎨A⎬ - ⎨A ∪ ⎨a⎬⎬} in Hqn. {
+  - replace ({X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
+    with {X - ⎨a⎬ | X ∊ 𝒜 - ⎨A⎬ - ⎨A ∪ ⎨a⎬⎬} in Hqn. {
       apply IH in Hqn. eapply add_one_still_finite_1.
       eapply add_one_still_finite_1. apply Hqn.
     }
@@ -65,7 +65,7 @@ Lemma finite_union : ∀ A, finite ⋃A → finite A ∧ (∀a ∈ A, finite a).
 Proof with nauto.
   intros 𝒜 [n [Hn Hu]].
   generalize dependent 𝒜.
-  set {n ∊ ω | λ n, ∀ 𝒜, ⋃𝒜 ≈ n → finite 𝒜 ∧ (∀A ∈ 𝒜, finite A)} as N.
+  set {n ∊ ω | ∀ 𝒜, ⋃𝒜 ≈ n → finite 𝒜 ∧ (∀A ∈ 𝒜, finite A)} as N.
   ω_induction N Hn; intros 𝒜 Hu.
   - apply eqnum_empty in Hu.
     apply union_empty_iff in Hu as []; subst.
@@ -77,7 +77,7 @@ Proof with nauto.
     apply split_one_element in Ha as Hequ. rewrite Hequ in Hu.
     apply finite_set_remove_one_element in Hu...
     apply UnionAx in Ha as [A [HA Ha]].
-    set {λ X, X - ⎨a⎬ | X ∊ 𝒜} as 𝒜'.
+    set {X - ⎨a⎬ | X ∊ 𝒜} as 𝒜'.
     assert (Hequ': ⋃𝒜' = ⋃𝒜 - ⎨a⎬). {
       apply ExtAx. split; intros Hx.
       - apply UnionAx in Hx as [B [HB Hx]].
@@ -200,7 +200,7 @@ Qed.
 Lemma finite_arrow_l : ∀ A B, 2 ≤ |B| → finite (A ⟶ B) → finite A.
 Proof with nauto.
   intros * H2 Hfin.
-  rewrite card_of_nat, cardLeq_iff, two in H2...
+  rewrite (card_of_nat 2), cardLeq_iff, two in H2...
   assert (H02: 0 ∈ 2%zfc1) by apply PairI1.
   assert (H12: 1 ∈ 2%zfc1) by (rewrite one; apply PairI2).
   destruct H2 as [f [Hif [Hdf Hrf]]].
@@ -365,7 +365,7 @@ Proof with auto.
 Qed.
 
 (* 如果基数𝜅与非零基数的积是有限基数那么𝜅是有限基数 *)
-Lemma finite_cardMul_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 →
+Lemma finite_cardMul_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 →
   finite (𝜅 ⋅ 𝜆) → finite 𝜅.
 Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnel Hfin.
@@ -376,7 +376,7 @@ Proof with eauto.
 Qed.
 
 (* 如果非零基数与基数𝜆的积是有限基数那么𝜆是有限基数 *)
-Lemma finite_cardMul_r : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 →
+Lemma finite_cardMul_r : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ 0 →
   finite (𝜅 ⋅ 𝜆) → finite 𝜆.
 Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hfin.
@@ -385,7 +385,7 @@ Proof with eauto.
 Qed.
 
 (* 如果两个非零基数的积是有限基数那么这两个基数都是有限基数 *)
-Lemma finite_cardMul : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 𝜆 ≠ Embed 0 →
+Lemma finite_cardMul : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 𝜆 ≠ 0 →
   finite (𝜅 ⋅ 𝜆) → finite 𝜅 ∧ finite 𝜆.
 Proof with auto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel Hfin. split.
@@ -394,7 +394,7 @@ Proof with auto.
 Qed.
 
 (* 两个非零基数的积是有限基数当且仅当这两个基数都是有限基数 *)
-Theorem cardMul_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 𝜆 ≠ Embed 0 →
+Theorem cardMul_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 𝜆 ≠ 0 →
   finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ⋅ 𝜆).
 Proof with auto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. split.
@@ -413,21 +413,21 @@ Qed.
 
 (* 无限基数与非零基数的积是无限基数 *)
 Corollary cardMul_infinite :
-  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 → infinite (𝜅 ⋅ 𝜆).
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → infinite (𝜅 ⋅ 𝜆).
 Proof.
   intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
   apply (finite_cardMul_l 𝜅 Hcdk 𝜆); auto.
 Qed.
 
 Corollary cardMul_infinite' :
-  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 → infinite (𝜆 ⋅ 𝜅).
+  ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → infinite (𝜆 ⋅ 𝜅).
 Proof.
   intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
   apply (finite_cardMul_r 𝜆 Hcdl 𝜅); auto.
 Qed.
 
 (* 两个非空基数的积是无限基数当且仅当这两个基数中至少有一个是无限基数 *)
-Corollary cardMul_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 𝜆 ≠ Embed 0 →
+Corollary cardMul_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 𝜆 ≠ 0 →
   infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ⋅ 𝜆).
 Proof.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. unfold infinite.
@@ -444,7 +444,7 @@ Proof with auto.
 Qed.
 
 (* 如果基数𝜅的非零基数次幂是有限基数那么𝜅是有限基数 *)
-Lemma finite_cardExp_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ Embed 0 →
+Lemma finite_cardExp_l : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 →
   finite (𝜅 ^ 𝜆) → finite 𝜅.
 Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl H0 Hfin.
@@ -468,7 +468,7 @@ Proof with eauto.
 Qed.
 
 (* 如果不小于2的基数𝜅的非零基数𝜆次幂是有限基数那么𝜅和𝜆都是有限基数 *)
-Lemma finite_cardExp : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, Embed 2 ≤ 𝜅 → 𝜆 ≠ Embed 0 →
+Lemma finite_cardExp : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, Embed 2 ≤ 𝜅 → 𝜆 ≠ 0 →
 finite (𝜅 ^ 𝜆) → finite 𝜅 ∧ finite 𝜆.
 Proof with auto.
   intros 𝜅 Hcdk 𝜆 Hcdl H0 H2 Hfin. split.
@@ -477,7 +477,7 @@ Proof with auto.
 Qed.
 
 (* 如果𝜅是非零基数且𝜆是大于1的基数，那么𝜅的𝜆次幂是有限基数当且仅当𝜅和𝜆都是有限基数 *)
-Theorem cardExp_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, Embed 2 ≤ 𝜅 → 𝜆 ≠ Embed 0 →
+Theorem cardExp_finite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, Embed 2 ≤ 𝜅 → 𝜆 ≠ 0 →
   finite 𝜅 ∧ finite 𝜆 ↔ finite (𝜅 ^ 𝜆).
 Proof with auto.
   intros 𝜅 Hcdk 𝜆 Hcdl H0 H2. split.
@@ -496,7 +496,7 @@ Qed.
 
 (* 无限基数的非零基数次幂是无限基数 *)
 Corollary cardExp_infinite_base : ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀𝜆 ⋵ 𝐂𝐃,
-  𝜆 ≠ Embed 0 → infinite (𝜅 ^ 𝜆).
+  𝜆 ≠ 0 → infinite (𝜅 ^ 𝜆).
 Proof.
   intros 𝜅 [Hcdk Hinf] 𝜆 Hcdl H0 Hfin. apply Hinf.
   apply (finite_cardExp_l 𝜅 Hcdk 𝜆); auto.
@@ -512,7 +512,7 @@ Qed.
 
 (* 不小于2的基数的非零基数次幂是无限基数当且仅当这两个基数中至少有一个是无限基数 *)
 Corollary cardExp_infinite_iff : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃,
-  Embed 2 ≤ 𝜅 → 𝜆 ≠ Embed 0 →
+  Embed 2 ≤ 𝜅 → 𝜆 ≠ 0 →
   infinite 𝜅 ∨ infinite 𝜆 ↔ infinite (𝜅 ^ 𝜆).
 Proof.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnek Hnel. unfold infinite.
@@ -536,7 +536,7 @@ Proof with neauto; try congruence.
   assert (AC3: AC_III). { apply AC_VI_to_III... }
   assert (AC5: AC_V). { apply AC_VI_to_V... }
   set (λ f, f = ∅ ∨ ∃ A, infinite A ∧ A ⊆ B ∧ f: A × A ⟺ A) as P.
-  set {f ∊ 𝒫 ((B × B) × B) | P} as ℋ.
+  set {f ∊ 𝒫 ((B × B) × B) | P f} as ℋ.
   pose proof (AC6 ℋ) as [f₀ [Hf₀ Hmax]]. {
     intros 𝒞 Hchn Hsub.
     apply SepI. {
@@ -551,7 +551,7 @@ Proof with neauto; try congruence.
         apply H in Hf. subst f. exfalso0.
       - exfalso0.
     }
-    right. set (⋃{λ f, ran f | f ∊ 𝒞}) as A.
+    right. set (⋃{ran f | f ∊ 𝒞}) as A.
     exists A. split; [|split]. {
       apply set_not_all_ex_not in Hne as [f [Hf Hnef]].
       apply Hsub in Hf as Hf'. apply SepE in Hf' as [_ []]. exfalso...
@@ -816,7 +816,7 @@ Corollary cardExp_infcard_id : AC_VI →
   ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, n ≠ ∅ → 𝜅 ^ n = 𝜅.
 Proof with auto.
   intros AC6 𝜅 [Hinf Hcd] n Hn.
-  set {n ∊ ω | λ n, n ≠ ∅ → 𝜅 ^ n = 𝜅} as N.
+  set {n ∊ ω | n ≠ ∅ → 𝜅 ^ n = 𝜅} as N.
   ω_induction N Hn.
   - intros. exfalso...
   - intros _. destruct (classic (m = 0)).

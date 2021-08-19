@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 6 Part 3 **)
+(** Solutions to "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Import ZFC.lib.IndexedFamilyUnion.
@@ -15,12 +15,12 @@ Require Export ZFC.EST6_6.
 
 (* 有限子集集 *)
 Definition FiniteSubSets : set → set := λ A,
-  {B ∊ 𝒫 A | finite}.
+  {B ∊ 𝒫 A | finite B}.
 Notation 𝗙𝗶𝗻 := FiniteSubSets.
 
 (* n元子集集 *)
 Definition FinCardSubSets : set → set → set := λ A n,
-  {B ∊ 𝒫 A | λ B, B ≈ n}.
+  {B ∊ 𝒫 A | B ≈ n}.
 Notation 𝗙𝗶𝗻𝗰 := FinCardSubSets.
 
 (* 有限子集与n元子集的相互转化 *)
@@ -74,11 +74,11 @@ Qed.
 Lemma cardLeq_finCardSubSets_pow_n : AC_III' →
   ∀ A, ∀n ∈ ω, |𝗙𝗶𝗻𝗰 A n| ≤ |A| ^ n.
 Proof with auto.
-  intros AC3' A n Hn. simpl.
+  intros AC3' A n Hn.
   rewrite (card_of_nat n) at 2...
   rewrite cardExp. apply cardLeq_iff.
-  set (λ B, {f ∊ n ⟶ B | λ f, f: n ⟹ B}) as G.
-  set {G | B ∊ 𝗙𝗶𝗻𝗰 A n} as 𝒢.
+  set (λ B, {f ∊ n ⟶ B | f: n ⟹ B}) as G.
+  set {G B | B ∊ 𝗙𝗶𝗻𝗰 A n} as 𝒢.
   pose proof (AC3' 𝒢) as [F [HfF [HdF HrF]]]. {
     intros F HF. apply ReplAx in HF as [B [HB HF]]. subst F.
     apply finCardSubSets_iff_finiteSubSets in HB as [_ Hqn]...
@@ -176,7 +176,7 @@ Proof with nauto.
   apply cardLeq_iff. eapply cardLeq_tran. {
     apply cardLeq_sq_infSum_pow_n...
   }
-  rewrite <- (cardInfSum_self AC6 (|A|)); [|split]...
+  rewrite <- (cardInfSum_self AC6 (|A|)) at 1; [|split]...
   apply cardInfSum_preserve_leq... intros i Hi.
   rewrite <- card_of_card, <- (card_of_card (|A|))...
   apply cardExp_infcard_leq... split...
@@ -214,13 +214,13 @@ Proof with nauto.
   exists n'0. split...
 Qed.
 
-Lemma card_neq_0_and_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ Embed 0 → 𝜅 ≠ 1 → 2 ≤ 𝜅.
+Lemma card_neq_0_and_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 𝜅 ≠ 1 → 2 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd H0 H1.
   destruct (classic (finite 𝜅)).
   - assert (Hk: 𝜅 ∈ ω). { apply nat_iff_fincard. split... }
     apply fin_cardLeq_iff_leq... apply leq_iff_sub...
-    destruct (classic (2 ⊆ 𝜅))... exfalso.
+    contra.
     apply lt_iff_not_sub in H2...
     rewrite two in H2. apply PairE in H2 as []...
     rewrite one in H1...
@@ -229,7 +229,7 @@ Qed.
 
 (* 洗牌集：每个元素都不与自身对应的全排列 *)
 Definition Shuffle : set → set := λ A,
-  {f ∊ Permutation A | λ f, ∀a ∈ A, f[a] ≠ a}.
+  {f ∊ Permutation A | ∀a ∈ A, f[a] ≠ a}.
 
 Lemma shuffle_iff : ∀ A f,
   f ∈ Shuffle A ↔ f: A ⟺ A ∧ ∀a ∈ A, f[a] ≠ a.
@@ -454,7 +454,7 @@ Proof with neauto; try congruence.
   assert (AC3': AC_III'). { apply AC_VI_to_III'... }
   rewrite card_of_card at 1... clear Hcd.
   apply cardLeq_iff. rename 𝜅 into A.
-  set {λ a, Shuffle (A - ⎨a⎬) | a ∊ A} as 𝒮.
+  set {Shuffle (A - ⎨a⎬) | a ∊ A} as 𝒮.
   pose proof (AC3' 𝒮) as [F [HfF [HdF HrF]]]. {
     intros S HS. apply ReplAx in HS as [B [HB HS]]. subst S.
     apply shuffle_exists... apply cardLt_infcard_n...
@@ -503,7 +503,7 @@ Proof with neauto; try congruence.
   }
   assert (Heq2: ∀ a x ∈ A, (G a)[x] = x → a = x). {
     intros a Ha x Hx Hap.
-    destruct (classic (x = a))... exfalso.
+    contra.
     assert (x ∈ A - ⎨a⎬). { apply SepI... apply SingNI... }
     pose proof (Huap a Ha) as [Heq _].
     rewrite Heq in Hap... eapply (HF'a a Ha)...
@@ -549,14 +549,14 @@ Proof with neauto; try congruence.
   unfold CardFactorial.
   rewrite (card_of_card 𝜅) at 3...
   rewrite cardAdd. apply cardLeq_iff. rename 𝜅 into A.
-  set {B ∊ 𝒫 A | λ B, 2 ≤ (|B|)} as ℬ.
-  set {Shuffle | B ∊ ℬ} as 𝒮.
+  set {B ∊ 𝒫 A | 2 ≤ (|B|)} as ℬ.
+  set {Shuffle B | B ∊ ℬ} as 𝒮.
   pose proof (AC3' 𝒮) as [F [HfF [HdF HrF]]]. {
     intros S HS. apply ReplAx in HS as [B [HB HS]]. subst S.
     apply SepE in HB as [_ H2]. apply shuffle_exists...
   }
-  set (λ f, {a ∊ A | λ a, f[a] = 0}) as O.
-  set (λ f, {a ∊ A | λ a, f[a] = 1}) as I.
+  set (λ f, {a ∊ A | f[a] = 0}) as O.
+  set (λ f, {a ∊ A | f[a] = 1}) as I.
   set (λ X, F[Shuffle X]) as shuffle.
   set (λ f, shuffle (O f) ∪ Ident (I f)) as G.
   set (λ f, match (ixm (|O f| = 0)) with
@@ -601,7 +601,7 @@ Proof with neauto; try congruence.
     - apply BUnionE in Hx as []; apply SepE1 in H...
   }
   assert (HGf: ∀f ∈ A ⟶ 2, 2 ≤ |O f| → G f: A ⟺ A). {
-    intros f Hf Hle. rewrite HeqA...
+    intros f Hf Hle. erewrite HeqA...
     apply bunion_bijection.
     - apply Hsf...
     - apply ident_bijection.

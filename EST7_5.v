@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 5 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Jan 2021 **)
 
 Require ZFC.lib.Choice.
@@ -54,10 +54,10 @@ Definition hartog_spec := λ A α, α ⋵ 𝐎𝐍 ∧ ¬ α ≼ A ∧
 Theorem Hartogs' : ∀ A, ∃! α, hartog_spec A α.
 Proof with eauto; try congruence.
   intros B.
-  set {w ∊ 𝒫 B × 𝒫 (B × B) | λ w, woset (π1 w) (π2 w)} as W.
+  set {w ∊ 𝒫 B × 𝒫 (B × B) | woset (π1 w) (π2 w)} as W.
   set (λ w α, ∃ S, α = ord S ∧ π1 w = A S ∧ π2 w = R S) as ϕ.
   set (ϕ_Repl ϕ W) as Ω.
-  set {β ∊ Ω | λ β, β ≼ B} as α.
+  set {β ∊ Ω | β ≼ B} as α.
   assert (Hexu: ∀w ∈ W, ∃! y, ϕ w y). {
     intros w Hw. rewrite <- unique_existence. split.
     - apply SepE2 in Hw.
@@ -190,7 +190,7 @@ Proof with eauto; try congruence.
       apply func_ap in H1...
       apply func_ap in H2... subst y.
       rewrite Hap2, Hap2 in H2; auto; [|apply He..]...
-      destruct (classic (γ = β))... exfalso.
+      contra.
       apply ord_connected in H as [Hlt|Hlt]; [| |eapply ord_is_ords..]...
       * pose proof (Hind0 β Hβα (He β Hβ)).
         apply SepE2 in H. apply H. rewrite H2.
@@ -204,7 +204,7 @@ Proof with eauto; try congruence.
       subst y. rewrite Hap2; [| |apply He]...
       assert (B - F⟦β⟧ ⊆ B)...
   }
-  set {x ∊ α | λ x, F[x] = e} as E.
+  set {x ∊ α | F[x] = e} as E.
   pose proof (min_correct S' E) as [Hδ Hmin]. {
     destruct (classic (∀x ∈ α, F[x] ≠ e)) as [He|He].
     - exfalso. apply Hndom. exists F.
@@ -283,7 +283,7 @@ Proof with eauto; try congruence.
     destruct (ixm (P f)); split...
   }
   set (Recursion S γ) as F. fold F in HfF, HdF, HrF.
-  set {A ∊ 𝒜 | λ A, F[A] = 1} as 𝒞.
+  set {A ∊ 𝒜 | F[A] = 1} as 𝒞.
   assert (contra: Embed 0 ≠ 1). {
     intros H. apply (suc_neq_0 0)...
   }
@@ -317,7 +317,7 @@ Proof with eauto; try congruence.
       apply Hsubd in HB as HB𝒜...
       apply SepE2 in HB as Hlt.
       apply Hinc... apply SepI...
-      rewrite restr_ap in HFB; revgoals...
+      erewrite restr_ap in HFB; revgoals...
   }
   assert (Hchn: is_chain 𝒞). {
     intros A HA B HB.
@@ -337,7 +337,7 @@ Proof with eauto; try congruence.
   intros E HE HFE. rewrite Heqd in HE...
   eapply sub_tran; revgoals... apply union_is_ub.
   apply SepI. apply Hsubd in HE...
-  rewrite restr_ap in HFE; revgoals...
+  erewrite restr_ap in HFE; revgoals...
 Qed.
 
 (* 良序集与其序数等势 *)
@@ -358,10 +358,10 @@ Qed.
 
 End ImportStruct.
 
-Definition OrdMin := λ α P, (Min α (MemberRel α))[{ξ ∊ α | P}].
+Definition OrdMin := λ α P, (Min α (MemberRel α))[{ξ ∊ α | P ξ}].
 
 Lemma ordMin_correct : ∀ α P, α ⋵ 𝐎𝐍 → (∃ξ ∈ α, P ξ) →
-  minimum (OrdMin α P) {ξ ∊ α | P} (MemberRel α).
+  minimum (OrdMin α P) {ξ ∊ α | P ξ} (MemberRel α).
 Proof with auto.
   intros α P Hoα [ξ [Hξ HP]].
   apply min_correct. apply ord_woset...
@@ -385,7 +385,7 @@ Proof with eauto.
   intros AC3 A.
   set (HartogsNumber A) as α.
   set (λ ξ, ξ ≈ A) as P.
-  set {ξ ∊ α | P} as Ω.
+  set {ξ ∊ α | P ξ} as Ω.
   set (OrdMin α P) as μ.
   pose proof (hartog_spec_intro A) as [Hα [Hndom Hle]].
   fold α in Hndom, Hle.
@@ -462,7 +462,7 @@ Qed.
 Lemma card_of_initord : ∀α ⋵ 𝐎𝐍ⁱⁿⁱᵗ, α = |α|.
 Proof with eauto.
   intros α [Hα Hnqn].
-  destruct (classic (α = |α|))... exfalso.
+  contra.
   eapply ord_connected in H as []...
   - apply card_is_initord in H. apply H.
     symmetry. apply CardAx0.

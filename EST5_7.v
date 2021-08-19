@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 7 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EST5_6.
@@ -382,7 +382,7 @@ Qed.
 
 Corollary realMul_0_l : ∀x ∈ ℝ, Real 0 ⋅ x = Real 0.
 Proof with nauto.
-  intros x Hx. simpl. rewrite realMul_comm, realMul_0_r...
+  intros x Hx. rewrite realMul_comm, realMul_0_r...
 Qed.
 
 Theorem realMul_ident : ∀x ∈ ℝ, x ⋅ Real 1 = x.
@@ -402,7 +402,7 @@ Qed.
 
 Corollary realMul_ident' : ∀x ∈ ℝ, Real 1 ⋅ x = x.
 Proof with nauto.
-  intros x Hx. simpl. rewrite realMul_comm, realMul_ident...
+  intros x Hx. rewrite realMul_comm, realMul_ident...
 Qed.
 
 (* 非零实数 *)
@@ -593,8 +593,8 @@ Proof with nauto.
 Qed.
 
 Corollary realMulInv_eq_1 : ∀x ∈ ℝ', x⁻¹ = Real 1 → x = Real 1.
-Proof with auto.
-  intros x Hx Hnx0. rewrite <- realMulInv_double, Hnx0, realMulInv_1...
+Proof.
+  intros. now rewrite <- (realMulInv_double x), H0, realMulInv_1.
 Qed.
 
 Lemma nzRealMul_ran : ∀ x y ∈ ℝ', x ⋅ y ∈ ℝ'.
@@ -682,7 +682,7 @@ Qed.
 
 Corollary realMul_addInv : ∀x ∈ ℝ, -Real 1 ⋅ x = -x.
 Proof with nauto.
-  intros x Hx. simpl.
+  intros x Hx.
   rewrite <- (realMul_ident' x) at 2...
   rewrite realMul_addInv_l...
 Qed.
@@ -846,8 +846,8 @@ Proof with nauto.
         [|apply ratAdd_ran|..]; [|assumption..]. unfold ε.
       assert ((Rat 2)⁻¹ ∈ ℚ) by nauto.
       rewrite <- (ratMul_distr (r+s-t) Hsumq (Rat 2)⁻¹ H (Rat 2)⁻¹ H),
-        ratAdd_r2_r2_1, ratMul_ident, ratAddInv_diff, (ratAdd_comm t),
-        <- ratAdd_assoc, ratAddInv_annih, ratAdd_ident'...
+        ratAdd_r2_r2_1, (ratMul_ident (r + s - t)), ratAddInv_diff,
+        (ratAdd_comm t), <- ratAdd_assoc, ratAddInv_annih, ratAdd_ident'...
   - apply realAddE in Ht as [p [Hpq [q [Hqq [[Hp Hq] Ht]]]]];
       [|apply real_q..]...
     apply SepE in Hp as [_ Hp]. apply SepE in Hq as [_ Hq].
@@ -1009,7 +1009,7 @@ Qed.
 
 Corollary ratEmbed_addInv : ∀q ∈ ℚ, RatEmbed[(-q)%q] = -Realq q.
 Proof with auto.
-  intros q Hq. simpl.
+  intros q Hq.
   rewrite ratEmbed_q; [|apply ratAddInv_ran]...
   apply realq_addInv...
 Qed.
@@ -1024,7 +1024,7 @@ Qed.
 
 Corollary ratEmbed_mulInv : ∀q ∈ ℚ', RatEmbed[(q⁻¹)%q] = (Realq q)⁻¹.
 Proof with auto.
-  intros q Hq. simpl.
+  intros q Hq.
   rewrite ratEmbed_q; [|apply nzRatE1; apply ratMulInv_ran]...
   apply realq_mulInv...
 Qed.
@@ -1039,7 +1039,7 @@ Qed.
 
 (** 实数的稠密性 **)
 
-Notation "ℤ₊" := {a ∊ ℤ | intPos}.
+Notation "ℤ⁺" := {a ∊ ℤ | intPos a} : set_scope.
 Definition EE : set → set := λ a, RatEmbed[IntEmbed[a]].
 
 Lemma ee_ran : ∀a ∈ ℤ, EE a ∈ ℝ.
@@ -1063,15 +1063,15 @@ Proof with eauto.
 Qed.
 
 Lemma real_archimedean : ∀ x y ∈ ℝ, realPos x →
-  ∃a ∈ ℤ₊, y <𝐫 x ⋅ EE a.
+  ∃a ∈ ℤ⁺, y <𝐫 x ⋅ EE a.
 Proof with neauto.
   intros x Hx y Hy Hpx.
-  assert (Hpdr: ∀w ∈ ℝ, ∀a ∈ ℤ₊, w ⋅ EE a ∈ ℝ). {
+  assert (Hpdr: ∀w ∈ ℝ, ∀a ∈ ℤ⁺, w ⋅ EE a ∈ ℝ). {
     intros w Hw a Ha. apply realMul_ran... apply ee_ran...
     apply SepE1 in Ha...
   }
-  destruct (classic (∃a ∈ ℤ₊, y <𝐫 x ⋅ EE a))...
-  assert (Hleq: ∀a ∈ ℤ₊, x ⋅ EE a ≤ y). {
+  destruct (classic (∃a ∈ ℤ⁺, y <𝐫 x ⋅ EE a))...
+  assert (Hleq: ∀a ∈ ℤ⁺, x ⋅ EE a ≤ y). {
     intros a Ha. remember (x ⋅ EE a) as x'.
     cut (¬(y <𝐫 x')). intros Hnn.
     - destruct (classic (x' = y))...
@@ -1079,7 +1079,7 @@ Proof with neauto.
       exfalso... subst x'. apply Hpdr...
     - intros Hnn. apply H. exists a. split... subst...
   }
-  set {λ a, x ⋅ EE a | a ∊ ℤ₊} as A.
+  set {x ⋅ EE a | a ∊ ℤ⁺} as A.
   assert (Hsub: A ⊆ ℝ). {
     intros w Hw. apply ReplAx in Hw as [a [Ha Heq]].
     subst w. apply Hpdr...
@@ -1112,7 +1112,7 @@ Proof with neauto.
   rewrite <- ratEmbed_add in H; [|apply intEmbed_ran..]...
   rewrite <- intEmbed_add in H...
   remember (x ⋅ RatEmbed[IntEmbed[(a + Int 1)%z]]) as x'.
-  assert (Ha': (a + Int 1)%z ∈ ℤ₊). {
+  assert (Ha': (a + Int 1)%z ∈ ℤ⁺). {
     apply SepI... apply intAdd_ran...
     eapply intLt_tranr. apply (intPos_sn 0).
     rewrite <- (intAdd_ident' (Int 1)) at 1...
@@ -1158,7 +1158,7 @@ Proof with neauto.
   rewrite realMul_ident', realMul_addInv_r in H3...
   apply realLt_addInv in H3; auto; [|apply realAddInv_ran]...
   rewrite realAddInv_double in H3...
-  set {d ∊ ℤ | λ d, x ⋅ EE a <𝐫 EE d} as A.
+  set {d ∊ ℤ | x ⋅ EE a <𝐫 EE d} as A.
   pose proof (ints_boundedBelow_has_min' A) as [d [Hd Hd']]. {
     apply EmptyNI. exists b. apply SepI...
   } {
@@ -1187,7 +1187,8 @@ Proof with neauto.
   assert (Hnee1: -EE (Int 1) ∈ ℝ) by (apply realAddInv_ran; auto).
   unfold EE in H2. rewrite intEmbed_add, ratEmbed_add,
     intEmbed_addInv, <- intEmbed_a, ratEmbed_addInv, <- ratEmbed_q,
-    <- (realAdd_ident (x ⋅ EE a)), <- (realAddInv_annih (EE (Int 1))),
+    <- (realAdd_ident (x ⋅ RatEmbed[IntEmbed[a]])),
+    <- (realAddInv_annih (EE (Int 1))),
     <- realAdd_assoc in H2; nauto; [|apply intEmbed_ran..]...
   apply realSubtr_preserve_leq in H2; auto;
     [|apply ee_ran|apply realAdd_ran]...

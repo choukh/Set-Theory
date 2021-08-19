@@ -108,9 +108,9 @@ Proof with neauto; try congruence.
   intros [c [HcA [d [HdA Hcd]]]].
   apply Hdn in Hcd as [e [Hcd Hed]].
   apply Hbr in Hed as HeA. apply CProdE2 in HeA as [HeA _].
-  set {x ∊ A S | λ x, (c <ᵣ x) (R S) ∧ (x <ᵣ d) (R S)} as C.
-  set (λ x, {n ∊ ω | λ n, (c <ᵣ a[n]) (R S) ∧ (a[n] <ᵣ x) (R S)}) as Nₗ.
-  set (λ x, {n ∊ ω | λ n, (x <ᵣ a[n]) (R S) ∧ (a[n] <ᵣ d) (R S)}) as Nᵣ.
+  set {x ∊ A S | (c <ᵣ x) (R S) ∧ (x <ᵣ d) (R S)} as C.
+  set (λ x, {n ∊ ω | (c <ᵣ a[n]) (R S) ∧ (a[n] <ᵣ x) (R S)}) as Nₗ.
+  set (λ x, {n ∊ ω | (x <ᵣ a[n]) (R S) ∧ (a[n] <ᵣ d) (R S)}) as Nᵣ.
   set (λ x, (Min Lt)[Nₗ x]) as mₗ.
   set (λ x, (Min Lt)[Nᵣ x]) as mᵣ.
   set (Func C C (λ x, a[mₗ x])) as fₗ.
@@ -158,7 +158,7 @@ Proof with neauto; try congruence.
   }
   pose proof (ω_recursion fₗ C e Hfₗ HeC) as [hₗ [Hhₗ [Hhₗ0 Hhₗn]]].
   pose proof (ω_recursion fᵣ C e Hfᵣ HeC) as [hᵣ [Hhᵣ [Hhᵣ0 Hhᵣn]]].
-  set {x ∊ A S | λ x, ∃n ∈ ω, (hₗ[n] ≤ᵣ x) (R S) ∧ (x ≤ᵣ hᵣ[n]) (R S)} as B.
+  set {x ∊ A S | ∃n ∈ ω, (hₗ[n] ≤ᵣ x) (R S) ∧ (x ≤ᵣ hᵣ[n]) (R S)} as B.
   assert (HBA: B ⊆ A S). apply sep_sub.
   assert (HCA: C ⊆ A S). apply sep_sub.
   assert (Hdesc: ∀x ∈ C, (fₗ[x] <ᵣ x) (R S)). {
@@ -170,7 +170,7 @@ Proof with neauto; try congruence.
   assert (Hmonoₗ: ∀ n m ∈ ω, n ∈ m → (hₗ[m] <ᵣ hₗ[n]) (R S)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | λ k, ∀ n, n ∈ ω → n ∈ k → (hₗ[k] <ᵣ hₗ[n]) (R S)} as N.
+    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (hₗ[k] <ᵣ hₗ[n]) (R S)} as N.
     ω_induction N Hk; intros n Hn Hnm. exfalso0.
     rewrite Hhₗn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
@@ -181,7 +181,7 @@ Proof with neauto; try congruence.
   assert (Hmonoᵣ: ∀ n m ∈ ω, n ∈ m → (hᵣ[n] <ᵣ hᵣ[m]) (R S)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | λ k, ∀ n, n ∈ ω → n ∈ k → (hᵣ[n] <ᵣ hᵣ[k]) (R S)} as N.
+    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (hᵣ[n] <ᵣ hᵣ[k]) (R S)} as N.
     ω_induction N Hk; intros n Hn Hnm. exfalso0.
     rewrite Hhᵣn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
@@ -199,7 +199,7 @@ Proof with neauto; try congruence.
       apply domI in H2 as Hx2. rewrite Hd in Hx2.
       apply func_ap in H1...
       apply func_ap in H2...
-      destruct (classic (x1 = x2))... exfalso.
+      contra.
       apply nat_connected in H as []; auto;
       apply Hmonoₗ in H; auto; rewrite H1, H2 in H; eapply Hir...
     - intros y Hy. apply ranE in Hy as [x Hp].
@@ -223,7 +223,7 @@ Proof with neauto; try congruence.
       apply domI in H2 as Hx2. rewrite Hd in Hx2.
       apply func_ap in H1...
       apply func_ap in H2...
-      destruct (classic (x1 = x2))... exfalso.
+      contra.
       apply nat_connected in H as []; auto;
       apply Hmonoᵣ in H; auto; rewrite H1, H2 in H; eapply Hir...
     - intros y Hy. apply ranE in Hy as [x Hp].
@@ -322,7 +322,7 @@ Proof with neauto; try congruence.
   assert (Hir: irrefl (R T)). eapply lo_irrefl... apply lo.
   assert (H := Hba). apply bijection_is_func in H as [Hma [Hia Hra]].
   assert (H := Hma). destruct H as [Hfa [Hda _]].
-  set (λ x, {n ∊ ω | λ n, (x <ᵣ a[n]) (R S)}) as M.
+  set (λ x, {n ∊ ω | (x <ᵣ a[n]) (R S)}) as M.
   set (λ x, (Min Lt)[M x]) as m.
   set (Func (A T) (A T) (λ x, a[m x])) as f.
   assert (Hmx: ∀x ∈ A T, m x ∈ ω ∧ (x <ᵣ a[m x]) (R S)). {
@@ -349,7 +349,7 @@ Proof with neauto; try congruence.
   assert (Hmono: ∀ n m ∈ ω, n ∈ m → (h[n] <ᵣ h[m]) (R T)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | λ k, ∀ n, n ∈ ω → n ∈ k → (h[n] <ᵣ h[k]) (R T)} as N.
+    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (h[n] <ᵣ h[k]) (R T)} as N.
     ω_induction N Hk; intros n Hn Hnm. exfalso0.
     rewrite Hhn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
@@ -375,7 +375,7 @@ Proof with neauto; try congruence.
     apply domI in H2 as Hx2. rewrite Hd in Hx2.
     apply func_ap in H1...
     apply func_ap in H2...
-    destruct (classic (x1 = x2))... exfalso.
+    contra.
     apply nat_connected in H as []; auto;
     apply Hmono in H; auto; rewrite H1, H2 in H; eapply Hir...
   }
@@ -438,7 +438,7 @@ Proof with eauto; try congruence.
   assert (Hfxω: f[x] ∈ ω). eapply ω_trans...
   assert (Hfyω: f[y] ∈ ω). eapply ω_trans...
   unfold h. rewrite compo_correct, compo_correct...
-  rewrite restr_ap, restr_ap...
+  erewrite restr_ap, restr_ap...
   split; intros Hlt.
   - apply Hopf in Hlt...
     rewrite HrS in Hlt. apply SepE1 in Hlt.
@@ -477,7 +477,7 @@ Qed.
 Lemma card_of_img_of_enumeration :
   ∀ A f, f: ω ⟺ A → ∀n ∈ ω, |f⟦n⟧| = n.
 Proof with eauto.
-  intros A f Hbi n Hn. simpl.
+  intros A f Hbi n Hn.
   rewrite (card_of_nat n) at 2...
   apply CardAx1. symmetry. exists (f ↾ n).
   eapply restr_bijection; revgoals...
@@ -493,7 +493,7 @@ Qed.
 Lemma img_suc : ∀ f, is_function f → dom f = ω →
   ∀n ∈ ω, f⟦n⁺⟧ = f⟦n⟧ ∪ ⎨f[n]⎬.
 Proof with auto.
-  intros f Hf Hd n Hn. simpl.
+  intros f Hf Hd n Hn.
   replace ⎨f[n]⎬ with (f⟦⎨n⎬⟧). apply img_bunion_distr.
   apply ExtAx. split; intros Hx.
   - apply imgE in Hx as [w [Hw Hp]]. apply SingE in Hw; subst.
@@ -526,15 +526,15 @@ Proof with neauto; try congruence.
   assert (H := Hbb). apply bijection_is_func in H as [Hmb [Hib Hrb]].
   assert (H := Hma). destruct H as [Hfa [Hda _]].
   set (λ f, ∀ x y ∈ dom f, (x <ᵣ y) R ↔ (f[x] <ᵣ f[y]) S) as op.
-  set (⋃{λ X, X ⟶ B | X ∊ 𝒫 A}) as fs0.
-  set {f ∊ fs0 | λ f, (∃n ∈ ω, f: a⟦n⟧ ⇔ B) ∧ op f} as fs.
-  set (λ f, {y ∊ dom f | λ y, (y <ᵣ a[|dom f|]) R}) as 𝐋.
-  set (λ f, {y ∊ dom f | λ y, (a[|dom f|] <ᵣ y) R}) as 𝐑.
+  set (⋃{X ⟶ B | X ∊ 𝒫 A}) as fs0.
+  set {f ∊ fs0 | (∃n ∈ ω, f: a⟦n⟧ ⇔ B) ∧ op f} as fs.
+  set (λ f, {y ∊ dom f | (y <ᵣ a[|dom f|]) R}) as 𝐋.
+  set (λ f, {y ∊ dom f | (a[|dom f|] <ᵣ y) R}) as 𝐑.
   set (λ f, FinLoMax R (𝐋 f)) as aₗ.
   set (λ f, FinLoMin R (𝐑 f)) as aᵣ.
-  set (λ f, {k ∊ ω | λ k, (b[k] <ᵣ f[aᵣ f]) S}) as Nᵣ.
-  set (λ f, {k ∊ ω | λ k, (f[aₗ f] <ᵣ b[k]) S}) as Nₗ.
-  set (λ f, {k ∊ ω | λ k, (f[aₗ f] <ᵣ b[k]) S ∧ (b[k] <ᵣ f[aᵣ f]) S}) as Nₘ.
+  set (λ f, {k ∊ ω | (b[k] <ᵣ f[aᵣ f]) S}) as Nᵣ.
+  set (λ f, {k ∊ ω | (f[aₗ f] <ᵣ b[k]) S}) as Nₗ.
+  set (λ f, {k ∊ ω | (f[aₗ f] <ᵣ b[k]) S ∧ (b[k] <ᵣ f[aᵣ f]) S}) as Nₘ.
   set (λ f,
     match (ixm (𝐋 f = ∅)) with
     | inl _ => match (ixm (𝐑 f = ∅)) with
@@ -884,7 +884,7 @@ Proof with neauto; try congruence.
   assert (HiGn: ∀n ∈ ω, G[n] : a⟦n⟧ ⇔ B ∧ op G[n]). {
     intros n Hn.
     destruct HG as [HfG [HdG HrG]].
-    set {n ∊ ω | λ n, G[n] : a⟦n⟧ ⇔ B ∧ op G[n]} as N.
+    set {n ∊ ω | G[n] : a⟦n⟧ ⇔ B ∧ op G[n]} as N.
     ω_induction N Hn. rewrite HG0...
     rewrite HGnp... unfold g.
     rewrite meta_func_ap... apply Hind; auto; apply IH.
@@ -916,7 +916,7 @@ Proof with neauto; try congruence.
   }
   assert (Hin: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ a⟦m⟧, (G[m])[x] = (G[n])[x]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀k ∈ n, ∀x ∈ a⟦k⟧, G[k][x] = G[n][x]} as N.
+    set {n ∊ ω | ∀k ∈ n, ∀x ∈ a⟦k⟧, G[k][x] = G[n][x]} as N.
     ω_induction N Hn; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [].
     - rewrite IH... apply Hin0...
@@ -926,7 +926,7 @@ Proof with neauto; try congruence.
   }
   assert (Hout: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ a⟦n⟧ - a⟦m⟧, (G[n])[x] ∉ ran G[m]). {
     intros n Hn.
-    set {n ∊ ω | λ n, ∀m ∈ n, ∀x ∈ a⟦n⟧ - a⟦m⟧, G[n][x] ∉ ran G[m]} as N.
+    set {n ∊ ω | ∀m ∈ n, ∀x ∈ a⟦n⟧ - a⟦m⟧, G[n][x] ∉ ran G[m]} as N.
     ω_induction N Hn; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [Hkm|Hkm].
     - assert (Hk: k ∈ ω). eapply ω_trans...

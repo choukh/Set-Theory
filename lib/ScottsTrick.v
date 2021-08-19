@@ -14,11 +14,11 @@ Local Definition F := λ T, T → set.
 Local Definition R := λ T, relation T.
 
 Local Definition 𝒜 {T} : F T → R T → T → set :=
-  λ F R t, {B ∊ V (rank (F t))⁺ | λ B, ∃ s, B = F s ∧ R s t}.
+  λ F R t, {B ∊ V (rank (F t))⁺ | ∃ s, B = F s ∧ R s t}.
 Local Definition P {T} : F T → R T → T → set → Prop :=
   λ F R t ξ, 𝒜 F R t ∩ V ξ ≠ ∅.
 Local Definition Ω {T} : F T → R T → T → set :=
-  λ F R t, {ξ ∊ (rank (F t))⁺⁺ | P F R t}.
+  λ F R t, {ξ ∊ (rank (F t))⁺⁺ | P F R t ξ}.
 Local Definition μ {T} : F T → R T → T → set :=
   λ F R t, OrdMin (rank (F t))⁺⁺ (P F R t).
 

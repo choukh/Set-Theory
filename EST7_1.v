@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Nov 2020 **)
 
 Require Export ZFC.EST3_3.
@@ -97,7 +97,7 @@ Fact po_semi_antisym : ∀ R x y, partialOrder R →
   (x ≤ᵣ y) R ∧ (y ≤ᵣ x) R → x = y.
 Proof with auto.
   intros * Hpo [H1 H2].
-  destruct (classic (x = y))... exfalso.
+  contra.
   cut (¬((x <ᵣ y) R ∧ (y <ᵣ x) R)). firstorder.
   apply po_at_most_trich...
 Qed.
@@ -622,7 +622,7 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 子关系 *)
-Definition SubRel := λ R B, {p ∊ R | λ p, p ∈ B × B}.
+Definition SubRel := λ R B, {p ∊ R | p ∈ B × B}.
 Notation "R ⥏ B" := (SubRel R B) (at level 60).
 
 Lemma subRel_is_binRel : ∀ R B, is_binRel (R ⥏ B) B.

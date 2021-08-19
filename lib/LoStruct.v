@@ -4,7 +4,6 @@ Set Warnings "-unrecognized-unicode".
 
 Require Import Relation_Definitions.
 Require Import RelationClasses.
-Require Import PropExtensionality.
 Require Import ZFC.lib.Real.
 Require Export ZFC.EST7_3.
 

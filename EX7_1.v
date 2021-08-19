@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 7 Part 1 **)
+(** Solutions to "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Nov 2020 **)
 
 Require ZFC.lib.Choice.
@@ -29,7 +29,7 @@ Proof with eauto; try congruence.
   assert (Hfx: f[x] ∈ A) by (eapply ap_ran; eauto).
   destruct (classic (x = f[x])) as [|Hnq]. right...
   eapply lo_connected in Hnq as [|Hfxx]... left... exfalso.
-  set {x ∊ A | λ x, (f[x] <ᵣ x) R} as B.
+  set {x ∊ A | (f[x] <ᵣ x) R} as B.
   pose proof (Hmin B) as [m [Hm Hlt]].
   - exists x. apply SepI...
   - intros b Hb. apply SepE1 in Hb...
@@ -56,7 +56,7 @@ Proof with eauto; try congruence.
   eapply woset_no_descending_chain...
   pose proof (ω_recursion f A x Hf Hxa) as [h [Hh [Hh0 Hhn]]].
   exists h. split... intros n Hn. rewrite Hhn...
-  set {n ∊ ω | λ n, <f[h[n]], h[n]> ∈ R} as N.
+  set {n ∊ ω | <f[h[n]], h[n]> ∈ R} as N.
   ω_induction N Hn... rewrite Hhn... apply Hoe...
   eapply ap_ran... eapply ap_ran... eapply ap_ran...
 Qed.
@@ -151,7 +151,7 @@ Proof with neauto.
     set (Next A (RealLt ⥏ A)) as next.
     set (λ x y z, x <𝐫 y ∧ y <𝐫 z) as bt.
     set (λ Q, ∃x ∈ A, ∀r ∈ ℚ, bt x RatEmbed[r] (next x) → r ∈ Q) as P.
-    set {Q ∊ 𝒫 ℚ | P} as 𝒬.
+    set {Q ∊ 𝒫 ℚ | P Q} as 𝒬.
     assert (Hstar: ∀x ∈ A, (∃q ∈ ℚ, bt x RatEmbed[q] (next x)) ∧
       ∀y ∈ A, x <𝐫 y → (next x) ≤ y
     ). {
@@ -174,7 +174,7 @@ Proof with neauto.
       apply Hstar in Hx as [[r [Hr Hbt]] _]...
       exists r. apply H...
     }
-    set (λ x, {r ∊ ℚ | λ r, bt x RatEmbed[r] (next x)}) as ℬ.
+    set (λ x, {r ∊ ℚ | bt x RatEmbed[r] (next x)}) as ℬ.
     assert (HB: ∀x ∈ A, ℬ x ∈ 𝒬). {
       intros x Hx. apply SepI.
       - apply PowerAx. intros r Hr. apply SepE1 in Hr...
@@ -212,7 +212,7 @@ Proof with neauto.
     set (Next A (RealLt ⥏ A)) as next.
     set (λ x y z, x <𝐫 y ∧ y <𝐫 z) as bt.
     set (λ Q, ∃x ∈ B, ∀r ∈ ℚ, bt x RatEmbed[r] (next x) → r ∈ Q) as P.
-    set {Q ∊ 𝒫 ℚ | P} as 𝒬.
+    set {Q ∊ 𝒫 ℚ | P Q} as 𝒬.
     assert (Hstar: ∀x ∈ B, (∃q ∈ ℚ, bt x RatEmbed[q] (next x)) ∧
       (∀y ∈ A, x <𝐫 y → (next x) ≤ y) ∧ (next x) ∈ A
     ). {
@@ -248,7 +248,7 @@ Proof with neauto.
     }
     apply real_dense in Hmp as [q [Hq [Hmq _]]]; revgoals...
     apply realAdd_ran...
-    set (λ x, {r ∊ ℚ | λ r, bt x RatEmbed[r] (next x)}) as ℬ.
+    set (λ x, {r ∊ ℚ | bt x RatEmbed[r] (next x)}) as ℬ.
     assert (HB: ∀x ∈ B, ℬ x ∈ 𝒬). {
       intros x Hx. apply SepI.
       - apply PowerAx. intros r Hr. apply SepE1 in Hr...
@@ -296,7 +296,7 @@ Proof with neauto.
         apply Hstar in H2B as [_ [_ Hn]]...
         apply Hmax. exists (next x2). split...
         destruct HB2 as [_ Hlt]... eapply realLt_tranr...
-      + destruct (classic (x1 = x2))... exfalso.
+      + contra.
         apply H1B. apply SepI... apply SingNI. intros Heqx1.
         apply H2B. apply SepI... apply SingNI. congruence.
   }
@@ -320,7 +320,7 @@ Lemma descending_chain_order_reversing : ∀ f A R,
 Proof with auto.
   intros f A R Htr [[Hf [Hd Hr]] Hdesc].
   intros k Hk n Hn. generalize dependent k.
-  set {n ∊ ω | λ n, ∀ k, k ∈ ω → k ∈ n → (f[n] <ᵣ f[k]) R} as N.
+  set {n ∊ ω | ∀ k, k ∈ ω → k ∈ n → (f[n] <ᵣ f[k]) R} as N.
   ω_induction N Hn; intros k Hk H. exfalso0.
   apply BUnionE in H as [].
   - eapply Htr. apply Hdesc... apply IH...
@@ -339,7 +339,7 @@ Proof with eauto; try congruence.
   apply domI in Hpn as Hn; rewrite Hd in Hn.
   apply domI in Hpm as Hm; rewrite Hd in Hm.
   apply func_ap in Hpn... apply func_ap in Hpm... subst y.
-  destruct (classic (n = m)) as [|Hnq]... exfalso.
+  contra as Hnq.
   pose proof (descending_chain_order_reversing f A R Htr Hdesc).
   apply nat_connected in Hnq as [Hnm|Hmn]; auto.
   - pose proof (H n Hn m Hm Hnm) as Hlt.
@@ -449,11 +449,11 @@ Theorem well_order_forward_backward_impl_finite :
   ∀ A R, woset A R → woset A R⁻¹ → finite A.
 Proof with eauto; try congruence.
   intros A R Hwo1 Hwo2.
-  destruct (classic (finite A)) as [|Hinf]... exfalso.
-  set (λ t, {x ∊ A | λ x, (x <ᵣ t) R}) as seg.
-  set (λ t, {x ∊ A | λ x, (t <ᵣ x) R}) as tail.
-  set {x ∊ A | λ x, infinite (seg x)} as S.
-  set {x ∊ A | λ x, infinite (tail x)} as T.
+  contra as Hinf.
+  set (λ t, {x ∊ A | (x <ᵣ t) R}) as seg.
+  set (λ t, {x ∊ A | (t <ᵣ x) R}) as tail.
+  set {x ∊ A | infinite (seg x)} as S.
+  set {x ∊ A | infinite (tail x)} as T.
   assert (Hinf2: ∀t ∈ A, ¬(finite (seg t) ∧ finite (tail t))). {
     intros t Ht [Hfin1 Hfin2]. apply Hinf.
     replace A with (seg t ∪ tail t ∪ ⎨t⎬). {
@@ -483,7 +483,7 @@ Proof with eauto; try congruence.
       apply comp_nonempty. split. {
         intros x Hx. apply SepE1 in Hx...
       }
-      destruct (classic (S = A)) as []... exfalso.
+      contra. apply NNPP in H.
       specialize Hmin with S as [m [Hm Hle]]...
       apply SepE2 in Hm.
       apply infinite_set_nonempty in Hm as [n Hn].
@@ -528,7 +528,7 @@ Proof with eauto; try congruence.
       apply comp_nonempty. split. {
         intros x Hx. apply SepE1 in Hx...
       }
-      destruct (classic (T = A)) as []... exfalso.
+      contra. apply NNPP in H.
       specialize Hmin with T as [m [Hm Hle]]...
       apply SepE2 in Hm.
       apply infinite_set_nonempty in Hm as [n Hn].

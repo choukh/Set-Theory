@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 6 Part 1 **)
+(** Solutions to "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Sep 2020 **)
 
 Require Export ZFC.EST6_2.
@@ -63,7 +63,7 @@ Proof with eauto.
   remember (B - A) as C. clear HeqC Hfb B.
   destruct Hfc as [n [Hn Hc]].
   generalize dependent C. generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, finite A →
+  set {n ∊ ω | ∀ A, finite A →
     ∀ C, C ≈ n → disjoint A C → finite (A ∪ C)} as N.
   ω_induction N Hn; intros A Hfa C HC Hdj.
   - apply eqnum_empty in HC. subst C. rewrite bunion_empty...
@@ -84,7 +84,7 @@ Example ex6_9 : ∀ A B, finite A → finite B → finite (A × B).
 Proof with eauto.
   intros * Hfa [n [Hn HB]].
   generalize dependent B. generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, finite A →
+  set {n ∊ ω | ∀ A, finite A →
     ∀ B, B ≈ n → finite (A × B)} as N.
   ω_induction N Hn; intros A Hfa B HB.
   - apply eqnum_empty in HB. subst B. rewrite cprod_0_r...
@@ -115,7 +115,7 @@ Lemma union_finite : ∀ A, finite A → (∀a ∈ A, finite a) → finite ⋃A.
 Proof with eauto.
   intros A [n [Hn HA]].
   generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, A ≈ n → (∀a ∈ A, finite a) → finite ⋃ A} as N.
+  set {n ∊ ω | ∀ A, A ≈ n → (∀a ∈ A, finite a) → finite ⋃ A} as N.
   ω_induction N Hn; intros A HA Hfa.
   - apply eqnum_empty in HA. subst A. rewrite union_empty...
   - apply set_eqnum_suc_nonempty in HA as Hi...
@@ -132,7 +132,7 @@ Qed.
 
 (* 全排列 *)
 Definition Permutation : set → set := λ A,
-  {f ∊ A ⟶ A | λ f, f: A ⟺ A}.
+  {f ∊ A ⟶ A | f: A ⟺ A}.
 (* 基数阶乘 *)
 Definition CardFactorial : set → set := λ 𝜅,
   |Permutation 𝜅|.

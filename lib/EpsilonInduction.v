@@ -1,4 +1,3 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 5 **)
 (** Coq coding by choukh, Jan 2021 **)
 
 Require Import ZFC.ZFC2.

@@ -16,7 +16,7 @@ Definition t := Operation 5 Suc.
 Example ex8_2_a : ∀α ∈ ω, t α = 5 + α.
 Proof with nauto.
   intros α Hα.
-  set {α ∊ ω | λ α, t α = 5 + α} as N.
+  set {α ∊ ω | t α = 5 + α} as N.
   ω_induction N Hα; unfold t in *.
   - rewrite operation_0, add_ident...
   - rewrite operation_suc, IH; [|apply ω_is_ords]...
@@ -46,7 +46,7 @@ Proof with neauto.
         rewrite IH in Hx... eapply ord_trans...
       }
       assert (Hnω: n ∈ ω). {
-        destruct (classic (n ∈ ω))... exfalso.
+        contra.
         apply Hω. apply ord_leq_iff_not_gt...
       }
       rewrite ex8_2_a in Hx...
@@ -58,7 +58,7 @@ Proof with neauto.
         rewrite IH... apply sucord_in_limord...
       }
       assert (Hxpω: x⁺ ∈ ω). {
-        destruct (classic (x⁺ ∈ ω))... exfalso.
+        contra.
         apply Hω. apply ord_leq_iff_not_gt...
       }
       assert (Hxω: x ∈ ω). eapply ω_trans; revgoals...
@@ -99,7 +99,7 @@ Proof with auto; try congruence.
     | inl _ => xₒ
     | inr _ => x
   end) as ReplA.
-  set {ReplA | x ∊ A S} as A'.
+  set {ReplA x | x ∊ A S} as A'.
   set (λ p, match (ixm (π1 p = a₀)) with
     | inl _ =>
       match (ixm (π2 p = a₀)) with
@@ -111,7 +111,7 @@ Proof with auto; try congruence.
       | inl _ => <π1 p, xₒ>
       | inr _ => p
   end end) as ReplR.
-  set {ReplR | x ∊ R S} as R'.
+  set {ReplR x | x ∊ R S} as R'.
   assert (Hbr: is_binRel R' A'). {
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]]. subst x.
     apply ordered_struct in Hp.

@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 4 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Dec 2020 **)
 
 Require Export ZFC.EST7_3.
@@ -44,7 +44,7 @@ Proof with eauto; try congruence.
   }
   intros [f [Hf Hoe]].
   eapply eq_α. split... intros x Hx.
-  set {x ∊ WoStruct.A S | λ x, (E S)[x] = (E T)[f[x]]} as B.
+  set {x ∊ WoStruct.A S | (E S)[x] = (E T)[f[x]]} as B.
   replace (WoStruct.A S) with B in Hx.
   apply SepE2 in Hx... clear x Hx.
   eapply transfinite_induction...
@@ -72,7 +72,7 @@ Proof with eauto; try congruence.
     + apply segI. apply Hoe...
       * eapply ap_ran...
       * rewrite inv_ran_reduction... 
-    + rewrite <- (inv_ran_reduction f) in Hlt...
+    + rewrite <- (inv_ran_reduction f Hi s) in Hlt...
       apply Hoe in Hlt; [|eapply ap_ran|]...
       assert (f⁻¹[s] ∈ seg t (WoStruct.R S)). {
         apply SepI... eapply domI...
@@ -159,7 +159,7 @@ Proof with eauto.
       apply func_ap in Hp... rewrite H in Hp... subst... 
   }
   intros x Hx.
-  set {x ∊ α | λ x, (E S)[x] = x} as B.
+  set {x ∊ α | (E S)[x] = x} as B.
   replace α with B in Hx. apply SepE2 in Hx... clear Hx x.
   eapply transfinite_induction. apply (wo S). split.
   intros x Hx. apply SepE1 in Hx...
@@ -452,7 +452,7 @@ Qed.
 Theorem Burali_Forti : ¬ ∃ A, ∀α ⋵ 𝐎𝐍, α ∈ A.
 Proof with eauto.
   intros [A HA].
-  set {x ∊ A | λ x, x ⋵ 𝐎𝐍} as Ω.
+  set {x ∊ A | x ⋵ 𝐎𝐍} as Ω.
   assert (HΩ: ∀ α, α ⋵ 𝐎𝐍 ↔ α ∈ Ω). {
     split; intros H. apply SepI... apply SepE2 in H...
   }
@@ -731,7 +731,7 @@ Qed.
 Lemma sucord_in_limord : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, ∀β ∈ α, β⁺ ∈ α.
 Proof with eauto.
   intros α Hlim β Hβ.
-  destruct (classic (β⁺ ∈ α))... exfalso.
+  contra.
   eapply limord_no_maximum...
   exists β. split... intros γ Hγ.
   assert (Hoα: α ⋵ 𝐎𝐍). apply Hlim.
@@ -806,13 +806,13 @@ Proof with eauto.
   intros * Hind α Hoα.
   assert (Hstar: ∀ ξ ⋵ 𝐎𝐍, ¬ ϕ ξ → ∃γ ∈ ξ, ¬ ϕ γ). {
     intros ξ Hpξ Hnξ.
-    destruct (classic (∃γ ∈ ξ, ¬ ϕ γ))... exfalso.
+    contra.
     apply Hnξ. apply Hind... intros γ Hγ.
-    destruct (classic (ϕ γ))... exfalso.
+    contra.
     apply H. exists γ. split...
   }
-  destruct (classic (ϕ α)) as [|Hnα]... exfalso.
-  set {ξ ∊ α | λ ξ, ¬ ϕ ξ} as α'.
+  contra as Hnα.
+  set {ξ ∊ α | ¬ ϕ ξ} as α'.
   destruct (ord_woset α) as [_ Hmα]...
   pose proof (Hmα α') as [μ [Hμ Hmin]]. {
     destruct (Hstar α) as [γ [Hγ Hnγ]]...
@@ -822,7 +822,7 @@ Proof with eauto.
   }
   apply SepE in Hμ as [Hμ Hnμ].
   assert (Hoμ: μ ⋵ 𝐎𝐍). eapply ord_is_ords...
-  set {ξ ∊ μ | λ ξ, ¬ ϕ ξ} as μ'.
+  set {ξ ∊ μ | ¬ ϕ ξ} as μ'.
   destruct (ord_woset μ) as [_ Hmμ]...
   pose proof (Hmμ μ') as [ν [Hν _]]. {
     destruct (Hstar μ) as [γ [Hγ Hnγ]]...

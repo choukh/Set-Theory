@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 6 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Aug 2020 **)
 
 Require Export ZFC.EST6_1.
@@ -30,7 +30,7 @@ Qed.
 (* 自然数的基数等于自身 *)
 Lemma card_of_nat : ∀n ∈ ω, n = |n|.
 Proof with auto.
-  intros n Hn. simpl. rewrite CardAx2.
+  intros n Hn. rewrite CardAx2.
   rewrite fin_card_n... apply nat_finite...
 Qed.
 
@@ -136,7 +136,7 @@ Proof with auto; try congruence.
   destruct (classic (a ∈ K)) as [|Ha]. exists K. split...
   pose proof (bijection_exists_between_set_and_element_replaced
     K k a Hk Ha) as [f Hf].
-  exists {ReplaceElement k a | x ∊ K}. split.
+  exists {ReplaceElement k a x | x ∊ K}. split.
   - apply CardAx1. symmetry. exists f...
   - apply ReplAx. exists k. split...
     unfold ReplaceElement. destruct (ixm (k = k))...
@@ -1086,7 +1086,7 @@ Proof. intros 𝜅 H 𝜆. rewrite cardExp_id_1, cardExp_1_r; auto. Qed.
 
 Lemma card_suc : ∀n ∈ ω, n + 1 = n⁺.
 Proof with auto; try easy.
-  intros n Hn. simpl.
+  intros n Hn.
   rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
   - rewrite <- eqnum_cprod_single...
@@ -1099,7 +1099,7 @@ Qed.
 Theorem cardAdd_nat : ∀ m n ∈ ω, m + n = (m + n)%n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m + n = (m + n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardAdd_ident, add_ident... apply nat_is_card...
   - rewrite <- card_suc at 1...
@@ -1111,7 +1111,7 @@ Qed.
 Theorem cardMul_nat : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardMul_0_r, mul_0_r...
   - rewrite <- card_suc at 1...
@@ -1123,7 +1123,7 @@ Qed.
 Theorem cardExp_nat : ∀ m n ∈ ω, m ^ n = (m ^ n)%n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ^ n = (m ^ n)%n} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m ^ n = (m ^ n)%n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite cardExp_0_r, exp_0_r...
   - rewrite <- card_suc at 1...
@@ -1192,7 +1192,7 @@ Qed.
 Lemma set_eqnum_suc_nonempty : ∀ A, ∀n ∈ ω, A ≈ n⁺ → ⦿ A.
 Proof with eauto.
   intros A n Hn HA. apply EmptyNE.
-  destruct (classic (A = ∅))... exfalso. subst A.
+  contra. apply NNPP in H. subst A.
   symmetry in HA. apply eqnum_empty in HA. eapply suc_neq_0...
 Qed.
 
@@ -1200,14 +1200,14 @@ Qed.
 Lemma comp_finite : ∀ A B, finite A → finite (A - B).
 Proof with auto.
   intros * [n [Hn Hqn]]. generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, A ≈ n → finite (A -B)} as N.
+  set {n ∊ ω | ∀ A, A ≈ n → finite (A -B)} as N.
   ω_induction N Hn; intros A Hqn.
   - apply eqnum_empty in Hqn. subst A.
     rewrite empty_comp. apply empty_finite.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
     destruct Hne as [a Ha].
     apply split_one_element in Ha. rewrite Ha in *.
-    apply finite_set_remove_one_element in Hqn... rewrite union_comp.
+    apply finite_set_remove_one_element in Hqn... rewrite bunion_comp.
     apply bunion_finite. apply IH...
     destruct (classic (a ∈ B)).
     + replace (⎨a⎬ - B) with ∅. apply empty_finite.
@@ -1258,7 +1258,7 @@ Qed.
 
 (* 二元并的替代等于替代的二元并 *)
 Lemma bunion_of_repl_eq_repl_of_bunion : ∀ F A B,
-  {F | x ∊ A ∪ B} = {F | x ∊ A} ∪ {F | x ∊ B}.
+  {F x | x ∊ A ∪ B} = {F x | x ∊ A} ∪ {F x | x ∊ B}.
 Proof with auto.
   intros; apply ExtAx; intros y; split; intros Hy.
   - apply ReplAx in Hy as [x [Hx Heq]];
@@ -1273,9 +1273,9 @@ Qed.
 
 (* 任意集合与其一对一的替代等势 *)
 Lemma eqnum_repl : ∀ F A, (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
-  A ≈ {F | x ∊ A}.
+  A ≈ {F x | x ∊ A}.
 Proof with auto.
-  intros. set (Func A {F | x ∊ A} (λ x, F x)) as f.
+  intros. set (Func A {F x | x ∊ A} (λ x, F x)) as f.
   exists f. apply meta_bijection.
   - intros x Hx. apply ReplAx. exists x. split...
   - intros x1 H1 x2 H2 Heq. apply H...
@@ -1283,9 +1283,9 @@ Proof with auto.
 Qed.
 
 (* 任意单集与其任意替代等势 *)
-Lemma eqnum_repl_single : ∀ F a, ⎨a⎬ ≈ {F | x ∊ ⎨a⎬}.
+Lemma eqnum_repl_single : ∀ F a, ⎨a⎬ ≈ {F x | x ∊ ⎨a⎬}.
 Proof with auto.
-  intros. set (Func ⎨a⎬ {F | x ∊ ⎨a⎬} (λ x, F x)) as f.
+  intros. set (Func ⎨a⎬ {F x | x ∊ ⎨a⎬} (λ x, F x)) as f.
   exists f. apply meta_bijection.
   - intros x Hx. apply ReplAx. exists x. split...
   - intros x1 H1 x2 H2 _.
@@ -1294,18 +1294,18 @@ Proof with auto.
 Qed.
 
 (* 任意单集的任意替代是有限集 *)
-Lemma repl_single_finite : ∀ F a, finite {F | x ∊ ⎨a⎬}.
+Lemma repl_single_finite : ∀ F a, finite {F x | x ∊ ⎨a⎬}.
 Proof with auto.
   intros. exists 1. split. nauto.
   rewrite <- eqnum_repl_single. apply eqnum_single.
 Qed.
 
 (* 有限集的替代仍是有限集 *)
-Lemma repl_finite : ∀ F A, finite A → finite {F | x ∊ A}.
+Lemma repl_finite : ∀ F A, finite A → finite {F x | x ∊ A}.
 Proof with auto.
   intros * [n [Hn Hqn]].
   generalize dependent A.
-  set {n ∊ ω | λ n, ∀ A, A ≈ n → finite {F | x ∊ A}} as N.
+  set {n ∊ ω | ∀ A, A ≈ n → finite {F x | x ∊ A}} as N.
   ω_induction N Hn; intros A Hqn.
   - apply eqnum_empty in Hqn. subst A.
     rewrite repl_empty. apply empty_finite.
@@ -1322,7 +1322,7 @@ Lemma binter_finite_r : ∀ A B, finite B → finite (A ∩ B).
 Proof with auto.
   intros * [n [Hn Hqn]].
   generalize dependent B.
-  set {n ∊ ω | λ n, ∀ B, B ≈ n → finite (A ∩ B)} as N.
+  set {n ∊ ω | ∀ B, B ≈ n → finite (A ∩ B)} as N.
   ω_induction N Hn; intros B Hqn.
   - apply eqnum_empty in Hqn. subst B.
     rewrite binter_empty. apply empty_finite.

@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 6 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EST5_5.
@@ -166,8 +166,8 @@ Qed.
 
 (** 非负实数乘法 **)
 Definition RealNonNegMul : set → set → set := λ x y,
-  let P := {p ∊ x × y | λ p, ratNonNeg (π1 p) ∧ ratNonNeg (π2 p)} in
-  Real 0 ∪ {λ p, (π1 p ⋅ π2 p)%q | p ∊ P}.
+  let P := {p ∊ x × y | ratNonNeg (π1 p) ∧ ratNonNeg (π2 p)} in
+  Real 0 ∪ {(π1 p ⋅ π2 p)%q | p ∊ P}.
 Notation "x ⋅₊ y" := (RealNonNegMul x y) (at level 45) : Real_scope.
 
 Lemma realNonNegMulI0 : ∀ x y ∈ ℝ, ∀ s, ratNeg s → s ∈ x ⋅₊ y.
@@ -512,7 +512,7 @@ Proof with nauto.
         apply SepE2 in Hq... apply SepE2 in Hr...
       * destruct Hr as [s [Hsq [t [Htq [[Hs Ht] [[Hnns Hnnt] Hreq]]]]]].
         destruct Hnns; revgoals; subst.
-        rewrite ratMul_0_l, ratAdd_ident... apply BUnionI1...
+        rewrite (ratMul_0_l t), ratAdd_ident... apply BUnionI1...
         assert (Hs': s ∈ ℚ'). {
           apply nzRatI0... apply rat_neq_0...
         }
@@ -537,10 +537,10 @@ Proof with nauto.
         eapply realE2; revgoals; [eauto|nauto..]. apply realPos_rat0... left...
         rewrite ratMul_distr, (ratMul_comm q Hqq s⁻¹ Hrsq),
           <- (ratMul_assoc s Hsq s⁻¹ Hrsq q Hqq),
-          ratMulInv_annih, ratMul_ident'; [|auto..]...
+          (ratMulInv_annih s), (ratMul_ident' q); [|auto..]...
       * destruct Hq as [s [Hsq [t [Htq [[Hs Ht] [[Hnns Hnnt] Hqeq]]]]]].
         destruct Hnns; revgoals; subst.
-        rewrite ratMul_0_l, ratAdd_ident'... apply BUnionI1...
+        rewrite (ratMul_0_l t), ratAdd_ident'... apply BUnionI1...
         assert (Hs': s ∈ ℚ'). {
           apply nzRatI0... apply rat_neq_0...
         }
@@ -566,27 +566,27 @@ Proof with nauto.
         apply realPos_rat0... left...
         rewrite ratMul_distr, (ratMul_comm r Hrq s⁻¹ Hrsq),
           <- (ratMul_assoc s Hsq s⁻¹ Hrsq r Hrq),
-          ratMulInv_annih, ratMul_ident'; [|auto..]...
+          (ratMulInv_annih s), (ratMul_ident' r); [|auto..]...
       * destruct Hq as [s [Hsq [t [Htq [[Hs Ht] [[Hnns Hnnt] Hqeq]]]]]].
         destruct Hr as [u [Huq [v [Hvq [[Hu Hv] [[Hnnu Hnnv] Hreq]]]]]].
         destruct Hnns as [Hps|]; revgoals; subst. {
-          rewrite ratMul_0_l, ratAdd_ident'; [|auto..].
-          apply realNonNegMulI1... rewrite <- ratAdd_ident'...
+          rewrite (ratMul_0_l t), ratAdd_ident'; [|auto..].
+          apply realNonNegMulI1... rewrite <- (ratAdd_ident' v)...
           apply realAddI2... apply realPos_rat0...
         }
         destruct Hnnt as [Hpt|]; revgoals; subst. {
-          rewrite ratMul_0_r, ratAdd_ident'; [|auto..].
-          apply realNonNegMulI1... rewrite <- ratAdd_ident'...
+          rewrite (ratMul_0_r s), ratAdd_ident'; [|auto..].
+          apply realNonNegMulI1... rewrite <- (ratAdd_ident' v)...
           apply realAddI2...
         }
         destruct Hnnu as [Hpu|]; revgoals; subst. {
-          rewrite ratMul_0_l, ratAdd_ident; [|auto..].
-          apply realNonNegMulI1... rewrite <- ratAdd_ident...
+          rewrite (ratMul_0_l v), ratAdd_ident; [|auto..].
+          apply realNonNegMulI1... rewrite <- (ratAdd_ident t)...
           apply realAddI2... apply realPos_rat0... left... left...
         }
         destruct Hnnv as [Hpv|]; revgoals; subst. {
-          rewrite ratMul_0_r, ratAdd_ident; [|auto..].
-          apply realNonNegMulI1... rewrite <- ratAdd_ident...
+          rewrite (ratMul_0_r u), ratAdd_ident; [|auto..].
+          apply realNonNegMulI1... rewrite <- (ratAdd_ident t)...
           apply realAddI2... left... left...
         }
         destruct (classic (s = u)). {
@@ -623,7 +623,7 @@ Proof with nauto.
             <- (ratMul_assoc u Huq (s/u) Hsuq t Htq),
             (ratMul_comm s Hsq u⁻¹ Hruq),
             <- (ratMul_assoc u Huq u⁻¹ Hruq s Hsq),
-            ratMulInv_annih, ratMul_ident';
+            (ratMulInv_annih u), (ratMul_ident' s);
             try apply ratMul_ran...
         } {
           assert (Hs': s ∈ ℚ'). {
@@ -654,7 +654,7 @@ Proof with nauto.
             <- (ratMul_assoc s Hsq (u/s) Husq v Hvq),
             (ratMul_comm u Huq s⁻¹ Hrsq),
             <- (ratMul_assoc s Hsq s⁻¹ Hrsq u Huq),
-            ratMulInv_annih, ratMul_ident';
+            (ratMulInv_annih s), (ratMul_ident' u);
             try apply ratMul_ran...
         }
 Qed.
@@ -736,7 +736,7 @@ Open Scope Real_scope.
 
 (* 正实数乘法逆元 *)
 Definition RealPosMulInv : set → set := λ x,
-  {r ∊ ℚ | λ r, ∃s ∈ ℚ, s ∉ x ∧ (r ⋅ s)%q <𝐪 Rat 1}.
+  {r ∊ ℚ | ∃s ∈ ℚ, s ∉ x ∧ (r ⋅ s)%q <𝐪 Rat 1}.
 Notation "x ⁻¹⁺" := (RealPosMulInv x) (at level 9) : Real_scope.
 
 Lemma realPosMulInv_sub_rat : ∀x ∈ ℝ, x⁻¹⁺ ∈ 𝒫 ℚ.
@@ -900,7 +900,7 @@ Proof with nauto.
           <- (ratMul_assoc (-Rat 1) H5 r Hr (Rat 3)⁻¹),
           <- (ratMul_assoc p Hp r Hr (Rat 3)⁻¹),
           <- (ratMul_assoc p Hp r Hr (Rat 2)⁻¹),
-          (ratMul_addInv_l (Rat 1) (rat_n 1) r), ratMul_ident',
+          (ratMul_addInv_l (Rat 1) (rat_n 1) r), (ratMul_ident' r),
           (ratMul_addInv_l r Hr (Rat 3)⁻¹),
           <- (ratAdd_assoc t Ht (-(r/Rat 3)) H2 (p⋅r/Rat 3));
           clear H5 H6; [|nauto..].

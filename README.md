@@ -178,7 +178,7 @@ make
 
 ## EST7_5.v
 - Hartog's number
-- Equivalence between well order theorem, AC and Zorn's lemma
+- Equivalence among well order theorem, AC and Zorn's lemma
 - von Neumann cardinal assignment
 - Initial cardinal, successor cardinal
 

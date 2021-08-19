@@ -61,7 +61,7 @@ Proof with eauto; try congruence.
   intros k l Hpk. apply domI in Hpk as Hk. rewrite Hdh in Hk.
   generalize Hpk. generalize dependent l.
   clear Hy Hpk. generalize dependent y.
-  set {n ∊ ω | λ n, ∀ y m, <n, y> ∈ h → <m, y> ∈ h → n = m} as T.
+  set {n ∊ ω | ∀ y m, <n, y> ∈ h → <m, y> ∈ h → n = m} as T.
   ω_induction T Hk; intros y l H1 H2; apply domI in H2 as Hdl;
     apply func_ap in H1; eauto; apply func_ap in H2...
   - ω_destruct l... exfalso. subst l.
@@ -79,8 +79,8 @@ Qed.
 Example ex4_9: ∀ f A B h, f: B ⇒ B → A ⊆ B →
   is_function h → dom h = ω →
   h[∅] = A → (∀n ∈ ω, h[n⁺] = h[n] ∪ f⟦h[n]⟧) →
-  let C1 := ⋂{X ∊ 𝒫 B | λ X, A ⊆ X ∧ X ⊆ B ∧ f⟦X⟧ ⊆ X} in
-  let C2 := ⋃{λ i, h[i] | i ∊ ω} in
+  let C1 := ⋂{X ∊ 𝒫 B | A ⊆ X ∧ X ⊆ B ∧ f⟦X⟧ ⊆ X} in
+  let C2 := ⋃{h[i] | i ∊ ω} in
   C1 = C2.
 Proof with neauto; try congruence.
   intros * [Hff [Hdf Hrf]] Hsub Hfh Hdh Hh0 Hh1 C1 C2.
@@ -88,7 +88,7 @@ Proof with neauto; try congruence.
     intros y Hy. rewrite PowerAx. apply ranE in Hy as [n Hp].
     apply domI in Hp as Hn. rewrite Hdh in Hn.
     generalize Hp. clear Hp. generalize dependent y.
-    set {n ∊ ω | λ n, ∀ y, <n, y> ∈ h → y ⊆ B} as T.
+    set {n ∊ ω | ∀ y, <n, y> ∈ h → y ⊆ B} as T.
     ω_induction T Hn; intros y Hy.
     - apply func_ap in Hy... subst...
     - apply func_ap in Hy... subst y. intros x Hx.
@@ -119,13 +119,13 @@ Proof with neauto; try congruence.
       rewrite Hn. apply BUnionI2. eapply imgI...
   - (* C2 ⊆ C1 *)
     apply FUnionE in Hc as [n [Hn Hc]].
-    assert (Hi: ⦿ {X ∊ 𝒫 B | λ X, A ⊆ X ∧ X ⊆ B ∧ f⟦X⟧ ⊆ X}). {
+    assert (Hi: ⦿ {X ∊ 𝒫 B | A ⊆ X ∧ X ⊆ B ∧ f⟦X⟧ ⊆ X}). {
       exists B. apply SepI. apply PowerAx... split... split...
       intros x Hx. apply imgE in Hx as [w [_ Hx]].
       apply ranI in Hx. apply Hrf...
     }
     generalize dependent c.
-    set {n ∊ ω | λ n, ∀ c, c ∈ h [n] → c ∈ C1} as T.
+    set {n ∊ ω | ∀ c, c ∈ h [n] → c ∈ C1} as T.
     ω_induction T Hn; intros c Hc; apply InterI...
     + intros y Hy. rewrite Hh0 in Hc.
       apply SepE in Hy as [_ [H _]]. apply H...
@@ -146,7 +146,7 @@ Example ex4_14: ∀n ∈ ω,
   (even n ∨ odd n) ∧ ¬ (even n ∧ odd n).
 Proof with eauto; try apply mul_ran; repeat apply ω_inductive; auto.
   intros n Hn. split.
-  - set {n ∊ ω | λ n, even n ∨ odd n} as N.
+  - set {n ∊ ω | even n ∨ odd n} as N.
     ω_induction N Hn.
     + left. exists 0. split... rewrite mul_0_r...
     + destruct IH.
@@ -160,7 +160,7 @@ Proof with eauto; try apply mul_ran; repeat apply ω_inductive; auto.
         rewrite (add_assoc (2⋅k))...
         cut (1 + 1 = 2); try congruence...
         rewrite pred, add_m_n, add_ident... apply mul_ran...
-  - set {n ∊ ω | λ n, ¬ (even n ∧ odd n)} as N.
+  - set {n ∊ ω | ¬ (even n ∧ odd n)} as N.
     ω_induction N Hn; intros [[k [Hk Hkeq]] [p [Hp Hpeq]]].
     + rewrite <- add_suc in Hpeq...
       exfalso. eapply suc_neq_0. rewrite Hpeq...
@@ -176,11 +176,11 @@ Qed.
 
 (* ex4_15 ex4_16 ex4_17 see EST4_2.v *)
 
-Example ex4_19: ∀ m d ∈ ω, d ≠ Embed 0 →
+Example ex4_19: ∀ m d ∈ ω, d ≠ 0 →
   ∃ q r ∈ ω, m = (d ⋅ q) + r ∧ r ∈ d.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ d ∈ ω, d ≠ Embed 0 →
+  set {n ∊ ω | ∀ d ∈ ω, d ≠ 0 →
     ∃ q r ∈ ω, n = d ⋅ q + r ∧ r ∈ d} as N.
   ω_induction N Hn; intros d Hd Hnq0.
   - exists 0. split... exists 0. split... split.
@@ -225,7 +225,7 @@ Qed.
 Example ex4_22: ∀ m p ∈ ω, m ∈ m + p⁺.
 Proof with eauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ p ∈ ω, n ∈ n + p⁺} as N.
+  set {n ∊ ω | ∀ p ∈ ω, n ∈ n + p⁺} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite add_ident'. apply suc_has_0... apply ω_inductive...
   - rewrite add_m_n'... apply (suc_preserve_lt m)...
@@ -235,7 +235,7 @@ Qed.
 Example ex4_23: ∀ m n ∈ ω, m ∈ n → ∃p ∈ ω, m + p⁺ = n.
 Proof with eauto.
   intros k Hk.
-  set {k ∊ ω | λ k, ∀ n ∈ ω, k ∈ n → ∃ p ∈ ω, k + p ⁺ = n} as N.
+  set {k ∊ ω | ∀ n ∈ ω, k ∈ n → ∃ p ∈ ω, k + p ⁺ = n} as N.
   ω_induction N Hk; intros n Hn H.
   - apply nq_0_gt_0 in H... apply pred_exists in H as [n' [Hn' Heq]]...
     exists n'. split... rewrite add_ident'... congruence.
@@ -283,7 +283,7 @@ Example ex4_26: ∀n ∈ ω, ∀ f, f: n⁺ ⇒ ω →
   ∃m ∈ ran f, ∀k ∈ ran f, k ⋸ m.
 Proof with eauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ f, f: n⁺ ⇒ ω →
+  set {n ∊ ω | ∀ f, f: n⁺ ⇒ ω →
     ∃m ∈ ran f, ∀k ∈ ran f, k ⋸ m} as N.
   ω_induction N Hn; intros f [Hff [Hfd Hfr]].
   - exists (f[0]). split.
@@ -355,7 +355,7 @@ Proof with eauto; try congruence.
   apply func_ext_intro... intros n Hn. rewrite Hf₁d in Hn.
   pose proof (H n) as [_ [_ [Heq1 Heq2]]]...
   cut (f₁ ↾ n = f₂ ↾ n)... clear Heq1 Heq2.
-  set {n ∊ ω | λ n, f₁ ↾ n = f₂ ↾ n} as N.
+  set {n ∊ ω | f₁ ↾ n = f₂ ↾ n} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
     + apply restrE1 in Hx as [a [_ [Ha _]]]. exfalso0.
@@ -388,8 +388,8 @@ Ltac ω_strong_induction C := cut (C = 0); [
 Example ex4_28: trans ω.
 Proof with auto.
   apply trans_sub. intros n Hn.
-  destruct (classic (n ⊆ ω))... exfalso.
-  set {n ∊ ω | λ n, n ⊈ ω} as C.
+  contra.
+  set {n ∊ ω | n ⊈ ω} as C.
   ω_strong_induction C.
   ω_destruct c; subst c.
   - exfalso. apply IH. intros x Hx. exfalso0.
@@ -418,7 +418,7 @@ Lemma ex4_37_0: ∀ x m n ∈ ω, x ∈ m + n⁺ → x ∉ m →
   ∃b ∈ n⁺, x = m + b.
 Proof with eauto.
   intros n Hn a Ha b Hb.
-  set {n ∊ ω | λ n, n ∈ a + b⁺ → n ∉ a → ∃c ∈ b⁺, n = a + c} as N.
+  set {n ∊ ω | n ∈ a + b⁺ → n ∉ a → ∃c ∈ b⁺, n = a + c} as N.
   ω_induction N Hn; intros Hnab Hna.
   - ω_destruct a; subst a.
     + exists 0. split. apply suc_has_0... rewrite add_ident...
@@ -557,7 +557,7 @@ Lemma ex4_37_1: ∀ m i1 i2 j1 j2 ∈ ω,
 Proof with eauto; try congruence.
   intros n Hn i1 Hi1 i2 Hi2 j1 Hj1 j2 Hj2.
   generalize dependent j2.
-  set {j1 ∊ ω | λ j1, ∀ j2, j2 ∈ ω →
+  set {j1 ∊ ω | ∀ j2, j2 ∈ ω →
     n ⋅ j1 + i1 = n ⋅ j2 + i2 →
     i1 ∈ n → i2 ∈ n → j1 = j2
   } as N.
@@ -589,7 +589,7 @@ Lemma ex4_37_2_0 : ∀ a b ∈ ω, ∀x ∈ a + b,
   a ⋸ x → ∃c ∈ b, x = a + c.
 Proof with neauto.
   intros a Ha b Hb.
-  set {b ∊ ω | λ b, ∀x ∈ a + b, a ⋸ x → 
+  set {b ∊ ω | ∀x ∈ a + b, a ⋸ x → 
     ∃c ∈ b, x = a + c
   } as N.
   ω_induction N Hb; intros x Hx Hlt.
@@ -609,7 +609,7 @@ Lemma ex4_37_2: ∀ m n ∈ ω, ∀x ∈ m ⋅ n,
   ∃i ∈ m, ∃j ∈ n, x = m ⋅ j + i.
 Proof with eauto.
   intros k Hk n Hn.
-  set {n ∊ ω | λ n, ∀x ∈ k ⋅ n,
+  set {n ∊ ω | ∀x ∈ k ⋅ n,
     ∃i ∈ k, ∃j ∈ n, x = k ⋅ j + i
   } as N.
   ω_induction N Hn; intros x Hx.
@@ -636,7 +636,7 @@ Lemma ex4_37_3: ∀ m n ∈ ω, ∀i ∈ m, ∀j ∈ n,
   m ⋅ j + i ∈ m ⋅ n.
 Proof with auto.
   intros k Hk n Hn i Hi.
-  set {n ∊ ω | λ n, ∀j ∈ n,
+  set {n ∊ ω | ∀j ∈ n,
     k ⋅ j + i ∈ k ⋅ n} as N.
   ω_induction N Hn; intros j Hj. exfalso0.
   assert (Hiw: i ∈ ω) by (eapply ω_trans; eauto).

@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 4 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EST5_3.
@@ -348,7 +348,7 @@ Definition ratNonPos : set → Prop := λ r, r ≤ Rat 0.
 Lemma ratNonNeg_not_neg : ∀r ∈ ℚ, ¬ ratNeg r ↔ ratNonNeg r.
 Proof with neauto.
   intros r Hr. split; intros.
-  - destruct (classic (ratNonNeg r))... exfalso.
+  - contra.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hn. destruct H.
@@ -359,7 +359,7 @@ Qed.
 Lemma ratNeg_not_nonNeg : ∀r ∈ ℚ, ¬ ratNonNeg r ↔ ratNeg r.
 Proof with neauto.
   intros r Hr. split; intros.
-  - destruct (classic (ratNeg r))... exfalso.
+  - contra.
     apply ratNonNeg_not_neg in H0...
   - intros Hnn. eapply ratNonNeg_not_neg...
 Qed.
@@ -367,7 +367,7 @@ Qed.
 Lemma ratNonPos_not_pos : ∀r ∈ ℚ, ¬ ratPos r ↔ ratNonPos r.
 Proof with neauto.
   intros r Hr. split; intros.
-  - destruct (classic (ratNonPos r))... exfalso.
+  - contra.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hp. destruct H.
@@ -378,7 +378,7 @@ Qed.
 Lemma ratPos_not_nonPos : ∀r ∈ ℚ, ¬ ratNonPos r ↔ ratPos r.
 Proof with neauto.
   intros r Hr. split; intros.
-  - destruct (classic (ratPos r))... exfalso.
+  - contra.
     apply ratNonPos_not_pos in H0...
   - intros Hnp. eapply ratNonPos_not_pos...
 Qed.
@@ -643,7 +643,7 @@ Proof. intros. rewrite intEmbed_a; nauto. Qed.
 
 Lemma intEmbed_addInv : ∀a ∈ ℤ, IntEmbed[(-a)%z] = -[<a, Int 1>]~.
 Proof with nauto.
-  intros a Ha. simpl. rewrite intEmbed_a, ratAddInv...
+  intros a Ha. rewrite intEmbed_a, ratAddInv...
   apply intAddInv_ran...
 Qed.
 

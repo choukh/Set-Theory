@@ -154,11 +154,23 @@ Proof.
       intros H3. apply H2. apply BInterI; assumption.
 Qed.
 
+Lemma ex2_15_a_1_0 : ∀ A B C, (A ∩ B) - (A ∩ C) = (A ∩ B) - C.
+Proof with auto.
+  intros. apply ExtAx. split; intros.
+  - apply SepE in H as []. apply SepI...
+    apply binter_demorgen in H0 as []...
+    apply BInterE in H as []...
+  - apply SepE in H as [].
+    apply BInterE in H as [].
+    apply SepI. apply BInterI...
+    apply binter_demorgen. right...
+Qed.
+
 Example ex2_15_a_1: ∀ A B C, A ∩ (B + C) = (A ∩ B) + (A ∩ C).
 Proof.
   intros. unfold SymDiff.
   rewrite binter_bunion_distr.
-  do 2 rewrite binter_comp_distr. reflexivity.
+  do 2 rewrite ex2_15_a_1_0, binter_comp. reflexivity.
 Qed.
 
 Example ex2_15_b: ∀ A B C, A + (B + C) = (A + B) + C.
@@ -302,10 +314,10 @@ Proof.
       * apply InterE in H2 as [_ H2]. apply H2. apply H3.
 Qed.
 
-Example ex2_23: ∀ A ℬ, ⦿ ℬ → A ∪ ⋂ℬ = ⋂{λ X, A ∪ X | X ∊ ℬ}.
+Example ex2_23: ∀ A ℬ, ⦿ ℬ → A ∪ ⋂ℬ = ⋂{A ∪ X | X ∊ ℬ}.
 Proof. exact bunion_inter_distr. Qed.
 
-Example ex2_24_a: ∀ 𝒜, ⦿ 𝒜 → 𝒫(⋂𝒜) = ⋂{λ X, 𝒫 X | X ∊ 𝒜}.
+Example ex2_24_a: ∀ 𝒜, ⦿ 𝒜 → 𝒫(⋂𝒜) = ⋂{𝒫 X | X ∊ 𝒜}.
 Proof.
   intros 𝒜 Hi. apply ExtAx. split; intros.
   - apply InterI.
@@ -322,7 +334,7 @@ Proof.
       apply H. apply ReplI. apply Hz.
 Qed.
 
-Example ex2_24_b: ∀ 𝒜, ⋃{λ X, 𝒫 X | X ∊ 𝒜} ⊆ 𝒫(⋃𝒜).
+Example ex2_24_b: ∀ 𝒜, ⋃{𝒫 X | X ∊ 𝒜} ⊆ 𝒫(⋃𝒜).
 Proof.
   intros 𝒜 x H. 
   apply FUnionE in H as [A [HA Hp]].
@@ -331,7 +343,7 @@ Proof.
   split. apply HA. apply Hp. apply Hz.
 Qed.
 
-Example ex2_25: ∀ A ℬ, ⦿ ℬ → A ∪ ⋃ℬ = ⋃{λ X, A ∪ X | X ∊ ℬ}.
+Example ex2_25: ∀ A ℬ, ⦿ ℬ → A ∪ ⋃ℬ = ⋃{A ∪ X | X ∊ ℬ}.
 Proof.
   intros A ℬ [B HB]. apply ExtAx. split; intros.
   - apply BUnionE in H as [].

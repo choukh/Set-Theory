@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 7 Part 6 **)
+(** Adapted from "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Jan 2021 **)
 
 Require Export ZFC.lib.Ordinal.
@@ -10,10 +10,10 @@ Require Import ZFC.lib.FuncFacts.
 Import RecursionOnOrdinals.
 
 (* 冯·诺伊曼宇宙层级 *)
-Definition V := Recursion (λ A, ⋃{Power | x ∊ A}).
+Definition V := Recursion (λ A, ⋃{Power x | x ∊ A}).
 
 (* 宇宙层级的递推公式 *)
-Theorem V_hierarchy : ∀α ⋵ 𝐎𝐍, V α = ⋃{λ β, 𝒫 (V β) | β ∊ α}.
+Theorem V_hierarchy : ∀α ⋵ 𝐎𝐍, V α = ⋃{𝒫 (V β) | β ∊ α}.
 Proof with eauto; try congruence.
   intros α Hoα. unfold V.
   rewrite recursion_spec at 1...
@@ -46,7 +46,7 @@ Proof with eauto.
     intros H. eapply (H α⁺)...
   }
   clear Hoα α. intros δ Hoδ α Hα.
-  set {α ∊ δ | λ α, trans (V α)} as δ'.
+  set {α ∊ δ | trans (V α)} as δ'.
   replace δ with δ' in Hα. apply SepE2 in Hα... clear Hα α.
   eapply transfinite_induction. apply ord_woset...
   split. intros α Hα. apply SepE1 in Hα...
@@ -108,7 +108,7 @@ Proof with eauto.
   - eapply V_intro...
 Qed.
 
-Theorem V_limit : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, V α = ⋃{V | β ∊ α}.
+Theorem V_limit : ∀α ⋵ 𝐎𝐍ˡⁱᵐ, V α = ⋃{V β | β ∊ α}.
 Proof with eauto.
   intros α Hlim.
   assert (H := Hlim). destruct H as [Hoα _].
@@ -129,7 +129,7 @@ Definition rank_spec := λ A α, α ⋵ 𝐎𝐍 ∧ A ⊆ V α ∧
 Lemma rank_exists : ∀A ⋵ 𝐖𝐅, ∃! α, rank_spec A α.
 Proof with eauto; try congruence.
   intros A [α [Hoα Hsubα]].
-  set {ξ ∊ α⁺ | λ ξ, A ⊆ V ξ} as B.
+  set {ξ ∊ α⁺ | A ⊆ V ξ} as B.
   destruct (ords_woset B) as [_ Hmin]. {
     intros x Hx. apply SepE1 in Hx.
     eapply ord_is_ords; revgoals...
@@ -181,7 +181,7 @@ Qed.
 
 Lemma grounded_under_rank : ∀A ⋵ 𝐖𝐅, A ∈ V (rank A)⁺.
 Proof with auto.
-  intros A Hgnd. simpl. rewrite V_suc...
+  intros A Hgnd. rewrite V_suc...
   apply PowerAx. apply grounded_in_rank...
 Qed.
 
@@ -208,7 +208,7 @@ Qed.
 
 Section RankRecurrence.
 
-Let Ω := λ A, {λ a, (rank a)⁺ | a ∊ A}.
+Let Ω := λ A, {(rank a)⁺ | a ∊ A}.
 Let α := λ A, ⋃ (Ω A).
 
 Local Lemma Ω_is_ords : ∀ A, A ⪽ 𝐖𝐅 → Ω A ⪽ 𝐎𝐍.
@@ -290,7 +290,7 @@ Theorem all_grounded_iff_regularity : (∀ A, A ⋵ 𝐖𝐅) ↔ Regularity.
 Proof with eauto; try congruence.
   split.
   - intros Hgnd A Hne.
-    set {rank | a ∊ A} as Ω.
+    set {rank a | a ∊ A} as Ω.
     destruct (ords_woset Ω) as [_ Hmin]. {
       intros x Hx. apply ReplAx in Hx as [a [_ Hx]]. subst...
     }
@@ -309,17 +309,17 @@ Proof with eauto; try congruence.
       eapply ord_is_ords; revgoals...
     + subst. eapply (ord_not_lt_self (rank x)); revgoals...
   - intros Reg.
-    destruct (classic (∀ A, A ⋵ 𝐖𝐅))... exfalso.
+    contra.
     apply not_all_ex_not in H as [c Hngc].
     set (𝗧𝗖 ⎨c⎬) as B.
-    set {x ∊ B | λ x, ¬ x ⋵ 𝐖𝐅} as A.
+    set {x ∊ B | ¬ x ⋵ 𝐖𝐅} as A.
     pose proof (Reg A) as [m [Hm H0]]. {
       apply EmptyNI. exists c. apply SepI...
       apply tc_contains...
     }
     apply SepE in Hm as [Hmb Hngm].
     apply Hngm. apply grounded_intro.
-    intros x Hx. destruct (classic (x ⋵ 𝐖𝐅))... exfalso.
+    intros x Hx. contra.
     assert (Hx': x ∈ A). apply SepI... eapply tc_trans...
     eapply EmptyNI in H0... exists x. apply BInterI...
 Qed.
@@ -628,14 +628,14 @@ Qed.
 (* 秩的后继 *)
 Lemma rank_suc : ∀a ⋵ 𝐖𝐅, (rank a)⁺ = rank 𝒫 (V (rank a)).
 Proof with auto.
-  intros a Hgnd. simpl. rewrite <- (rank_of_V (rank a)⁺)...
+  intros a Hgnd. rewrite <- (rank_of_V (rank a)⁺)...
   f_equal. apply V_suc...
 Qed.
 
 (* 幂集的秩 *)
 Lemma rank_of_power : ∀a ⋵ 𝐖𝐅, rank (𝒫 a) = (rank a)⁺.
 Proof with eauto.
-  intros a Hgnd. simpl.
+  intros a Hgnd.
   rewrite rank_recurrence; [|apply power_grounded]...
   apply ExtAx. split; intros Hx.
   - apply FUnionE in Hx as [y [Hy Hx]].

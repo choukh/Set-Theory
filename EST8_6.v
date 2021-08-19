@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 6 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, June 2021 **)
 
 Require Import ZFC.lib.WoStructExtension.
@@ -296,12 +296,6 @@ Proof with nauto.
   rewrite ordAddₜ_assoc... apply ordAddₜ_ran...
 Qed.
 
-Theorem ordAddₜ_limit : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ,
-  α + 𝜆 = sup{λ β, α + β | β ∊ 𝜆}.
-Proof with auto.
-  intros * Hoα Ho𝜆.
-Admitted.
-
 Theorem ordMulₜ_suc : ∀ α β ⋵ 𝐎𝐍, α ⋅ β⁺ = α ⋅ β + α.
 Proof with nauto.
   intros α Hoα β Hoβ.
@@ -309,8 +303,529 @@ Proof with nauto.
   rewrite ordMulₜ_distr, ordMulₜ_ident...
 Qed.
 
-Theorem ordMulₜ_limit : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ,
-  α ⋅ 𝜆 = sup{λ β, α ⋅ β | β ∊ 𝜆}.
+Section AddLimit.
+
+Let WOₒAdd := λ α β, (WOₒ α + WOₒ β)%wo.
+
+Local Lemma A_WOₒAdd : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
+  A (WOₒAdd α β) = α × ⎨0⎬ ∪ β × ⎨1⎬.
+Proof.
+  intros α Hoα β Hoβ.
+  unfold WOₒAdd, WoAdd. simpl. unfold WoDisj_A.
+  now repeat rewrite A_WOₒ_id.
+Qed.
+
+Local Lemma R_WOₒAdd : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍, R (WOₒAdd α β) =
+  {<<π1 p, 0>, <π2 p, 0>> | p ∊ MemberRel α} ∪
+  {<<π1 p, 1>, <π2 p, 1>> | p ∊ MemberRel β} ∪
+  (α × ⎨0⎬) × (β × ⎨1⎬).
+Proof.
+  intros α Hoα β Hoβ.
+  unfold WOₒAdd, WoAdd, WoAdd_R. simpl.
+  unfold WoDisj_A, WoDisj_R.
+  now repeat rewrite A_WOₒ_id, R_WOₒ.
+Qed.
+
+Local Lemma ord_WOₒAdd : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
+  ord (WOₒAdd α β) = α + β.
+Proof.
+  intros α Hoα β Hoβ. unfold WOₒAdd.
+  rewrite <- ordAddₜ_eq_ord_of_woAdd.
+  now repeat rewrite ord_WOₒ_id.
+Qed.
+
+Let 𝒞 := λ α 𝜆, {let S := WOₒAdd α β in <A S, R S> | β ∊ 𝜆}.
+
+Local Lemma 𝒞_is_wos : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍, wos (𝒞 α 𝜆).
+Proof.
+  intros α Hα 𝜆 H𝜆 p Hp.
+  apply ReplAx in Hp as [β [Hβ Heq]].
+  exists (WOₒAdd α β). congruence.
+Qed.
+
+Local Lemma WOₒAdd_ees : ∀α ⋵ 𝐎𝐍, ∀β1 ⋵ 𝐎𝐍, ∀β2 ⋵ 𝐎𝐍,
+  β1 ⋸ β2 → WOₒAdd α β1 ⊑⊑ WOₒAdd α β2.
 Proof with auto.
-  intros * Hoα Ho𝜆.
-Admitted.
+  intros α Hoα β1 Ho1 β2 Ho2 Hsub.
+  apply ord_leq_iff_sub in Hsub...
+  repeat split.
+  - rewrite A_WOₒAdd, A_WOₒAdd...
+    intros x Hx. apply BUnionE in Hx as [].
+    + apply BUnionI1...
+    + apply CProdE1 in H as [a [Ha [b [Hb H0]]]].
+      apply SingE in Hb. subst.
+      apply BUnionI2. apply CProdI...
+  - rewrite A_WOₒAdd, R_WOₒAdd, R_WOₒAdd...
+    apply ExtAx. split; intros Hx. {
+      apply BUnionE in Hx as [Hx|Hx];
+      [apply BUnionE in Hx as [Hx|Hx]|].
+      - apply SepI.
+        + apply BUnionI1. apply BUnionI1...
+        + apply ReplAx in Hx as [p [Hp Hx]].
+          apply binRelE1 in Hp as [a [Ha [b [Hb [Hp Hlt]]]]].
+          subst. zfc_simple.
+          apply CProdI; apply BUnionI1; apply CProdI...
+      - apply ReplAx in Hx as [p [Hp Hx]].
+        apply binRelE1 in Hp as [a [Ha [b [Hb [Hp Hlt]]]]].
+        subst. zfc_simple. apply SepI.
+        + apply BUnionI1. apply BUnionI2.
+          apply ReplAx. exists <a, b>. split.
+          apply binRelI... zfc_simple.
+        + apply CProdI; apply BUnionI2; apply CProdI...
+      - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+        subst. apply SepI.
+        + apply BUnionI2. apply CProdI...
+          apply CProdE1 in Hb as [c [Hc [d [Hd Hb]]]].
+          apply SingE in Hd. subst. apply CProdI...
+        + apply CProdI. apply BUnionI1... apply BUnionI2...
+    } {
+      apply SepE in Hx as [H1 H2].
+      apply BUnionE in H1 as [Hx|Hx];
+      [apply BUnionE in Hx as [Hx|Hx]|].
+      - apply BUnionI1. apply BUnionI1...
+      - apply BUnionI1. apply BUnionI2.
+        apply ReplAx in Hx as [p [Hp Hx]].
+        apply binRelE1 in Hp as [a [Ha [b [Hb [Hp Hlt]]]]].
+        subst. zfc_simple.
+        apply CProdE2 in H2 as [H1 H2].
+        apply BUnionE in H1 as [|H1]. {
+          apply CProdE2 in H as [_ H].
+          apply SingE in H. exfalso. nauto.
+        }
+        apply BUnionE in H2 as [|H2]. {
+          apply CProdE2 in H as [_ H].
+          apply SingE in H. exfalso. nauto.
+        }
+        apply CProdE2 in H1 as [H1 _].
+        apply CProdE2 in H2 as [H2 _].
+        apply ReplAx. exists <a, b>. split.
+        apply binRelI... zfc_simple.
+      - apply BUnionI2.
+        apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst.
+        apply CProdI...
+        apply CProdE2 in H2 as [_ H].
+        apply BUnionE in H as []... exfalso.
+        apply CProdE1 in Hb as [c [Hc [d [Hd H1]]]].
+        apply SingE in Hd. subst.
+        apply CProdE2 in H as [_ H]. apply SingE in H. nauto.
+    }
+  - intros x Hx y Hy.
+    rewrite A_WOₒAdd in Hx...
+    rewrite A_WOₒAdd, A_WOₒAdd in Hy...
+    rewrite R_WOₒAdd...
+    apply SepE in Hy as [Hy Hy'].
+    apply BUnionE in Hx as [Hx|Hx];
+    apply BUnionE in Hy as [Hy|Hy].
+    + exfalso. apply Hy'. apply BUnionI1...
+    + apply BUnionI2. apply CProdI...
+    + exfalso. apply Hy'. apply BUnionI1...
+    + apply BUnionI1. apply BUnionI2.
+      apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]].
+      apply SingE in Hb. apply SingE in Hd. subst.
+      apply ReplAx. exists <a, c>. split; zfc_simple.
+      assert (Hoa: a ⋵ 𝐎𝐍). apply (ord_is_ords β1)...
+      assert (Hoc: c ⋵ 𝐎𝐍). apply (ord_is_ords β2)...
+      apply binRelI... apply ord_lt_iff_not_sub...
+      intros Hca. apply ord_leq_iff_sub in Hca...
+      apply Hy'. apply BUnionI2. apply CProdI...
+      destruct Hca. eapply ord_trans; eauto. subst...
+Qed.
+
+Local Lemma 𝒞_is_ees : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍, ees (𝒞 α 𝜆).
+Proof with auto.
+  intros α Hα 𝜆 H𝜆 S T H1 H2.
+  apply ReplAx in H1 as [β1 [Hβ1 H1]].
+  apply ReplAx in H2 as [β2 [Hβ2 H2]].
+  apply op_iff in H1 as [H11 H12].
+  apply op_iff in H2 as [H21 H22].
+  assert (HS: S = WOₒAdd α β1). apply eq_intro...
+  assert (HT: T = WOₒAdd α β2). apply eq_intro...
+  assert (Ho1: β1 ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+  assert (Ho2: β2 ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+  destruct (ord_comparability β1 Ho1 β2 Ho2);
+  auto; [left|right]; rewrite HS, HT; apply WOₒAdd_ees...
+Qed.
+
+Local Lemma ordsₛ_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  ordsₛ (𝒞 α 𝜆) = {α + β | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split...
+    unfold ordₛ. rewrite WOₛ_pair_id.
+    rewrite ord_WOₒAdd... apply (ord_is_ords 𝜆)...
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒAdd α β), R (WOₒAdd α β)>.
+    split. apply ReplAx. exists β. split...
+    unfold ordₛ. rewrite WOₛ_pair_id.
+    rewrite ord_WOₒAdd... apply (ord_is_ords 𝜆)...
+Qed.
+
+Local Lemma ord_union_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  ord ⊔(𝒞 α 𝜆) = sup {α + β | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  replace {α + β | β ∊ 𝜆} with (ordsₛ (𝒞 α 𝜆)).
+  apply ord_union_eq_sup_ordsₛ_wos.
+  apply 𝒞_is_wos... apply 𝒞_is_ees...
+  apply ordsₛ_𝒞...
+Qed.
+
+Local Lemma π1_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  {π1 p | p ∊ 𝒞 α 𝜆} = {A (WOₒAdd α β) | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split... zfc_simple.
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒAdd α β), R (WOₒAdd α β)>.
+    split. apply ReplAx. exists β. split... zfc_simple.
+Qed.
+
+Local Lemma π2_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  {π2 p | p ∊ 𝒞 α 𝜆} = {R (WOₒAdd α β) | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split... zfc_simple.
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒAdd α β), R (WOₒAdd α β)>.
+    split. apply ReplAx. exists β. split... zfc_simple.
+Qed.
+
+Local Lemma Unionₐ_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  Unionₐ (𝒞 α 𝜆) = α × ⎨0⎬ ∪ 𝜆 × ⎨1⎬.
+Proof with eauto.
+  intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  unfold Unionₐ. rewrite π1_𝒞...
+  apply ExtAx. split; intros Hx.
+  - apply UnionAx in Hx as [p [Hp Hx]].
+    apply ReplAx in Hp as [β [Hβ Hp]]. subst.
+    rewrite A_WOₒAdd in Hx; [|auto|apply (ord_is_ords 𝜆)]...
+    apply BUnionE in Hx as []; [apply BUnionI1|apply BUnionI2]...
+    apply CProdE1 in H as [a [Ha [b [Hb H]]]].
+    apply SingE in Hb. subst. apply CProdI... eapply ord_trans...
+  - apply BUnionE in Hx as [].
+    + apply EmptyNE in Hne as [β Hβ].
+      assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+      apply UnionAx. exists (α × ⎨0⎬ ∪ β × ⎨1⎬). split.
+      * apply ReplAx. exists β. split... apply A_WOₒAdd...
+      * apply BUnionI1...
+    + apply CProdE1 in H as [β [Hβ [b [Hb H]]]].
+      apply SingE in Hb. subst.
+      assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+      apply UnionAx. exists (α × ⎨0⎬ ∪ β⁺ × ⎨1⎬). split.
+      * apply ReplAx. exists β⁺. split.
+        apply sucord_in_limord... split... apply A_WOₒAdd...
+      * apply BUnionI2... apply CProdI...
+Qed.
+
+Local Lemma Unionᵣ_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  Unionᵣ (𝒞 α 𝜆) =
+  {<π1 p, 0, <π2 p, 0>> | p ∊ MemberRel α} ∪
+  {<π1 p, 1, <π2 p, 1>> | p ∊ MemberRel 𝜆} ∪
+  (α × ⎨0⎬) × (𝜆 × ⎨1⎬).
+Proof with eauto.
+  intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  unfold Unionᵣ. rewrite π2_𝒞...
+  apply ExtAx. split; intros Hx.
+  - apply UnionAx in Hx as [p [Hp Hx]].
+    apply ReplAx in Hp as [β [Hβ Hp]]. subst.
+    assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+    rewrite R_WOₒAdd in Hx...
+    apply BUnionE in Hx as [Hx|Hx];
+    [apply BUnionE in Hx as [Hx|Hx]|].
+    + apply BUnionI1. apply BUnionI1...
+    + apply BUnionI1. apply BUnionI2.
+      apply ReplAx in Hx as [p [Hp Hx]].
+      apply binRelE1 in Hp as [a [Ha [b [Hb [Heq Hp]]]]].
+      subst. zfc_simple. apply ReplAx. exists <a, b>.
+      split; zfc_simple. apply binRelI...
+      apply (ord_trans 𝜆 Ho𝜆 a β)...
+      apply (ord_trans 𝜆 Ho𝜆 b β)...
+    + apply BUnionI2.
+      apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      subst. apply CProdI...
+      apply CProdE1 in Hb as [c [Hc [d [Hd Hb]]]].
+      apply SingE in Hd. subst. apply CProdI...
+      eapply ord_trans...
+  - apply BUnionE in Hx as [Hx|Hx];
+    [apply BUnionE in Hx as [Hx|Hx]|].
+    + apply ReplAx in Hx as [p [Hp Hx]].
+      apply binRelE1 in Hp as [a [Ha [b [Hb [Heq Hp]]]]].
+      subst. zfc_simple.
+      apply EmptyNE in Hne as [β Hβ].
+      assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+      apply UnionAx. exists (R (WOₒAdd α β)). split.
+      apply ReplAx. exists β. split... rewrite R_WOₒAdd...
+      apply BUnionI1. apply BUnionI1.
+      apply ReplAx. exists <a, b>. split.
+      apply binRelI... zfc_simple.
+    + apply ReplAx in Hx as [p [Hp Hx]].
+      apply binRelE1 in Hp as [a [Ha [b [Hb [Heq Hp]]]]].
+      subst. zfc_simple.
+      apply UnionAx. exists (R (WOₒAdd α b⁺)). split.
+      apply ReplAx. exists b⁺. split...
+      apply sucord_in_limord... split... rewrite R_WOₒAdd...
+      apply BUnionI1. apply BUnionI2.
+      apply ReplAx. exists <a, b>. split; zfc_simple.
+      apply binRelI... apply BUnionI1...
+      apply ord_suc_is_ord. apply (ord_is_ords 𝜆)...
+    + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CProdE1 in Hb as [β [Hβ [d [Hd Hb]]]].
+      apply SingE in Hd. subst.
+      assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+      apply UnionAx. exists (R (WOₒAdd α β⁺)). split.
+      apply ReplAx. exists β⁺. split...
+      apply sucord_in_limord... split... rewrite R_WOₒAdd...
+      apply BUnionI2. apply CProdI... apply CProdI...
+Qed.
+
+Theorem ordAddₜ_limit : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  α + 𝜆 = sup {α + β | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  rewrite <- ord_union_𝒞...
+  rewrite <- (ord_WOₒ_id α), <- (ord_WOₒ_id 𝜆) at 1...
+  apply ordAddₜ_iff_woAdd.
+  replace (WOₒ α + WOₒ 𝜆)%wo with (⊔(𝒞 α 𝜆)). reflexivity.
+  pose proof (unionStruct_spec_intro (𝒞 α 𝜆)) as [HA HR].
+  apply 𝒞_is_wos... apply 𝒞_is_ees...
+  apply eq_intro; simpl.
+  - unfold WoDisj_A. repeat rewrite A_WOₒ_id...
+    rewrite HA. apply Unionₐ_𝒞... split...
+  - unfold WoDisj, WoAdd_R, WoDisj_R, WoDisj_A. simpl.
+    repeat rewrite A_WOₒ_id, R_WOₒ...
+    rewrite HR. apply Unionᵣ_𝒞... split...
+Qed.
+
+End AddLimit.
+
+Section MulLimit.
+
+Let WOₒMul := λ α β, (WOₒ α ⋅ WOₒ β)%wo.
+
+Local Lemma A_WOₒMul : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
+  A (WOₒMul α β) = α × β.
+Proof.
+  intros α Hoα β Hoβ.
+  unfold WOₒMul, WoMul. simpl.
+  now repeat rewrite A_WOₒ_id.
+Qed.
+
+Let BR := λ α β, BinRel (α × β) (λ p1 p2,
+  (π2 p1 <ᵣ π2 p2) (MemberRel β) ∨
+  (π1 p1 <ᵣ π1 p2) (MemberRel α) ∧ π2 p1 = π2 p2).
+
+Local Lemma R_WOₒMul : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
+  R (WOₒMul α β) = BR α β.
+Proof.
+  intros α Hoα β Hoβ.
+  unfold WOₒMul, WoMul, WoMul_R, BinRel. simpl.
+  now repeat rewrite A_WOₒ_id, R_WOₒ.
+Qed.
+
+Local Lemma ord_WOₒMul : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
+  ord (WOₒMul α β) = α ⋅ β.
+Proof.
+  intros α Hoα β Hoβ. unfold WOₒMul.
+  rewrite <- ordMulₜ_eq_ord_of_woMul.
+  now repeat rewrite ord_WOₒ_id.
+Qed.
+
+Let 𝒟 := λ α 𝜆, {let S := WOₒMul α β in <A S, R S> | β ∊ 𝜆}.
+
+Local Lemma 𝒟_is_wos : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍, wos (𝒟 α 𝜆).
+Proof.
+  intros α Hα 𝜆 H𝜆 p Hp.
+  apply ReplAx in Hp as [β [Hβ Heq]].
+  exists (WOₒMul α β). congruence.
+Qed.
+
+Local Lemma WOₒMul_ees : ∀α ⋵ 𝐎𝐍, ∀β1 ⋵ 𝐎𝐍, ∀β2 ⋵ 𝐎𝐍,
+  β1 ⋸ β2 → WOₒMul α β1 ⊑⊑ WOₒMul α β2.
+Proof with eauto.
+  intros α Hoα β1 Ho1 β2 Ho2 Hsub.
+  apply ord_leq_iff_sub in Hsub...
+  repeat split.
+  - rewrite A_WOₒMul, A_WOₒMul... intros x Hx.
+    eapply sub_mono_cprod'...
+  - rewrite A_WOₒMul, R_WOₒMul, R_WOₒMul...
+    apply ExtAx. split; intros Hx. {
+      apply binRelE1 in Hx as [a [Ha [b [Hb [Hx []]]]]]; subst x;
+      (apply SepI; [
+        apply binRelI; [eapply sub_mono_cprod'..|]|
+        apply CProdI
+      ])...
+      left. apply binRelE2 in H as [H1 [H2 H3]]. apply binRelI...
+    } {
+      apply SepE in Hx as [H1 H2].
+      apply CProdE1 in H2 as [a [Ha [b [Hb Hx]]]]; subst x.
+      apply binRelE3 in H1 as []; apply binRelI...
+      left. apply binRelI.
+      - apply CProdE0 in Ha as [_ Ha]... 
+      - apply CProdE0 in Hb as [_ Hb]...
+      - apply binRelE3 in H...
+    }
+  - intros x Hx y Hy.
+    rewrite A_WOₒMul in Hx...
+    rewrite A_WOₒMul, A_WOₒMul in Hy...
+    rewrite R_WOₒMul...
+    apply SepE in Hy as [Hy Hy'].
+    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+    apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]]. subst.
+    apply binRelI... apply CProdI... apply CProdI...
+    zfc_simple. left. apply binRelI...
+    contra. apply Hy'.
+    apply ord_leq_iff_not_gt in H; [|eapply ord_is_ords..]...
+    apply CProdI... destruct H. eapply ord_trans... congruence.
+Qed.
+
+Local Lemma 𝒟_is_ees : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍, ees (𝒟 α 𝜆).
+Proof with auto.
+  intros α Hα 𝜆 H𝜆 S T H1 H2.
+  apply ReplAx in H1 as [β1 [Hβ1 H1]].
+  apply ReplAx in H2 as [β2 [Hβ2 H2]].
+  apply op_iff in H1 as [H11 H12].
+  apply op_iff in H2 as [H21 H22].
+  assert (HS: S = WOₒMul α β1). apply eq_intro...
+  assert (HT: T = WOₒMul α β2). apply eq_intro...
+  assert (Ho1: β1 ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+  assert (Ho2: β2 ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+  destruct (ord_comparability β1 Ho1 β2 Ho2);
+  auto; [left|right]; rewrite HS, HT; apply WOₒMul_ees...
+Qed.
+
+Local Lemma ordsₛ_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  ordsₛ (𝒟 α 𝜆) = {α ⋅ β | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split...
+    unfold ordₛ. rewrite WOₛ_pair_id.
+    rewrite ord_WOₒMul... apply (ord_is_ords 𝜆)...
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒMul α β), R (WOₒMul α β)>.
+    split. apply ReplAx. exists β. split...
+    unfold ordₛ. rewrite WOₛ_pair_id.
+    rewrite ord_WOₒMul... apply (ord_is_ords 𝜆)...
+Qed.
+
+Local Lemma ord_union_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  ord ⊔(𝒟 α 𝜆) = sup {α ⋅ β | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  replace {α ⋅ β | β ∊ 𝜆} with (ordsₛ (𝒟 α 𝜆)).
+  apply ord_union_eq_sup_ordsₛ_wos.
+  apply 𝒟_is_wos... apply 𝒟_is_ees...
+  apply ordsₛ_𝒟...
+Qed.
+
+Local Lemma π1_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  {π1 p | p ∊ 𝒟 α 𝜆} = {A (WOₒMul α β) | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split... zfc_simple.
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒMul α β), R (WOₒMul α β)>.
+    split. apply ReplAx. exists β. split... zfc_simple.
+Qed.
+
+Local Lemma π2_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍,
+  {π2 p | p ∊ 𝒟 α 𝜆} = {R (WOₒMul α β) | β ∊ 𝜆}.
+Proof with eauto.
+  intros α Hoα 𝜆 Ho𝜆.
+  apply ExtAx. split; intros Hx.
+  - apply ReplAx in Hx as [p [Hp Heq]]. subst.
+    apply ReplAx in Hp as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists β. split... zfc_simple.
+  - apply ReplAx in Hx as [β [Hβ Heq]]. subst.
+    apply ReplAx. exists <A (WOₒMul α β), R (WOₒMul α β)>.
+    split. apply ReplAx. exists β. split... zfc_simple.
+Qed.
+
+Local Lemma Unionₐ_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  Unionₐ (𝒟 α 𝜆) = α × 𝜆.
+Proof with eauto.
+  intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  unfold Unionₐ. rewrite π1_𝒟...
+  apply ExtAx. split; intros Hx.
+  - apply UnionAx in Hx as [p [Hp Hx]].
+    apply ReplAx in Hp as [β [Hβ Hp]]. subst.
+    rewrite A_WOₒMul in Hx; [|auto|apply (ord_is_ords 𝜆)]...
+    assert (β ⋵ 𝐎𝐍). eapply ord_is_ords...
+    apply ord_lt_iff_psub in Hβ as [Hβ _]...
+    eapply sub_mono_cprod'...
+  - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+    apply UnionAx. exists (α × b⁺). split...
+    apply ReplAx. exists b⁺. split.
+    apply sucord_in_limord... split...
+    assert (b ⋵ 𝐎𝐍). eapply ord_is_ords...
+    rewrite A_WOₒMul... apply CProdI...
+Qed.
+
+Local Lemma Unionᵣ_𝒟 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  Unionᵣ (𝒟 α 𝜆) = BR α 𝜆.
+Proof with eauto.
+  intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  unfold Unionᵣ. rewrite π2_𝒟...
+  apply ExtAx. split; intros Hx.
+  - apply UnionAx in Hx as [p [Hp Hx]].
+    apply ReplAx in Hp as [β [Hβ Hp]]. subst.
+    assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
+    rewrite R_WOₒMul in Hx...
+    apply ord_lt_iff_psub in Hβ as [Hβ _]...
+    apply binRelE1 in Hx as [a [Ha [b [Hb [Hx []]]]]]; subst x;
+    (apply binRelI; [eapply sub_mono_cprod'..|])...
+    left. apply binRelE2 in H as [H1 [H2 H3]]. apply binRelI...
+  - apply binRelE1 in Hx as [a [Ha [b [Hb [Hx []]]]]]; subst;
+    apply CProdE1 in Ha as [s [Hs [t [Ht Ha]]]]; subst a;
+    apply CProdE1 in Hb as [u [Hu [v [Hc Hb]]]]; subst b; zfc_simple.
+    + apply binRelE3 in H.
+      apply UnionAx. exists (BR α v⁺). split.
+      apply ReplAx. exists v⁺. split.
+      apply sucord_in_limord... split...
+      rewrite R_WOₒMul... apply ord_suc_is_ord. eapply ord_is_ords...
+      apply binRelI; [apply CProdI..|zfc_simple]... apply BUnionI1...
+      left. apply binRelI... apply BUnionI1...
+    + destruct H as [H Heq].
+      apply binRelE3 in H. subst v.
+      apply UnionAx. exists (BR α t⁺). split.
+      apply ReplAx. exists t⁺. split.
+      apply sucord_in_limord... split...
+      rewrite R_WOₒMul... apply ord_suc_is_ord. eapply ord_is_ords...
+      apply binRelI; [apply CProdI..|zfc_simple]...
+      right. split... apply binRelI...
+Qed.
+
+Theorem ordMulₜ_limit : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
+  α ⋅ 𝜆 = sup {α ⋅ β | β ∊ 𝜆}.
+Proof with auto.
+  intros α Hoα 𝜆 [Ho𝜆 Heq𝜆] Hne.
+  rewrite <- ord_union_𝒟...
+  rewrite <- (ord_WOₒ_id α), <- (ord_WOₒ_id 𝜆) at 1...
+  apply ordMulₜ_iff_woMul.
+  replace (WOₒ α ⋅ WOₒ 𝜆)%wo with (⊔(𝒟 α 𝜆)). reflexivity.
+  pose proof (unionStruct_spec_intro (𝒟 α 𝜆)) as [HA HR].
+  apply 𝒟_is_wos... apply 𝒟_is_ees...
+  apply eq_intro; simpl.
+  - repeat rewrite A_WOₒ_id...
+    rewrite HA. apply Unionₐ_𝒟... split...
+  - unfold WoMul_R.
+    repeat rewrite A_WOₒ_id, R_WOₒ...
+    rewrite HR. apply Unionᵣ_𝒟... split...
+Qed.
+
+End MulLimit.

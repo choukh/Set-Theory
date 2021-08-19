@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Feb 2021 **)
 
 Require Import ZFC.lib.Class.
@@ -161,7 +161,7 @@ Proof with neauto; try congruence.
   apply (monotone_operation_leq F) in Hoβ as H...
   destruct H as [Heq|Hlt]; revgoals. exists β. repeat split...
   set (Operation β F) as f.
-  set {f | n ∊ ω} as S.
+  set {f n | n ∊ ω} as S.
   assert (Hne: S ≠ ∅). {
     apply EmptyNI. exists (f 0). eapply ReplI...
   }
@@ -199,7 +199,7 @@ Corollary ex_least_fixed_point :
 Proof with eauto.
   intros F HF Hnml β Hoβ.
   apply (Veblen_fixed_point F) in Hoβ as [γ [[Hoγ HFγ] Hβγ]]...
-  set {ξ ∊ γ⁺ | λ ξ, F ξ = ξ ∧ β ⋸ ξ} as Ω.
+  set {ξ ∊ γ⁺ | F ξ = ξ ∧ β ⋸ ξ} as Ω.
   pose proof (ords_woset Ω) as [_ Hmin]. {
     intros ξ Hξ. apply SepE1 in Hξ.
     apply (ord_is_ords γ⁺)...

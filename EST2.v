@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 2 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.lib.Essential.
@@ -6,7 +6,7 @@ Require Export ZFC.lib.Essential.
 (*** EST第二章：补集，真子集，集合代数定律 ***)
 
 (** 补集 **)
-Definition Complement : set → set → set := λ A B, {x ∊ A | λ x, x ∉ B}.
+Definition Complement : set → set → set := λ A B, {x ∊ A | x ∉ B}.
 Notation "A - B" := (Complement A B) : set_scope.
 
 Lemma CompI : ∀ A B, ∀x ∈ A, x ∉ B → x ∈ A - B.
@@ -20,20 +20,6 @@ Proof.
   intros. destruct (classic (x ∈ B)).
   - right. apply H0.
   - left. intros H1. apply H. apply CompI; assumption.
-Qed.
-
-Lemma union_comp : ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
-Proof.
-  intros. apply ExtAx. split; intros.
-  - apply CompE in H. destruct H as [H HC].
-    apply BUnionE in H. destruct H.
-    + apply BUnionI1. apply CompI. apply H. apply HC.
-    + apply BUnionI2. apply CompI. apply H. apply HC.
-  - apply BUnionE in H. destruct H.
-    + apply CompE in H as [HA HC].
-      apply CompI. apply BUnionI1. apply HA. apply HC.
-    + apply CompE in H as [HB HC].
-      apply CompI. apply BUnionI2. apply HB. apply HC.
 Qed.
 
 Lemma sub_iff_no_comp : ∀ A B, A ⊆ B ↔ A - B = ∅.
@@ -218,20 +204,6 @@ Proof.
     + apply BUnionI2. apply BInterI; auto.
 Qed.
 
-(* 交补分配律 *)
-Lemma binter_comp_distr : ∀ A B C, A ∩ (B - C) = (A ∩ B) - (A ∩ C).
-Proof.
-  intros. apply ExtAx. split; intros.
-  - apply BInterE in H as [H1 H2].
-    apply CompE in H2 as [H2 H3].
-    apply CompI. apply BInterI; assumption.
-    intros H4. apply BInterE in H4 as [_ H4]. auto.
-  - apply CompE in H as [H1 H2].
-    apply BInterE in H1 as [H0 H1].
-    apply BInterI. apply H0. apply CompI. apply H1.
-    intros H3. apply H2. apply BInterI; assumption.
-Qed.
-
 (* 二元并德摩根定律 *)
 Lemma bunion_demorgen : ∀ A B x, x ∉ A ∪ B ↔ x ∉ A ∧ x ∉ B.
 Proof.
@@ -243,8 +215,23 @@ Proof.
     apply BUnionE in H. destruct H; auto.
 Qed.
 
-(* 二元并补德摩根定律 *)
-Lemma comp_bunion_demorgen : ∀ A B C, C - (A ∪ B) = (C - A) ∩ (C - B).
+(* 并补对偶律 *)
+Lemma bunion_comp : ∀ A B C, (A ∪ B) - C = (A - C) ∪ (B - C).
+Proof.
+  intros. apply ExtAx. split; intros.
+  - apply CompE in H. destruct H as [H HC].
+    apply BUnionE in H. destruct H.
+    + apply BUnionI1. apply CompI. apply H. apply HC.
+    + apply BUnionI2. apply CompI. apply H. apply HC.
+  - apply BUnionE in H. destruct H.
+    + apply CompE in H as [HA HC].
+      apply CompI. apply BUnionI1. apply HA. apply HC.
+    + apply CompE in H as [HB HC].
+      apply CompI. apply BUnionI2. apply HB. apply HC.
+Qed.
+
+(* 补并对偶律 *)
+Lemma comp_bunion : ∀ A B C, C - (A ∪ B) = (C - A) ∩ (C - B).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [H1 H2].
@@ -269,8 +256,20 @@ Proof.
     + apply H. apply BInterE in H0 as [_ H0]. apply H0.
 Qed.
 
-(* 二元交补德摩根定律 *)
-Lemma comp_binter_demorgen : ∀ A B C, C - (A ∩ B) = (C - A) ∪ (C - B).
+(* 交补结合律 *)
+Lemma binter_comp : ∀ A B C, (A ∩ B) - C = A ∩ (B - C).
+Proof with auto.
+  intros. apply ExtAx. split; intros.
+  - apply CompE in H as [H1 H2].
+    apply BInterE in H1 as [H0 H1].
+    apply BInterI... apply CompI...
+  - apply BInterE in H as [H1 H2].
+    apply CompE in H2 as [H2 H3].
+    apply CompI... apply BInterI...
+Qed.
+
+(* 交补对偶律 *)
+Lemma comp_binter : ∀ A B C, C - (A ∩ B) = (C - A) ∪ (C - B).
 Proof.
   intros. apply ExtAx. split; intros.
   - apply CompE in H as [HC H].
@@ -292,18 +291,11 @@ Proof.
   - apply BUnionE in H. destruct H. apply H. exfalso0.
   - apply BUnionI1. apply H.
 Qed.
-  
+
 Lemma binter_empty : ∀ A, A ∩ ∅ = ∅.
 Proof.
   intros. apply EmptyI. intros x H.
   apply BInterE in H as [_ H]. exfalso0.
-Qed.
-
-Lemma binter_comp_empty : ∀ A C, A ∩ (C - A) = ∅.
-Proof.
-  intros. apply EmptyI. intros x H.
-  apply BInterE in H as [H1 H2].
-  apply CompE in H2. destruct H2 as [_ H2]. auto.
 Qed.
 
 (* 涉及全集的同一性 *)
@@ -335,11 +327,11 @@ Proof.
     + apply BUnionI2. apply CompI. apply H0. apply H1.
 Qed.
 
-Lemma binter_comp_parent : ∀ A S, A ⊆ S → A ∩ (S - A) = ∅.
+Lemma binter_comp_empty : ∀ A S, A ∩ (S - A) = ∅.
 Proof.
-  intros. apply EmptyI. intros x Hx.
-  apply BInterE in Hx as [H1 H2].
-  apply CompE in H2 as [_ H2]. auto.
+  intros. apply EmptyI. intros x H.
+  apply BInterE in H as [H1 H2].
+  apply CompE in H2. destruct H2 as [_ H2]. auto.
 Qed.
 
 (* 子集关系的单调性 *)
@@ -370,6 +362,13 @@ Proof with auto.
   subst x. apply CProdI...
 Qed.
 
+Lemma sub_mono_cprod' : ∀ A B C, A ⊆ B → C × A ⊆ C × B.
+Proof with auto.
+  intros * H x Hx.
+  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  subst x. apply CProdI...
+Qed.
+
 (* 子集关系的反单调性 *)
 
 Lemma sub_amono_comp : ∀ A B C, A ⊆ B → C - B ⊆ C - A.
@@ -388,7 +387,7 @@ Qed.
 
 (* 二元并任意交分配律 *)
 Lemma bunion_inter_distr : ∀ A ℬ,
-  ⦿ ℬ → A ∪ ⋂ℬ = ⋂{λ X, A ∪ X | X ∊ ℬ}.
+  ⦿ ℬ → A ∪ ⋂ℬ = ⋂{A ∪ X | X ∊ ℬ}.
 Proof.
   intros * Hi. apply ExtAx. split; intros.
   - apply InterI...
@@ -402,7 +401,7 @@ Proof.
   - destruct (classic (x ∈ A)) as [HA|HA].
     + apply BUnionI1. apply HA.
     + apply BUnionI2. apply InterI... apply Hi. intros b Hb.
-      assert (Hu: A ∪ b ∈ {BUnion A | X ∊ ℬ}). {
+      assert (Hu: A ∪ b ∈ {A ∪ X | X ∊ ℬ}). {
         apply ReplI. apply Hb.
       }
       apply InterE in H as [_ H]...
@@ -413,7 +412,7 @@ Qed.
 
 (* 二元交任意并的分配律 *)
 Lemma binter_union_distr : ∀ A ℬ,
-  A ∩ ⋃ℬ = ⋃{λ X, A ∩ X | X ∊ ℬ}.
+  A ∩ ⋃ℬ = ⋃{A ∩ X | X ∊ ℬ}.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply BInterE in H as [HA Hu].
@@ -429,7 +428,7 @@ Qed.
 
 (* 补并德摩根定律 *)
 Lemma comp_union_demorgen : ∀ 𝒜 C,
-  ⦿ 𝒜 → C - ⋃𝒜 = ⋂{λ X, C - X | X ∊ 𝒜}.
+  ⦿ 𝒜 → C - ⋃𝒜 = ⋂{C - X | X ∊ 𝒜}.
 Proof.
   intros * [a Ha]. apply ExtAx. split; intros.
   - apply CompE in H as [HC HU]. apply InterI.
@@ -438,12 +437,12 @@ Proof.
       rewrite <- Hc. apply CompI. apply HC. intros H.
       apply HU. eapply UnionI. apply Hb. apply H.
   - apply InterE in H as [_ H]. apply CompI.
-    + assert (C - a ∈ {Complement C | X ∊ 𝒜}). {
+    + assert (C - a ∈ {C - X | X ∊ 𝒜}). {
         apply ReplI. apply Ha.
       }
       apply H in H0. apply CompE in H0 as [HC _]. apply HC.
     + intros HU. apply UnionAx in HU as [b [Hb1 Hb2]].
-      assert (C - b ∈ {Complement C | X ∊ 𝒜}). {
+      assert (C - b ∈ {C - X | X ∊ 𝒜}). {
         apply ReplI. apply Hb1.
       }
       apply H in H0. apply CompE in H0 as [_ Hb3]. auto.
@@ -469,7 +468,7 @@ Qed.
 
 (* 补交德摩根定律 *)
 Lemma comp_inter_demorgen : ∀ 𝒜 C,
-  ⦿ 𝒜 → C - ⋂𝒜 = ⋃{λ X, C - X | X ∊ 𝒜}.
+  ⦿ 𝒜 → C - ⋂𝒜 = ⋃{C - X | X ∊ 𝒜}.
 Proof.
   intros * Hi. apply ExtAx. split; intros.
   - apply CompE in H as [HC HU].

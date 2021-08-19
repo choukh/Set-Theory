@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, June 2020 **)
 
 Require Export ZFC.EST5_2.
@@ -266,7 +266,7 @@ Qed.
 
 Corollary ratAdd_ident' : ∀r ∈ ℚ, Rat 0 + r = r.
 Proof.
-  intros r Hr. simpl. rewrite ratAdd_comm, ratAdd_ident; nauto.
+  intros r Hr. rewrite ratAdd_comm, ratAdd_ident; nauto.
 Qed.
 
 Theorem ratAddInv_exists : ∀r ∈ ℚ, ∃s ∈ ℚ, r + s = Rat 0.
@@ -285,7 +285,7 @@ Proof with auto.
   intros r Hr. rewrite <- unique_existence.
   split. apply ratAddInv_exists...
   intros s s' [Hs H1] [Hs' H2].
-  rewrite <- ratAdd_ident, <- (ratAdd_ident s')...
+  rewrite <- (ratAdd_ident s), <- (ratAdd_ident s')...
   rewrite <- H2 at 1. rewrite <- H1.
   rewrite <- ratAdd_assoc, (ratAdd_comm r), (ratAdd_comm s')...
   apply ratAdd_ran...
@@ -315,13 +315,13 @@ Qed.
 
 (* 有理数投射 *)
 Definition PosDenoms := λ r,
-  {p ∊ r | λ p, intPos (π2 p)}.
+  {p ∊ r | intPos (π2 p)}.
 Definition NatDenoms := λ r,
-  {λ p, π1 (IntProj (π2 p)) | p ∊ PosDenoms r}.
+  {π1 (IntProj (π2 p)) | p ∊ PosDenoms r}.
 Definition MinNatDenom := λ r,
   (Min Lt)[NatDenoms r].
 Definition PreRatProj := λ r,
-  {p ∊ PosDenoms r | λ p, π2 p = ω_Embed[MinNatDenom r]}.
+  {p ∊ PosDenoms r | π2 p = ω_Embed[MinNatDenom r]}.
 Definition RatProj := λ r,
   ⋃ (PreRatProj r).
 
@@ -715,7 +715,7 @@ Qed.
 
 Lemma ratMul_ident' : ∀r ∈ ℚ, Rat 1 ⋅ r = r.
 Proof.
-  intros a Ha. simpl. rewrite ratMul_comm, ratMul_ident; nauto.
+  intros a Ha. rewrite ratMul_comm, ratMul_ident; nauto.
 Qed.
 
 Lemma ratMul_addInv : ∀r ∈ ℚ, -Rat 1 ⋅ r = -r.
@@ -729,7 +729,7 @@ Qed.
 
 Lemma ratMul_0_l : ∀s ∈ ℚ, Rat 0 ⋅ s = Rat 0.
 Proof.
-  intros s Hs. simpl. rewrite ratMul_comm, ratMul_0_r; nauto.
+  intros s Hs. rewrite ratMul_comm, ratMul_0_r; nauto.
 Qed.
 
 Lemma zRat_zInt : ∀a ∈ ℤ, ∀b ∈ ℤ', [<a, b>]~ = Rat 0 → a = Int 0.
@@ -831,7 +831,7 @@ Proof with auto.
   intros r Hr. rewrite <- unique_existence. split.
   pose proof (ratMulInv_exists r Hr)...
   intros q q' [Hq H1] [Hq' H2].
-  rewrite <- ratMul_ident, <- (ratMul_ident q'); nz_q...
+  rewrite <- (ratMul_ident q), <- (ratMul_ident q'); nz_q...
   rewrite <- H2 at 1. rewrite <- H1.
   rewrite <- ratMul_assoc, (ratMul_comm r), (ratMul_comm q'); nz_q...
   apply ratMul_ran; nz_q...

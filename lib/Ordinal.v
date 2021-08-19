@@ -3,7 +3,7 @@
 Require Export ZFC.lib.Cardinal.
 
 Lemma dom_of_op_repl :
-  ∀ A G, dom {λ x, <x, G x> | x ∊ A} = A.
+  ∀ A G, dom {<x, G x> | x ∊ A} = A.
 Proof with auto.
   intros. apply ExtAx. split; intros Hx.
   - apply domE in Hx as [y Hp].
@@ -13,7 +13,7 @@ Proof with auto.
 Qed.
 
 Lemma ran_of_op_repl :
-  ∀ A G, ran {λ x, <x, G x> | x ∊ A} = {G | x ∊ A}.
+  ∀ A G, ran {<x, G x> | x ∊ A} = {G x | x ∊ A}.
 Proof with auto.
   intros. apply ExtAx. intros y. split; intros Hy.
   - apply ranE in Hy as [x Hp].
@@ -24,7 +24,7 @@ Proof with auto.
 Qed.
 
 Lemma op_repl_is_func :
-  ∀ A G, is_function {λ x, <x, G x> | x ∊ A}.
+  ∀ A G, is_function {<x, G x> | x ∊ A}.
 Proof with auto.
   intros. repeat split.
   - intros p Hp. apply ReplAx in Hp as [x [_ H]]; subst...
@@ -38,7 +38,7 @@ Proof with auto.
 Qed.
 
 Lemma ap_of_op_repl :
-  ∀ A G, ∀ x ∈ A, {λ x, <x, G x> | x ∊ A}[x] = G x.
+  ∀ A G, ∀ x ∈ A, {<x, G x> | x ∊ A}[x] = G x.
 Proof with auto.
   intros A G x Hx. apply func_ap. apply op_repl_is_func.
   apply ReplAx. exists x. split...
@@ -74,7 +74,7 @@ Proof with eauto; try congruence.
     - apply BInterI... eapply ord_trans...
   }
   rewrite Hsm in Hα.
-  set {α ∊ δ | λ α, (F γ δ)[α] = (F γ ε)[α]} as δ'.
+  set {α ∊ δ | (F γ δ)[α] = (F γ ε)[α]} as δ'.
   replace δ with δ' in Hα. apply SepE2 in Hα... clear Hα α.
   eapply transfinite_induction. apply ord_woset...
   split. intros α Hα. apply SepE1 in Hα...
@@ -112,13 +112,13 @@ Qed.
 Definition Recursion := λ γ α, (F γ α⁺)[α].
 
 Theorem recursion_spec : ∀ γ α, (∀ f, ∃! y, γ f y) →
-  α ⋵ 𝐎𝐍 → γ {λ β, <β, Recursion γ β> | β ∊ α} (Recursion γ α).
+  α ⋵ 𝐎𝐍 → γ {<β, Recursion γ β> | β ∊ α} (Recursion γ α).
 Proof with eauto.
   intros γ α Hγ Hoα. unfold Recursion.
   pose proof (F_spec γ Hγ α⁺) as [Hf [Hd Hr]]...
   assert (Hα: α ∈ α⁺). apply suc_has_n.
   apply Hr in Hα.
-  replace (F γ α⁺ ↾ α) with {λ β, <β, Recursion γ β> | β ∊ α} in Hα...
+  replace (F γ α⁺ ↾ α) with {<β, Recursion γ β> | β ∊ α} in Hα...
   apply ExtAx. split; intros Hx.
   - apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
     assert (β ∈ α⁺). apply BUnionI1...
@@ -140,7 +140,7 @@ Import RecursionSchemaOnOrdinals.
 Definition Recursion := λ F, Recursion (λ f y, y = F (ran f)).
 
 Theorem recursion_spec : ∀ F, ∀α ⋵ 𝐎𝐍,
-  Recursion F α = F {Recursion F | β ∊ α}.
+  Recursion F α = F {Recursion F β | β ∊ α}.
 Proof with auto; try congruence.
   intros F α Hoα. unfold Recursion.
   set (λ f y, y = F (ran f)) as γ.

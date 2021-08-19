@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Feb 2021 **)
 
 Require Import ZFC.lib.Class.
@@ -15,7 +15,7 @@ Definition monotone := λ F,
 
 (* 序数操作在极限处的连续性 *)
 Definition continuous := λ F,
-  ∀ 𝜆, 𝜆 ≠ ∅ → 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ → F 𝜆 = sup{F | α ∊ 𝜆}.
+  ∀ 𝜆, 𝜆 ≠ ∅ → 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ → F 𝜆 = sup{F α | α ∊ 𝜆}.
 
 (* 序数操作的规范性 *)
 Definition normal := λ F, monotone F ∧ continuous F.
@@ -41,11 +41,11 @@ Definition Domain := λ F A,
 
 (* 序数操作的与指定定义域对应的值域 *)
 Definition Range := λ F Ω,
-  {F | α ∊ Ω}.
+  {F α | α ∊ Ω}.
 
 (* 序数操作的包含于指定集合里的值域 *)
 Definition RangeAmong := λ F Ω,
-  {y ∊ Ω | λ y, ∃α ⋵ 𝐎𝐍, F α = y}.
+  {y ∊ Ω | ∃α ⋵ 𝐎𝐍, F α = y}.
 
 Lemma domain_spec :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → class_injective F 𝐎𝐍 →
@@ -80,7 +80,7 @@ Lemma monotone_operation_injective :
   monotone F → class_injective F 𝐎𝐍.
 Proof with auto.
   intros F C HF Hsub Hmono α Hoα β Hoβ Heq.
-  destruct (classic (α = β)) as [|Hnq]... exfalso.
+  contra as Hnq.
   apply ord_connected in Hnq as []; auto;
   eapply Hmono in H; eauto;
   rewrite Heq in H; eapply ord_irrefl; revgoals; eauto;
@@ -106,7 +106,7 @@ Qed.
 Lemma bounded_iff_is_set : ∀ C, C ⫃ 𝐎𝐍 → bounded C ↔ is_set C.
 Proof with auto.
   intros C Hsub. split.
-  - intros [α [Hoα Hle]]. exists {x ∊ α⁺ | C}.
+  - intros [α [Hoα Hle]]. exists {x ∊ α⁺ | C x}.
     intros x. split; intros Hx. apply SepE2 in Hx...
     apply SepI... apply ord_leq_iff_lt_suc...
   - intros [A HA].
@@ -136,7 +136,7 @@ Lemma monotone_operation_continuous_if_range_closed :
 Proof with eauto.
   intros F C [HF HR] Hsub Hmono Hcld 𝜆 Hne Hlim.
   assert (H := Hlim). destruct H as [Ho𝜆 _].
-  set {F | α ∊ 𝜆} as A.
+  set {F α | α ∊ 𝜆} as A.
   pose proof (ord_sup_is_ub A) as [_ Hub]. {
     intros x Hx. apply ReplAx in Hx as [α [Hα Hx]].
     subst x. apply Hsub. apply HF. eapply ord_is_ords...
@@ -153,7 +153,7 @@ Proof with eauto.
   }
   apply HR in Hu as [α [Hoα HFα]].
   rewrite <- HFα. f_equal.
-  destruct (classic (𝜆 = α)) as [|Hnq]... exfalso.
+  contra as Hnq.
   apply ord_connected in Hnq as [H𝜆α|Hα𝜆]...
   - apply Hmono in H𝜆α... rewrite HFα in H𝜆α.
     apply FUnionE in H𝜆α as [β [Hβ Hlt]].
@@ -300,7 +300,7 @@ Proof with eauto; try congruence.
     exists μ. split... split...
     intros x HPx Hx.
     destruct (classic (x ∈ α⁺)) as [Hxα|Hxα].
-    + assert (x ∈ {ξ ∊ α⁺ | P}). apply SepI... split...
+    + assert (x ∈ {ξ ∊ α⁺ | P ξ}). apply SepI... split...
       apply Hmin in H as []... apply binRelE3 in H...
     + assert (Hoμ: μ ⋵ 𝐎𝐍). apply Hsub...
       assert (Hox: x ⋵ 𝐎𝐍). apply Hsub...
@@ -316,7 +316,7 @@ Global Hint Immediate γ_functional : core.
 
 (* 枚举元素是属于子类且与之前的元素都不同的最小序数 *)
 Lemma enum_spec : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
-  ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ C, ξ ∉ {Enumerate C | x ∊ α} → Enumerate C α ⋸ ξ.
+  ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ C, ξ ∉ {Enumerate C x | x ∊ α} → Enumerate C α ⋸ ξ.
 Proof with auto.
   intros C Hsub Hund α Hoα ξ HξC Hout.
   pose proof (recursion_spec (γ C) α) as [_ [_ Hmin]]...
@@ -348,7 +348,7 @@ Proof with eauto.
   pose proof (recursion_spec (γ C) α) as [Hinf [Hout _]]...
   pose proof (recursion_spec (γ C) β) as [_ [_ Hmin]]...
   fold (Enumerate C) in *. rewrite ran_of_op_repl in *.
-  assert (Enumerate C α ∉ {Enumerate C | x ∊ β}). {
+  assert (Enumerate C α ∉ {Enumerate C x | x ∊ β}). {
     intros H. apply ReplAx in H as [δ [Hδ H]].
     apply Hout. rewrite <- H. apply ReplI. eapply ord_trans...
   }
@@ -375,7 +375,7 @@ Proof with eauto; try congruence.
   apply (transfinite_induction_schema_on_ordinals ϕ).
   intros ξ Hoξ IH Hinfξ.
   set (λ x α, α ⋵ 𝐎𝐍 ∧ x = Enumerate C α) as ψ.
-  set {x ∊ ξ | C} as χ.
+  set {x ∊ ξ | C x} as χ.
   set (ϕ_Repl ψ χ) as α.
   assert (Hψ: ∀x ∈ χ, ∃! y, ψ x y). {
     intros x Hx. apply SepE in Hx as [Hx Hinfx].
@@ -463,7 +463,7 @@ Qed.
 Local Hint Resolve infcard_unbounded : core.
 
 (* 阿列夫数是与之前的阿列夫数都不同的最小无限基数 *)
-Lemma aleph_spec : ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ 𝐂𝐃ⁱⁿᶠ, ξ ∉ {ℵ | x ∊ α} → ℵ α ⋸ ξ.
+Lemma aleph_spec : ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ 𝐂𝐃ⁱⁿᶠ, ξ ∉ {ℵ x | x ∊ α} → ℵ α ⋸ ξ.
 Proof. intros α Hα ξ Hξ. apply (enum_spec 𝐂𝐃ⁱⁿᶠ); auto. Qed.
 
 (* 阿列夫数是无限基数 *)
@@ -760,7 +760,7 @@ Proof with nauto.
   - destruct (classic (α = 0)) as [|Hne]. subst. rewrite beth_0...
     rewrite beth_limit... intros Hfin.
     apply finite_union in Hfin as [_ Hfin].
-    assert (ℶ 0 ∈ {ℶ | ξ ∊ α}). {
+    assert (ℶ 0 ∈ {ℶ ξ | ξ ∊ α}). {
       eapply ReplI. apply ord_nq_0_gt_0...
     }
     apply Hfin in H. rewrite beth_0 in H.

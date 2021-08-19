@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 5 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, May 2021 **)
 
 Require Import ZFC.lib.LoStruct.
@@ -12,7 +12,7 @@ Import StructureCasting.
 Definition WoDisj_A :=
   λ S i, (A S × ⎨i⎬).
 Definition WoDisj_R :=
-  λ S i, {λ p, <<π1 p, i>, <π2 p, i>> | p ∊ R S}.
+  λ S i, {<<π1 p, i>, <π2 p, i>> | p ∊ R S}.
 
 Lemma woDisj_is_binRel :
   ∀ S i, is_binRel (WoDisj_R S i) (WoDisj_A S i).
@@ -79,7 +79,7 @@ Proof with auto.
   apply CProdE1 in H as [a [Ha [c [Hc H]]]].
   apply SingE in Hc; subst.
   destruct (wo S) as [_ Hmin].
-  pose proof (Hmin {π1 | p ∊ B}) as [m [Hm Hle]].
+  pose proof (Hmin {π1 p | p ∊ B}) as [m [Hm Hle]].
   - exists a. apply ReplAx. exists <a, i>. split... zfc_simple.
   - intros x Hx.
     apply ReplAx in Hx as [p [Hp Hx]]. apply Hsub in Hp.
@@ -91,7 +91,7 @@ Proof with auto.
     + intros x Hx. apply Hsub in Hx as H.
       apply CProdE1 in H as [u [Hu [v [Hv H]]]].
       apply SingE in Hv; subst.
-      assert (Hu': u ∈ {π1 | p ∊ B}). {
+      assert (Hu': u ∈ {π1 p | p ∊ B}). {
         apply ReplAx. exists <u, i>. split... zfc_simple.
       }
       apply Hle in Hu' as [].
@@ -242,7 +242,7 @@ Proof with eauto; try congruence.
       exists <a, 0>. apply BInterI... apply CProdI...
     }
     destruct (wo T) as [_ Hmin].
-    pose proof (Hmin {π1 | p ∊ B ∩ A (WoDisj T 1)}) as [m [Hm Hle]].
+    pose proof (Hmin {π1 p | p ∊ B ∩ A (WoDisj T 1)}) as [m [Hm Hle]].
     + exists a. apply ReplAx. exists <a, 1>. split.
       apply BInterI... apply CProdI... zfc_simple.
     + intros x Hx.
@@ -260,7 +260,7 @@ Proof with eauto; try congruence.
       apply SingE in Hv; subst.
       * exfalso. apply EmptyNI in H0...
         exists <u, 0>. apply BInterI... apply CProdI...
-      * assert (Hu': u ∈ {π1 | p ∊ B ∩ A (WoDisj T 1)}). {
+      * assert (Hu': u ∈ {π1 p | p ∊ B ∩ A (WoDisj T 1)}). {
           apply ReplAx. exists <u, 1>. split.
           apply BInterI... apply CProdI... zfc_simple.
         }
@@ -272,7 +272,7 @@ Proof with eauto; try congruence.
     apply CProdE1 in H as [a [Ha [c [Hc H]]]];
     apply SingE in Hc; subst.
     destruct (wo S) as [_ Hmin].
-    pose proof (Hmin {π1 | p ∊ B ∩ A (WoDisj S 0)}) as [m [Hm Hle]].
+    pose proof (Hmin {π1 p | p ∊ B ∩ A (WoDisj S 0)}) as [m [Hm Hle]].
     + exists a. apply ReplAx. exists <a, 0>. split.
       apply BInterI... apply CProdI... zfc_simple.
     + intros x Hx.
@@ -288,7 +288,7 @@ Proof with eauto; try congruence.
       apply BUnionE in H as [];
       apply CProdE1 in H as [u [Hu [v [Hv H]]]];
       apply SingE in Hv; subst.
-      * assert (Hu': u ∈ {π1 | p ∊ B ∩ A (WoDisj S 0)}). {
+      * assert (Hu': u ∈ {π1 p | p ∊ B ∩ A (WoDisj S 0)}). {
           apply ReplAx. exists <u, 0>. split.
           apply BInterI... apply CProdI... zfc_simple.
         }
@@ -365,14 +365,14 @@ Proof with eauto; try congruence.
   apply CProdE1 in H as [aₓ [Haₓ [bₓ [Hbₓ Heq]]]]. subst.
   destruct (wo S) as [_ HminS].
   destruct (wo T) as [_ HminT].
-  pose proof (HminT {π2 | p ∊ B}) as [b₀ [Hb₀ Hleb₀]]. {
+  pose proof (HminT {π2 p | p ∊ B}) as [b₀ [Hb₀ Hleb₀]]. {
     exists bₓ. apply ReplAx. exists <aₓ, bₓ>. split... zfc_simple.
   } {
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]]. apply Hsub in Hp.
     apply CProdE1 in Hp as [a [_ [b [Hb H]]]]. subst. zfc_simple.
   }
-  set {p ∊ B | λ p, π2 p = b₀} as B₀.
-  pose proof (HminS {π1 | p ∊ B₀}) as [a₀ [Ha₀ Hlea₀]]. {
+  set {p ∊ B | π2 p = b₀} as B₀.
+  pose proof (HminS {π1 p | p ∊ B₀}) as [a₀ [Ha₀ Hlea₀]]. {
     apply ReplAx in Hb₀ as [p [Hp Hb₀]]. apply Hsub in Hp as H.
     apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst. zfc_simple.
     exists a. apply ReplAx. exists <a, b>. split.
@@ -390,11 +390,11 @@ Proof with eauto; try congruence.
   apply CProdE1 in H as [u [Hu [v [Hv H]]]]. subst.
   destruct (classic (<a₀, b₀> = <u, v>)) as [|Hnq]. right... left.
   apply binRelI. apply CProdI... apply Hsub... zfc_simple.
-  assert (Hv': v ∈ {π2 | p ∊ B}). {
+  assert (Hv': v ∈ {π2 p | p ∊ B}). {
     apply ReplAx. exists <u, v>. split... zfc_simple.
   }
   apply Hleb₀ in Hv' as []... right. split...
-  assert (Hu': u ∈ {π1 | p ∊ B₀}). {
+  assert (Hu': u ∈ {π1 p | p ∊ B₀}). {
     apply ReplAx. exists <u, v>. split.
     apply SepI... zfc_simple. zfc_simple.
   }

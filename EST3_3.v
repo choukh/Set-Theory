@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 3 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 3 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST3_2.
@@ -93,7 +93,7 @@ Qed.
 
 (* 等价类 *)
 Definition EquivClass : set → set → set := λ x R,
-  {t ∊ ran R | λ t, <x, t> ∈ R}.
+  {t ∊ ran R | <x, t> ∈ R}.
 Notation "[ x ] R" := (EquivClass x R) (at level 35, format "[ x ] R") : set_scope.
 
 Lemma eqvcI : ∀ R x y, <x, y> ∈ R → y ∈ [x]R.
@@ -125,7 +125,7 @@ Definition partition : set → set → Prop := λ Π A,
 
 (* 商集：等价类的集合 *)
 Definition Quotient : set → set → set := λ R A,
-  {λ x, [x]R | x ∊ A}.
+  {[x]R | x ∊ A}.
 Notation "A / R" := (Quotient R A) : set_scope.
 
 Lemma quotI : ∀ R A, ∀a ∈ A, [a]R ∈ A / R.
@@ -165,7 +165,7 @@ Lemma compatibleE0 : ∀ R A F, equiv R A → F: A ⇒ A →
   compatible R A F → ∃F', F': A/R ⇒ A/R ∧ ∀x ∈ A, F'[[x]R] = [F[x]]R.
 Proof with eauto.
   intros * Hqv [Hf [Hdf Hrf]] Hc.
-  set ({λ x, <[x]R, [F[x]]R> | x ∊ A}) as F'.
+  set ({<[x]R, [F[x]]R> | x ∊ A}) as F'.
   assert (Hf': is_function F'). {
     split.
     (* is_rel *)

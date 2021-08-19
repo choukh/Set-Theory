@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 7 Part 3 **)
+(** Solutions to "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Dec 2020 **)
 
 Require ZFC.lib.Real.
@@ -65,7 +65,7 @@ Hint Resolve real_grounded : core.
 (* 整数的秩 *)
 Lemma rank_of_int : ∀a ∈ ℤ, rank a = ω.
 Proof with neauto.
-  intros a Ha. simpl.
+  intros a Ha.
   rewrite rank_recurrence; [|apply (member_grounded ℤ)]...
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply ExtAx. split; intros Hx.
@@ -121,7 +121,7 @@ Qed.
 (* 有理数的秩 *)
 Lemma rank_of_rat : ∀r ∈ ℚ, rank r = ω⁺⁺⁺.
 Proof with neauto.
-  intros r Hr. simpl.
+  intros r Hr.
   rewrite rank_recurrence; [|apply (member_grounded ℚ)]...
   apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
   apply ExtAx. split; intros Hx.
@@ -157,7 +157,7 @@ Qed.
 (* 戴德金实数的秩 *)
 Lemma rank_of_real : ∀x ∈ ℝ, rank x = ω⁺⁺⁺⁺.
 Proof with eauto.
-  intros x Hx. simpl.
+  intros x Hx.
   rewrite <- (subset_same_rank ℚ)... apply rank_of_rats.
   intros r Hr s Hs. rewrite rank_of_rat, rank_of_rat...
   apply SepE1 in Hx... apply realE0 in Hx as [q [_ Hq]].
@@ -176,7 +176,7 @@ End RankOfReal.
 
 (* 假设正则公理，那么第α层宇宙就是由那些秩小于α的集合所组成的集合 *)
 Example ex7_28 : Regularity → ∀ α β ⋵ 𝐎𝐍,
-  α ⋸ β → V α = {X ∊ V β | λ X, rank X ∈ α}.
+  α ⋸ β → V α = {X ∊ V β | rank X ∈ α}.
 Proof with eauto.
   intros Reg α Hoα β Hoβ Hle.
   destruct Hle; apply ExtAx; split; intros Hx.
@@ -254,12 +254,12 @@ Example ex7_33 : ∀ D ⋵ 𝐖𝐅, trans D →
   ∀ B, (∀a ∈ D, a ⊆ B → a ∈ B) → D ⊆ B.
 Proof with eauto.
   intros D Hgnd Htr B HB.
-  destruct (classic (D ⊆ B)) as [|Hnsub]... exfalso.
+  contra as Hnsub.
   assert (Hne: ⦿ (D - B)). {
     apply EmptyNE. intros H0.
     apply sub_iff_no_comp in H0...
   }
-  set {rank | x ∊ D - B} as Ω.
+  set {rank x | x ∊ D - B} as Ω.
   destruct (ords_woset Ω) as [_ Hmin]. {
     intros x Hx. apply ReplAx in Hx as [d [Hd Heq]].
     subst x. apply rank_is_ord...
@@ -272,7 +272,7 @@ Proof with eauto.
   apply ReplAx in Hμ as [m [Hm Heqμ]]. subst μ.
   apply SepE in Hm as [Hm Hm']. apply Hm'.
   apply HB... intros x Hxm.
-  destruct (classic (x ∈ B)) as [|Hx']... exfalso.
+  contra as Hx'.
   assert (HxD: x ∈ D)...
   assert (Hx: x ∈ D - B). apply SepI...
   assert (rank x ∈ Ω). apply ReplI...
@@ -376,21 +376,21 @@ Proof with eauto.
   apply connected_trans_iff_ord. split...
   intros a Ha b Hb Hnqab.
   destruct (classic (a ∈ b)) as [|Hab]; [left|right]; apply binRelI...
-  destruct (classic (b ∈ a)) as [|Hba]... exfalso.
-  set {x ∊ α | λ x, ∃y ∈ α, x ≠ y ∧ x ∉ y ∧ y ∉ x} as A.
+  contra as Hba.
+  set {x ∊ α | ∃y ∈ α, x ≠ y ∧ x ∉ y ∧ y ∉ x} as A.
   pose proof (ex_epsilon_minimal A) as [m [Hm HminA]]. {
     apply EmptyNI. exists a. apply SepI...
   }
   apply SepE in Hm as H.
   destruct H as [Hmα [y [Hy [Hnqmy [Hmy Hym]]]]].
-  set {x ∊ α | λ x, x ≠ m ∧ x ∉ m ∧ m ∉ x} as B.
+  set {x ∊ α | x ≠ m ∧ x ∉ m ∧ m ∉ x} as B.
   pose proof (ex_epsilon_minimal B) as [n [Hn HminB]]. {
     apply EmptyNI. exists y. apply SepI...
   }
   apply SepE in Hn as H.
   destruct H as [Hnα [Hnqnm [Hnm Hmn]]].
   apply Hnqnm. apply ExtAx. split; intros Hx.
-  - destruct (classic (x ∈ m)) as [|Hxm]... exfalso.
+  - contra as Hxm.
     assert (HxB: x ∈ B). {
       apply SepI. eapply Htr1...
       repeat split... intros H. subst...
@@ -398,7 +398,7 @@ Proof with eauto.
     }
     apply HminB in HxB as H. destruct H.
     apply H... subst. eapply no_descending_chain_1...
-  - destruct (classic (x ∈ n)) as [|Hxn]... exfalso.
+  - contra as Hxn.
     assert (HxA: x ∈ A). {
       apply SepI. eapply Htr1... exists n. split...
       repeat split... intros H. subst...
@@ -416,7 +416,7 @@ Import TransitiveClosureDef.
 Local Lemma fn_grounded : ∀A ⋵ 𝐖𝐅, ∀n ∈ ω, (F A)[n] ⋵ 𝐖𝐅.
 Proof with auto.
   intros A Hgnd n Hn.
-  set {n ∊ ω | λ n, (F A)[n] ⋵ 𝐖𝐅} as N.
+  set {n ∊ ω | (F A)[n] ⋵ 𝐖𝐅} as N.
   ω_induction N Hn. rewrite f_0...
   rewrite f_n... apply union_grounded.
   apply pair_grounded... apply union_grounded...
@@ -426,7 +426,7 @@ Hint Resolve fn_grounded : core.
 Local Lemma rank_of_fn : ∀A ⋵ 𝐖𝐅, ∀n ∈ ω, rank (F A)[n] = rank A.
 Proof with eauto; try congruence.
   intros A Hgnd n Hn.
-  set {n ∊ ω | λ n, rank (F A)[n] = rank A} as N.
+  set {n ∊ ω | rank (F A)[n] = rank A} as N.
   ω_induction N Hn. rewrite f_0...
   assert (H1: (F A)[m] ⋵ 𝐖𝐅). apply fn_grounded...
   assert (H2: ⋃(F A)[m] ⋵ 𝐖𝐅). apply union_grounded...

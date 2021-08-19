@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 3 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 3 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST3_1.
@@ -193,7 +193,7 @@ Qed.
 
 (** 限制 **)
 Definition Restriction : set → set → set :=
-  λ F A, {p ∊ F | λ p, is_pair p ∧ π1 p ∈ A}.
+  λ F A, {p ∊ F | is_pair p ∧ π1 p ∈ A}.
 Notation "F ↾ A" := (Restriction F A) (at level 60) : set_scope.
 
 Lemma restrI : ∀ F A a b, a ∈ A → <a, b> ∈ F → <a, b> ∈ F ↾ A.
@@ -326,7 +326,7 @@ Proof with auto.
 Qed.
 
 Lemma img_correct : ∀ F A,
-  is_function F → A ⊆ dom F → F⟦A⟧ = {λ a, F[a] | a ∊ A}.
+  is_function F → A ⊆ dom F → F⟦A⟧ = {F[a] | a ∊ A}.
 Proof with eauto.
   intros F A Hf Hsub. apply ExtAx. intros y. split; intros Hy.
   - apply ReplAx. apply imgE in Hy as [x [Hx Hp]].
@@ -347,7 +347,7 @@ Proof with eauto.
     + eapply imgI... apply BUnionI2...
 Qed.
 
-Theorem img_union_distr : ∀ F 𝒜, F⟦⋃𝒜⟧ = ⋃{λ A, F⟦A⟧ | A ∊ 𝒜}.
+Theorem img_union_distr : ∀ F 𝒜, F⟦⋃𝒜⟧ = ⋃{F⟦A⟧ | A ∊ 𝒜}.
 Proof with eauto.
   intros. apply ExtAx. intros y. split; intros Hy.
   - apply imgE in Hy as [x [Hx Hp]].
@@ -376,7 +376,7 @@ Proof with eauto.
     subst. eapply imgI... apply BInterI...
 Qed.
 
-Theorem img_inter_distr_sub : ∀ F 𝒜, F⟦⋂𝒜⟧ ⊆ ⋂{λ A, F⟦A⟧ | A ∊ 𝒜}.
+Theorem img_inter_distr_sub : ∀ F 𝒜, F⟦⋂𝒜⟧ ⊆ ⋂{F⟦A⟧ | A ∊ 𝒜}.
 Proof with eauto.
   intros F 𝒜 y Hy. apply imgE in Hy as [x [Hx Hp]].
   apply InterE in Hx as [[A HA] H].
@@ -386,7 +386,7 @@ Proof with eauto.
 Qed.
 
 Theorem img_inter_distr : ∀ F 𝒜,
-  single_rooted F → F⟦⋂𝒜⟧ = ⋂{λ A, F⟦A⟧ | A ∊ 𝒜}.
+  single_rooted F → F⟦⋂𝒜⟧ = ⋂{F⟦A⟧ | A ∊ 𝒜}.
 Proof with eauto.
   intros F 𝒜 Hs. apply ExtAx. intros y. split; intros Hy.
   - apply img_inter_distr_sub...
@@ -394,7 +394,7 @@ Proof with eauto.
     apply ReplAx in HY as [A [HA Heq]]. subst Y.
     apply imgE in Hy as [x [_ Hp]].
     eapply imgI... apply InterI. exists A... intros B HB.
-    assert (HY: F⟦B⟧ ∈ {Image F | A ∊ 𝒜}). {
+    assert (HY: F⟦B⟧ ∈ {F⟦A⟧ | A ∊ 𝒜}). {
       apply ReplAx. exists B. split...
     }
     apply H in HY. apply imgE in HY as [x' [Hx' Hp']].
@@ -421,11 +421,11 @@ Proof with eauto.
 Qed.
 
 Corollary img_inv_union_distr : ∀ F 𝒜,
-  F⁻¹⟦⋃𝒜⟧ = ⋃{λ A, F⁻¹⟦A⟧ | A ∊ 𝒜}.
+  F⁻¹⟦⋃𝒜⟧ = ⋃{F⁻¹⟦A⟧ | A ∊ 𝒜}.
 Proof. intros. exact (img_union_distr F⁻¹ 𝒜). Qed.
 
 Corollary img_inv_inter_distr : ∀ F 𝒜,
-  is_function F → F⁻¹⟦⋂𝒜⟧ = ⋂{λ A, F⁻¹⟦A⟧ | A ∊ 𝒜}.
+  is_function F → F⁻¹⟦⋂𝒜⟧ = ⋂{F⁻¹⟦A⟧ | A ∊ 𝒜}.
 Proof with auto.
   intros. apply img_inter_distr.
   apply inv_sr_iff_func...
@@ -440,7 +440,7 @@ Qed.
 
 (** 函数空间 **)
 Definition Arrow : set → set → set := λ A B,
-  {F ∊ 𝒫(A × B) | λ F, F: A ⇒ B}.
+  {F ∊ 𝒫(A × B) | F: A ⇒ B}.
 Notation "A ⟶ B" := (Arrow A B) (at level 60) : set_scope.
 
 Theorem arrowI : ∀ F A B, F: A ⇒ B → F ∈ A ⟶ B.
@@ -478,9 +478,9 @@ Qed.
   }
 **)
 Definition InfCProd : set → (set → set) → set := λ I ℱ,
-  {f ∊ I ⟶ ⋃{λ i, ℱ i | i ∊ I} | λ f, ∀i ∈ I, f[i] ∈ ℱ i}.
+  {f ∊ I ⟶ ⋃{ℱ i | i ∊ I} | ∀i ∈ I, f[i] ∈ ℱ i}.
 
-Lemma InfCProdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ | i ∊ I} →
+Lemma InfCProdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ i | i ∊ I} →
   (∀i ∈ I, x[i] ∈ ℱ i) → x ∈ InfCProd I ℱ.
 Proof with auto.
   intros * Hx Hxi. apply SepI. apply arrowI...
@@ -488,7 +488,7 @@ Proof with auto.
 Qed.
 
 Lemma InfCProdE : ∀ x I ℱ, x ∈ InfCProd I ℱ →
-  x: I ⇒ ⋃ {ℱ | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ ℱ i.
+  x: I ⇒ ⋃ {ℱ i | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ ℱ i.
 Proof.
   intros * Hx. apply SepE in Hx as [Hx Hxi].
   apply SepE in Hx as [_ Hx]. split; auto.
@@ -498,7 +498,7 @@ Example infcprod_self : ∀ I ℱ A, ⦿ I →
   (∀i ∈ I, ℱ i = A) → InfCProd I ℱ = I ⟶ A.
 Proof with eauto.
   intros * [i Hi] H.
-  assert (Heq: ⋃ {ℱ | i ∊ I} = A). {
+  assert (Heq: ⋃ {ℱ i | i ∊ I} = A). {
     apply ExtAx. split; intros Hx.
     - apply FUnionE in Hx as [j [Hj Hx]]. apply H in Hj. subst A...
     - eapply FUnionI... apply H in Hi. subst A...

@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 4 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Mar 2021 **)
 
 Require ZFC.lib.NatIsomorphism.
@@ -159,7 +159,7 @@ Import Coq.micromega.Lia.
 Import ZFC.lib.NatIsomorphism.
 Open Scope Nat_scope.
 
-Lemma lt_nba_ndc : ∀ n a b c d ∈ ω, n ≠ Embed 0 →
+Lemma lt_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
   a ∈ n → b ∈ d → n ⋅ b + a ∈ n ⋅ d + c.
 Proof with nauto.
   intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd.
@@ -171,7 +171,7 @@ Proof with nauto.
   apply lt_mul_enlarge...
 Qed.
 
-Lemma nq_nba_ndc : ∀ n a b c d ∈ ω, n ≠ Embed 0 →
+Lemma nq_nba_ndc : ∀ n a b c d ∈ ω, n ≠ 0 →
   a ∈ n → b ∈ d → n ⋅ b + a ≠ n ⋅ d + c.
 Proof with eauto.
   intros n Hn a Ha b Hb c Hc d Hd Hn0 Han Hbd Heq.
@@ -273,7 +273,7 @@ Proof with neauto; try congruence.
       }
       assert (Hyw: y ∈ ω). eapply ω_trans... apply mul_ran...
       generalize dependent Hy.
-      set {k ∊ ω | λ k, k ∈ n ⋅ m → ∃x ∈ n × m, n ⋅ π2 x + π1 x = k} as N.
+      set {k ∊ ω | k ∈ n ⋅ m → ∃x ∈ n × m, n ⋅ π2 x + π1 x = k} as N.
       ω_induction N Hyw; intros Hy.
       + exists <0, 0>. split. apply CProdI.
         apply nq_0_gt_0... apply nq_0_gt_0...

@@ -76,7 +76,7 @@ Proof with nauto.
   - rename m into k. pose proof (embed_ran k) as Hk.
     rewrite <- (proj_embed_id k).
     generalize dependent n.
-    set {k ∊ ω | λ k, ∀ n : nat, n ⊆ k → n <= k} as N.
+    set {k ∊ ω | ∀ n : nat, n ⊆ k → n <= k} as N.
     ω_induction N Hk; intros n Hn.
     + apply sub_empty in Hn.
       rewrite <- Hn, proj_embed_id...

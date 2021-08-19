@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 5 Part 5 **)
+(** Adapted from "Elements of Set Theory" Chapter 5 **)
 (** Coq coding by choukh, July 2020 **)
 
 Require Export ZFC.EX5.
@@ -12,7 +12,7 @@ Module CauchyReal.
 Open Scope Rat_scope.
 
 Definition CauchySeq : set :=
-  {s ∊ ω ⟶ ℚ | λ s,
+  {s ∊ ω ⟶ ℚ |
     ∀ε ∈ ℚ, ratPos ε → ∃k ∈ ω, ∀ m n ∈ ω, k ∈ m → k ∈ n →
     |s[m] - s[n]| <𝐪 ε
   }.
@@ -40,7 +40,7 @@ Definition is_DedekindCut := λ x,
   (* b. 向下封闭 *) (∀ p q ∈ ℚ, q ∈ x → p <𝐪 q → p ∈ x) ∧
   (* c. 无最大数 *) ∀p ∈ x, ∃q ∈ x, p <𝐪 q.
 
-Definition ℝ : set := {x ∊ 𝒫 ℚ | is_DedekindCut}.
+Definition ℝ : set := {x ∊ 𝒫 ℚ | is_DedekindCut x}.
 
 Lemma reals_sub_power_rat : ℝ ⊆ 𝒫 ℚ.
 Proof. intros x Hx. apply SepE in Hx as []; auto. Qed.
@@ -95,7 +95,7 @@ Qed.
 Lemma realE2_2 : ∀x ∈ ℝ, ∀ p q ∈ ℚ, p ∉ x → p <𝐪 q → q ∉ x.
 Proof with eauto.
   intros x Hx p Hp q Hq Hpx Hpq.
-  destruct (classic (q ∈ x))... exfalso.
+  contra. apply NNPP in H.
   eapply realE2 in H...
 Qed.
 
@@ -248,8 +248,8 @@ Lemma ints_boundedBelow_has_min : ∀ A,
   ∃a ∈ A, ∀b ∈ A, a ≤ b.
 Proof with auto.
   intros A Hne Hsub [b [Hbz Hle]].
-  set {λ a, a - b | a ∊ A} as A'.
-  set {n ∊ ω | λ n, ω_Embed[n] ∈ A'} as N.
+  set {a - b | a ∊ A} as A'.
+  set {n ∊ ω | ω_Embed[n] ∈ A'} as N.
   assert (Hnb: -b ∈ ℤ) by (apply intAddInv_ran; auto).
   assert (Hnn: ∀a' ∈ A', Int 0 ≤ a'). {
     intros a' Ha'. apply ReplAx in Ha' as [a [Ha Heq]]. subst a'.
@@ -297,7 +297,7 @@ Proof with neauto.
   intros A Hne Hsub Hlow.
   pose proof ints_boundedBelow_has_min as [a [Ha Hmin]]...
   apply Hsub in Ha as Haz. exists a. split...
-  destruct (classic (a - Int 1 ∈ A))... exfalso.
+  contra. apply NNPP in H.
   apply Hmin in H. eapply intAdd_preserve_leq in H; revgoals.
   apply (int_n 1). apply intAdd_ran... auto.
   rewrite intAdd_assoc, (intAdd_comm (-Int 1)),
@@ -318,7 +318,7 @@ Proof with neauto.
   pose proof (ex5_18_1 p Hp s Hsq Hpp) as [d [Hd Hup]].
   assert (Hbq: IntEmbed[b] ∈ ℚ) by (apply intEmbed_ran; auto).
   assert (Hdq: IntEmbed[d] ∈ ℚ) by (apply intEmbed_ran; auto).
-  set {a ∊ ℤ | λ a, p ⋅ IntEmbed[a] ∉ x} as A.
+  set {a ∊ ℤ | p ⋅ IntEmbed[a] ∉ x} as A.
   pose proof (ints_boundedBelow_has_min' A) as [c [Hc Hc']].
   - apply EmptyNI. exists d. apply SepI...
     eapply realE2_2; revgoals... apply ratMul_ran...
@@ -347,9 +347,9 @@ Proof with neauto.
       rewrite (ratMul_distr p Hp IntEmbed[c] Hcq IntEmbed[(- Int 1)%z] Hemb).
       rewrite intEmbed_addInv; [|nauto].
       rewrite (ratMul_addInv_r p Hp ([<Int 1, Int 1>]~)); [|nauto].
-      rewrite <- intEmbed_a, intEmbed, ratMul_ident,
+      rewrite <- intEmbed_a, intEmbed, (ratMul_ident p),
         ratAdd_comm, ratAdd_assoc, (ratAdd_comm (-p) Hnp p Hp),
-        ratAddInv_annih, ratAdd_ident; [auto|nauto..].
+        (ratAddInv_annih p), ratAdd_ident; [auto|nauto..].
 Qed.
 
 Close Scope Rat_scope.
@@ -357,7 +357,7 @@ Open Scope Real_scope.
 
 (** 实数加法 **)
 Definition RealAdd : set → set → set := λ x y,
-  {λ p, (π1 p + π2 p)%q | p ∊ x × y}.
+  {(π1 p + π2 p)%q | p ∊ x × y}.
 Notation "x + y" := (RealAdd x y) : Real_scope.
 
 Lemma realAddI1 : ∀ p, ∀ x y ∈ ℝ,
@@ -462,7 +462,7 @@ Proof with auto.
     apply realAddI2... apply realAddI2...
 Qed.
 
-Definition Realq: set → set := λ q, {r ∊ ℚ | λ r, r <𝐪 q}.
+Definition Realq: set → set := λ q, {r ∊ ℚ | r <𝐪 q}.
 Definition Real : nat → set := λ n, Realq (Rat n).
 
 Lemma real_q : ∀q ∈ ℚ, Realq q ∈ ℝ.
@@ -507,12 +507,12 @@ Qed.
 
 Corollary realAdd_ident' : ∀ x ∈ ℝ, Real 0 + x = x.
 Proof with nauto.
-  intros x Hx. simpl. rewrite realAdd_comm, realAdd_ident...
+  intros x Hx. rewrite realAdd_comm, realAdd_ident...
 Qed.
 
 (** 实数加法逆元 **)
 Definition RealAddInv : set → set := λ x,
-  {r ∊ ℚ | λ r, ∃s ∈ ℚ, r <𝐪 s ∧ (-s)%q ∉ x}.
+  {r ∊ ℚ | ∃s ∈ ℚ, r <𝐪 s ∧ (-s)%q ∉ x}.
 Notation "- x" := (RealAddInv x) : Real_scope.
 Notation "x - y" := (x + (-y)) : Real_scope.
 
@@ -603,7 +603,7 @@ Open Scope Real_scope.
 
 Corollary realAddInv_double : ∀x ∈ ℝ, --x = x.
 Proof with auto.
-  intros x Hx. simpl.
+  intros x Hx.
   assert (Hn: -x ∈ ℝ) by (apply realAddInv_ran; auto).
   assert (Hnn: --x ∈ ℝ) by (apply realAddInv_ran; auto).
   rewrite <- (realAdd_ident (--x)), <- (realAddInv_annih x),
@@ -636,8 +636,8 @@ Proof with nauto.
 Qed.
 
 Corollary realAddInv_eq_0 : ∀x ∈ ℝ, -x = Real 0 → x = Real 0.
-Proof with auto.
-  intros x Hx Hnx0. rewrite <- realAddInv_double, Hnx0, realAddInv_0...
+Proof.
+  intros. now rewrite <- (realAddInv_double x), H0, realAddInv_0.
 Qed.
 
 Lemma realAddInv_sum : ∀ x y ∈ ℝ, -(x + y) = -x - y.
@@ -767,7 +767,7 @@ Lemma realLt_realq : ∀x ∈ ℝ, ∀q ∈ ℚ, Realq q <𝐫 x ↔ q ∈ x.
 Proof with neauto.
   intros x Hx q Hq. split; intros.
   - apply binRelE2 in H as [H0 [_ [Hsub Hnq]]].
-    destruct (classic (q ∈ x))... exfalso.
+    contra.
     apply Hnq. apply ExtAx. intros p. split; intros Hp.
     + apply Hsub in Hp as Hpx. apply SepE in Hp as [Hpq _].
       apply realE3 in Hpx as [r [Hrq [Hr Hlt]]]...
@@ -886,7 +886,7 @@ Qed.
 Lemma realNonNeg_not_neg : ∀x ∈ ℝ, ¬ realNeg x ↔ realNonNeg x.
 Proof with neauto.
   intros x Hx. split; intros.
-  - destruct (classic (realNonNeg x))... exfalso.
+  - contra.
     apply not_or_and in H0 as [].
     apply realLt_connected in H1 as []...
   - intros Hn. destruct H.
@@ -897,7 +897,7 @@ Qed.
 Lemma realNeg_not_nonNeg : ∀x ∈ ℝ, ¬ realNonNeg x ↔ realNeg x.
 Proof with neauto.
   intros x Hx. split; intros.
-  - destruct (classic (realNeg x))... exfalso.
+  - contra.
     apply realNonNeg_not_neg in H0...
   - intros Hnn. eapply realNonNeg_not_neg...
 Qed.
@@ -905,7 +905,7 @@ Qed.
 Lemma realNonPos_not_pos : ∀x ∈ ℝ, ¬ realPos x ↔ realNonPos x.
 Proof with neauto.
   intros x Hx. split; intros.
-  - destruct (classic (realNonPos x))... exfalso.
+  - contra.
     apply not_or_and in H0 as [].
     apply realLt_connected in H1 as []...
   - intros Hp. destruct H.
@@ -916,7 +916,7 @@ Qed.
 Lemma realPos_not_nonPos : ∀x ∈ ℝ, ¬ realNonPos x ↔ realPos x.
 Proof with neauto.
   intros x Hx. split; intros.
-  - destruct (classic (realPos x))... exfalso.
+  - contra.
     apply realNonPos_not_pos in H0...
   - intros Hnp. eapply realNonPos_not_pos...
 Qed.

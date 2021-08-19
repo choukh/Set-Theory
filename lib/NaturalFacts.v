@@ -13,7 +13,7 @@ Lemma finite_subset_of_ω_is_bounded : ∀ N, ⦿ N → N ⊆ ω →
 Proof with auto; try congruence.
   intros N Hne Hsub [n [Hn Hqn]].
   generalize dependent N.
-  set {n ∊ ω | λ n, ∀ N, ⦿ N → N ⊆ ω → N ≈ n → ∃ m, sub_maximum m N} as M.
+  set {n ∊ ω | ∀ N, ⦿ N → N ⊆ ω → N ≈ n → ∃ m, sub_maximum m N} as M.
   ω_induction M Hn; intros N Hne Hsub Hcd. {
     apply eqnum_empty in Hcd. apply EmptyNI in Hne. exfalso...
   }
@@ -61,7 +61,7 @@ Lemma bounded_subset_of_ω_is_finite : ∀ N, N ⊆ ω →
 Proof with nauto.
   intros N Hsub [n [Hn Hmax]]. split. exists n...
   apply Hsub in Hn as Hnw. generalize dependent N.
-  set {n ∊ ω | λ n, ∀ N, N ⊆ ω → n ∈ N → (∀ k ∈ N, k ⊆ n) → finite N} as M.
+  set {n ∊ ω | ∀ N, N ⊆ ω → n ∈ N → (∀ k ∈ N, k ⊆ n) → finite N} as M.
   ω_induction M Hnw; intros N Hsub Hn Hmax.
   - exists 1. split... cut (N = ⎨∅⎬). {
       intros H. rewrite H. apply eqnum_single.
@@ -72,7 +72,7 @@ Proof with nauto.
   - pose proof (nat_neq_suc m Hm) as Hnq.
     assert (Hstar: ∀k ∈ N, k ∉ ⎨m⁺⎬ → k ⊆ m). {
       intros k Hk Hk'. apply Hsub in Hk as Hkw. apply SingNE in Hk'.
-      destruct (classic (k ⊆ m)) as [|Hmk]... exfalso.
+      contra as Hmk.
       apply lt_iff_not_sub in Hmk; [|auto|apply Hsub]...
       apply lt_iff_suc_leq in Hmk...
       apply leq_iff_sub in Hmk; [|apply ω_inductive|]...
@@ -94,7 +94,7 @@ Proof with nauto.
       * intros k Hk. apply SepE in Hk as [Hk Hk'].
         apply BUnionE in Hk as [Hk|Hk]. apply Hstar...
         apply SingE in Hk; subst...
-      * rewrite union_comp.
+      * rewrite bunion_comp.
         replace (⎨m⎬ - ⎨m⁺⎬) with ⎨m⎬. {
           rewrite add_one_member_then_remove.
           - rewrite remove_one_member_then_return...
@@ -146,7 +146,7 @@ Proof with neauto; try congruence.
   apply infinite_subset_of_ω_is_unbound in Hinf as [Hne Harc]...
   destruct (ω_well_ordered N) as [n0 [Hn0 Hle]]...
   apply Hsub in Hn0 as Hn0w.
-  assert (Hsubn: ∀n ∈ ω, {x ∊ N | λ x, n ∈ x} ⊆ N). {
+  assert (Hsubn: ∀n ∈ ω, {x ∊ N | n ∈ x} ⊆ N). {
     intros n Hn x Hx. apply SepE1 in Hx...
   }
   set (Func N N (Next N Lt)) as F.
@@ -190,7 +190,7 @@ Lemma dominated_by_ω_if_mapped_onto_by_ω :
   ∀ B F, F: ω ⟹ B → B ≼ ω.
 Proof with auto; try congruence.
   intros B f [Hf [Hd Hr]].
-  set (λ b, {n ∊ ω | λ n, f[n] = b}) as 𝒩.
+  set (λ b, {n ∊ ω | f[n] = b}) as 𝒩.
   set (Func B ω (λ x, (Min Lt)[𝒩 x])) as g.
   exists g. apply meta_injection.
   + intros x Hx. eapply ap_ran.

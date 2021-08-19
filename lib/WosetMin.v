@@ -2,14 +2,14 @@
 
 Require Import ZFC.lib.Natural.
 
-Local Definition tail := λ t A R, {x ∊ A | λ x, (t <ᵣ x) R}.
+Local Definition tail := λ t A R, {x ∊ A | (t <ᵣ x) R}.
 
 Module SimpleVer.
 
 (* 良序集上的最小元函数 *)
 Definition Min : set → set := λ R,
   let P := λ p, minimum (π2 p) (π1 p) R in
-  {p ∊ (𝒫 (fld R) - ⎨∅⎬) × fld R | P}.
+  {p ∊ (𝒫 (fld R) - ⎨∅⎬) × fld R | P p}.
 
 Lemma minE : ∀ R B m, <B, m> ∈ Min R →
   B ∈ 𝒫 (fld R) - ⎨∅⎬ ∧ minimum m B R.
@@ -113,7 +113,7 @@ Proof with eauto; try congruence.
   pose proof (next_correct A R B Hwo Hsub b Hb Heb) as [Hnb H2].
   destruct Hwo as [Hlo _]. assert (H := Hlo).
   destruct H as [_ [Htr _]].
-  destruct (classic (a = b))... exfalso.
+  contra.
   eapply lo_connected in H as [Hab|Hba]; eauto; [| |apply Hsub..]...
   - apply SepE in Hnb as [_ Hnb].
     pose proof (H1 b) as []. { apply SepI... }
@@ -144,7 +144,7 @@ Qed.
 
 Lemma ω_next : ∀ N, N ⊆ ω → ∀n ∈ N,
   (∃m ∈ N, n ∈ m) →
-  let t := {x ∊ N | λ x, n ∈ x} in
+  let t := {x ∊ N | n ∈ x} in
   let p := Next N Lt n in
   p ∈ t ∧ ∀m ∈ t, p ⊆ m.
 Proof with auto.
@@ -188,7 +188,7 @@ Proof with neauto.
   remember (Next n ω Lt) as p.
   apply SepE in Hm as [Hpw Hnp].
   apply ExtAx. split; intros Hx.
-  - assert (n⁺ ∈ {x ∊ ω | In n}). {
+  - assert (n⁺ ∈ {x ∊ ω | n ∈ x}). {
       apply SepI... eapply ω_inductive...
     }
     apply Hmin in H. apply H...
@@ -203,7 +203,7 @@ Module FullVer.
 
 Definition Min : set → set → set := λ A R,
   let P := λ p, minimum (π2 p) (π1 p) R in
-  {p ∊ (𝒫 A - ⎨∅⎬) × A | P}.
+  {p ∊ (𝒫 A - ⎨∅⎬) × A | P p}.
 
 Lemma minE : ∀ A R B m, <B, m> ∈ Min A R →
   B ∈ 𝒫 A - ⎨∅⎬ ∧ minimum m B R.

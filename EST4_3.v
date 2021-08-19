@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 4 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 4 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EST4_2.
@@ -17,7 +17,7 @@ Lemma suc_preserve_lt : ∀ m n ∈ ω, m ∈ n ↔ m⁺ ∈ n⁺.
 Proof with try apply ω_inductive; neauto.
   intros m Hm n Hn. split; intros H.
   - generalize dependent m.
-    set {n ∊ ω | λ n, ∀ m, m ∈ ω → m ∈ n → m⁺ ∈ n⁺} as N.
+    set {n ∊ ω | ∀ m, m ∈ ω → m ∈ n → m⁺ ∈ n⁺} as N.
     ω_induction N Hn; intros k Hk1 Hk2. exfalso0.
     apply leq_iff_lt_suc in Hk2 as []...
     + apply IH in H... apply BUnionI1...
@@ -40,7 +40,7 @@ Qed.
 Lemma nat_irrefl : ∀n ∈ ω, n ∉ n.
 Proof with auto.
   intros n Hn.
-  set {n ∊ ω | λ n, n ∉ n} as N.
+  set {n ∊ ω | n ∉ n} as N.
   ω_induction N Hn; intros Hc. exfalso0.
   apply IH. apply suc_preserve_lt...
 Qed.
@@ -74,7 +74,7 @@ Qed.
 Lemma suc_has_0 : ∀n ∈ ω, 0 ∈ n⁺.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, 0 ∈ n⁺} as N.
+  set {n ∊ ω | 0 ∈ n⁺} as N.
   ω_induction N Hn...
   apply leq_iff_lt_suc... apply ω_inductive...
 Qed.
@@ -123,7 +123,7 @@ Qed.
 Lemma Lt_connected : connected Lt ω.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω →
+  set {n ∊ ω | ∀ m, m ∈ ω →
     n ≠ m → < n, m > ∈ Lt ∨ < m, n > ∈ Lt} as N.
   ω_induction N Hn; intros k Hk Hnq.
   + assert (k ≠ ∅) by congruence.
@@ -169,7 +169,7 @@ Proof with auto.
   apply nat_connected in H as []...
 Qed.
 
-Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ Embed 0 ↔ 0 ∈ n.
+Corollary nq_0_gt_0 : ∀n ∈ ω, n ≠ 0 ↔ 0 ∈ n.
 Proof with nauto.
   intros n Hn. split; intros.
   - apply nat_connected in H as []... exfalso0.
@@ -228,7 +228,7 @@ Proof with eauto.
   assert (Hright: ∀ m n p ∈ ω, m ∈ n → m + p ∈ n + p). {
     intros m Hm n Hn p Hp.
     generalize dependent n. generalize dependent m.
-    set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+    set {p ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
       m ∈ n → m + p ∈ n + p} as N.
     ω_induction N Hp; intros n Hn k Hk H.
     + repeat rewrite add_ident...
@@ -257,14 +257,14 @@ Proof with auto.
   apply add_preserve_lt...
 Qed.
 
-Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ Embed 0 →
+Theorem mul_preserve_lt : ∀ m n p ∈ ω, p ≠ 0 →
   m ∈ n ↔ m ⋅ p ∈ n ⋅ p.
 Proof with eauto.
-  assert (Hright: ∀ m n p ∈ ω, p ≠ Embed 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
+  assert (Hright: ∀ m n p ∈ ω, p ≠ 0 → m ∈ n → m ⋅ p ∈ n ⋅ p). {
     intros m Hm n Hn p Hp Hnq0 H.
     apply pred_exists in Hnq0 as [k [Hk Hkeq]]... subst p. clear Hp.
     generalize dependent n. generalize dependent m.
-    set {k ∊ ω | λ k, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+    set {k ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
       m ∈ n → m ⋅ k⁺ ∈ n ⋅ k⁺} as N.
     ω_induction N Hk; intros n Hn p Hp H.
     + repeat rewrite mul_ident...
@@ -289,7 +289,7 @@ Proof with eauto.
     exfalso. eapply nat_irrefl; revgoals. apply H2. apply mul_ran...
 Qed.
 
-Corollary mul_preserve_lt' : ∀ m n p ∈ ω, p ≠ Embed 0 →
+Corollary mul_preserve_lt' : ∀ m n p ∈ ω, p ≠ 0 →
   m ∈ n ↔ p ⋅ m ∈ p ⋅ n.
 Proof with auto.
   intros m Hm n Hn p Hp.
@@ -330,7 +330,7 @@ Qed.
 Corollary add_cancel : ∀ m n p ∈ ω, m + p = n + p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Heq.
-  destruct (classic (m = n))... exfalso.
+  contra.
   apply nat_connected in H as []...
   - eapply add_preserve_lt in H... rewrite Heq in H.
     eapply nat_irrefl; revgoals... apply add_ran...
@@ -344,10 +344,10 @@ Proof with eauto.
   eapply add_cancel... rewrite add_comm, (add_comm n)...
 Qed.
 
-Corollary mul_cancel : ∀ m n p ∈ ω, p ≠ Embed 0 → m ⋅ p = n ⋅ p → m = n.
+Corollary mul_cancel : ∀ m n p ∈ ω, p ≠ 0 → m ⋅ p = n ⋅ p → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
-  destruct (classic (m = n))... exfalso.
+  contra.
   apply nat_connected in H as []...
   - eapply mul_preserve_lt in H... rewrite Heq in H.
     eapply nat_irrefl; revgoals... apply mul_ran...
@@ -355,13 +355,13 @@ Proof with eauto.
     eapply nat_irrefl; revgoals... apply mul_ran...
 Qed.
 
-Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ Embed 0 → p ⋅ m = p ⋅ n → m = n.
+Corollary mul_cancel' : ∀ m n p ∈ ω, p ≠ 0 → p ⋅ m = p ⋅ n → m = n.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0 Heq.
   eapply mul_cancel... rewrite mul_comm, (mul_comm n)...
 Qed.
 
-Corollary mul_preserve_leq : ∀ m n p ∈ ω, p ≠ Embed 0 →
+Corollary mul_preserve_leq : ∀ m n p ∈ ω, p ≠ 0 →
   m ⋸ n ↔ m ⋅ p ⋸ n ⋅ p.
 Proof with eauto.
   intros m Hm n Hn p Hp Hnq0. split; intros [].
@@ -379,13 +379,13 @@ Definition wellOrder := λ R A, linearOrder R A ∧
 Theorem Lt_wellOrder : wellOrder Lt ω.
 Proof with eauto.
   split. apply Lt_linearOrder. intros A [a Ha] Hsub.
-  destruct (classic (∃ m, minimum m A Lt))... exfalso.
+  contra.
   cut (∀ n m ∈ ω, m ∈ n → m ∉ A). {
     intros. apply Hsub in Ha as Haω.
     eapply (H0 a⁺)... apply ω_inductive...
   }
   intros n Hn. clear a Ha.
-  set {n ∊ ω | λ n, ∀m ∈ ω, m ∈ n → m ∉ A} as N.
+  set {n ∊ ω | ∀m ∈ ω, m ∈ n → m ∉ A} as N.
   ω_induction N Hn; intros k Hk H0. exfalso0.
   apply leq_iff_lt_suc in H0 as []...
   subst k. intros Hma. eapply H. clear H n Hn N Hk. 
@@ -429,7 +429,7 @@ Theorem ω_ind_strong : ∀ A, A ⊆ ω →
   A = ω.
 Proof with eauto.
   intros A HA Hind.
-  destruct (classic (A = ω))... exfalso.
+  contra.
   assert (Hne: ⦿ (ω - A)). {
     apply EmptyNE. intros H0. apply sub_iff_no_comp in H0.
     apply H. apply sub_antisym...
@@ -440,7 +440,7 @@ Proof with eauto.
   apply ω_well_ordered in Hsub as [m [Hm Hmin]]...
   apply CompE in Hm as [Hmw Hma].
   apply Hma. apply Hind... intros k Hkw Hkm.
-  destruct (classic (k ∈ A))... exfalso.
+  contra.
   assert (Hk: k ∈ ω - A) by (apply CompI; auto).
   apply Hmin in Hk as [].
   - eapply nat_irrefl... eapply nat_trans...
@@ -464,7 +464,7 @@ Qed.
 Lemma leq_add_enlarge : ∀ m n ∈ ω, m ⋸ m + n.
 Proof with neauto.
   intros k Hk n Hn. generalize dependent k.
-  set {n ∊ ω | λ n, ∀ k, k ∈ ω → k ⋸ k + n} as N.
+  set {n ∊ ω | ∀ k, k ∈ ω → k ⋸ k + n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite add_ident...
   - rewrite add_m_n... assert (Hk' := Hk).
@@ -476,7 +476,7 @@ Qed.
 Lemma lt_add_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, p ∈ m + n.
 Proof with eauto.
   intros k Hk n Hn. generalize dependent k.
-  set {n ∊ ω | λ n, ∀ k, k ∈ ω → ∀ p ∈ k, p ∈ k + n} as N.
+  set {n ∊ ω | ∀ k, k ∈ ω → ∀ p ∈ k, p ∈ k + n} as N.
   ω_induction N Hn; intros k Hk p Hp.
   - rewrite add_ident...
   - assert (Hpw: p ∈ ω) by (eapply ω_trans; eauto).
@@ -486,14 +486,14 @@ Qed.
 Lemma lt_add_shrink : ∀ m n p ∈ ω, m + n ∈ p → m ∈ p.
 Proof with neauto.
   intros k Hk n Hn.
-  set {n ∊ ω | λ n, ∀ p ∈ ω, k + n ∈ p → k ∈ p} as N.
+  set {n ∊ ω | ∀ p ∈ ω, k + n ∈ p → k ∈ p} as N.
   ω_induction N Hn; intros p Hp H.
   - rewrite add_ident in H...
   - rewrite add_m_n in H... apply IH...
     eapply nat_trans; revgoals...
 Qed.
 
-Lemma lt_mul_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, n ≠ Embed 0 → p ∈ m ⋅ n.
+Lemma lt_mul_enlarge : ∀ m n ∈ ω, ∀ p ∈ m, n ≠ 0 → p ∈ m ⋅ n.
 Proof with nauto.
   intros m Hm n Hn p Hpm Hnq0.
   ω_destruct n. rewrite zero in Hnq0. congruence.

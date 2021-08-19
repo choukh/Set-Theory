@@ -13,7 +13,7 @@ Qed.
 Lemma mul_2_l : ∀m ∈ ω, 2 ⋅ m = m + m.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, 2 ⋅ n = n + n} as N.
+  set {n ∊ ω | 2 ⋅ n = n + n} as N.
   ω_induction N Hn.
   - rewrite mul_0_r, add_ident...
   - rewrite mul_m_n, IH...
@@ -34,7 +34,7 @@ Proof. apply suc_neq_0. Qed.
 Global Hint Immediate contra_1_0 : core.
 
 (* 1不等于2 *)
-Lemma contra_1_2 : Embed 1 ≠ Embed 2.
+Lemma contra_1_2 : Embed 1 ≠ 2.
 Proof with neauto.
   intros Heq. assert (1 ∈ 2). apply BUnionI2...
   rewrite Heq in H. eapply nat_irrefl; revgoals...
@@ -110,7 +110,7 @@ Qed.
 Lemma nat_subtr : ∀ m n ∈ ω, m ⋸ n → ∃d ∈ ω, m + d = n.
 Proof with nauto.
   intros k Hk n Hn.
-  set {n ∊ ω | λ n, k ⋸ n → ∃d ∈ ω, k + d = n} as N.
+  set {n ∊ ω | k ⋸ n → ∃d ∈ ω, k + d = n} as N.
   ω_induction N Hn; intros [].
   - exfalso0.
   - subst. exists ∅. split... rewrite add_ident...
@@ -124,7 +124,7 @@ Qed.
 Lemma nat_subtr' : ∀ m n ∈ ω, m ∈ n → ∃d ∈ ω, m + d = n ∧ d ≠ 0.
 Proof with nauto.
   intros k Hk n Hn.
-  set {n ∊ ω | λ n, k ∈ n → ∃d ∈ ω, k + d = n ∧ d ≠ 0} as N.
+  set {n ∊ ω | k ∈ n → ∃d ∈ ω, k + d = n ∧ d ≠ 0} as N.
   ω_induction N Hn; intros Hlt. exfalso0.
   apply leq_iff_lt_suc in Hlt as []...
   - apply IH in H as [d [Hd [H1 H2]]].
@@ -252,7 +252,7 @@ Proof with neauto.
   }
   clear Hnmax. apply Hsub in Hk as Hkw.
   intros n Hn. destruct (classic (n ∈ N)). apply Larger...
-  set {n ∊ ω | λ n, ∃m ∈ N, n ∈ m} as M.
+  set {n ∊ ω | ∃m ∈ N, n ∈ m} as M.
   ω_induction M Hn.
   - apply Larger in Hk as [m [Hm Hkm]].
     exists m. split... apply nq_0_gt_0.

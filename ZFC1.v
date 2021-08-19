@@ -1,5 +1,5 @@
 (*** Formal Construction of a Set Theory in Coq ***)
-(** based on the thesis by Jonas Kaiser, November 23, 2012 **)
+(** adapted from the thesis by Jonas Kaiser, November 23, 2012 **)
 (** Coq coding by choukh, April 2020 **)
 
 Require Export ZFC.ZFC0.
@@ -27,7 +27,7 @@ Definition PairRepl : set → set → set → set := λ a b x,
   end.
 
 (** 配对 **)
-Definition Pair := λ x y, {PairRepl x y | w ∊ Doubleton}.
+Definition Pair := λ x y, {PairRepl x y w | w ∊ Doubleton}.
 Notation "{ x , y }" := (Pair x y) : set_scope.
 
 Lemma PairI1 : ∀ x y, x ∈ {x, y}.
@@ -332,14 +332,14 @@ Qed.
 
 (** 集族的并 **)
 
-Lemma FUnionI : ∀ X F, ∀x ∈ X, ∀y ∈ F x, y ∈ ⋃{F|x ∊ X}.
+Lemma FUnionI : ∀ X F, ∀x ∈ X, ∀y ∈ F x, y ∈ ⋃{F x | x ∊ X}.
 Proof.
   intros X F x Hx y Hy. eapply UnionI.
   - apply ReplI. apply Hx.
   - apply Hy.
 Qed.
 
-Lemma FUnionE : ∀ X F, ∀y ∈ ⋃{F|x ∊ X}, ∃x ∈ X, y ∈ F x.
+Lemma FUnionE : ∀ X F, ∀y ∈ ⋃{F x | x ∊ X}, ∃x ∈ X, y ∈ F x.
 Proof.
   intros X F y Hy.
   apply UnionAx in Hy as [x [H1 H2]].
@@ -347,13 +347,13 @@ Proof.
   exists z. split. apply H3. subst. apply H2.
 Qed. 
 
-Fact funion_0 : ∀ F, ⋃{F|x ∊ ∅} = ∅.
+Fact funion_0 : ∀ F, ⋃{F x | x ∊ ∅} = ∅.
 Proof. intros. rewrite repl_empty. apply union_empty. Qed.
 
 Fact funion_1 : ∀ X F,
-  (∀x ∈ X, F x ∈ 2) → (∃x ∈ X, F x = 1) → ⋃{F|x ∊ X} = 1.
+  (∀x ∈ X, F x ∈ 2) → (∃x ∈ X, F x = 1) → ⋃{F x | x ∊ X} = 1.
 Proof.
-  intros. assert (∀ x ∈ ⋃{F | x ∊ X}, x = ∅). {
+  intros. assert (∀ x ∈ ⋃{F x | x ∊ X}, x = ∅). {
     intros x Hx. apply FUnionE in Hx as [y [H1 H2]].
     apply H in H1.
     eapply member_of_member_of_two_is_zero. apply H2. apply H1.
@@ -366,7 +366,7 @@ Proof.
 Qed.
 
 Fact funion_const : ∀ X F C,
-  ⦿ X → (∀x ∈ X, F x = C) → ⋃{F|x ∊ X} = C.
+  ⦿ X → (∀x ∈ X, F x = C) → ⋃{F x | x ∊ X} = C.
 Proof.
   intros. apply ExtAx. split; intros.
   - apply FUnionE in H1. destruct H1 as [y [H1 H2]].
@@ -376,7 +376,7 @@ Proof.
 Qed.
 
 Fact funion_const_0 : ∀ X F, 
-  (∀x ∈ X, F x = ∅) → ⋃{F|x ∊ X} = ∅.
+  (∀x ∈ X, F x = ∅) → ⋃{F x | x ∊ X} = ∅.
 Proof.
   intros. destruct (empty_or_not X).
   - subst. apply funion_0.
@@ -384,7 +384,7 @@ Proof.
 Qed.
 
 Fact funion_2 : ∀ X F, 
-  (∀x ∈ X, F x ∈ 2) → ⋃{F|x ∊ X} ∈ 2.
+  (∀x ∈ X, F x ∈ 2) → ⋃{F x | x ∊ X} ∈ 2.
 Proof.
   intros. destruct (classic (∃x ∈ X, F x = 1)).
   - pose proof (funion_1 X F H H0) as H1.

@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 3 Part 2 **)
+(** Solutions to "Elements of Set Theory" Chapter 3 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.EX3_1.
@@ -68,7 +68,7 @@ Proof with eauto.
 Qed.
 
 Example ex3_36: ∀ f A B R, f: A ⇒ B → equiv R B →
-  let Q := {p ∊ A × A | λ p, <f[π1 p], f[π2 p]> ∈ R} in
+  let Q := {p ∊ A × A | <f[π1 p], f[π2 p]> ∈ R} in
   equiv Q A.
 Proof with eauto.
   intros * [Hf [Hd Hr]] [_ [Hrf [Hsy Htr]]] Q. repeat split.
@@ -192,8 +192,7 @@ Proof with eauto.
     apply domI in H1 as Hd1. apply domI in H2 as Hd2.
     rewrite Hd in Hd1, Hd2.
     apply func_ap in H1... apply func_ap in H2... subst y.
-    destruct (classic (x1 = x2))... exfalso.
-    apply Hco in H0 as []...
+    contra. apply Hco in H0 as []...
     + apply H in H0... rewrite H2 in H0. apply (Hir (f[x1]))...
     + apply H in H0... rewrite H2 in H0. apply (Hir (f[x1]))...
   - intros x1 Hx1 x2 Hx2 Hpf. destruct (classic (x1 = x2)).
@@ -203,7 +202,7 @@ Qed.
 
 (* 字典序 *)
 Example ex3_45: ∀ Rᵃ A Rᵇ B, linearOrder Rᵃ A → linearOrder Rᵇ B →
-  let Rˡ := {p ∊ (A × B) × (A × B) | λ p,
+  let Rˡ := {p ∊ (A × B) × (A × B) |
     let a1 := π1 (π1 p) in let b1 := π2 (π1 p) in
     let a2 := π1 (π2 p) in let b2 := π2 (π2 p) in
     <a1, a2> ∈ Rᵃ ∨ a1 = a2 ∧ <b1, b2> ∈ Rᵇ

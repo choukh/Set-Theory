@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 4 Part 1 **)
+(** Adapted from "Elements of Set Theory" Chapter 4 **)
 (** Coq coding by choukh, May 2020 **)
 
 Require Export ZFC.lib.Relation.
@@ -10,13 +10,13 @@ Definition is_nat := λ n, ∀ A, inductive A → n ∈ A.
 
 Theorem ω_exists : ∃ ω, ∀ n, n ∈ ω ↔ is_nat n.
 Proof with auto.
-  exists {x ∊ 𝐈 | is_nat}. split.
+  exists {n ∊ 𝐈 | is_nat n}. split.
   - intros Hn A HA. apply SepE in Hn as [_ H]. apply H in HA...
   - intros Hn. apply SepI. apply Hn. apply InfAx.
     intros A HA. apply Hn in HA...
 Qed.
 
-Definition ω := {n ∊ 𝐈 | is_nat}.
+Definition ω := {n ∊ 𝐈 | is_nat n}.
 
 Lemma ω_has_0 : ∅ ∈ ω.
 Proof with auto.
@@ -65,7 +65,7 @@ Ltac ω_induction N H := cut (N = ω); [
 Theorem pred_exists : ∀n ∈ ω, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺.
 Proof with auto.
   intros n Hn.
-  set {n ∊ ω | λ n, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺} as N.
+  set {n ∊ ω | n ≠ ∅ → ∃n' ∈ ω, n = n'⁺} as N.
   ω_induction N Hn.
   - intros. exfalso. apply H...
   - intros _. exists m. split...
@@ -128,7 +128,7 @@ Qed.
 Theorem nat_trans : ∀n ∈ ω, trans n.
 Proof with eauto.
   intros n Hn.
-  set {n ∊ ω | λ n, trans n} as N.
+  set {n ∊ ω | trans n} as N.
   ω_induction N Hn.
   - intros a A Ha HA. exfalso0.
   - intros b B Hb HB. apply BUnionE in HB as [].
@@ -140,7 +140,7 @@ Qed.
 Theorem ω_trans : trans ω.
 Proof with eauto.
   rewrite trans_sub. intros n Hn.
-  set {n ∊ ω | λ n, n ⊆ ω} as N.
+  set {n ∊ ω | n ⊆ ω} as N.
   ω_induction N Hn.
   - intros x Hx. exfalso0.
   - intros x Hx. apply BUnionE in Hx as [].
@@ -173,7 +173,7 @@ Definition is_Peano := λ N S e,
   ∀ A, A ⊆ N → e ∈ A → close S A → A = N.
 
 (* 后继函数 *)
-Definition σ := {λ n, <n, n⁺> | n ∊ ω}.
+Definition σ := {<n, n⁺> | n ∊ ω}.
 
 Lemma σ_function : σ : ω ⇒ ω.
 Proof with eauto; try congruence.
@@ -260,8 +260,8 @@ Proof with eauto; try congruence.
     (* (i)  *) (∅ ∈ dom v → v[∅] = a) ∧
     (* (ii) *) ∀n ∈ ω, n⁺ ∈ dom v → n ∈ dom v ∧ v[n⁺] = F[v[n]]
   ) as acceptable.
-  set {λ N, N ⟶ A | N ∊ 𝒫 ω} as ℱ.
-  set {v ∊ ⋃ℱ | λ v, acceptable v} as ℋ.
+  set {N ⟶ A | N ∊ 𝒫 ω} as ℱ.
+  set {v ∊ ⋃ℱ | acceptable v} as ℋ.
   set (⋃ℋ) as h. exists h.
   Local Ltac des Hv :=
     apply SepE in Hv as [Hv Hac];
@@ -300,7 +300,7 @@ Proof with eauto; try congruence.
     rewrite Hpeq. eexists...
     intros n Hn. rewrite <- unique_existence.
     split. apply domE in Hn... apply Hdhω in Hn.
-    set {n ∊ ω | λ n, ∀ y1 y2,
+    set {n ∊ ω | ∀ y1 y2,
       <n, y1> ∈ h → <n, y2> ∈ h → y1 = y2} as N.
     ω_induction N Hn; intros y1 y2 H1 H2.
     - apply Hstar in H1 as [v1 [_ [[Hf1 [Hi1 _]] Hp1]]].
@@ -465,7 +465,7 @@ Proof with eauto; try congruence.
   split. apply ω_recursion...
   intros h1 h2 [[H1f [H1d _]] [H10 H1]] [[H2f [H2d _]] [H20 H2]].
   apply func_ext_intro... intros n Hn. rewrite H1d in Hn.
-  set {n ∊ ω | λ n, h1[n] = h2[n]} as S.
+  set {n ∊ ω | h1[n] = h2[n]} as S.
   ω_induction S Hn...
   apply H1 in Hm as Heq1. apply H2 in Hm as Heq2...
 Qed.
@@ -492,7 +492,7 @@ Proof with eauto; try congruence.
     intros n m Hp. apply domI in Hp as Hn. rewrite Hd in Hn.
     generalize Hp. generalize dependent m.
     clear Hp Hy. generalize dependent y.
-    set {n ∊ ω | λ n, ∀ y m, <n, y> ∈ h → <m, y> ∈ h → n = m} as M.
+    set {n ∊ ω | ∀ y m, <n, y> ∈ h → <m, y> ∈ h → n = m} as M.
     ω_induction M Hn.
     + intros y m Hp1 Hp2. apply domI in Hp2 as Hdm.
       apply func_ap in Hp1... apply func_ap in Hp2...

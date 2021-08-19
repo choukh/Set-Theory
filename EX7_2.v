@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 7 Part 2 **)
+(** Solutions to "Elements of Set Theory" Chapter 7 **)
 (** Coq coding by choukh, Dec 2020 **)
 
 Require Import ZFC.EST7_4.
@@ -81,13 +81,13 @@ Proof.
   apply intLtWo_tranr. apply intLtWo_trich.
 Qed.
 
-Definition NonNegInt := {a ∊ ℤ | λ a, Int 0 ≤ a}.
+Definition NonNegInt := {a ∊ ℤ | Int 0 ≤ a}.
 Notation "ℤ⁰⁺" := NonNegInt.
 
-Definition PosInt := {a ∊ ℤ | intPos}.
+Definition PosInt := {a ∊ ℤ | intPos a}.
 Notation "ℤ⁺" := PosInt.
 
-Definition NegInt := {a ∊ ℤ | intNeg}.
+Definition NegInt := {a ∊ ℤ | intNeg a}.
 Notation "ℤ⁻" := NegInt.
 
 Section ImportOrderedStruct.
@@ -175,7 +175,7 @@ Proof with auto; try congruence.
     apply SepI. apply intAddInv_ran... apply intPos_neg...
   - intros a Ha b Hb Heq.
     apply SepE1 in Ha. apply SepE1 in Hb.
-    rewrite <- intAddInv_double, <- (intAddInv_double b)...
+    rewrite <- (intAddInv_double a), <- (intAddInv_double b)...
   - intros b Hb. apply SepE in Hb as [Hb Hneg].
     exists (-b). split. apply SepI. apply intAddInv_ran...
     apply intNeg_pos... apply intAddInv_double...
@@ -219,7 +219,7 @@ Theorem intLtWo_woset : woset ℤ IntLtWo.
 Proof with neauto; try congruence.
   split. apply intLtWo_loset.
   intros Z Hne Hsub.
-  set {a ∊ Z | λ a, Int 0 ≤ a} as Z'.
+  set {a ∊ Z | Int 0 ≤ a} as Z'.
   destruct (classic (⦿ Z')) as [Hne'|He].
   - destruct nonNegInt_woset as [_ Hmin].
     specialize Hmin with Z' as [m [Hm Hmin]]... {
@@ -558,7 +558,7 @@ Proof with eauto.
   apply ord_lt_elim in H as [t [Ht [f [Hf Hoe]]]].
   apply bijection_is_func in Hf as [Hf _].
   destruct (wo S) as [Hlo Hmin].
-  set {x ∊ A S | λ x, (f[x] <ᵣ x) (R S)} as B.
+  set {x ∊ A S | (f[x] <ᵣ x) (R S)} as B.
   pose proof (Hmin B) as [m [Hm Hle]].
   - exists t. apply SepI...
     assert (Hft: f[t] ∈ A (Seg t S)). eapply ap_ran...

@@ -4,7 +4,7 @@ Require Import ZFC.lib.Natural.
 
 (* 以ω为指标集的集族的并 *)
 Definition IFUnion : (set → set) → set :=
-  λ F, ⋃{F | n ∊ ω}.
+  λ F, ⋃{F n | n ∊ ω}.
 Notation "'⋃ᵢ' F" := (IFUnion F)
   (at level 9, right associativity).
 

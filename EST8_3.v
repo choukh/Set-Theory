@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 8 Part 3 **)
+(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Mar 2021 **)
 
 Require ZFC.EX7_1.
@@ -86,7 +86,7 @@ End OrderType.
 Definition LoDisj_A :=
   λ S i, (A S × ⎨i⎬).
 Definition LoDisj_R :=
-  λ S i, {λ p, <<π1 p, i>, <π2 p, i>> | p ∊ R S}.
+  λ S i, {<<π1 p, i>, <π2 p, i>> | p ∊ R S}.
 
 Lemma loDisj_is_binRel :
   ∀ S i, is_binRel (LoDisj_R S i) (LoDisj_A S i).

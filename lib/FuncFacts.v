@@ -5,7 +5,7 @@ Require Import ZFC.lib.Relation.
 (** dom & ran **)
 
 (* 函数的定义域等于函数的π1替代 *)
-Lemma dom_eq_π1_repl : ∀ f, is_function f → dom f = {π1 | p ∊ f}.
+Lemma dom_eq_π1_repl : ∀ f, is_function f → dom f = {π1 p | p ∊ f}.
 Proof with eauto.
   intros f Hf. apply ExtAx. split; intros Hx.
   - apply domE in Hx as [y Hp]. apply ReplAx.
@@ -19,7 +19,7 @@ Proof with eauto.
 Qed.
 
 (* 函数的值域等于函数的π2替代 *)
-Lemma ran_eq_π2_repl : ∀ f, is_function f → ran f = {π2 | p ∊ f}.
+Lemma ran_eq_π2_repl : ∀ f, is_function f → ran f = {π2 p | p ∊ f}.
 Proof with eauto.
   intros f Hf. apply ExtAx. intros y. split; intros Hy.
   - apply ranE in Hy as [x Hp]. apply ReplAx.
@@ -110,7 +110,7 @@ Qed.
 
 (* 通过指定定义域将类型论函数编码为集合论函数 *)
 Definition LambdaEncode : (set → set) → set → set := λ F A,
-  Func A {F | a ∊ A} F.
+  Func A {F a | a ∊ A} F.
 Notation "F ↿ A" := (LambdaEncode F A) (at level 60).
 Notation "'Λ' x ∊ A , F" := ((λ x, F) ↿ A) (at level 200).
 
@@ -627,7 +627,7 @@ Qed.
 
 Lemma union_of_chain_of_injective_functions :
   ∀ F, is_chain F → (∀f ∈ F, injective f) →
-  ⋃F: ⋃{dom | f ∊ F} ⟺ ⋃{ran | f ∊ F}.
+  ⋃F: ⋃{dom f | f ∊ F} ⟺ ⋃{ran f | f ∊ F}.
 Proof with eauto; try congruence.
   intros F Hchn Hfs. split; split; [split|..].
   - intros p Hp.
@@ -812,7 +812,7 @@ Qed.
 Lemma bijection_exists_between_set_and_element_replaced :
   ∀ A a b, a ∈ A → b ∉ A →
   let R := ReplaceElement a b in
-  let B := {R | x ∊ A} in
+  let B := {R x | x ∊ A} in
   ∃ F, F: A ⟺ B.
 Proof with eauto; try congruence.
   intros * Ha Hb R B.
@@ -839,7 +839,7 @@ Qed.
 Lemma injection_replace_element :
   ∀ F A B a b, F: A ⇔ B → a ∈ B → b ∉ B →
   let R := ReplaceElement a b in
-  ∃ F, F: A ⇔ {R | x ∊ B}.
+  ∃ F, F: A ⇔ {R x | x ∊ B}.
 Proof with eauto.
   intros * [Hf [Hd Hr]] Hab Hbb R.
   assert (Hra: R a = b) by (apply replace_element_correct_1).
@@ -861,7 +861,7 @@ Proof with eauto.
   assert (Hbr: b ∉ ran F). { intro. apply Hr in H0... }
   pose proof (bijection_exists_between_set_and_element_replaced
     _ _ _ Har Hbr) as [F' Hf'].
-  assert (Hg: F' ∘ (F ↾ A): A ⟺ {R | x ∊ ran F})
+  assert (Hg: F' ∘ (F ↾ A): A ⟺ {R x | x ∊ ran F})
     by (eapply compo_bijection; eauto).
   destruct Hg as [Hig [Hdg Hdr]].
   exists (F' ∘ (F ↾ A)). split... split... rewrite Hdr.

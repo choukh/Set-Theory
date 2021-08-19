@@ -1,4 +1,4 @@
-(** Solutions to "Elements of Set Theory" Chapter 6 Part 2 **)
+(** Solutions to "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
 Require ZFC.lib.Choice.
@@ -101,7 +101,7 @@ Qed.
 Example ex6_19 : ∀ I ℱ, finite I → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 Proof with eauto; try congruence.
   intros * [n [Hn Hqn]]. generalize dependent I.
-  set {n ∊ ω | λ n, ∀ I, I ≈ n → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ} as N.
+  set {n ∊ ω | ∀ I, I ≈ n → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ} as N.
   ω_induction N Hn; intros I Hqn HneX.
   - apply eqnum_empty in Hqn. rewrite Hqn.
     exists ∅. apply SepI.
@@ -157,7 +157,7 @@ Example ex6_23 : ∀ A F g h,
   ∀n ∈ ω, g⟦n⟧ = h[n].
 Proof with eauto; try congruence.
   intros * Hfg Hdg Hrg Hh0 Hhn n Hn.
-  set {n ∊ ω | λ n, g⟦n⟧ = h[n]} as N.
+  set {n ∊ ω | g⟦n⟧ = h[n]} as N.
   ω_induction N Hn.
   - apply ExtAx. split; intros Hx.
     + apply imgE in Hx as [k [Hk _]]. exfalso0.
@@ -210,7 +210,7 @@ Proof with neauto; try congruence.
   clear Han.
   pose proof (AC3 A) as [F [_ [_ Hch]]].
   set (λ n, F[A - Q n]) as g.
-  set {λ n, g n | n ∊ ω} as B.
+  set {g n | n ∊ ω} as B.
   assert (Hneb: ⦿ B). {
     exists (F[A - Q 0]). apply ReplAx.
     exists ∅. split... rewrite <- zero, proj_embed_id...
@@ -231,7 +231,7 @@ Proof with neauto; try congruence.
   }
   specialize Hinf with B as [n Hinf].
   - intros Hfin.
-    set (λ x, {n ∊ ω | λ n, x ∈ Q n}) as 𝒩.
+    set (λ x, {n ∊ ω | x ∈ Q n}) as 𝒩.
     set (λ x, (Min Lt)[𝒩 x]) as f.
     assert (Hmin: ∀b ∈ B, ε_minimum (f b) (𝒩 b)). {
       intros b Hb. apply ω_min.
@@ -254,7 +254,7 @@ Proof with neauto; try congruence.
     }
     apply ReplAx in Hm as [b [Hb Heqm]].
     apply Hmin in Hb as [Hfb _]. apply SepE in Hfb as [Hfb _].
-    assert (Hsub: B ⊆ ⋃{λ n, Q n | n ∊ m ⁺}). {
+    assert (Hsub: B ⊆ ⋃{Q n | n ∊ m ⁺}). {
       intros x Hx. assert (Hx' := Hx).
       apply Hmin in Hx' as [Hfx Hsub].
       apply SepE in Hfx as [Hfx Hxq].
@@ -276,8 +276,8 @@ Proof with neauto; try congruence.
     + apply SingE in H...
   - intros x Hx. apply ReplAx in Hx as [n [Hn Hx]]. subst x.
     assert (Hsub: A - Q n ⊆ A) by auto. apply Hsub...
-  - set {m ∊ ω | λ m, g m ∈ Q n} as M.
-    set {λ m, g m | m ∊ M} as C.
+  - set {m ∊ ω | g m ∈ Q n} as M.
+    set {g m | m ∊ M} as C.
     assert (Hsubm: M ⊆ ω). {
       intros x Hx. apply SepE1 in Hx...
     }

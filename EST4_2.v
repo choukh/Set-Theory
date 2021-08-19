@@ -1,4 +1,4 @@
-(** Based on "Elements of Set Theory" Chapter 4 Part 2 **)
+(** Adapted from "Elements of Set Theory" Chapter 4 **)
 (** Coq coding by choukh, May 2020 **)
 
 Global Set Warnings "-ambiguous-paths".
@@ -77,7 +77,7 @@ Coercion Proj (N : set) : nat :=
 Lemma proj : ∀n ∈ ω, ∃ m : nat, Embed m = n.
 Proof with auto.
   intros n Hn.
-  set {n ∊ ω | λ n, ∃ k : nat, Embed k = n} as N.
+  set {n ∊ ω | ∃ k : nat, Embed k = n} as N.
   ω_induction N Hn. exists 0...
   destruct IH as [k' Heq]. subst. exists (S k')...
 Qed.
@@ -109,7 +109,7 @@ Qed.
 
 (* 算术递归定义Helper *)
 Definition PreArith : set → set → set := λ F a,
-  {h ∊ ω ⟶ ω | λ h, h[0] = a ∧ ∀n ∈ ω, h[n⁺] = F[h[n]]}.
+  {h ∊ ω ⟶ ω | h[0] = a ∧ ∀n ∈ ω, h[n⁺] = F[h[n]]}.
 Definition Arith : set → set → set := λ F a,
   ⋃ (PreArith F a).
 
@@ -173,7 +173,7 @@ Qed.
 
 (* 二元运算 *)
 Definition BinOp : set → (set → set) → set := λ A F,
-  {q ∊ (A × A) × A | λ q,
+  {q ∊ (A × A) × A |
     let m := π1 (π1 q) in
     let n := π2 (π1 q) in
     let p := π2 q in
@@ -260,7 +260,7 @@ Qed.
 Lemma add_m_ap : ∀ m n ∈ ω, (Add m)[n] = m + n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀m ∈ ω, (Add m)[n] = m + n} as T.
+  set {n ∊ ω | ∀m ∈ ω, (Add m)[n] = m + n} as T.
   ω_induction T Hn; intros k Hk.
   - rewrite add_0, add_ident...
   - cut ((Add k)[m] = k + m). intros Heq.
@@ -347,7 +347,7 @@ Qed.
 Lemma mul_m_ap : ∀ m n ∈ ω, (Mul m)[n] = m ⋅ n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀m ∈ ω, (Mul m)[n] = m ⋅ n} as T.
+  set {n ∊ ω | ∀m ∈ ω, (Mul m)[n] = m ⋅ n} as T.
   ω_induction T Hn; intros k Hk.
   - rewrite mul_0... rewrite mul_0_r...
   - cut ((Mul k)[m] = k ⋅ m). intros Heq.
@@ -435,7 +435,7 @@ Qed.
 Lemma exp_m_ap : ∀ m n ∈ ω, (Exp m)[n] = m ^ n.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀m ∈ ω, (Exp m)[n] = m ^ n} as T.
+  set {n ∊ ω | ∀m ∈ ω, (Exp m)[n] = m ^ n} as T.
   ω_induction T Hn; intros k Hk.
   - rewrite exp_0, exp_0_r...
   - cut ((Exp k)[m] = k ^ m). intros.
@@ -460,7 +460,7 @@ Theorem add_assoc : ∀ m n p ∈ ω, (m + n) + p = m + (n + p).
 Proof with auto.
   intros n Hn m Hm p Hp.
   generalize dependent n. generalize dependent m.
-  set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+  set {p ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
     (m + n) + p = m + (n + p)} as N.
   ω_induction N Hp; intros n Hn k Hk.
   - repeat rewrite add_ident... apply add_ran...
@@ -470,7 +470,7 @@ Qed.
 Lemma add_ident' : ∀n ∈ ω, 0 + n = n.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, 0 + n = n} as N.
+  set {n ∊ ω | 0 + n = n} as N.
   ω_induction N Hn. rewrite add_ident...
   rewrite add_m_n... rewrite IH...
 Qed.
@@ -478,7 +478,7 @@ Qed.
 Lemma add_m_n' : ∀ m n ∈ ω, m⁺ + n = (m + n)⁺.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m⁺ + n = (m + n)⁺} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m⁺ + n = (m + n)⁺} as N.
   ω_induction N Hn; intros k Hk.
   - repeat rewrite add_ident... apply ω_inductive...
   - repeat rewrite add_m_n...
@@ -492,7 +492,7 @@ Proof with auto.
   rewrite add_ident', add_ident...
   rewrite add_m_n...
   clear Hm. generalize dependent n'.
-  set {n ∊ ω | λ n, ∀ n', n' ∈ ω → (n + n')⁺ = n'⁺ + n} as N.
+  set {n ∊ ω | ∀ n', n' ∈ ω → (n + n')⁺ = n'⁺ + n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite add_ident', add_ident... apply ω_inductive...
   - rewrite add_m_n, add_m_n'...
@@ -511,7 +511,7 @@ Theorem mul_distr : ∀ m n p ∈ ω, m ⋅ (n + p) = m ⋅ n + m ⋅ p.
 Proof with auto.
   intros m Hm n Hn p Hp.
   generalize dependent n. generalize dependent m.
-  set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+  set {p ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
     m ⋅ (n + p) = m ⋅ n + m ⋅ p} as N.
   ω_induction N Hp; intros n Hn k Hk.
   - rewrite add_ident, mul_0_r, add_ident... apply mul_ran...
@@ -526,7 +526,7 @@ Theorem mul_assoc : ∀ m n p ∈ ω, (m ⋅ n) ⋅ p = m ⋅ (n ⋅ p).
 Proof with auto.
   intros n Hn m Hm p Hp.
   generalize dependent n. generalize dependent m.
-  set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+  set {p ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
     (m ⋅ n) ⋅ p = m ⋅ (n ⋅ p)} as N.
   ω_induction N Hp; intros n Hn k Hk.
   - repeat rewrite mul_0_r... apply mul_ran...
@@ -537,7 +537,7 @@ Qed.
 Lemma mul_0_l : ∀n ∈ ω, 0 ⋅ n = 0.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | λ n, 0 ⋅ n = 0} as N.
+  set {n ∊ ω | 0 ⋅ n = 0} as N.
   ω_induction N Hn. rewrite mul_0_r...
   rewrite mul_m_n... rewrite IH... rewrite add_ident...
 Qed.
@@ -545,7 +545,7 @@ Qed.
 Lemma mul_m_n' : ∀ m n ∈ ω, m⁺ ⋅ n = n + (m ⋅ n).
 Proof with nauto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | λ n, ∀ m, m ∈ ω → m⁺ ⋅ n = n + (m ⋅ n)} as N.
+  set {n ∊ ω | ∀ m, m ∈ ω → m⁺ ⋅ n = n + (m ⋅ n)} as N.
   ω_induction N Hn; intros k Hk.
   - repeat rewrite mul_0_r...
     rewrite add_ident... apply ω_inductive...
@@ -563,7 +563,7 @@ Proof with nauto.
   rewrite mul_0_l, mul_0_r...
   rewrite mul_m_n...
   clear Hm. generalize dependent n'.
-  set {n ∊ ω | λ n, ∀ n', n' ∈ ω → n + n ⋅ n' = n'⁺ ⋅ n} as N.
+  set {n ∊ ω | ∀ n', n' ∈ ω → n + n ⋅ n' = n'⁺ ⋅ n} as N.
   ω_induction N Hn; intros k Hk.
   - rewrite mul_0_l, mul_0_r, add_ident... apply ω_inductive...
   - rewrite mul_m_n, mul_m_n'; try apply ω_inductive...
@@ -584,7 +584,7 @@ Qed.
 Lemma add_a_b_a : ∀ a b ∈ ω, a + b = a → b = 0.
 Proof with auto.
   intros a Ha b Hb.
-  set {a ∊ ω | λ a, a + b = a → b = 0} as N.
+  set {a ∊ ω | a + b = a → b = 0} as N.
   ω_induction N Ha; intros Heq.
   - rewrite add_ident' in Heq...
   - rewrite add_m_n' in Heq...
@@ -624,7 +624,7 @@ Definition odd : set → Prop := λ n, ∃p ∈ ω, n = 2 ⋅ p + 1.
 Lemma add_suc : ∀n ∈ ω, n⁺ = n + 1.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, n⁺ = n + 1} as N.
+  set {n ∊ ω | n⁺ = n + 1} as N.
   ω_induction N Hn.
   - rewrite add_ident'...
   - rewrite add_m_n'... rewrite IH...
@@ -633,7 +633,7 @@ Qed.
 Lemma mul_ident : ∀n ∈ ω, n ⋅ 1 = n.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | λ n, n ⋅ 1 = n} as N.
+  set {n ∊ ω | n ⋅ 1 = n} as N.
   ω_induction N Hn.
   - rewrite mul_0_l...
   - rewrite mul_m_n'... rewrite IH.
@@ -644,7 +644,7 @@ Theorem exp_distr : ∀ m n p ∈ ω, m ^ (n + p) = m ^ n ⋅ m ^ p.
 Proof with try assumption; try congruence.
   intros n Hn m Hm p Hp.
   generalize dependent n. generalize dependent m.
-  set {p ∊ ω | λ p, ∀ m, m ∈ ω → ∀ n, n ∈ ω →
+  set {p ∊ ω | ∀ m, m ∈ ω → ∀ n, n ∈ ω →
     n ^ (m + p) = n ^ m ⋅ n ^ p} as N.
   ω_induction N Hp; intros n Hn k Hk.
   - rewrite add_ident, exp_0_r, mul_ident... apply exp_ran...

@@ -1,7 +1,10 @@
 .DS_Store
+*.icloud
 *.v.d
 *.report
 *.vo
+*.vos
+*.vok
 *.aux
 *.cmx
 *.glob
