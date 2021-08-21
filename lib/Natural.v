@@ -100,8 +100,7 @@ Qed.
 Lemma nat_subtr : ∀ m n ∈ ω, m ⋸ n → ∃d ∈ ω, m + d = n.
 Proof with nauto.
   intros k Hk n Hn.
-  set {n ∊ ω | k ⋸ n → ∃d ∈ ω, k + d = n} as N.
-  ω_induction N Hn; intros [].
+  ω_induction n; intros [].
   - exfalso0.
   - subst. exists ∅. split... rewrite add_ident...
   - apply leq_iff_lt_suc in H...
@@ -114,8 +113,7 @@ Qed.
 Lemma nat_subtr' : ∀ m n ∈ ω, m ∈ n → ∃d ∈ ω, m + d = n ∧ d ≠ 0.
 Proof with nauto.
   intros k Hk n Hn.
-  set {n ∊ ω | k ∈ n → ∃d ∈ ω, k + d = n ∧ d ≠ 0} as N.
-  ω_induction N Hn; intros Hlt. exfalso0.
+  ω_induction n; intros Hlt. exfalso0.
   apply leq_iff_lt_suc in Hlt as []...
   - apply IH in H as [d [Hd [H1 H2]]].
     exists d⁺. split. apply ω_inductive...
@@ -230,8 +228,7 @@ Proof with neauto.
   }
   clear Hnmax. apply Hsub in Hk as Hkw.
   intros n Hn. destruct (classic (n ∈ N)). apply Larger...
-  set {n ∊ ω | ∃m ∈ N, n ∈ m} as M.
-  ω_induction M Hn.
+  ω_induction n.
   - apply Larger in Hk as [m [Hm Hkm]].
     exists m. split... apply nq_0_gt_0.
     apply Hsub... intros H0. subst m. exfalso0.

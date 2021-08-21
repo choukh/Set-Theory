@@ -13,11 +13,10 @@ Lemma finite_subset_of_ω_is_bounded : ∀ N, ⦿ N → N ⊆ ω →
 Proof with auto; try congruence.
   intros N Hne Hsub [n [Hn Hqn]].
   generalize dependent N.
-  set {n ∊ ω | ∀ N, ⦿ N → N ⊆ ω → N ≈ n → ∃ m, sub_maximum m N} as M.
-  ω_induction M Hn; intros N Hne Hsub Hcd. {
+  ω_induction n; intros N Hne Hsub Hcd. {
     apply eqnum_empty in Hcd. apply EmptyNI in Hne. exfalso...
   }
-  clear M Hn n. destruct Hne as [k Hk].
+  clear Hn n. destruct Hne as [k Hk].
   destruct (classic (sub_maximum k N)). exists k...
   apply not_and_or in H as []. exfalso...
   apply set_not_all_ex_not in H as [p [Hp Hkp]].
@@ -61,8 +60,7 @@ Lemma bounded_subset_of_ω_is_finite : ∀ N, N ⊆ ω →
 Proof with nauto.
   intros N Hsub [n [Hn Hmax]]. split. exists n...
   apply Hsub in Hn as Hnw. generalize dependent N.
-  set {n ∊ ω | ∀ N, N ⊆ ω → n ∈ N → (∀ k ∈ N, k ⊆ n) → finite N} as M.
-  ω_induction M Hnw; intros N Hsub Hn Hmax.
+  ω_induction n; intros N Hsub Hn Hmax.
   - exists 1. split... cut (N = ⎨∅⎬). {
       intros H. rewrite H. apply eqnum_single.
     }

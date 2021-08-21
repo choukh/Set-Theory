@@ -170,8 +170,7 @@ Proof with neauto; try congruence.
   assert (Hmonoₗ: ∀ n m ∈ ω, n ∈ m → (hₗ[m] <ᵣ hₗ[n]) (R S)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (hₗ[k] <ᵣ hₗ[n]) (R S)} as N.
-    ω_induction N Hk; intros n Hn Hnm. exfalso0.
+    ω_induction k; intros n Hn Hnm. exfalso0.
     rewrite Hhₗn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
       apply Hdesc... eapply ap_ran...
@@ -181,8 +180,7 @@ Proof with neauto; try congruence.
   assert (Hmonoᵣ: ∀ n m ∈ ω, n ∈ m → (hᵣ[n] <ᵣ hᵣ[m]) (R S)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (hᵣ[n] <ᵣ hᵣ[k]) (R S)} as N.
-    ω_induction N Hk; intros n Hn Hnm. exfalso0.
+    ω_induction k; intros n Hn Hnm. exfalso0.
     rewrite Hhᵣn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
       apply Hasc... eapply ap_ran...
@@ -349,8 +347,7 @@ Proof with neauto; try congruence.
   assert (Hmono: ∀ n m ∈ ω, n ∈ m → (h[n] <ᵣ h[m]) (R T)). {
     intros n Hn k Hk Hnk.
     generalize dependent n.
-    set {k ∊ ω | ∀ n, n ∈ ω → n ∈ k → (h[n] <ᵣ h[k]) (R T)} as N.
-    ω_induction N Hk; intros n Hn Hnm. exfalso0.
+    ω_induction k; intros n Hn Hnm. exfalso0.
     rewrite Hhn... apply BUnionE in Hnm as [].
     - apply IH in H... eapply relLt_tranr...
       apply Hasc... eapply ap_ran...
@@ -884,8 +881,7 @@ Proof with neauto; try congruence.
   assert (HiGn: ∀n ∈ ω, G[n] : a⟦n⟧ ⇔ B ∧ op G[n]). {
     intros n Hn.
     destruct HG as [HfG [HdG HrG]].
-    set {n ∊ ω | G[n] : a⟦n⟧ ⇔ B ∧ op G[n]} as N.
-    ω_induction N Hn. rewrite HG0...
+    ω_induction n. rewrite HG0...
     rewrite HGnp... unfold g.
     rewrite meta_func_ap... apply Hind; auto; apply IH.
     apply HrG. eapply ranI. apply func_correct...
@@ -916,8 +912,7 @@ Proof with neauto; try congruence.
   }
   assert (Hin: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ a⟦m⟧, (G[m])[x] = (G[n])[x]). {
     intros n Hn.
-    set {n ∊ ω | ∀k ∈ n, ∀x ∈ a⟦k⟧, G[k][x] = G[n][x]} as N.
-    ω_induction N Hn; intros k Hkn x Hx. exfalso0.
+    ω_induction n; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [].
     - rewrite IH... apply Hin0...
       apply imgE in Hx as [l [Hl Hp]].
@@ -926,8 +921,7 @@ Proof with neauto; try congruence.
   }
   assert (Hout: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ a⟦n⟧ - a⟦m⟧, (G[n])[x] ∉ ran G[m]). {
     intros n Hn.
-    set {n ∊ ω | ∀m ∈ n, ∀x ∈ a⟦n⟧ - a⟦m⟧, G[n][x] ∉ ran G[m]} as N.
-    ω_induction N Hn; intros k Hkn x Hx. exfalso0.
+    ω_induction n; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [Hkm|Hkm].
     - assert (Hk: k ∈ ω). eapply ω_trans...
       pose proof (HiGn k Hk) as [[[Hfk _] [Hdk _]] _].

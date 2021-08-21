@@ -18,11 +18,10 @@ Lemma finite_ords_is_bounded : ∀ A, ⦿ A → A ⪽ 𝐎𝐍 →
 Proof with auto; try congruence.
   intros A Hne Hords [n [Hn Hqn]].
   generalize dependent A.
-  set {n ∊ ω | ∀ A, ⦿ A → A ⪽ 𝐎𝐍 → A ≈ n → ∃ α, sub_maximum α A} as N.
-  ω_induction N Hn; intros A Hne Hords Hqn. {
+  ω_induction n; intros A Hne Hords Hqn. {
     apply eqnum_empty in Hqn. apply EmptyNI in Hne. exfalso...
   }
-  clear N Hn n. destruct Hne as [α Hα].
+  clear Hn n. destruct Hne as [α Hα].
   destruct (classic (sub_maximum α A)). exists α...
   apply not_and_or in H as []. exfalso...
   apply set_not_all_ex_not in H as [β [Hβ Hαβ]].
@@ -84,8 +83,7 @@ Proof with neauto.
   }
   intros [Hord [k [Hk Hqn]]].
   generalize dependent n.
-  set {k ∊ ω | ∀ n, n ⋵ 𝐎𝐍 → n ≈ k → n ∈ ω} as N.
-  ω_induction N Hk; intros n Hn Hqn.
+  ω_induction k; intros n Hn Hqn.
   - apply eqnum_empty in Hqn. subst...
   - apply sucord_or_limord in Hn as [Hsuc|Hlim].
     + destruct Hsuc as [p [Hp Heq]]. subst n.

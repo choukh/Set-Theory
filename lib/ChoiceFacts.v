@@ -586,9 +586,7 @@ Lemma finite_chain_has_max : ∀ ℬ, ⦿ ℬ →
   finite ℬ → is_chain ℬ → ∃ M, sub_maximal M ℬ.
 Proof with eauto; try congruence.
   intros ℬ Hne [n [Hn Hqn]]. generalize dependent ℬ.
-  set {n ∊ ω | ∀ ℬ,
-    ⦿ ℬ → ℬ ≈ n → is_chain ℬ → ∃ M, sub_maximal M ℬ } as N.
-  ω_induction N Hn; intros ℬ Hne Hqn Hchn. {
+  ω_induction n; intros ℬ Hne Hqn Hchn. {
     exfalso. apply EmptyNI in Hne. apply eqnum_empty in Hqn...
   }
   destruct Hne as [B HB].

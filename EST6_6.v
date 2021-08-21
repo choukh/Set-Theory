@@ -12,8 +12,7 @@ Local Lemma finite_repl : ∀ a 𝒜,
 Proof with auto.
   intros * [n [Hn Hrpl]].
   generalize dependent 𝒜.
-  set {n ∊ ω | ∀ 𝒜, {X - ⎨a⎬ | X ∊ 𝒜} ≈ n → finite 𝒜} as N.
-  ω_induction N Hn; intros 𝒜 Hqn. {
+  ω_induction n; intros 𝒜 Hqn. {
     apply eqnum_empty in Hqn. apply repl_eq_empty in Hqn. subst...
   }
   apply set_eqnum_suc_nonempty in Hqn as Hne...
@@ -65,8 +64,7 @@ Lemma finite_union : ∀ A, finite ⋃A → finite A ∧ (∀a ∈ A, finite a).
 Proof with nauto.
   intros 𝒜 [n [Hn Hu]].
   generalize dependent 𝒜.
-  set {n ∊ ω | ∀ 𝒜, ⋃𝒜 ≈ n → finite 𝒜 ∧ (∀A ∈ 𝒜, finite A)} as N.
-  ω_induction N Hn; intros 𝒜 Hu.
+  ω_induction n; intros 𝒜 Hu.
   - apply eqnum_empty in Hu.
     apply union_empty_iff in Hu as []; subst.
     + split... intros a Ha. exfalso0.
@@ -816,8 +814,7 @@ Corollary cardExp_infcard_id : AC_VI →
   ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, n ≠ ∅ → 𝜅 ^ n = 𝜅.
 Proof with auto.
   intros AC6 𝜅 [Hinf Hcd] n Hn.
-  set {n ∊ ω | n ≠ ∅ → 𝜅 ^ n = 𝜅} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - intros. exfalso...
   - intros _. destruct (classic (m = 0)).
     + subst m. rewrite cardExp_1_r...

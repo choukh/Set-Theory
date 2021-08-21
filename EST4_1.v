@@ -50,23 +50,27 @@ Proof with auto.
   - apply SepE in Hn as [_ Hn]. apply Hn in Hi...
 Qed.
 
-Ltac ω_induction N H := cut (N = ω); [
-  intros ?Heq; rewrite <- Heq in H;
-  apply SepE in H as []; auto |
-  apply ω_ind; [
-    intros ?x ?Hx; apply SepE in Hx as []; auto |
-    split; [apply SepI; [apply ω_has_0 |]|]
-  ]; [|
-    intros ?m ?Hm; apply SepE in Hm as [?Hm ?IH];
-    apply SepI; [apply ω_inductive; auto |]
-  ]
-].
+Ltac ω_induction n :=
+  pattern n;
+  match goal with | H : n ∈ ω |- ?G _ =>
+  let N := fresh "N" in
+  set {n ∊ ω | G n} as N; simpl in N;
+  cut (N = ω); [
+    intros ?Heq; rewrite <- Heq in H;
+    apply SepE in H as []; auto |
+    apply ω_ind; [
+      intros ?x ?Hx; apply SepE in Hx as []; auto |
+      split; [apply SepI; [apply ω_has_0 |]|]
+    ]; [|
+      intros ?m ?Hm; apply SepE in Hm as [?Hm ?IH];
+      apply SepI; [apply ω_inductive; auto |]
+    ]
+  ]; clear N; simpl
+end.
 
-Theorem pred_exists : ∀n ∈ ω, n ≠ ∅ → ∃n' ∈ ω, n = n'⁺.
+Theorem pred_exists : ∀n ∈ ω, n ≠ ∅ → ∃k ∈ ω, n = k⁺.
 Proof with auto.
-  intros n Hn.
-  set {n ∊ ω | n ≠ ∅ → ∃n' ∈ ω, n = n'⁺} as N.
-  ω_induction N Hn.
+  intros n Hn. ω_induction n.
   - intros. exfalso. apply H...
   - intros _. exists m. split...
 Qed.
@@ -128,8 +132,7 @@ Qed.
 Theorem nat_trans : ∀n ∈ ω, trans n.
 Proof with eauto.
   intros n Hn.
-  set {n ∊ ω | trans n} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - intros a A Ha HA. exfalso0.
   - intros b B Hb HB. apply BUnionE in HB as [].
     + apply BUnionI1. eapply IH...
@@ -140,8 +143,7 @@ Qed.
 Theorem ω_trans : trans ω.
 Proof with eauto.
   rewrite trans_sub. intros n Hn.
-  set {n ∊ ω | n ⊆ ω} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - intros x Hx. exfalso0.
   - intros x Hx. apply BUnionE in Hx as [].
     apply IH... apply SingE in H. subst...
@@ -300,9 +302,7 @@ Proof with eauto; try congruence.
     rewrite Hpeq. eexists...
     intros n Hn. rewrite <- unique_existence.
     split. apply domE in Hn... apply Hdhω in Hn.
-    set {n ∊ ω | ∀ y1 y2,
-      <n, y1> ∈ h → <n, y2> ∈ h → y1 = y2} as N.
-    ω_induction N Hn; intros y1 y2 H1 H2.
+    ω_induction n; intros y1 y2 H1 H2.
     - apply Hstar in H1 as [v1 [_ [[Hf1 [Hi1 _]] Hp1]]].
       apply Hstar in H2 as [v2 [_ [[Hf2 [Hi2 _]] Hp2]]].
       apply domI in Hp1 as Hd1. apply domI in Hp2 as Hd2.
@@ -465,8 +465,7 @@ Proof with eauto; try congruence.
   split. apply ω_recursion...
   intros h1 h2 [[H1f [H1d _]] [H10 H1]] [[H2f [H2d _]] [H20 H2]].
   apply func_ext_intro... intros n Hn. rewrite H1d in Hn.
-  set {n ∊ ω | h1[n] = h2[n]} as S.
-  ω_induction S Hn...
+  ω_induction n...
   apply H1 in Hm as Heq1. apply H2 in Hm as Heq2...
 Qed.
 
@@ -506,8 +505,7 @@ Proof with eauto; try congruence.
     intros n m Hp. apply domI in Hp as Hn. rewrite Hd in Hn.
     generalize Hp. generalize dependent m.
     clear Hp Hy. generalize dependent y.
-    set {n ∊ ω | ∀ y m, <n, y> ∈ h → <m, y> ∈ h → n = m} as M.
-    ω_induction M Hn.
+    ω_induction n.
     + intros y m Hp1 Hp2. apply domI in Hp2 as Hdm.
       apply func_ap in Hp1... apply func_ap in Hp2...
       ω_destruct m... exfalso. subst m. eapply Hnq0...

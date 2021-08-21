@@ -375,8 +375,7 @@ Notation "a +ᵥ b" := (PreIntAdd[<a, b>]) (at level 50) : PreInt_scope.
 Lemma add_split : ∀x ∈ ω, ∃ m n ∈ ω, x = m + n.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | ∃ a b ∈ ω, n = a + b} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - exists 0. split... exists 0. split... rewrite add_ident...
   - destruct IH as [a [Ha [b [Hb Heq]]]].
     exists a. split... exists (b⁺). split. apply ω_inductive...

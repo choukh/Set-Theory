@@ -304,8 +304,7 @@ Qed.
 Theorem fin_ordAddₜ_eq_add : ∀ m n ∈ ω, m + n = (m + n)%ω.
 Proof with nauto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%ω} as N.
-  ω_induction N Hn; intros k Hk.
+  ω_induction n; intros k Hk.
   - rewrite ordAddₜ_ident, add_ident...
     apply (ord_is_ords ω)...
   - rewrite ordAddₜ_suc, IH, suc, suc, add_assoc...
@@ -316,8 +315,7 @@ Qed.
 Theorem fin_ordMulₜ_eq_mul : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%ω.
 Proof with nauto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%ω} as N.
-  ω_induction N Hn; intros k Hk.
+  ω_induction n; intros k Hk.
   - rewrite ordMulₜ_0, mul_0_r...
     apply (ord_is_ords ω)...
   - rewrite ordMulₜ_suc, IH, mul_suc, fin_ordAddₜ_eq_add, add_comm...

@@ -273,8 +273,7 @@ Proof with neauto; try congruence.
       }
       assert (Hyw: y ∈ ω). eapply ω_trans... apply mul_ran...
       generalize dependent Hy.
-      set {k ∊ ω | k ∈ n ⋅ m → ∃x ∈ n × m, n ⋅ π2 x + π1 x = k} as N.
-      ω_induction N Hyw; intros Hy.
+      ω_induction y; intros Hy.
       + exists <0, 0>. split. apply CProdI.
         apply nq_0_gt_0... apply nq_0_gt_0...
         zfc_simple. rewrite mul_0_r, add_ident...

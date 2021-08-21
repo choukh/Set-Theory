@@ -679,8 +679,7 @@ Proof with neauto; try congruence.
   }
   assert (Hindex: ∀n ∈ ω, π1 h[n] = n). {
     intros n Hn.
-    set {n ∊ ω | π1 h[n] = n} as N.
-    ω_induction N Hn.
+    ω_induction n.
     - rewrite Hh0. unfold p₀. zfc_simple. rewrite zero...
     - rewrite Hhnp... unfold g.
       rewrite meta_func_ap; [|auto|apply Hhnps]...
@@ -729,16 +728,14 @@ Proof with neauto; try congruence.
   }
   assert (Hsubd: ∀n ∈ ω, ∀m ∈ n, dom G[m] ⊆ dom G[n]). {
     intros n Hn.
-    set {n ∊ ω | ∀m ∈ n, dom G[m] ⊆ dom G[n]} as N.
-    ω_induction N Hn; intros k Hk. exfalso0.
+    ω_induction n; intros k Hk. exfalso0.
     apply BUnionE in Hk as [].
     - eapply sub_tran. apply IH... apply Hsubd0...
     - apply SingE in H; subst. apply Hsubd0...
   }
   assert (Hsubr: ∀n ∈ ω, ∀m ∈ n, ran G[m] ⊆ ran G[n]). {
     intros n Hn.
-    set {n ∊ ω | ∀m ∈ n, ran G[m] ⊆ ran G[n]} as N.
-    ω_induction N Hn; intros k Hk. exfalso0.
+    ω_induction n; intros k Hk. exfalso0.
     apply BUnionE in Hk as [].
     - eapply sub_tran. apply IH... apply Hsubr0...
     - apply SingE in H; subst. apply Hsubr0...
@@ -820,16 +817,14 @@ Proof with neauto; try congruence.
   }
   assert (Hin: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ dom G[m], (G[m])[x] = (G[n])[x]). {
     intros n Hn.
-    set {n ∊ ω | ∀k ∈ n, ∀x ∈ dom G[k], G[k][x] = G[n][x]} as N.
-    ω_induction N Hn; intros k Hkn x Hx. exfalso0.
+    ω_induction n; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [].
     + rewrite IH... apply Hin0... eapply Hsubd...
     + apply SingE in H; subst k. apply Hin0...
   }
   assert (Hout: ∀n ∈ ω, ∀m ∈ n, ∀x ∈ dom G[n] - dom G[m], (G[n])[x] ∉ ran G[m]). {
     intros n Hn.
-    set {n ∊ ω | ∀m ∈ n, ∀x ∈ dom G[n] - dom G[m], G[n][x] ∉ ran G[m]} as N.
-    ω_induction N Hn; intros k Hkn x Hx. exfalso0.
+    ω_induction n; intros k Hkn x Hx. exfalso0.
     apply BUnionE in Hkn as [Hkm|Hkm].
     - apply SepE in Hx as [Hx Hx'].
       replace (dom G[m⁺]) with (dom G[m] ∪ (dom G[m⁺] - dom G[m])) in Hx; revgoals. {

@@ -285,8 +285,7 @@ Lemma injection_between_same_nat_surjective :
   ∀n ∈ ω, ∀ f, f: n ⇔ n → ran f = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | ∀ f, f: n ⇔ n → ran f = n} as N.
-  ω_induction N Hn. {
+  ω_induction n. {
     intros f [_ [_ Hr]]. apply sub_antisym...
     intros x Hx. exfalso0.
   }
@@ -317,7 +316,7 @@ Proof with neauto; try congruence.
     + apply BUnionI1. rewrite Hr'...
     + apply BUnionI2. rewrite ran_of_restr_to_single...
   }
-  clear Hn N n IH. intros f Hf.
+  clear Hn n IH. intros f Hf.
   destruct (classic (∀p ∈ k, f[p] ∈ k)). { apply Hstar... }
   rewrite set_not_all_ex_not in H. destruct H as [p [Hp Hout]].
   assert (Hpw: p ∈ ω) by (eapply ω_trans; eauto).
@@ -628,8 +627,7 @@ Lemma subset_of_ω_is_finite : ∀n ∈ ω, ∀ C,
   C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | ∀ C, C ⊂ n → ∃m ∈ ω, m ∈ n ∧ C ≈ m} as N.
-  ω_induction N Hn; intros C [Hsub Hnq].
+  ω_induction n; intros C [Hsub Hnq].
   - exfalso. apply Hnq. apply EmptyI.
     intros x Hx. apply Hsub in Hx. exfalso0.
   - rename m into k. rename Hm into Hk.

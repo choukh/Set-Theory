@@ -652,8 +652,7 @@ Module Export EpsilonImageOfNats.
 Example e_ω_nat : ∀n ∈ ω, (E ℕ̃)[n] = n.
 Proof with neauto.
   intros n Hn.
-  set {n ∊ ω | (E ℕ̃)[n] = n} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - apply ExtAx. split; intros Hx.
     + apply e_elim in Hx as [k [_ [Hk _]]]...
       apply binRelE3 in Hk. exfalso0.
@@ -677,8 +676,7 @@ Qed.
 Example e_nat_nat : ∀ n m ∈ ω, n ∈ m → (E (Seg m ℕ̃))[n] = n.
 Proof with neauto.
   intros n Hn p Hp.
-  set {n ∊ ω | n ∈ p → (E (Seg p ℕ̃))[n] = n} as N.
-  ω_induction N Hn; intros Hnp.
+  ω_induction n; intros Hnp.
   - apply ExtAx. split; intros Hx; [|exfalso0].
     apply (e_elim (Seg p ℕ̃)) in Hx as [k [_ [Hk _]]].
     + apply SepE in Hk as [Hk _].
@@ -715,8 +713,7 @@ Qed.
 Example α_nat : ∀n ∈ ω, α (Seg n ℕ̃) = n.
 Proof with neauto; try congruence.
   intros n Hn.
-  set {n ∊ ω | α (Seg n ℕ̃) = n} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - unfold α. replace (E (Seg ∅ ℕ̃)) with ∅.
     apply ran_of_empty. symmetry. apply e_empty.
     apply ExtAx. split; intros Hx; [|exfalso0].

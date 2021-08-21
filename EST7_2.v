@@ -644,8 +644,7 @@ Qed.
 Lemma f_inclusion : ∀ A, ∀n ∈ ω, ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺].
 Proof with neauto.
   intros A n Hn.
-  set {n ∊ ω | ∀a ∈ (F A)[n], a ⊆ (F A)[n⁺]} as N.
-  ω_induction N Hn; intros a Ha x Hx.
+  ω_induction n; intros a Ha x Hx.
   - rewrite f_0 in Ha. rewrite f_1.
     apply BUnionI2. apply UnionAx. exists a. split...
   - rewrite f_n in Ha...

@@ -16,8 +16,7 @@ Definition t := Operation 5 Suc.
 Example ex8_2_a : ∀α ∈ ω, t α = 5 + α.
 Proof with nauto.
   intros α Hα.
-  set {α ∊ ω | t α = 5 + α} as N.
-  ω_induction N Hα; unfold t in *.
+  ω_induction α; unfold t in *.
   - rewrite operation_0, add_ident...
   - rewrite operation_suc, IH; [|apply ω_is_ords]...
     rewrite suc, suc, add_assoc... apply add_ran...

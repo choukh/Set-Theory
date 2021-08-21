@@ -101,8 +101,7 @@ Qed.
 Example ex6_19 : ∀ I ℱ, finite I → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
 Proof with eauto; try congruence.
   intros * [n [Hn Hqn]]. generalize dependent I.
-  set {n ∊ ω | ∀ I, I ≈ n → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ} as N.
-  ω_induction N Hn; intros I Hqn HneX.
+  ω_induction n; intros I Hqn HneX.
   - apply eqnum_empty in Hqn. rewrite Hqn.
     exists ∅. apply SepI.
     + apply SepI. apply empty_in_all_power.
@@ -157,8 +156,7 @@ Example ex6_23 : ∀ A F g h,
   ∀n ∈ ω, g⟦n⟧ = h[n].
 Proof with eauto; try congruence.
   intros * Hfg Hdg Hrg Hh0 Hhn n Hn.
-  set {n ∊ ω | g⟦n⟧ = h[n]} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - apply ExtAx. split; intros Hx.
     + apply imgE in Hx as [k [Hk _]]. exfalso0.
     + rewrite Hh0 in Hx. exfalso0.

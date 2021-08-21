@@ -1099,8 +1099,7 @@ Qed.
 Theorem fin_cardAdd_eq_add : ∀ m n ∈ ω, m + n = (m + n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m + n = (m + n)%ω} as N.
-  ω_induction N Hn; intros k Hk.
+  ω_induction n; intros k Hk.
   - rewrite cardAdd_ident, add_ident... apply nat_is_card...
   - rewrite <- card_suc at 1...
     rewrite <- cardAdd_assoc, IH, card_suc, add_suc...
@@ -1111,8 +1110,7 @@ Qed.
 Theorem fin_cardMul_eq_mul : ∀ m n ∈ ω, m ⋅ n = (m ⋅ n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m ⋅ n = (m ⋅ n)%ω} as N.
-  ω_induction N Hn; intros k Hk.
+  ω_induction n; intros k Hk.
   - rewrite cardMul_0_r, mul_0_r...
   - rewrite <- card_suc at 1...
     rewrite cardMul_suc, IH, fin_cardAdd_eq_add, mul_suc, add_comm...
@@ -1123,8 +1121,7 @@ Qed.
 Theorem fin_cardExp_eq_exp : ∀ m n ∈ ω, m ^ n = (m ^ n)%ω.
 Proof with auto.
   intros m Hm n Hn. generalize dependent m.
-  set {n ∊ ω | ∀ m, m ∈ ω → m ^ n = (m ^ n)%ω} as N.
-  ω_induction N Hn; intros k Hk.
+  ω_induction n; intros k Hk.
   - rewrite cardExp_0_r, exp_0_r...
   - rewrite <- card_suc at 1...
     assert ((k ^ m)%ω ∈ ω) by (apply exp_ran; auto).
@@ -1200,8 +1197,7 @@ Qed.
 Lemma comp_finite : ∀ A B, finite A → finite (A - B).
 Proof with auto.
   intros * [n [Hn Hqn]]. generalize dependent A.
-  set {n ∊ ω | ∀ A, A ≈ n → finite (A -B)} as N.
-  ω_induction N Hn; intros A Hqn.
+  ω_induction n; intros A Hqn.
   - apply eqnum_empty in Hqn. subst A.
     rewrite empty_comp. apply empty_finite.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
@@ -1305,8 +1301,7 @@ Lemma repl_finite : ∀ F A, finite A → finite {F x | x ∊ A}.
 Proof with auto.
   intros * [n [Hn Hqn]].
   generalize dependent A.
-  set {n ∊ ω | ∀ A, A ≈ n → finite {F x | x ∊ A}} as N.
-  ω_induction N Hn; intros A Hqn.
+  ω_induction n; intros A Hqn.
   - apply eqnum_empty in Hqn. subst A.
     rewrite repl_empty. apply empty_finite.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
@@ -1322,8 +1317,7 @@ Lemma binter_finite_r : ∀ A B, finite B → finite (A ∩ B).
 Proof with auto.
   intros * [n [Hn Hqn]].
   generalize dependent B.
-  set {n ∊ ω | ∀ B, B ≈ n → finite (A ∩ B)} as N.
-  ω_induction N Hn; intros B Hqn.
+  ω_induction n; intros B Hqn.
   - apply eqnum_empty in Hqn. subst B.
     rewrite binter_empty. apply empty_finite.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...

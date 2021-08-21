@@ -404,8 +404,7 @@ Proof. apply card_neq_exp. apply aleph0_is_card. Qed.
 Lemma fin_card_neq_aleph0 : ∀n ∈ ω, |n| ≠ ℵ₀.
 Proof with nauto.
   intros n Hn.
-  set {n ∊ ω | |n| ≠ ℵ₀} as N.
-  ω_induction N Hn; intros H.
+  ω_induction n; intros H.
   - apply CardAx1 in H. symmetry in H.
     apply eqnum_empty in H. rewrite H in Hn. exfalso0.
   - assert (Heqw: ω = (ω - ⎨∅⎬) ∪ ⎨∅⎬) by (apply split_one_element; nauto).
@@ -561,8 +560,7 @@ Qed.
 Fact cardExp_aleph0_n : ∀n ∈ ω, n ≠ ∅ → ℵ₀ ^ n = ℵ₀.
 Proof with auto.
   intros n Hn.
-  set {n ∊ ω | n ≠ ∅ → ℵ₀ ^ n = ℵ₀} as N.
-  ω_induction N Hn.
+  ω_induction n.
   - intros. exfalso...
   - intros _. destruct (classic (m = 0)).
     + subst m. rewrite cardExp_1_r...

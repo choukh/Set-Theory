@@ -54,8 +54,7 @@ Qed.
 Lemma nat_dominated_by_infinite : ∀ A, ∀n ∈ ω, infinite A → n ≺ A.
 Proof with eauto; try congruence.
   intros A n Hn Hinf.
-  set {n ∊ ω | n ≺ A} as N.
-  ω_induction N Hn. {
+  ω_induction n. {
     split. apply empty_dominated...
     intros Hqn. symmetry in Hqn. apply eqnum_empty in Hqn.
     apply infinite_set_nonempty in Hinf. apply EmptyNI in Hinf...
@@ -161,8 +160,7 @@ Proof with neauto; try congruence.
       intros Hcut. apply Hcut in Hgm. apply SepE2 in Hgn...
     }
     clear Heq Hgm Hgn g. generalize dependent m.
-    set {n ∊ ω | ∀ m, m ∈ ω → m ∈ n → h[m⁺] ⊆ h[n]} as N.
-    ω_induction N Hn; intros k Hk Hlt. exfalso0.
+    ω_induction n; intros k Hk Hlt. exfalso0.
     intros x Hx. apply BUnionE in Hlt as [].
     + apply IH in Hx... rewrite Hhn... unfold ℋ.
       rewrite meta_func_ap; [|auto|eapply ap_ran]... apply BUnionI1...
