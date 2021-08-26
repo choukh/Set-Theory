@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export ZFC.EX4.
+Require Export ZFC.Theory.EX4.
 
 Definition woset := λ A R, wellOrder R A.
 
@@ -40,7 +40,7 @@ Qed.
 (* 2的幂集 *)
 Lemma power_two : 𝒫 2 = 3 ∪ ⎨⎨1⎬⎬.
 Proof with nauto.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - destruct (empty_or_not x) as [|[a Ha]]. {
       subst. do 3 apply BUnionI1...
     }
@@ -57,22 +57,22 @@ Proof with nauto.
     apply Hx in Ha as Ha2. rewrite two in Ha2.
     apply TwoE in Ha2 as []; subst. {
       destruct (classic (1 ∈ x)).
-      - apply H2. apply ExtAx. intros w. split; intros Hw.
+      - apply H2. ext w Hw.
         + apply Hx...
         + rewrite two in Hw.
           apply TwoE in Hw as []; subst... rewrite <- one...
-      - apply H1. apply ExtAx. intros w. split; intros Hw.
+      - apply H1. ext w Hw.
         + apply Hx in Hw as Hw2. rewrite two in Hw2.
           apply TwoE in Hw2 as []; subst. apply BUnionI2...
           exfalso. apply H. rewrite one...
         + rewrite one in Hw. apply SingE in Hw; subst...
     } {
       destruct (classic (0 ∈ x)).
-      - apply H2. apply ExtAx. intros w. split; intros Hw.
+      - apply H2. ext w Hw.
         + apply Hx...
         + rewrite two in Hw.
           apply TwoE in Hw as []; subst...
-      - apply Hs. apply ExtAx. intros w. split; intros Hw.
+      - apply Hs. ext w Hw.
         + apply Hx in Hw as Hw2. rewrite two in Hw2.
           apply TwoE in Hw2 as []; subst.
           exfalso... rewrite one...
@@ -89,7 +89,7 @@ Qed.
 
 Lemma suc_comp : ∀n ∈ ω, n⁺ - n = ⎨n⎬.
 Proof with auto.
-  intros n Hn. apply ExtAx. split; intros Hx.
+  intros n Hn. ext Hx.
   - apply SepE in Hx as [H1 H2].
     apply BUnionE in H1 as []... exfalso...
   - apply SingE in Hx; subst. apply SepI.
@@ -102,12 +102,12 @@ Proof with nauto.
   intros k Hk n Hn.
   ω_induction n; intros [].
   - exfalso0.
-  - subst. exists ∅. split... rewrite add_ident...
+  - subst. exists ∅. split... rewrite add_0_r...
   - apply leq_iff_lt_suc in H...
     apply IH in H as [d [Hd H]].
     exists d⁺. split. apply ω_inductive...
     rewrite <- H, suc, suc, add_assoc... apply add_ran...
-  - exists 0. split... subst. rewrite add_ident...
+  - exists 0. split... subst. rewrite add_0_r...
 Qed.
 
 Lemma nat_subtr' : ∀ m n ∈ ω, m ∈ n → ∃d ∈ ω, m + d = n ∧ d ≠ 0.
@@ -162,7 +162,7 @@ Lemma bunion_of_nats_eq_l : ∀ m n ∈ ω, m ⋸ n → m ∪ n = n.
 Proof with auto.
   intros m Hm n Hn Hle.
   apply leq_iff_sub in Hle...
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply BUnionE in Hx as []...
   - apply BUnionI2...
 Qed.
@@ -171,7 +171,7 @@ Lemma bunion_of_nats_eq_r : ∀ m n ∈ ω, n ⋸ m → m ∪ n = m.
 Proof with auto.
   intros m Hm n Hn Hle.
   apply leq_iff_sub in Hle...
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply BUnionE in Hx as []...
   - apply BUnionI1...
 Qed.

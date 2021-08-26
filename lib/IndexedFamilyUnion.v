@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Import ZFC.lib.Natural.
+Require Import ZFC.Lib.Natural.
 
 (* 以ω为指标集的集族的并 *)
 Definition IFUnion : (set → set) → set :=

@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Export ZFC.lib.Dominate.
+Require Export ZFC.Lib.Dominate.
 
 (*** AC 1 ~ 6 ***)
 
@@ -54,7 +54,7 @@ Proof with eauto.
     apply sep_cp_is_rel.
   }
   assert (Hdeq2: dom f = I). {
-    rewrite Hdeq. apply ExtAx. intros i. split; intros Hi.
+    rewrite Hdeq. ext i Hi.
     - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
       apply CProdE2 in Hp as [Hi _]...
     - apply Hxi in Hi as Hx. destruct Hx.
@@ -80,7 +80,7 @@ Proof with eauto; try congruence.
       apply sep_cp_is_rel.
     }
     assert (Hd: dom f = ⋃ A). {
-      rewrite Hdeq. apply ExtAx. split; intros Hx.
+      rewrite Hdeq. ext Hx.
       - apply domE in Hx as [y Hp].
         apply SepE in Hp as [Hp _].
         apply CProdE2 in Hp as [Hx _]...
@@ -124,7 +124,7 @@ Proof with eauto; try congruence.
       apply PairE in Hsx as [].
       * apply single_eq_single in H...
       * apply single_eq_pair in H as [H1 H2]...
-    + apply ExtAx. split; intros Hx.
+    + ext Hx.
       * apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
         apply CProdE2 in Hp as [Hx _]...
       * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
@@ -208,7 +208,7 @@ Proof with eauto.
       apply op_iff in H2 as []...
   }
   exists F. split... split.
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     + apply domE in Hx as [y Hp].
       apply BInterE in Hp as [_ Hp].
       apply Hstar in Hp as [B [HB Hp]].
@@ -242,7 +242,7 @@ Proof with eauto.
     }
     exists (f ↾ 𝒜). split; [|split].
     + apply restr_func...
-    + apply ExtAx. split; intros Hx.
+    + ext Hx.
       * apply domE in Hx as [y Hp]. apply restrE2 in Hp as []...
       * eapply domI. apply restrI... apply func_correct...
     + intros A HA. rewrite (restr_ap f (dom f))...
@@ -438,7 +438,7 @@ Proof with eauto.
   (* -> *)
   intros [G [[Hg [Hdg _]] Heq]]. split... split...
   (* ran F = B *)
-  apply ExtAx. intros x. split; intros Hx. apply Hrf...
+  ext Hx. apply Hrf...
   assert (H: x ∈ dom (Ident B)) by (rewrite dom_ident; auto).
   apply domE in H as [y Hp].
   pose proof (identE _ _ _ Hp) as [_ H].
@@ -454,7 +454,7 @@ Proof with eauto.
   intros x Hx. apply ranE in Hx as [y Hx].
   apply H2, ranI in Hx. rewrite inv_ran in Hx. subst A...
   (* F ∘ G = Ident B *)
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply SepE in Hy as [_ [Hp [x [Hp1 Hp2]]]].
     apply H2 in Hp1. rewrite <- inv_op in Hp1.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
@@ -486,7 +486,7 @@ Proof with eauto.
       apply H2, ranI in Hx. rewrite inv_ran in Hx. subst A...
   }
   (* F ∘ G = Ident B *)
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply SepE in Hy as [_ [Hp [x [Hp1 Hp2]]]].
     apply H2 in Hp1. rewrite <- inv_op in Hp1.
     apply ReplAx. exists (π1 y). split. subst B. eapply ranI...
@@ -633,7 +633,7 @@ Proof with eauto.
   pose proof (AC_VI_to_I Zorn) as AC1.
   pose proof (AC1 R) as [F [HfF [HsF Hd]]]. { apply sep_cp_is_rel. }
   assert (HdF: dom F = C). {
-    rewrite Hd. apply ExtAx. split; intros Hx.
+    rewrite Hd. ext Hx.
     - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
       apply CProdE2 in Hp as [Hx _]...
     - apply Hs2 in Hx as Hxb.
@@ -711,7 +711,7 @@ Proof with eauto; try congruence.
     intros K HK. destruct (classic (M ⊆ K))... right.
     cut (K ∈ 𝒜'). { intros HK'. apply Hmax in HK' as []... }
     apply SepI... replace (A ∪ K) with K...
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     * apply BUnionI2...
     * apply BUnionE in Hx as []...
 Qed.

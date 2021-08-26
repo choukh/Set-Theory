@@ -1,7 +1,7 @@
 (** Coq coding by choukh, June 2021 **)
 
 Require Export Coq.Logic.Epsilon.
-Require Import ZFC.ZFC2.
+Require Import ZFC.Axiom.ZFC2.
 
 (* 由希尔伯特epsilon算子导出选择公理 *)
 

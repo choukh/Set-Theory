@@ -1,8 +1,8 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Export ZFC.lib.Ordinal.
-Require Import ZFC.lib.ChoiceFacts.
-Require ZFC.lib.WosetMin.
+Require Export ZFC.Lib.Ordinal.
+Require Import ZFC.Lib.ChoiceFacts.
+Require ZFC.Lib.WosetMin.
 
 (* set-theoretic form *)
 Definition set_theoretic_Zorn := ChoiceFacts.AC_VI.
@@ -37,7 +37,7 @@ Lemma subRel_of_subselRel : ∀ A B, B ⊆ A →
   (SubsetRel A) ⥏ B = SubsetRel B.
 Proof with auto.
   intros A B Hsub.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply SepE in Hx as [Hx Hp].
     apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst x.
     apply binRelE3 in Hx. apply binRelI...
@@ -122,8 +122,7 @@ Proof with eauto; try congruence.
   }
   set (Recursion (λ B, f[B])) as a.
   assert (HB: ∀α ⋵ 𝐎𝐍, {a β | β ∊ α} ∈ ℬ). {
-    eapply transfinite_induction_schema_on_ordinals.
-    intros α Hoα IH.
+    ord_induction. intros α Hoα IH.
     assert (Hsub: {a β | β ∊ α} ⊆ A). {
       intros x Hx. apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
       assert (Hoβ: β ⋵ 𝐎𝐍). eapply ord_is_ords...
@@ -251,7 +250,7 @@ Proof with eauto; try congruence.
       apply SepE in Hd as [Hd Hd'].
       assert (Heq: d = c). {
         rewrite (HiB d), HiC... f_equal.
-        apply ExtAx. split; intros Hx.
+        ext Hx.
         - contra.
           apply SepE in Hx as [Hx Hxk].
           assert (Hx': x ∈ B - seg c C). apply SepI...
@@ -362,7 +361,7 @@ Proof with eauto; try congruence.
     apply SepE2 in HB as HgB. assert (H := HgB).
     destruct H as [_ [_ Hap]].
     apply Hap in Ht as Heqt. rewrite Heqt at 1. f_equal.
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     - apply SepE in Hx as [Hx Hxt]. apply SepI...
       apply UnionAx. exists B. split...
     - apply SepE in Hx as [Hx Hxt]. apply SepI...
@@ -431,7 +430,7 @@ Proof with eauto; try congruence.
     apply BUnionE in Ht as [Ht|Ht].
     - apply union_ind in Ht as Heqt.
       rewrite Heqt at 1. f_equal.
-      apply ExtAx. split; intros Hx.
+      ext Hx.
       + apply SepE in Hx as [Hx Hxt].
         apply SepI... apply BUnionI1...
       + apply SepE in Hx as [Hx Hxt].
@@ -440,7 +439,7 @@ Proof with eauto; try congruence.
         exfalso. eapply relLt_irrefl...
         eapply relLt_tranr... apply f_strict...
     - apply SingE in Ht. rewrite Ht at 1. f_equal.
-      apply ExtAx. split; intros Hx.
+      ext Hx.
       + apply SepI. apply BUnionI1...
         rewrite Ht. apply f_strict...
       + apply SepE in Hx as [Hx Hxt].
@@ -561,7 +560,7 @@ Proof with eauto; try congruence.
       + eapply sub_tran...
       + intros Heq. rewrite Heq in H11.
         apply H21'. eapply sub_antisym...
-      + apply ExtAx. split; intros Hx.
+      + ext Hx.
         * rewrite H12 in Hx. apply SepE in Hx as [H1 H2].
           rewrite H22 in H1. apply SepE1 in H1. apply SepI...
         * apply SepE in Hx as [H1 H2].
@@ -705,7 +704,7 @@ Proof with eauto; try congruence.
     }
     assert (HeqR: RA = RU ⥏ A). {
       destruct Hwo as [[Hbr _] _].
-      apply ExtAx. intros p. split; intros Hp.
+      ext p Hp.
       - apply Hbr in Hp as H.
         apply CProdE1 in H as [a [Ha [b [Hb Heqp]]]].
         subst p. apply SepI.
@@ -725,7 +724,7 @@ Proof with eauto; try congruence.
     repeat split...
     - intros Heq. apply Hnq. apply op_iff. split...
       rewrite HeqR, Heq.
-      apply ExtAx. intros p. split; intros Hp.
+      ext p Hp.
       apply SepE1 in Hp... apply SepI... apply SepE1 in Hp...
     - intros a Ha b Hb. apply binRelI.
       apply HAU... apply SepE1 in Hb...
@@ -822,7 +821,7 @@ Proof with eauto; try congruence.
         exists a. split... intros x Hx. right.
         replace A with ⎨a⎬ in Hx.
         apply SingE in Hx... clear x Hx.
-        apply ExtAx. split; intros Hx.
+        ext Hx.
         - apply SingE in Hx...
         - apply sub_iff_no_comp in H.
           apply H in Hx. apply SingE in Hx.
@@ -852,7 +851,7 @@ Proof with eauto; try congruence.
   repeat split; zfc_simple...
   - intros x Hx. apply BUnionI1...
   - intros Heq. apply Hs'. rewrite Heq. apply BUnionI2...
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     + destruct Hwo as [[Hbr _] _].
       apply Hbr in Hx as Hp. apply SepI...
       apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].

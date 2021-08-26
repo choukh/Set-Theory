@@ -1,8 +1,8 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import ZFC.EX6_1.
-Require Import ZFC.lib.Dominate.
-Require Import ZFC.lib.WosetMin.
+Require Import ZFC.Theory.EX6_1.
+Require Import ZFC.Lib.Dominate.
+Require Import ZFC.Lib.WosetMin.
 Import WosetMin.SimpleVer.
 
 (** Facts about finite / infinite subset of ω **)
@@ -64,7 +64,7 @@ Proof with nauto.
   - exists 1. split... cut (N = ⎨∅⎬). {
       intros H. rewrite H. apply eqnum_single.
     }
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     + apply Hmax in Hx. apply sub_empty in Hx. subst x...
     + apply SingE in Hx. subst x...
   - pose proof (nat_neq_suc m Hm) as Hnq.
@@ -98,7 +98,7 @@ Proof with nauto.
           - rewrite remove_one_member_then_return...
           - intros H. apply SepE1 in H...
         }
-        apply ExtAx. split; intros Hx.
+        ext Hx.
         apply SepI... apply SingE in Hx; subst. apply SingNI...
         apply SepE1 in Hx...
 Qed.

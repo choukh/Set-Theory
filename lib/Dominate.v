@@ -1,9 +1,9 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.lib.NatIsomorphism.
-Require Import ZFC.lib.algebra.Inj_2n3m.
-Require Import ZFC.lib.IndexedFamilyUnion.
-Require Export ZFC.EST6_1.
+Require Import ZFC.Lib.NatIsomorphism.
+Require Import ZFC.Lib.Algebra.Inj_2n3m.
+Require Import ZFC.Lib.IndexedFamilyUnion.
+Require Export ZFC.Theory.EST6_1.
 
 (* 集合的支配关系 *)
 Definition Dominate : set → set → Prop := λ A B, ∃ f, f: A ⇔ B.

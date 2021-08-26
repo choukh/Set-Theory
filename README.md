@@ -6,7 +6,7 @@ This project is a Coq formalization of the textbook Elements of Set Theory - Her
 
 ## Requirement
 ```
-Coq 8.13.1
+Coq 8.13.2
 ```
 
 ## Build

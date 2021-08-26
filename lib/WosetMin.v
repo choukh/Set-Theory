@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import ZFC.lib.Natural.
+Require Import ZFC.Lib.Natural.
 
 Local Definition tail := λ t A R, {x ∊ A | (t <ᵣ x) R}.
 
@@ -33,7 +33,7 @@ Proof with eauto.
     apply H1 in Hb as []; apply H2 in Ha as []...
     exfalso. eapply lo_irrefl...
     destruct Hlo as [_ [Htr _]]. eapply Htr...
-  - apply ExtAx. intros B. split; intros HB.
+  - ext B HB.
     + apply domE in HB as [a Hp].
       apply minE in Hp as []...
     + apply SepE in HB as [HB HB']. apply PowerAx in HB as Hsub.
@@ -68,7 +68,7 @@ Lemma fld_woset : ∀ A R, woset A R →
   (∃ a b ∈ A, (a <ᵣ b) R) → fld R = A.
 Proof with eauto.
   intros A R Hwo [a [Ha [b [Hb Hab]]]].
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - destruct Hwo as [[Hbr _] _]. apply BUnionE in Hx as [].
     + apply domE in H as [y Hp]. apply Hbr in Hp.
       apply CProdE2 in Hp as []...
@@ -187,7 +187,7 @@ Proof with neauto.
   }
   remember (Next n ω Lt) as p.
   apply SepE in Hm as [Hpw Hnp].
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - assert (n⁺ ∈ {x ∊ ω | n ∈ x}). {
       apply SepI... eapply ω_inductive...
     }
@@ -226,7 +226,7 @@ Proof with eauto.
     apply H1 in Hb as []; apply H2 in Ha as []...
     exfalso. eapply lo_irrefl...
     destruct Hlo as [_ [Htr _]]. eapply Htr...
-  - apply ExtAx. intros B. split; intros HB.
+  - ext B HB.
     + apply domE in HB as [a Hp].
       apply minE in Hp as []...
     + apply SepE in HB as [HB HB']. apply PowerAx in HB as Hsub.

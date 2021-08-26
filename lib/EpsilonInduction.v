@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.ZFC2.
+Require Import ZFC.Axiom.ZFC2.
 
 (* Epsilon-induction *)
 (* https://en.wikipedia.org/wiki/Epsilon-induction *)

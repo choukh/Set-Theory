@@ -1,8 +1,8 @@
 (** Coq coding by choukh, Nov 2020 **)
 
-Require Export ZFC.EX6_3.
-Require Import ZFC.lib.OrdFacts.
-Require Import ZFC.lib.WosetMin.
+Require Export ZFC.Theory.EX6_3.
+Require Import ZFC.Lib.OrdFacts.
+Require Import ZFC.Lib.WosetMin.
 Import WosetMin.FullVer.
 
 (***

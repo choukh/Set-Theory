@@ -1,7 +1,7 @@
 (** Coq coding by choukh, Oct 2020 **)
 
 Require Import Coq.Arith.PeanoNat.
-Require Import ZFC.lib.Natural.
+Require Import ZFC.Lib.Natural.
 
 Lemma suc_isomorphic_n : ∀ n : nat, S n = n⁺.
 Proof.
@@ -17,7 +17,7 @@ Qed.
 Lemma add_isomorphic_n : ∀ n m, (n + m)%nat = n + m.
 Proof with nauto.
   intros. induction m.
-  - rewrite Nat.add_0_r, add_ident, proj_embed_id...
+  - rewrite Nat.add_0_r, add_0_r, proj_embed_id...
   - assert (Hmw: m⁺ ∈ ω) by (apply ω_inductive; nauto).
     assert (Hnm: n + m ∈ ω) by (apply add_ran; nauto).
     rewrite Nat.add_succ_r, (suc_isomorphic_n m), embed_proj_id...

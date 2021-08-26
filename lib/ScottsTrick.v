@@ -3,7 +3,7 @@
 Require Import FinFun.
 Require Import Relation_Definitions.
 Require Import RelationClasses.
-Require Import ZFC.EST7_6.
+Require Import ZFC.Theory.EST7_6.
 Import RegularityConsequences.
 
 Module ForAnyType.
@@ -146,7 +146,7 @@ Proof with eauto.
     apply scott_elim in HD as [w [HFw [Hwt _]]]...
     subst C. apply Hinj in HFw. subst w.
     eapply Equivalence_Transitive... symmetry...
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     + apply scott_elim in Hx as [v [HFv [Hqn Hmin]]]...
       apply scott_intro... exists v. repeat split...
       eapply Equivalence_Transitive...

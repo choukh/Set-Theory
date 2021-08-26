@@ -1,6 +1,6 @@
 (** Coq coding by choukh, June 2021 **)
 
-Require Export ZFC.lib.ChoiceFacts.
+Require Export ZFC.Lib.ChoiceFacts.
 
 Axiom AC : ∀ 𝒜, ∅ ∉ 𝒜 →
   (∀ A B ∈ 𝒜, A ≠ B → A ∩ B = ∅) →

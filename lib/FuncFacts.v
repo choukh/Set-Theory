@@ -1,13 +1,13 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Import ZFC.lib.Relation.
+Require Import ZFC.Lib.Relation.
 
 (** dom & ran **)
 
 (* 函数的定义域等于函数的π1替代 *)
 Lemma dom_eq_π1_repl : ∀ f, is_function f → dom f = {π1 p | p ∊ f}.
 Proof with eauto.
-  intros f Hf. apply ExtAx. split; intros Hx.
+  intros f Hf. ext Hx.
   - apply domE in Hx as [y Hp]. apply ReplAx.
     exists <x, y>. split... zfc_simple.
   - apply ReplAx in Hx as [p [Hp H1]]. 
@@ -21,7 +21,7 @@ Qed.
 (* 函数的值域等于函数的π2替代 *)
 Lemma ran_eq_π2_repl : ∀ f, is_function f → ran f = {π2 p | p ∊ f}.
 Proof with eauto.
-  intros f Hf. apply ExtAx. intros y. split; intros Hy.
+  intros f Hf. ext y Hy.
   - apply ranE in Hy as [x Hp]. apply ReplAx.
     exists <x, y>. split... zfc_simple.
   - apply ReplAx in Hy as [p [Hp H2]]. 
@@ -39,7 +39,7 @@ Qed.
 Lemma meta_dom : ∀ A B F, (∀x ∈ A, F x ∈ B) →
   dom (Func A B F) = A.
 Proof with eauto.
-  intros. apply ExtAx. split; intros Hx.
+  intros. ext Hx.
   - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
     apply CProdE2 in Hp as [Hx _]...
   - eapply domI. apply SepI.
@@ -165,7 +165,7 @@ Qed.
 Lemma empty_dom : ∀ F, is_function F → dom F = ∅ → F = ∅.
 Proof with auto.
   intros F Hf Hd.
-  apply ExtAx. intros p. split; intros Hp.
+  ext p Hp.
   - apply func_pair in Hp as Heq...
     rewrite Heq in Hp. apply domI in Hp.
     rewrite Hd in Hp. exfalso0.
@@ -183,7 +183,7 @@ Qed.
 Lemma empty_ran : ∀ F, is_function F → ran F = ∅ → F = ∅.
 Proof with auto.
   intros F Hf Hr.
-  apply ExtAx. intros p. split; intros Hp.
+  ext p Hp.
   - apply func_pair in Hp as Heq...
     rewrite Heq in Hp. apply ranI in Hp.
     rewrite Hr in Hp. exfalso0.
@@ -201,7 +201,7 @@ Proof with auto.
   - intros x Hx. rewrite <- unique_existence.
     split. apply ranE in Hx...
     intros y1 y2 H2. exfalso0.
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     apply domE in Hx as [y Hp]. exfalso0. exfalso0.
   - intros y Hy. apply ranE in Hy as [x Hp]. exfalso0.
 Qed.
@@ -211,7 +211,7 @@ Lemma empty_bijection : ∅: ∅ ⟺ ∅.
 Proof with auto.
   apply bijection_is_injection. split.
   apply empty_injection.
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   apply ranE in Hy as [x Hp]. exfalso0. exfalso0.
 Qed.
 
@@ -219,7 +219,7 @@ Qed.
 Lemma bijection_to_empty : ∀ F A, F: A ⟺ ∅ → A = ∅.
 Proof.
   intros * [Hi [Hd Hr]].
-  apply ExtAx. split; intros Hx; [|exfalso0].
+  ext Hx; [|exfalso0].
   rewrite <- Hd in Hx. apply domE in Hx as [y Hp].
   apply ranI in Hp. rewrite Hr in Hp. exfalso0.
 Qed.
@@ -250,7 +250,7 @@ Qed.
 (* 单点集的定义域 *)
 Lemma dom_of_single_pair : ∀ a b, dom ⎨<a, b>⎬ = ⎨a⎬.
 Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
+  intros. ext Hx.
   - apply domE in Hx as [y Hp]. apply SingE in Hp.
     apply op_iff in Hp as []; subst...
   - apply SingE in Hx; subst x. eapply domI...
@@ -259,7 +259,7 @@ Qed.
 (* 单点集的值域 *)
 Lemma ran_of_single_pair : ∀ a b, ran ⎨<a, b>⎬ = ⎨b⎬.
 Proof with auto.
-  intros. apply ExtAx. intros y. split; intros Hy.
+  intros. ext y Hy.
   - apply ranE in Hy as [x Hp]. apply SingE in Hp.
     apply op_iff in Hp as []; subst...
   - apply SingE in Hy; subst y. eapply ranI...
@@ -301,7 +301,7 @@ Proof with eauto.
   intros * [Hff [Hfd Hfr]] [Hfg [Hgd Hgr]].
   split; [|split].
   - apply compo_func...
-  - apply ExtAx. intros x. split; intros Hx.
+  - ext Hx.
     + apply domE in Hx as [y Hp].
       apply compoE in Hp as [t [H1 H2]].
       rewrite <- Hfd. eapply domI...
@@ -335,7 +335,7 @@ Proof with eauto; try congruence.
   apply surjection_is_func in Hg as [Hg Hgr].
   apply surjection_is_func. split.
   eapply compo_function...
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply compoE in Hp as [t [_ H]]. apply ranI in H...
   - destruct Hf as [_ [Hdf _]]. destruct Hg as [_ [Hdg _]].
@@ -353,7 +353,7 @@ Proof with eauto; try congruence.
   apply bijection_is_injection in Hg as [Hg Hgr].
   apply bijection_is_injection. split. eapply compo_injection...
   rewrite compo_ran; [|destruct Hg as []|destruct Hf as [[]]]...
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply SepE in Hy as [Hy _]...
   - destruct Hg as [[Hfg Hsg] [Hdg _]].
     apply SepI... rewrite Hfr, <- Hdg, <- inv_ran.
@@ -364,7 +364,7 @@ Qed.
 (* 限制在空集上的函数等于空函数 *)
 Lemma restr_to_empty : ∀ F, F ↾ ∅ = ∅.
 Proof.
-  intros. apply ExtAx. split; intros Hx.
+  intros. ext Hx.
   - apply restrE1 in Hx as [a [b [Ha _]]]. exfalso0.
   - exfalso0.
 Qed.
@@ -373,7 +373,7 @@ Qed.
 Lemma ran_of_restr_to_single : ∀ F a, is_function F →
   a ∈ dom F → ran (F ↾ ⎨a⎬) = ⎨F[a]⎬.
 Proof with auto.
-  intros * Hf Ha. apply ExtAx. intros y. split; intros Hy.
+  intros * Hf Ha. ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply restrE2 in Hp as [Hp Hx]...
     apply SingE in Hx; subst.
@@ -398,7 +398,7 @@ Qed.
 Lemma ran_split_by_restr : ∀ F A B, dom F = A ∪ B →
   ran F = ran (F ↾ A) ∪ ran (F ↾ B).
 Proof with eauto.
-  intros. apply ExtAx. intros y. split; intros Hy.
+  intros. ext y Hy.
   - apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
     rewrite H in Hd. apply BUnionE in Hd as [].
     + apply BUnionI1. eapply ranI. apply restrI...
@@ -415,7 +415,7 @@ Lemma func_split_by_restr : ∀ F A B, is_function F → dom F = A ∪ B →
   F = (F ↾ A) ∪ (F ↾ B).
 Proof with auto.
   intros * Hf Hdeq.
-  apply ExtAx. intros p. split; intros Hp.
+  ext p Hp.
   - apply func_pair in Hp as Heq... rewrite Heq in Hp.
     apply domI in Hp as Hd. rewrite Hdeq in Hd.
     rewrite Heq. apply BUnionE in Hd as [].
@@ -447,7 +447,7 @@ Qed.
 (* 限制于A的值域等于A的像 *)
 Lemma restr_ran_eq_img : ∀ f A, ran (f ↾ A) = f⟦A⟧.
 Proof with eauto.
-  intros. apply ExtAx. intros y. split; intros Hy.
+  intros. ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply restrE2 in Hp as [Hp Hx]. eapply imgI...
   - apply imgE in Hy as [x [Hx Hp]].
@@ -518,7 +518,7 @@ Qed.
 Lemma dom_of_bunion_func : ∀ F G, is_function F → is_function G →
   dom (F ∪ G) = dom F ∪ dom G.
 Proof with auto.
-  intros * HfF HfG. apply ExtAx. split; intros Hx.
+  intros * HfF HfG. ext Hx.
   + apply domE in Hx as [y Hp].
     apply BUnionE in Hp as [].
     * apply BUnionI1. apply domI in H...
@@ -577,7 +577,7 @@ Proof with eauto; try congruence.
   apply bijection_is_injection in HG as [HG HrG].
   apply bijection_is_injection. split.
   apply bunion_injection...
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply BUnionE in Hp as [].
     + apply BUnionI1. apply ranI in H...
@@ -652,7 +652,7 @@ Proof with eauto; try congruence.
     pose proof (Hchn f1 Hf1 f2 Hf2) as [].
     + apply H in H1. eapply singrE... apply Hfs...
     + apply H in H2. eapply singrE... apply Hfs...
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     + apply domE in Hx as [y Hp].
       apply UnionAx in Hp as [f [Hf Hp]]. apply domI in Hp.
       apply UnionAx. exists (dom f). split...
@@ -661,7 +661,7 @@ Proof with eauto; try congruence.
       apply ReplAx in Hp as [f [Hf Heq]]. subst.
       apply domE in Hx as [y Hp]. eapply domI.
       apply UnionAx. exists f. split...
-  - apply ExtAx. intros y. split; intros Hy.
+  - ext y Hy.
     + apply ranE in Hy as [x Hp].
       apply UnionAx in Hp as [f [Hf Hp]]. apply ranI in Hp.
       apply UnionAx. exists (ran f). split...
@@ -710,7 +710,7 @@ Proof with eauto; try congruence.
   intros * [Hf [Hd Hr]] Hout1 Hout2.
   split; [|split].
   - apply add_point_is_func...
-  - apply ExtAx. split; intros Hx.
+  - ext Hx.
     + apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
       * apply BUnionI1. apply domI in H. congruence.
       * apply BUnionI2. apply SingE in H.
@@ -751,7 +751,7 @@ Proof with eauto; try congruence.
   apply bijection_is_injection... split.
   apply injection_add_point...
   pose proof (single_pair_bijection a b) as [[Hfs Hss] [Hds Hrs]].
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply BUnionE in Hp as []; apply ranI in H.
     + apply BUnionI1...
@@ -890,7 +890,7 @@ Lemma func_swap_value : ∀ F A B, ∀ a b ∈ A,
 Proof with eauto; try congruence.
   intros F A B a Ha b Hb [Hf [Hd Hr]] F'.
   assert (Hreq: ran F' = ran F). {
-    apply ExtAx. intros y. split; intros Hy.
+    ext y Hy.
     - apply ranE in Hy as [x Hp].
       apply SepE in Hp as [Hp _].
       apply CProdE2 in Hp as [_ Hy]...
@@ -930,7 +930,7 @@ Proof with eauto; try congruence.
     as [[Hf' [Hd' Hr']] Hreq].
   remember (FuncSwapValue F a b) as F'.
   destruct Hf as [Hf [Hd Hr]].
-  apply ExtAx. intros p. split; intros Hp.
+  ext p Hp.
   - apply func_pair in Hp as Heq... rewrite Heq in Hp.
     apply domI in Hp as Hpd. apply ranI in Hp as Hpr.
     apply func_ap in Hp... rewrite Heq.
@@ -1060,7 +1060,7 @@ Proof with eauto.
   split; [|split].
   - apply compo_injective...
   - rewrite compo_dom; revgoals...
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     + apply SepE in Hx as []. rewrite <- Hrg, <- inv_dom...
     + apply SepI. rewrite inv_dom, Hrg... rewrite compo_dom...
       assert ((g⁻¹) [x] ∈ dom f). {
@@ -1085,7 +1085,7 @@ Proof with eauto.
   split; [|split].
   - apply compo_func...
   - rewrite compo_dom; revgoals...
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     + apply SepE in Hx as []. rewrite <- Hrg, <- inv_dom...
     + apply SepI. rewrite inv_dom, Hrg... rewrite compo_dom...
       assert ((g⁻¹) [x] ∈ dom f). {
@@ -1094,7 +1094,7 @@ Proof with eauto.
       }
       apply SepI... rewrite Hdg, <- Hrf.
       eapply ap_ran... split...
-  - apply ExtAx. intros y. split; intros Hy.
+  - ext y Hy.
     + rewrite compo_assoc, compo_ran in Hy...
       apply SepE in Hy as [Hy _]. rewrite Hrg in Hy...
     + rewrite compo_assoc, compo_ran... apply SepI. rewrite Hrg...

@@ -1,11 +1,21 @@
 (** Coq coding by choukh, Feb 2021 **)
 
-Require Export ZFC.lib.Cardinal.
+Require Export ZFC.Lib.Cardinal.
+
+Lemma gt_1_iff_nq_0_1 : ∀ α ⋵ 𝐎𝐍, 1 ∈ α ↔ α ≠ 0 ∧ α ≠ 1.
+Proof with nauto.
+  intros α Hα. split.
+  - intros Hlt. split; intros H; subst.
+    exfalso0. eapply (ord_irrefl 1)...
+  - intros [H0 H1]. contra.
+     apply ord_leq_iff_not_gt in H as []...
+     rewrite one in H. apply SingE in H...
+Qed.
 
 Lemma dom_of_op_repl :
   ∀ A G, dom {<x, G x> | x ∊ A} = A.
 Proof with auto.
-  intros. apply ExtAx. split; intros Hx.
+  intros. ext Hx.
   - apply domE in Hx as [y Hp].
     apply ReplAx in Hp as [α [Hα Hp]].
     apply op_iff in Hp as []; subst...
@@ -15,7 +25,7 @@ Qed.
 Lemma ran_of_op_repl :
   ∀ A G, ran {<x, G x> | x ∊ A} = {G x | x ∊ A}.
 Proof with auto.
-  intros. apply ExtAx. intros y. split; intros Hy.
+  intros. ext y Hy.
   - apply ranE in Hy as [x Hp].
     apply ReplAx in Hp as [α [Hα Hp]].
     apply op_iff in Hp as []; subst. apply ReplI...
@@ -69,7 +79,7 @@ Local Lemma F_agree_on_smaller_partial : ∀ γ, (∀ f, ∃! y, γ f y) →
 Proof with eauto; try congruence.
   intros γ Hγ δ Hoδ ε Hoε Hlt α Hα.
   assert (Hsm: δ ∩ ε = δ). {
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     - apply BInterE in Hx as []...
     - apply BInterI... eapply ord_trans...
   }
@@ -84,7 +94,7 @@ Proof with eauto; try congruence.
   pose proof (F_spec γ Hγ ε Hoε) as [Hfε [Hdε Hγε]].
   assert (Hαε: α ∈ ε). eapply ord_trans...
   assert (Heqf: F γ δ ↾ α = F γ ε ↾ α). {
-    apply ExtAx. intros p. split; intros Hp.
+    ext p Hp.
     - apply restrE1 in Hp as [a [b [Ha [Hp H1]]]]. subst p.
       apply Hseg in Ha as H. apply SepE2 in H.
       apply restrI... apply func_ap in Hp...
@@ -119,7 +129,7 @@ Proof with eauto.
   assert (Hα: α ∈ α⁺). apply suc_has_n.
   apply Hr in Hα.
   replace (F γ α⁺ ↾ α) with {<β, Recursion γ β> | β ∊ α} in Hα...
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply ReplAx in Hx as [β [Hβ Hx]]. subst x.
     assert (β ∈ α⁺). apply BUnionI1...
     apply restrI... eapply func_point... rewrite Hd...

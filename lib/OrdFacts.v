@@ -1,8 +1,8 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.EST7_4.
-Require Import ZFC.EST6_2.
-Require Import ZFC.lib.FuncFacts.
+Require Import ZFC.Theory.EST7_4.
+Require Import ZFC.Theory.EST6_2.
+Require Import ZFC.Lib.FuncFacts.
 
 (* 有限序数 *)
 Definition finord := λ α, α ⋵ 𝐎𝐍 ∧ finite α.

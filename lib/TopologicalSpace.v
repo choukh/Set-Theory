@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Mar 2021 **)
 
-Require Import ZFC.lib.Essential.
+Require Import ZFC.Lib.Essential.
 
 Declare Scope Topology_scope.
 Delimit Scope Topology_scope with topo.
@@ -44,14 +44,14 @@ Notation "A ⁻" := (Closure A) (at level 60).
 (* 空集的闭包是空集 *)
 Theorem closure_of_empty : ∅⁻ = ∅.
 Proof.
-  apply ExtAx. split; intros Hx; [exfalso|exfalso0].
+  ext Hx; [exfalso|exfalso0].
   apply SepE in Hx as [H1 H2].
   assert (S.(X) ∈ U x). {
     apply SepI. apply SepI. apply all_in_its_power.
     apply is_open_univ. apply H1.
   }
   apply (H2 _ H).
-  apply ExtAx. intros y. split; intros Hy.
+  ext y Hy.
   apply BInterE in Hy as []. exfalso0. exfalso0.
 Qed.
 
@@ -79,7 +79,7 @@ Include Topology Trivial.
 
 Fact opens_eq : τ = ⎨∅⎬.
 Proof with auto.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply SepE1 in Hx. simpl in Hx.
     apply only_empty_in_power_empty in Hx. subst...
   - apply SingE in Hx. subst.

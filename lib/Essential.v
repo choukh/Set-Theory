@@ -1,6 +1,6 @@
 (** Coq coding by choukh, April 2020 **)
 
-Require Export ZFC.ZFC3.
+Require Export ZFC.Axiom.ZFC3.
 
 (* Global Opaque Pair. *)
 (* Global Opaque Singleton. *)

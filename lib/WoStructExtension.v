@@ -1,7 +1,7 @@
 (** Coq coding by choukh, June 2021 **)
 
-Require Import ZFC.lib.FuncFacts.
-Require Import ZFC.lib.Ordinal.
+Require Import ZFC.Lib.FuncFacts.
+Require Import ZFC.Lib.Ordinal.
 Import WoStruct.
 Import WoStruct.EpsilonImage.
 
@@ -80,7 +80,7 @@ Proof with eauto.
   eapply transfinite_induction...
   split. intros t Ht. apply SepE1 in Ht...
   intros t Ht Hsub. apply SepI... rewrite e_ap...
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply ReplAx in Hx as [s [Hs Hx]].
     apply SepE2 in Hs as Hst. apply Hsub in Hs.
     apply SepE in Hs as [Hs Heq]. rewrite <- Hx, Heq.
@@ -122,7 +122,7 @@ Definition Unionᵣ := λ 𝒞, ⋃{π2 p | p ∊ 𝒞}.
 Lemma Unionₐ_eq : ∀ 𝒞, wos 𝒞 → Unionₐ 𝒞 = ⋃{dom f | f ∊ Es 𝒞}.
 Proof.
   intros 𝒞 Hwos. unfold Unionₐ. f_equal.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply ReplAx in Hx as [p [Hp Heqx]].
     pose proof (Hwos p Hp) as [S HS].
     unfold WOₛ_spec in HS. subst. zfc_simple.
@@ -140,7 +140,7 @@ Qed.
 Lemma sup_ordsₛ_eq : ∀ 𝒞, wos 𝒞 → sup (ordsₛ 𝒞) = ⋃{ran f | f ∊ Es 𝒞}.
 Proof.
   intros 𝒞 Hwos. unfold sup. f_equal.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply ReplAx in Hx as [p [Hp Heqp]].
     apply ReplAx. exists (Eₛ p). split; auto.
     now apply ReplI.
@@ -351,7 +351,7 @@ Definition wosₒ := λ A, {woₒ α | α ∊ A}.
 Lemma ordsₛ_wosₒ_id : ∀ A, A ⪽ 𝐎𝐍 → ordsₛ (wosₒ A) = A.
 Proof with auto.
   intros A Hsub. unfold ordsₛ, wosₒ.
-  apply ExtAx. split; intros Hx.
+  ext Hx.
   - apply ReplAx in Hx as [p [Hp Hx]].
     apply ReplAx in Hp as [α [Hα Hp]]. subst.
     rewrite ordₛ_woₒ_id...
@@ -381,7 +381,7 @@ Proof with eauto; try congruence.
   pose proof (ord_comparability β Hoβ γ Hoγ) as []; subst;
   apply ord_leq_iff_sub in H; auto; [left|right]; repeat split...
   - rewrite <- H12, <- H22.
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     + apply binRelE1 in Hx as [a [Ha [b [Hb [Hx Hab]]]]]. subst.
       apply SepI. apply binRelI... apply CProdI...
     + apply SepE in Hx as [H1 H2].
@@ -393,7 +393,7 @@ Proof with eauto; try congruence.
     rewrite <- H22. apply binRelI...
     destruct Hy'... eapply ord_trans... 
   - rewrite <- H12, <- H22.
-    apply ExtAx. split; intros Hx.
+    ext Hx.
     + apply binRelE1 in Hx as [a [Ha [b [Hb [Hx Hab]]]]]. subst.
       apply SepI. apply binRelI... apply CProdI...
     + apply SepE in Hx as [H1 H2].

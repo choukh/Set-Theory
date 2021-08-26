@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Feb 2021 **)
 
-Require Export ZFC.ZFC0.
+Require Export ZFC.Axiom.ZFC0.
 
 Declare Scope class_scope.
 Open Scope class_scope.
@@ -20,6 +20,11 @@ Notation "∀ x .. y ⋵ A , P" :=
 Notation "∃ x .. y ⋵ A , P" :=
   (∃ x, x ⋵ A ∧ (.. (∃ y, y ⋵ A ∧ P) ..))
   (at level 200, x binder, right associativity) : class_scope.
+
+Notation "'∃' ! x .. y ⋵ A , P" :=
+  (∃! x, x ⋵ A ∧ (.. (∃! y, y ⋵ A ∧ P) ..))
+  (at level 200, x binder, right associativity,
+   format "'[' '∃' ! '/ '  x .. y  ⋵  A ,  '/ ' P ']'") : class_scope.
 
 (* 能成为集合的类 *)
 Definition is_set := λ C, ∃ A, ∀ x, x ∈ A ↔ x ⋵ C.
