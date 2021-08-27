@@ -174,9 +174,9 @@ Global Hint Immediate cardExp_is_card : core.
 Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
 Proof.
   intros. rewrite one. ext Hx.
-  - apply CProdE1 in Hx as [a [Ha [b [Hb H0]]]].
+  - apply CPrdE1 in Hx as [a [Ha [b [Hb H0]]]].
     apply SingE in Ha. apply SingE in Hb. subst. auto.
-  - apply SingE in Hx. subst. apply CProdI; apply SingI.
+  - apply SingE in Hx. subst. apply CPrdI; apply SingI.
 Qed.
 
 (* 基数算术的一加一等于二 *)
@@ -278,24 +278,24 @@ Proof with eauto; try congruence.
   )) as F.
   exists F. apply meta_bijection.
   - intros x Hx.
-    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-    subst x. zfc_simple. apply CProdI.
+    apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+    subst x. zfc_simple. apply CPrdI.
     eapply ap_ran... split... split...
     eapply ap_ran... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
-    apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply CPrdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CPrdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
     subst. zfc_simple. apply op_iff in Heq as [].
     apply injectiveE in H... apply injectiveE in H0...
   - intros y Hy.
-    apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst y.
+    apply CPrdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst y.
     rewrite <- Hrf in Ha. apply ranE in Ha as [x1 H1].
     rewrite <- Hrg in Hb. apply ranE in Hb as [x2 H2].
     apply domI in H1 as Hd1. apply ranI in H1 as Hr1.
     apply domI in H2 as Hd2. apply ranI in H2 as Hr2.
     rewrite Hdf in Hd1. apply func_ap in H1...
     rewrite Hdg in Hd2. apply func_ap in H2...
-    exists <x1, x2>. split. apply CProdI... zfc_simple.
+    exists <x1, x2>. split. apply CPrdI... zfc_simple.
 Qed.
 
 (* 基数乘方良定义 *)
@@ -403,7 +403,7 @@ Proof with eauto; try congruence.
       ext Hx.
       * apply restrE1 in Hx as [a [b [Ha []]]]...
       * apply SepI... apply SepE in Hx as [Hcp [Hp _]].
-        apply CProdE0 in Hcp as [H _]. apply ranE in H as [w H].
+        apply CPrdE0 in Hcp as [H _]. apply ranE in H as [w H].
         apply domI in H as Hw. apply func_ap in H...
         split... rewrite <- H. apply Hry...
 Qed.
@@ -425,16 +425,16 @@ Proof with auto.
     }
     eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
-      - symmetry. apply eqnum_cprod_single.
-      - symmetry. apply eqnum_cprod_single.
+      - symmetry. apply eqnum_cprd_single.
+      - symmetry. apply eqnum_cprd_single.
       - apply disjointify_0_1.
       - apply Hdj.
     }
     apply H.
   - eapply Equivalence_Transitive. {
       apply cardAdd_well_defined.
-      + apply (eqnum_cprod_single _ 0).
-      + apply (eqnum_cprod_single _ 1).
+      + apply (eqnum_cprd_single _ 0).
+      + apply (eqnum_cprd_single _ 1).
       + apply Hdj.
       + apply disjointify_0_1.
     }
@@ -519,12 +519,12 @@ Lemma cardAdd_0_r : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 + 0 = 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1.
-  rewrite cprod_0_l, bunion_empty. symmetry.
+  rewrite cprd_0_l, bunion_empty. symmetry.
   set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
   exists F. apply meta_bijection.
-  - intros x Hx. apply CProdI...
+  - intros x Hx. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq. apply op_iff in Heq as []...
-  - intros y Hy. apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
+  - intros y Hy. apply CPrdE1 in Hy as [a [Ha [b [Hb Hy]]]].
     apply SingE in Hb. subst. exists a. split...
 Qed.
 
@@ -532,7 +532,7 @@ Qed.
 Lemma cardMul_0_r_r : ∀ 𝜅, 𝜅 ⋅ 0 = 0.
 Proof.
   intros 𝜅. apply card_eq_0. apply EmptyI.
-  intros x Hx. apply CProdE0 in Hx as []. exfalso0.
+  intros x Hx. apply CPrdE0 in Hx as []. exfalso0.
 Qed.
 
 (* 1是基数乘法单位元 *)
@@ -540,7 +540,7 @@ Lemma cardMul_1_r : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ⋅ 1 = 𝜅.
 Proof.
   intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1. symmetry.
-  rewrite one. apply eqnum_cprod_single.
+  rewrite one. apply eqnum_cprd_single.
 Qed.
 
 (* 壹到集合A的函数的集合与A等势 *)
@@ -566,7 +566,7 @@ Proof with neauto; try congruence.
     + ext p Hp.
       * apply SingE in Hp. subst p...
       * apply PowerAx in Hsub. apply Hsub in Hp as Hcp.
-        apply CProdE1 in Hcp as [a [Ha [b [Hb Hp']]]].
+        apply CPrdE1 in Hcp as [a [Ha [b [Hb Hp']]]].
         subst p. rewrite one in Ha. apply SingE in Ha. subst a.
         cut (b = y). intros Heq. subst... eapply func_sv...
 Qed.
@@ -612,7 +612,7 @@ Lemma arrow_from_empty : ∀ A, 0 ⟶ A = 1.
 Proof with nauto.
   intros. ext p Hp.
   - apply SepE in Hp as [Hp _].
-    rewrite PowerAx, cprod_0_l, sub_empty in Hp.
+    rewrite PowerAx, cprd_0_l, sub_empty in Hp.
     subst. apply suc_has_0...
   - apply BUnionE in Hp as []. exfalso0.
     apply SingE in H. subst. rewrite <- ident_empty.
@@ -668,10 +668,10 @@ Theorem cardAdd_comm : ∀ 𝜅 𝜆, 𝜅 + 𝜆 = 𝜆 + 𝜅.
 Proof.
   intros. apply CardAx1. rewrite bunion_comm.
   apply cardAdd_well_defined.
-  - rewrite <- eqnum_cprod_single.
-    rewrite <- eqnum_cprod_single. reflexivity.
-  - rewrite <- eqnum_cprod_single.
-    rewrite <- eqnum_cprod_single. reflexivity.
+  - rewrite <- eqnum_cprd_single.
+    rewrite <- eqnum_cprd_single. reflexivity.
+  - rewrite <- eqnum_cprd_single.
+    rewrite <- eqnum_cprd_single. reflexivity.
   - unfold disjoint. rewrite binter_comm. apply disjointify_0_1.
   - apply disjointify_0_1.
 Qed.
@@ -682,14 +682,14 @@ Proof with auto.
   intros. apply CardAx1.
   set (Func (𝜅 × 𝜆) (𝜆 × 𝜅) (λ x, <π2 x, π1 x>)) as F.
   exists F. apply meta_bijection.
-  - intros x Hx. apply CProdE0 in Hx as []. apply CProdI...
+  - intros x Hx. apply CPrdE0 in Hx as []. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply cprod_is_pairs in Hx1 as [a [b Hx1]].
-    apply cprod_is_pairs in Hx2 as [c [d Hx2]].
+    apply cprd_is_pairs in Hx1 as [a [b Hx1]].
+    apply cprd_is_pairs in Hx2 as [c [d Hx2]].
     apply op_iff in Heq as []. subst. zfc_simple.
   - intros y Hy.
-    apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst.
-    exists <b, a>. split. apply CProdI... zfc_simple.
+    apply CPrdE1 in Hy as [a [Ha [b [Hb Hy]]]]. subst.
+    exists <b, a>. split. apply CPrdI... zfc_simple.
 Qed.
 
 Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
@@ -700,16 +700,16 @@ Proof with auto.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   ext Hx.
   - apply BUnionE in Hx as [].
-    + apply CProdE1 in H as [a [Ha [b [Hb H]]]].
-      apply SingE in Hb. subst. apply CProdI...
-    + apply CProdE1 in H as [a [Ha [b [Hb H]]]].
-      apply SingE in Hb. subst. apply CProdI...
-  - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+    + apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
+      apply SingE in Hb. subst. apply CPrdI...
+    + apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
+      apply SingE in Hb. subst. apply CPrdI...
+  - apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     subst. apply BUnionE in Hb as [].
     + apply BUnionE in H as []. exfalso0.
-      apply BUnionI1. apply CProdI...
+      apply BUnionI1. apply CPrdI...
     + apply SingE in H. subst b.
-      apply BUnionI2. apply CProdI...
+      apply BUnionI2. apply CPrdI...
 Qed.
 
 (* 基数加法结合律 *)
@@ -722,33 +722,33 @@ Proof with neauto; try congruence; try easy.
   }
   eapply Equivalence_Transitive. {
     apply cardAdd_well_defined.
-    - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0...
-    - rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
+    - unfold CardAdd. rewrite <- eqnum_cprd_single, <- CardAx0...
+    - rewrite <- eqnum_cprd_single, (eqnum_cprd_single _ 2)...
     - apply disjointify_0_1.
     - unfold disjoint. rewrite binter_comm, binter_bunion_distr.
       apply EmptyI. intros x Hx.
       apply BUnionE in Hx as []; apply BInterE in H as [].
-      + eapply disjointE. apply (cprod_disjointify 𝜇 𝜅 2 0).
+      + eapply disjointE. apply (cprd_disjointify 𝜇 𝜅 2 0).
         apply suc_neq_0. apply H. apply H0.
-      + eapply disjointE. apply (cprod_disjointify 𝜇 𝜆 2 1).
+      + eapply disjointE. apply (cprd_disjointify 𝜇 𝜆 2 1).
         intro. apply Hnq... apply H. apply H0.
   }
   symmetry. eapply Equivalence_Transitive. {
     apply cardAdd_well_defined.
     - reflexivity.
-    - unfold CardAdd. rewrite <- eqnum_cprod_single, <- CardAx0.
+    - unfold CardAdd. rewrite <- eqnum_cprd_single, <- CardAx0.
       apply cardAdd_well_defined.
-      + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 1)...
-      + rewrite <- eqnum_cprod_single, (eqnum_cprod_single _ 2)...
+      + rewrite <- eqnum_cprd_single, (eqnum_cprd_single _ 1)...
+      + rewrite <- eqnum_cprd_single, (eqnum_cprd_single _ 2)...
       + apply disjointify_0_1.
-      + apply cprod_disjointify. intro. apply Hnq...
+      + apply cprd_disjointify. intro. apply Hnq...
     - apply disjointify_0_1.
     - unfold disjoint. rewrite binter_bunion_distr.
       apply EmptyI. intros x Hx. apply BUnionE in Hx as [].
       + pose proof (disjointify_0_1 𝜅 𝜆).
         rewrite H0 in H. exfalso0.
       + apply BInterE in H as [].
-        eapply disjointE. apply (cprod_disjointify 𝜅 𝜇 0 2).
+        eapply disjointE. apply (cprd_disjointify 𝜅 𝜇 0 2).
         intro. eapply suc_neq_0... apply H. apply H0.
   }
   rewrite bunion_assoc...
@@ -760,7 +760,7 @@ Proof.
   intros. apply CardAx1. eapply Equivalence_Transitive.
   - apply cardMul_well_defined.
     symmetry. apply CardAx0. reflexivity.
-  - rewrite eqnum_cprod_assoc.
+  - rewrite eqnum_cprd_assoc.
     apply cardMul_well_defined. easy. apply CardAx0.
 Qed.
 
@@ -773,13 +773,13 @@ Proof with auto.
     reflexivity. symmetry. apply CardAx0...
   }
   rewrite ex3_2_a. apply cardAdd_well_defined.
-  - rewrite <- eqnum_cprod_assoc.
+  - rewrite <- eqnum_cprd_assoc.
     apply cardMul_well_defined... apply CardAx0.
-  - rewrite <- eqnum_cprod_assoc.
+  - rewrite <- eqnum_cprd_assoc.
     apply cardMul_well_defined... apply CardAx0.
   - apply disjointI. intros [x [H1 H2]].
-    apply CProdE0 in H1 as [_ H1].
-    apply CProdE0 in H2 as [_ H2].
+    apply CPrdE0 in H1 as [_ H1].
+    apply CPrdE0 in H2 as [_ H2].
     eapply disjointE; revgoals.
     apply H2. apply H1. apply disjointify_0_1.
   - apply disjointify_0_1.
@@ -801,9 +801,9 @@ Proof with eauto; try congruence.
   symmetry. eapply Equivalence_Transitive. {
     unfold CardExp. apply cardMul_well_defined.
     - rewrite <- CardAx0. apply cardExp_well_defined.
-      reflexivity. apply (eqnum_cprod_single _ 0).
+      reflexivity. apply (eqnum_cprd_single _ 0).
     - rewrite <- CardAx0. apply cardExp_well_defined.
-      reflexivity. apply (eqnum_cprod_single _ 1).
+      reflexivity. apply (eqnum_cprd_single _ 1).
   }
   remember (𝜆 × ⎨0⎬) as s. remember (𝜇 × ⎨1⎬) as t.
   assert (Hdj: disjoint s t). { subst. apply disjointify_0_1. }
@@ -813,7 +813,7 @@ Proof with eauto; try congruence.
   )) as F.
   exists F. apply meta_bijection.
   - intros f Hf. apply arrow_iff in Hf as [Hf [Hd Hr]].
-    apply CProdI; apply SepI.
+    apply CPrdI; apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
     + apply meta_function.
       intros x Hx. apply Hr. apply BUnionI1...
@@ -827,16 +827,16 @@ Proof with eauto; try congruence.
     apply func_ext_intro... intros x Hx. rewrite Hd1 in Hx.
     apply BUnionE in Hx as [Hx|Hx].
     + assert (HF: <x, f1[x]> ∈ Func s 𝜅 (λ x, f1[x])). {
-        apply SepI. apply CProdI... apply Hr1.
+        apply SepI. apply CPrdI... apply Hr1.
         apply BUnionI1... zfc_simple.
       }
       rewrite H1 in HF. apply SepE in HF as [_ HF]. zfc_simple.
     + assert (HF: <x, f1[x]> ∈ Func t 𝜅 (λ x, f1[x])). {
-        apply SepI. apply CProdI... apply Hr1.
+        apply SepI. apply CPrdI... apply Hr1.
         apply BUnionI2... zfc_simple.
       }
       rewrite H2 in HF. apply SepE in HF as [_ HF]. zfc_simple.
-  - intros y Hy. apply CProdE1 in Hy as [g [Hg [h [Hh Heq]]]].
+  - intros y Hy. apply CPrdE1 in Hy as [g [Hg [h [Hh Heq]]]].
     apply arrow_iff in Hg as [Hgf [Hgd Hgr]].
     apply arrow_iff in Hh as [Hhf [Hhd Hhr]].
     set (Func (s ∪ t) 𝜅 (λ x, match (ixm (x ∈ s)) with
@@ -852,7 +852,7 @@ Proof with eauto; try congruence.
     subst y. apply op_iff. split. {
       ext p Hp.
       - apply SepE in Hp as [H1 H2].
-        apply CProdE1 in H1 as [x [Hx [y [_ Hp]]]].
+        apply CPrdE1 in H1 as [x [Hx [y [_ Hp]]]].
         subst p. zfc_simple. subst y.
         assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
         apply func_correct in H... apply SepE in H as [_ H2].
@@ -861,7 +861,7 @@ Proof with eauto; try congruence.
       - apply func_pair' in Hp as [x [y [Hp Heqp]]]...
         subst p. apply domI in Hp as Hx. apply func_ap in Hp...
         subst y. apply SepI.
-        + apply CProdI... apply Hgr...
+        + apply CPrdI... apply Hgr...
         + zfc_simple. rewrite Hgd in Hx.
           assert (x ∈ dom f). { rewrite Hfd. apply BUnionI1... }
           apply func_correct in H... apply SepE in H as [_ H].
@@ -869,7 +869,7 @@ Proof with eauto; try congruence.
     } {
       ext p Hp.
       - apply SepE in Hp as [H1 H2].
-        apply CProdE1 in H1 as [x [Hx [y [_ Hp]]]].
+        apply CPrdE1 in H1 as [x [Hx [y [_ Hp]]]].
         subst p. zfc_simple. subst y.
         assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
         apply func_correct in H... apply SepE in H as [_ H2].
@@ -879,7 +879,7 @@ Proof with eauto; try congruence.
       - apply func_pair' in Hp as [x [y [Hp Heqp]]]...
         subst p. apply domI in Hp as Hx. apply func_ap in Hp...
         subst y. apply SepI.
-        + apply CProdI... apply Hhr...
+        + apply CPrdI... apply Hhr...
         + zfc_simple. rewrite Hhd in Hx.
           assert (x ∈ dom f). { rewrite Hfd. apply BUnionI2... }
           apply func_correct in H... apply SepE in H as [_ H].
@@ -904,16 +904,16 @@ Proof with eauto; try congruence.
     Func 𝜇 (𝜅 × 𝜆) (λ x, <(π1 p)[x], (π2 p)[x]>)
   )) as F.
   exists F. apply meta_bijection.
-  - intros p Hp. apply CProdE1 in Hp as [g [Hg [h [Hh Hp]]]].
+  - intros p Hp. apply CPrdE1 in Hp as [g [Hg [h [Hh Hp]]]].
     apply arrow_iff in Hg as [Hgf [Hgd Hgr]].
     apply arrow_iff in Hh as [Hhf [Hhd Hhr]].
     subst p. zfc_simple. apply SepI.
     + apply PowerAx. intros p Hp. apply SepE1 in Hp...
-    + apply meta_function. intros x Hx. apply CProdI.
+    + apply meta_function. intros x Hx. apply CPrdI.
       apply Hgr... apply Hhr...
   - intros p1 Hp1 p2 Hp2 Heq.
-    apply CProdE1 in Hp1 as [g1 [Hg1 [h1 [Hh1 H1]]]].
-    apply CProdE1 in Hp2 as [g2 [Hg2 [h2 [Hh2 H2]]]].
+    apply CPrdE1 in Hp1 as [g1 [Hg1 [h1 [Hh1 H1]]]].
+    apply CPrdE1 in Hp2 as [g2 [Hg2 [h2 [Hh2 H2]]]].
     subst p1 p2. zfc_simple. apply op_iff.
     cut (∀x ∈ 𝜇, <g1[x], h1[x]> = <g2[x], h2[x]>). {
       apply arrow_iff in Hg1 as [Hg1 [Hdg1 _]].
@@ -935,7 +935,7 @@ Proof with eauto; try congruence.
     intros g h Hg Hh.
     apply arrow_iff in Hg as [Hg [Hdg Hrg]].
     apply arrow_iff in Hh as [Hh [Hdh Hrh]].
-    apply SepI; zfc_simple. apply CProdI... apply CProdI.
+    apply SepI; zfc_simple. apply CPrdI... apply CPrdI.
     apply Hrg... apply Hrh...
   - intros f Hf. apply SepE in Hf as [_ Hf].
     assert (Hf' := Hf). destruct Hf' as [Hff [Hdf Hrf]].
@@ -944,15 +944,15 @@ Proof with eauto; try congruence.
     assert (Hg: g: 𝜇 ⇒ 𝜅). {
       apply meta_function. intros x Hx. rewrite <- Hdf in Hx.
       apply func_correct in Hx... apply ranI in Hx.
-      apply Hrf in Hx. apply CProdE0 in Hx as []...
+      apply Hrf in Hx. apply CPrdE0 in Hx as []...
     }
     assert (Hh: h: 𝜇 ⇒ 𝜆). {
       apply meta_function. intros x Hx. rewrite <- Hdf in Hx.
       apply func_correct in Hx... apply ranI in Hx.
-      apply Hrf in Hx. apply CProdE0 in Hx as []...
+      apply Hrf in Hx. apply CPrdE0 in Hx as []...
     }
     exists <g, h>. split. {
-      apply CProdI; apply SepI...
+      apply CPrdI; apply SepI...
       - apply PowerAx. intros p Hp. apply SepE1 in Hp...
       - apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
@@ -962,19 +962,19 @@ Proof with eauto; try congruence.
       intros x Hx. rewrite <- Hdf in Hx.
       apply func_correct in Hx as Hfx...
       apply ranI in Hfx. apply Hrf in Hfx. 
-      apply CProdE1 in Hfx as [a [Ha [b [Hb Hfx]]]].
+      apply CPrdE1 in Hfx as [a [Ha [b [Hb Hfx]]]].
       rewrite Hfx. apply op_iff.
       split; symmetry; apply func_ap; auto; (apply SepI;
-      [apply CProdI; congruence|zfc_simple; rewrite Hfx; zfc_simple]).
+      [apply CPrdI; congruence|zfc_simple; rewrite Hfx; zfc_simple]).
     }
     ext p Hp.
     + apply SepE in Hp as [Hp Heq].
-      apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
+      apply CPrdE1 in Hp as [x [Hx [y [_ Hp]]]].
       subst p. zfc_simple. subst y. apply Hfx in Hx as Hap.
       rewrite <- Hap. apply func_correct...
     + apply func_pair' in Hp as [x [y [Hp Heqp]]]...
       subst p. apply domI in Hp as Hx. apply ranI in Hp as Hy.
-      apply Hrf in Hy. apply SepI; zfc_simple. apply CProdI...
+      apply Hrf in Hy. apply SepI; zfc_simple. apply CPrdI...
       rewrite Hdf in Hx. apply Hfx in Hx as Hap.
       rewrite <- Hap. symmetry. apply func_ap...
 Qed.
@@ -1003,12 +1003,12 @@ Proof with eauto; try congruence.
     }
     apply meta_function. intros x Hx.
     apply SepE in Hf as [_ Hf].
-    eapply ap_ran... apply CProdI...
+    eapply ap_ran... apply CPrdI...
   - intros f1 Hf1 f2 Hf2 Heq.
     apply arrow_iff in Hf1 as [Hf1 [Hdf1 Hrf1]].
     apply arrow_iff in Hf2 as [Hf2 [Hdf2 _]].
     apply func_ext_intro... intros x Hx. rewrite Hdf1 in Hx.
-    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+    apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
     remember (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, f1[<x, y>]))) as F1.
     cut (<b, Func 𝜆 𝜅 (λ x, f1[<x, b>])> ∈ F1). {
       intros H1. rewrite Heq in H1.
@@ -1018,14 +1018,14 @@ Proof with eauto; try congruence.
         apply SepE in H2 as [_ H2]. zfc_simple.
       }
       apply SepI; zfc_simple.
-      apply CProdI... apply Hrf1. apply CProdI...
+      apply CPrdI... apply Hrf1. apply CPrdI...
     }
     subst F1. apply SepI; zfc_simple.
-    apply CProdI... apply SepI. {
+    apply CPrdI... apply SepI. {
       apply PowerAx. intros p Hp. apply SepE1 in Hp...
     }
     apply meta_function. intros x Hx.
-    apply Hrf1. apply CProdI...
+    apply Hrf1. apply CPrdI...
   - intros f Hf. apply SepE in Hf as [_ [Hff [Hdf Hrf]]].
     set (Func (𝜆 × 𝜇) 𝜅 (λ p, f[π2 p][π1 p])) as g.
     assert (H1: ∀x ∈ dom f, f[x] = Func 𝜆 𝜅 (λ y, g[<y, x>])). {
@@ -1035,30 +1035,30 @@ Proof with eauto; try congruence.
       apply func_ext_intro... apply func_is_func.
       - ext y Hy.
         + eapply domI. apply SepI.
-          * apply CProdI... apply Hhr. rewrite <- Hhd. apply Hy.
+          * apply CPrdI... apply Hhr. rewrite <- Hhd. apply Hy.
           * zfc_simple. symmetry.
             apply func_ap. apply func_is_func.
-            apply SepI; zfc_simple. apply CProdI.
-            apply CProdI... apply Hhr...
+            apply SepI; zfc_simple. apply CPrdI.
+            apply CPrdI... apply Hhr...
         + apply domE in Hy as [z Hp]. apply SepE in Hp as [Hy _].
-          apply CProdE2 in Hy as [Hy _]...
+          apply CPrdE2 in Hy as [Hy _]...
       - intros y Hy. symmetry. apply func_ap.
         apply func_is_func. apply SepI; zfc_simple.
-        + apply CProdI... apply Hhr...
+        + apply CPrdI... apply Hhr...
         + symmetry. apply func_ap. apply func_is_func.
-          apply SepI; zfc_simple. apply CProdI.
-          apply CProdI... apply Hhr...
+          apply SepI; zfc_simple. apply CPrdI.
+          apply CPrdI... apply Hhr...
     }
     assert (H2: ∀x ∈ dom f, <x, f[x]> ∈ (Func 𝜇 (𝜆 ⟶ 𝜅) (λ b, Func 𝜆 𝜅 (λ a, g[<a, b>])))). {
       intros x Hx. apply SepI; zfc_simple.
-      - apply CProdI. rewrite <- Hdf... apply Hrf.
+      - apply CPrdI. rewrite <- Hdf... apply Hrf.
         eapply ap_ran... split...
       - apply H1...
     }
     assert (H3: dom (Func 𝜇 (𝜆 ⟶ 𝜅) (λ y, Func 𝜆 𝜅 (λ x, g[<x, y>]))) = dom f). {
       ext Hx.
       - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hx _].
-        apply CProdE2 in Hx as [Hx _]...
+        apply CPrdE2 in Hx as [Hx _]...
       - eapply domI. apply H2...
     }
     exists g. split.
@@ -1066,7 +1066,7 @@ Proof with eauto; try congruence.
         apply PowerAx. intros p Hp. apply SepE1 in Hp...
       }
       apply meta_function. intros p Hp.
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. zfc_simple. rewrite <- Hdf in Hb.
       apply func_correct in Hb... apply ranI in Hb. apply Hrf in Hb.
       apply arrow_iff in Hb as [_ [_ Hr]]. apply Hr...
@@ -1089,8 +1089,8 @@ Proof with auto; try easy.
   intros n Hn.
   rewrite (card_of_nat n⁺); [|apply ω_inductive]...
   apply CardAx1. apply cardAdd_well_defined.
-  - rewrite <- eqnum_cprod_single...
-  - rewrite <- eqnum_cprod_single, eqnum_single...
+  - rewrite <- eqnum_cprd_single...
+  - rewrite <- eqnum_cprd_single, eqnum_single...
   - apply disjointify_0_1.
   - apply nat_disjoint...
 Qed.
@@ -1159,14 +1159,14 @@ Proof with auto.
   exists (m + n). split. apply fin_cardAdd_ran...
   unfold CardAdd. rewrite <- CardAx0.
   apply cardAdd_well_defined.
-  - rewrite Ha. apply eqnum_cprod_single.
-  - rewrite Hb. apply eqnum_cprod_single.
+  - rewrite Ha. apply eqnum_cprd_single.
+  - rewrite Hb. apply eqnum_cprd_single.
   - apply binter_comp_empty.
   - apply disjointify_0_1.
 Qed.
 
 (* 有限集的笛卡尔积仍是有限集 *)
-Corollary cprod_finite :
+Corollary cprd_finite :
   ∀ A B, finite A → finite B → finite (A × B).
 Proof with auto.
   intros * [m [Hm Ha]] [n [Hn Hb]].

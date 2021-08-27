@@ -19,8 +19,8 @@ Lemma woDisj_is_binRel :
 Proof.
   intros S i x Hx. destruct (wo S) as [Hbr _].
   apply ReplAx in Hx as [p [Hp Hx]]. apply Hbr in Hp.
-  apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-  subst. zfc_simple. apply CProdI; apply CProdI; auto.
+  apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+  subst. zfc_simple. apply CPrdI; apply CPrdI; auto.
 Qed.
 
 Lemma woDisj_tranr : ∀ S i, tranr (WoDisj_R S i).
@@ -29,8 +29,8 @@ Proof.
   destruct (wo S) as [[Hbr [Htr _]] _].
   apply ReplAx in Hxy as [p [Hp Hxy]]. apply Hbr in Hp as H1.
   apply ReplAx in Hyz as [q [Hq Hyz]]. apply Hbr in Hq as H2.
-  apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-  apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+  apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
+  apply CPrdE1 in H2 as [c [Hc [d [Hd H2]]]].
   apply op_iff in Hxy as []; subst.
   apply op_iff in Hyz as []; subst. zfc_simple.
   apply op_iff in H as []; subst.
@@ -41,7 +41,7 @@ Lemma woDisj_irrefl : ∀ S i, irrefl (WoDisj_R S i).
 Proof.
   intros S i x Hp. destruct (wo S) as [Hbr _].
   apply ReplAx in Hp as [p [Hp Heq]]. apply Hbr in Hp as H.
-  apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst. zfc_simple.
+  apply CPrdE1 in H as [a [Ha [b [Hb H]]]]. subst. zfc_simple.
   apply op_iff in Heq as []; subst.
   apply op_iff in H0 as []; subst.
   eapply lo_irrefl; eauto.
@@ -51,8 +51,8 @@ Lemma woDisj_connected : ∀ S i,
   connected (WoDisj_R S i) (WoDisj_A S i).
 Proof with auto.
   intros S i x Hx y Hy Hnq. destruct (wo S) as [Hlo _].
-  apply CProdE1 in Hx as [a [Ha [b [Hb Heqx]]]].
-  apply CProdE1 in Hy as [c [Hc [d [Hd Heqy]]]].
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Heqx]]]].
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Heqy]]]].
   apply SingE in Hb; apply SingE in Hd; subst.
   destruct (classic (a = c)) as [|Hnq']. subst. exfalso...
   eapply (lo_connected _ _ Hlo) in Hnq' as []...
@@ -76,20 +76,20 @@ Proof with auto.
   intros S i. split. apply woDisj_loset.
   intros B Hne Hsub. destruct Hne as [b Hb].
   apply Hsub in Hb as H.
-  apply CProdE1 in H as [a [Ha [c [Hc H]]]].
+  apply CPrdE1 in H as [a [Ha [c [Hc H]]]].
   apply SingE in Hc; subst.
   destruct (wo S) as [_ Hmin].
   pose proof (Hmin {π1 p | p ∊ B}) as [m [Hm Hle]].
   - exists a. apply ReplAx. exists <a, i>. split... zfc_simple.
   - intros x Hx.
     apply ReplAx in Hx as [p [Hp Hx]]. apply Hsub in Hp.
-    apply CProdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
+    apply CPrdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
   - exists <m, i>. split.
     + apply ReplAx in Hm as [p [Hp Hx]]. apply Hsub in Hp as H.
-      apply CProdE1 in H as [u [Hu [v [Hv H]]]].
+      apply CPrdE1 in H as [u [Hu [v [Hv H]]]].
       apply SingE in Hv; subst. zfc_simple.
     + intros x Hx. apply Hsub in Hx as H.
-      apply CProdE1 in H as [u [Hu [v [Hv H]]]].
+      apply CPrdE1 in H as [u [Hu [v [Hv H]]]].
       apply SingE in Hv; subst.
       assert (Hu': u ∈ {π1 p | p ∊ B}). {
         apply ReplAx. exists <u, i>. split... zfc_simple.
@@ -108,9 +108,9 @@ Proof with auto.
   set (Func (A S) (WoDisj_A S i) (λ x, <x, i>)) as f.
   assert (Hbi: f : A S ⟺ A (WoDisj S i)). {
     apply meta_bijection.
-    - intros x Hx. apply CProdI...
+    - intros x Hx. apply CPrdI...
     - intros x1 H1 x2 H2. apply op_iff.
-    - intros y Hy. apply CProdE1 in Hy as [a [Ha [b [Hb Hy]]]].
+    - intros y Hy. apply CPrdE1 in Hy as [a [Ha [b [Hb Hy]]]].
       apply SingE in Hb. subst. exists a. split...
   }
   apply bijection_is_func in Hbi as Hf. destruct Hf as [Hf _].
@@ -123,13 +123,13 @@ Proof with auto.
     apply op_iff in H1 as []; subst.
     apply op_iff in H2 as []; subst.
     destruct (wo S) as [Hbr _]. apply Hbr in Hp as H.
-    apply CProdE1 in H as [a [Ha [b [Hb H]]]].
+    apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
     subst. zfc_simple...
 Qed.
 
 Lemma woDisj_disjoint : ∀ S T i j, i ≠ j →
   disjoint (A (WoDisj S i)) (A (WoDisj T j)).
-Proof. intros S T i j Hnq. apply cprod_disjointify; auto. Qed.
+Proof. intros S T i j Hnq. apply cprd_disjointify; auto. Qed.
 
 Definition WoAdd_R := λ S T,
   R S ∪ R T ∪ (A S × A T).
@@ -142,11 +142,11 @@ Proof with auto.
   destruct (wo T) as [[HbrT _] _].
   apply BUnionE in Hx as [].
   - apply BUnionE in H as []; [apply HbrS in H|apply HbrT in H];
-    apply CProdE1 in H as [a [Ha [b [Hb H]]]]; subst.
-    apply CProdI; apply BUnionI1...
-    apply CProdI; apply BUnionI2...
-  - apply CProdE1 in H as [a [Ha [b [Hb H]]]]; subst;
-    apply CProdI; [apply BUnionI1|apply BUnionI2]...
+    apply CPrdE1 in H as [a [Ha [b [Hb H]]]]; subst.
+    apply CPrdI; apply BUnionI1...
+    apply CPrdI; apply BUnionI2...
+  - apply CPrdE1 in H as [a [Ha [b [Hb H]]]]; subst;
+    apply CPrdI; [apply BUnionI1|apply BUnionI2]...
 Qed.
 
 Lemma woAdd_tranr : ∀ S T, disjoint (A S) (A T) → tranr (S ⨁ T).
@@ -159,29 +159,29 @@ Proof with eauto.
   - apply BUnionE in Hxy as [Hxy|Hxy];
     apply BUnionE in Hyz as [Hyz|Hyz].
     + apply BUnionI1. apply BUnionI1. eapply HtrS...
-    + apply HbrS in Hxy. apply CProdE2 in Hxy as [Hx _].
-      apply HbrT in Hyz. apply CProdE2 in Hyz as [_ Hz].
-      apply BUnionI2. apply CProdI...
-    + apply HbrT in Hxy. apply CProdE2 in Hxy as [_ H1].
-      apply HbrS in Hyz. apply CProdE2 in Hyz as [H2 _].
+    + apply HbrS in Hxy. apply CPrdE2 in Hxy as [Hx _].
+      apply HbrT in Hyz. apply CPrdE2 in Hyz as [_ Hz].
+      apply BUnionI2. apply CPrdI...
+    + apply HbrT in Hxy. apply CPrdE2 in Hxy as [_ H1].
+      apply HbrS in Hyz. apply CPrdE2 in Hyz as [H2 _].
       exfalso. eapply disjointE...
     + apply BUnionI1. apply BUnionI2. eapply HtrT...
   - apply BUnionE in Hxy as [Hxy|Hxy].
-    + apply HbrS in Hxy. apply CProdE2 in Hxy as [Hx _].
-      apply CProdE2 in Hyz as [_ Hz].
-      apply BUnionI2. apply CProdI...
-    + apply HbrT in Hxy. apply CProdE2 in Hxy as [_ H1].
-      apply CProdE2 in Hyz as [H2 _].
+    + apply HbrS in Hxy. apply CPrdE2 in Hxy as [Hx _].
+      apply CPrdE2 in Hyz as [_ Hz].
+      apply BUnionI2. apply CPrdI...
+    + apply HbrT in Hxy. apply CPrdE2 in Hxy as [_ H1].
+      apply CPrdE2 in Hyz as [H2 _].
       exfalso. eapply disjointE...
   - apply BUnionE in Hyz as [Hyz|Hyz].
-    + apply HbrS in Hyz. apply CProdE2 in Hyz as [H1 _].
-      apply CProdE2 in Hxy as [_ H2].
+    + apply HbrS in Hyz. apply CPrdE2 in Hyz as [H1 _].
+      apply CPrdE2 in Hxy as [_ H2].
       exfalso. eapply disjointE...
-    + apply HbrT in Hyz. apply CProdE2 in Hyz as [_ Hz].
-      apply CProdE2 in Hxy as [Hx _].
-      apply BUnionI2. apply CProdI...
-  - apply CProdE2 in Hxy as [_ H1].
-    apply CProdE2 in Hyz as [H2 _].
+    + apply HbrT in Hyz. apply CPrdE2 in Hyz as [_ Hz].
+      apply CPrdE2 in Hxy as [Hx _].
+      apply BUnionI2. apply CPrdI...
+  - apply CPrdE2 in Hxy as [_ H1].
+    apply CPrdE2 in Hyz as [H2 _].
     exfalso. eapply disjointE...
 Qed.
 
@@ -192,7 +192,7 @@ Proof with eauto.
   - apply BUnionE in H as [].
     + eapply lo_irrefl... apply wo.
     + eapply lo_irrefl... apply wo.
-  - apply CProdE1 in H as [a [Ha [b [Hb Heq]]]].
+  - apply CPrdE1 in H as [a [Ha [b [Hb Heq]]]].
     apply op_iff in Heq as []; subst.
     exfalso. eapply disjointE...
 Qed.
@@ -205,8 +205,8 @@ Proof with auto.
   - eapply (lo_connected _ _ (proj1 (wo S))) in Hnq as []...
     left. apply BUnionI1. apply BUnionI1...
     right. apply BUnionI1. apply BUnionI1...
-  - left. apply BUnionI2. apply CProdI...
-  - right. apply BUnionI2. apply CProdI...
+  - left. apply BUnionI2. apply CPrdI...
+  - right. apply BUnionI2. apply CPrdI...
   - eapply (lo_connected _ _ (proj1 (wo T))) in Hnq as []...
     left. apply BUnionI1. apply BUnionI2...
     right. apply BUnionI1. apply BUnionI2...
@@ -236,66 +236,66 @@ Proof with eauto; try congruence.
   destruct (classic (B ∩ A (WoDisj S 0) = ∅)) as [H0|H0].
   - destruct Hne as [b Hb]. apply Hsub in Hb as H.
     apply BUnionE in H as [];
-    apply CProdE1 in H as [a [Ha [c [Hc H]]]];
+    apply CPrdE1 in H as [a [Ha [c [Hc H]]]];
     apply SingE in Hc; subst. {
       exfalso. apply EmptyNI in H0...
-      exists <a, 0>. apply BInterI... apply CProdI...
+      exists <a, 0>. apply BInterI... apply CPrdI...
     }
     destruct (wo T) as [_ Hmin].
     pose proof (Hmin {π1 p | p ∊ B ∩ A (WoDisj T 1)}) as [m [Hm Hle]].
     + exists a. apply ReplAx. exists <a, 1>. split.
-      apply BInterI... apply CProdI... zfc_simple.
+      apply BInterI... apply CPrdI... zfc_simple.
     + intros x Hx.
       apply ReplAx in Hx as [p [Hp Hx]].
       apply BInterE in Hp as [_ Hp].
-      apply CProdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
+      apply CPrdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
     + apply ReplAx in Hm as [p [Hp Hx]].
       apply BInterE in Hp as [H1 H2].
-      apply CProdE1 in H2 as [s [Hs [t [Ht H]]]].
+      apply CPrdE1 in H2 as [s [Hs [t [Ht H]]]].
       apply SingE in Ht; subst; zfc_simple.
       exists <s, 1>. split...
       intros x Hx. apply Hsub in Hx as H.
       apply BUnionE in H as [];
-      apply CProdE1 in H as [u [Hu [v [Hv H]]]];
+      apply CPrdE1 in H as [u [Hu [v [Hv H]]]];
       apply SingE in Hv; subst.
       * exfalso. apply EmptyNI in H0...
-        exists <u, 0>. apply BInterI... apply CProdI...
+        exists <u, 0>. apply BInterI... apply CPrdI...
       * assert (Hu': u ∈ {π1 p | p ∊ B ∩ A (WoDisj T 1)}). {
           apply ReplAx. exists <u, 1>. split.
-          apply BInterI... apply CProdI... zfc_simple.
+          apply BInterI... apply CPrdI... zfc_simple.
         }
         apply Hle in Hu' as []; [left|right]...
         apply BUnionI1. apply BUnionI2.
         apply ReplAx. exists <s, u>. split... zfc_simple.
   - apply EmptyNE in H0 as [b Hb].
     apply BInterE in Hb as [Hb H].
-    apply CProdE1 in H as [a [Ha [c [Hc H]]]];
+    apply CPrdE1 in H as [a [Ha [c [Hc H]]]];
     apply SingE in Hc; subst.
     destruct (wo S) as [_ Hmin].
     pose proof (Hmin {π1 p | p ∊ B ∩ A (WoDisj S 0)}) as [m [Hm Hle]].
     + exists a. apply ReplAx. exists <a, 0>. split.
-      apply BInterI... apply CProdI... zfc_simple.
+      apply BInterI... apply CPrdI... zfc_simple.
     + intros x Hx.
       apply ReplAx in Hx as [p [Hp Hx]].
       apply BInterE in Hp as [_ Hp].
-      apply CProdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
+      apply CPrdE1 in Hp as [u [Hu [v [_ Hp]]]]. subst. zfc_simple.
     + apply ReplAx in Hm as [p [Hp Hx]].
       apply BInterE in Hp as [H1 H2].
-      apply CProdE1 in H2 as [s [Hs [t [Ht H]]]].
+      apply CPrdE1 in H2 as [s [Hs [t [Ht H]]]].
       apply SingE in Ht; subst; zfc_simple.
       exists <s, 0>. split...
       intros x Hx. apply Hsub in Hx as H.
       apply BUnionE in H as [];
-      apply CProdE1 in H as [u [Hu [v [Hv H]]]];
+      apply CPrdE1 in H as [u [Hu [v [Hv H]]]];
       apply SingE in Hv; subst.
       * assert (Hu': u ∈ {π1 p | p ∊ B ∩ A (WoDisj S 0)}). {
           apply ReplAx. exists <u, 0>. split.
-          apply BInterI... apply CProdI... zfc_simple.
+          apply BInterI... apply CPrdI... zfc_simple.
         }
         apply Hle in Hu' as []; [left|right]...
         apply BUnionI1. apply BUnionI1.
         apply ReplAx. exists <s, u>. split... zfc_simple.
-      * left. apply BUnionI2. apply CProdI; apply CProdI...
+      * left. apply BUnionI2. apply CPrdI; apply CPrdI...
 Qed.
 
 (* 字典序 *)
@@ -309,7 +309,7 @@ Lemma woMul_is_binRel : ∀ S T, is_binRel (S * T) (A S × A T).
 Proof.
   intros S T x Hx.
   apply binRelE1 in Hx as [a [Ha [b [Hb [Hx _]]]]].
-  subst x. apply CProdI; auto.
+  subst x. apply CPrdI; auto.
 Qed.
 
 Lemma woMul_tranr : ∀ S T, tranr (S * T).
@@ -335,16 +335,16 @@ Qed.
 Lemma woMul_connected : ∀ S T, connected (S * T) (A S × A T).
 Proof with auto.
   intros S T x Hx y Hy Hnq.
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]]. subst.
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hy]]]]. subst.
   destruct (classic (a = c)); destruct (classic (b = d)).
   - exfalso. apply Hnq. apply op_iff...
   - eapply (lo_connected _ _ (proj1 (wo T))) in H0 as []; auto;
-    [left|right]; (apply binRelI; [apply CProdI..|zfc_simple])...
+    [left|right]; (apply binRelI; [apply CPrdI..|zfc_simple])...
   - eapply (lo_connected _ _ (proj1 (wo S))) in H as []; auto;
-    [left|right]; (apply binRelI; [apply CProdI..|zfc_simple])...
+    [left|right]; (apply binRelI; [apply CPrdI..|zfc_simple])...
   - eapply (lo_connected _ _ (proj1 (wo T))) in H0 as []; auto;
-    [left|right]; (apply binRelI; [apply CProdI..|zfc_simple])...
+    [left|right]; (apply binRelI; [apply CPrdI..|zfc_simple])...
 Qed.
 
 Lemma woMul_loset : ∀ S T, loset (A S × A T) (S * T).
@@ -362,34 +362,34 @@ Theorem woMul_woset : ∀ S T, woset (A S × A T) (S * T).
 Proof with eauto; try congruence.
   intros S T. split. apply woMul_loset.
   intros B [pₓ Hpₓ] Hsub. apply Hsub in Hpₓ as H.
-  apply CProdE1 in H as [aₓ [Haₓ [bₓ [Hbₓ Heq]]]]. subst.
+  apply CPrdE1 in H as [aₓ [Haₓ [bₓ [Hbₓ Heq]]]]. subst.
   destruct (wo S) as [_ HminS].
   destruct (wo T) as [_ HminT].
   pose proof (HminT {π2 p | p ∊ B}) as [b₀ [Hb₀ Hleb₀]]. {
     exists bₓ. apply ReplAx. exists <aₓ, bₓ>. split... zfc_simple.
   } {
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]]. apply Hsub in Hp.
-    apply CProdE1 in Hp as [a [_ [b [Hb H]]]]. subst. zfc_simple.
+    apply CPrdE1 in Hp as [a [_ [b [Hb H]]]]. subst. zfc_simple.
   }
   set {p ∊ B | π2 p = b₀} as B₀.
   pose proof (HminS {π1 p | p ∊ B₀}) as [a₀ [Ha₀ Hlea₀]]. {
     apply ReplAx in Hb₀ as [p [Hp Hb₀]]. apply Hsub in Hp as H.
-    apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst. zfc_simple.
+    apply CPrdE1 in H as [a [Ha [b [Hb H]]]]. subst. zfc_simple.
     exists a. apply ReplAx. exists <a, b>. split.
     apply SepI... zfc_simple.
   } {
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]].
     apply SepE1 in Hp. apply Hsub in Hp.
-    apply CProdE1 in Hp as [a [Ha [b [_ H]]]]. subst. zfc_simple.
+    apply CPrdE1 in Hp as [a [Ha [b [_ H]]]]. subst. zfc_simple.
   }
   apply ReplAx in Ha₀ as [p [Hp Ha₀]].
   apply SepE in Hp as [Hp H2]. apply Hsub in Hp as H.
-  apply CProdE1 in H as [a [Ha [b [Hb H]]]].
+  apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
   subst p. zfc_simple. subst.
   exists <a₀, b₀>. split... intros x Hx. apply Hsub in Hx as H.
-  apply CProdE1 in H as [u [Hu [v [Hv H]]]]. subst.
+  apply CPrdE1 in H as [u [Hu [v [Hv H]]]]. subst.
   destruct (classic (<a₀, b₀> = <u, v>)) as [|Hnq]. right... left.
-  apply binRelI. apply CProdI... apply Hsub... zfc_simple.
+  apply binRelI. apply CPrdI... apply Hsub... zfc_simple.
   assert (Hv': v ∈ {π2 p | p ∊ B}). {
     apply ReplAx. exists <u, v>. split... zfc_simple.
   }
@@ -458,15 +458,15 @@ Proof with eauto; try congruence.
   assert (Hbi: F: Dom ⟺ α⁺). {
     apply meta_bijection.
     - intros p Hp. apply BUnionE in Hp as [];
-      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
+      apply CPrdE1 in H as [a [Ha [b [Hb H]]]];
       apply SingE in Hb; subst; zfc_simple.
       + destruct (ixm (Embed 0 = 0))... apply BUnionI1...
       + destruct (ixm (Embed 1 = 0))...
     - intros x1 H1 x2 H2 Heq.
       apply BUnionE in H1 as [H1|H1];
       apply BUnionE in H2 as [H2|H2];
-      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]];
-      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]];
+      apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]];
+      apply CPrdE1 in H2 as [c [Hc [d [Hd H2]]]];
       apply SingE in Hb; apply SingE in Hd; subst; zfc_simple.
       + destruct (ixm (Embed 0 = 0))...
       + destruct (ixm (Embed 0 = 0))...
@@ -480,10 +480,10 @@ Proof with eauto; try congruence.
         apply SingE in Ha. apply SingE in Hc.
         apply op_iff. split...
     - intros y Hy. apply BUnionE in Hy as [].
-      + exists <y, 0>. split. apply BUnionI1. apply CProdI...
+      + exists <y, 0>. split. apply BUnionI1. apply CPrdI...
         zfc_simple. destruct (ixm (Embed 0 = 0))...
       + apply SingE in H; subst.
-        exists <0, 1>. split. apply BUnionI2. apply CProdI...
+        exists <0, 1>. split. apply BUnionI2. apply CPrdI...
         rewrite one. apply SingI.
         zfc_simple. destruct (ixm (Embed 1 = 0))...
   }
@@ -496,8 +496,8 @@ Proof with eauto; try congruence.
   destruct (ixm (π2 y = 0));
   apply BUnionE in Hx as [Hx|Hx];
   apply BUnionE in Hy as [Hy|Hy];
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hy]]]];
   apply SingE in Hb; apply SingE in Hd; subst; zfc_simple; [(
     apply BUnionE in Hxy as [Hxy|Hxy]; [
       apply BUnionE in Hxy as [Hxy|Hxy];
@@ -506,9 +506,9 @@ Proof with eauto; try congruence.
       apply op_iff in H as [H1 H2];
       apply op_iff in H1 as [H1 H1'];
       apply op_iff in H2 as [H2 H2']; subst; zfc_simple|
-      apply CProdE0 in Hxy as [H1 H2];
-      apply CProdE0 in H1 as [H11 H12];
-      apply CProdE0 in H2 as [H21 H22]; zfc_simple;
+      apply CPrdE0 in Hxy as [H1 H2];
+      apply CPrdE0 in H1 as [H11 H12];
+      apply CPrdE0 in H2 as [H21 H22]; zfc_simple;
       apply SingE in H12; apply SingE in H22
     ]
   ); apply binRelI; auto; try apply BUnionI1..| | | |]...
@@ -517,7 +517,7 @@ Proof with eauto; try congruence.
   - apply BUnionI1. apply BUnionI1. apply ReplAx.
     exists <a, c>. split; zfc_simple.
     apply binRelE3 in Hxy. apply binRelI...
-  - apply BUnionI2. apply CProdI; apply CProdI...
+  - apply BUnionI2. apply CPrdI; apply CPrdI...
   - apply binRelE3 in Hxy. exfalso.
     eapply (ord_not_lt_gt α Ho c)... eapply ord_is_ords...
   - apply binRelE3 in Hxy. exfalso. eapply ord_irrefl...

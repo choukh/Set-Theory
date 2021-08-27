@@ -355,18 +355,18 @@ Proof.
   eapply UnionI. apply H in H1. apply H1. apply H2.
 Qed.
 
-Lemma sub_mono_cprod : ∀ A B C, A ⊆ B → A × C ⊆ B × C.
+Lemma sub_mono_cprd : ∀ A B C, A ⊆ B → A × C ⊆ B × C.
 Proof with auto.
   intros * H x Hx.
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-  subst x. apply CProdI...
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  subst x. apply CPrdI...
 Qed.
 
-Lemma sub_mono_cprod' : ∀ A B C, A ⊆ B → C × A ⊆ C × B.
+Lemma sub_mono_cprd' : ∀ A B C, A ⊆ B → C × A ⊆ C × B.
 Proof with auto.
   intros * H x Hx.
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-  subst x. apply CProdI...
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  subst x. apply CPrdI...
 Qed.
 
 (* 子集关系的反单调性 *)

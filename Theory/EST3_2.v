@@ -74,14 +74,14 @@ Proof with auto.
   apply Hr. eapply ranI. apply func_correct... rewrite Hd...
 Qed.
 
-Lemma cprod_single_is_func : ∀ F a, is_function (F × ⎨a⎬).
+Lemma cprd_single_is_func : ∀ F a, is_function (F × ⎨a⎬).
 Proof with auto.
   split.
-  - apply cprod_is_rel.
+  - apply cprd_is_rel.
   - intros x Hx. apply domE in Hx as [y Hy].
     exists y. split... intros y' Hy'.
-    apply CProdE2 in Hy  as [_ Hy ].
-    apply CProdE2 in Hy' as [_ Hy'].
+    apply CPrdE2 in Hy  as [_ Hy ].
+    apply CPrdE2 in Hy' as [_ Hy'].
     apply SingE in Hy. apply SingE in Hy'. subst...
 Qed.
 
@@ -139,28 +139,28 @@ Proof with eauto.
   (* is_function G *)
   - apply bunion_is_func.
     + apply inv_func_iff_sr...
-    + apply cprod_single_is_func.
+    + apply cprd_single_is_func.
     + apply EmptyI. intros x Hx.
       apply BInterE in Hx as [H1 H2].
       apply domE in H2 as [y H2].
-      apply CProdE2 in H2 as [H2 _].
+      apply CPrdE2 in H2 as [H2 _].
       apply CompE in H2 as [_ H2]. rewrite inv_dom in H1...
   (* dom G = B ∧ ran G ⊆ A *)
   - split; [apply ExtAx; split; intros Hx|].
     (* dom G ⊆ B *)
     + apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
       * apply domI in H0. rewrite inv_dom in H0. apply Hrf in H0...
-      * apply CProdE2 in H0 as [H0 _]. apply CompE in H0 as []...
+      * apply CPrdE2 in H0 as [H0 _]. apply CompE in H0 as []...
     (* dom G ⊇ B *)
     + destruct (classic (x ∈ ran F)); eapply domI.
       * apply BUnionI1. rewrite <- inv_dom in H0.
         apply func_correct in H0... apply inv_func_iff_sr...
-      * apply BUnionI2. apply CProdI. apply CompI... apply SingI.
+      * apply BUnionI2. apply CPrdI. apply CompI... apply SingI.
     (* ran G ⊆ A *)
     + intros x Hx. apply ranE in Hx as [y Hp].
       apply BUnionE in Hp as [].
       * apply ranI in H0. rewrite inv_ran in H0. subst A...
-      * apply CProdE2 in H0 as [_ H0]. apply SingE in H0. subst a...
+      * apply CPrdE2 in H0 as [_ H0]. apply SingE in H0. subst a...
   (* G ∘ F = Ident A*)
   - ext Hx.
     + apply SepE in Hx as [_ [Hp [y [H1 H2]]]].
@@ -170,7 +170,7 @@ Proof with eauto.
         apply op_η in Hp. rewrite Hp at 3. apply op_iff.
         split... rewrite <- inv_op in H2. eapply singrE...
       * exfalso. apply ranI in H1.
-        apply CProdE2 in H2 as [H2 _].
+        apply CPrdE2 in H2 as [H2 _].
         apply CompE in H2 as []...
     + apply ReplAx in Hx as [b [Hb Heq]]. subst x.
       rewrite <- Hdf in Hb. apply domE in Hb as [c Hb].
@@ -449,7 +449,7 @@ Proof with auto; try congruence.
   destruct H as [Hff [Hdf Hrf]].
   apply func_pair in Hp as Heqp... rewrite Heqp in Hp.
   apply domI in Hp as Hd. apply ranI in Hp as Hr.
-  rewrite Heqp. apply CProdI...
+  rewrite Heqp. apply CPrdI...
 Qed.
 
 Theorem arrow_iff : ∀ F A B,
@@ -463,7 +463,7 @@ Proof with eauto.
     + apply PowerAx. intros p Hp.
       assert (Hp' := Hp). apply func_pair in Hp'...
       rewrite Hp'. rewrite Hp' in Hp.
-      apply CProdI. eapply domI... apply domI in Hp as Hd.
+      apply CPrdI. eapply domI... apply domI in Hp as Hd.
       apply func_ap in Hp... rewrite <- Hp. apply Hap...
     + split... split... intros y Hy.
       apply ranE in Hy as [x Hp]. apply domI in Hp as Hd.
@@ -477,25 +477,25 @@ Qed.
     ...
   }
 **)
-Definition InfCProd : set → (set → set) → set := λ I ℱ,
+Definition InfCPrd : set → (set → set) → set := λ I ℱ,
   {f ∊ I ⟶ ⋃{ℱ i | i ∊ I} | ∀i ∈ I, f[i] ∈ ℱ i}.
 
-Lemma InfCProdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ i | i ∊ I} →
-  (∀i ∈ I, x[i] ∈ ℱ i) → x ∈ InfCProd I ℱ.
+Lemma InfCPrdI : ∀ x I ℱ, x: I ⇒ ⋃ {ℱ i | i ∊ I} →
+  (∀i ∈ I, x[i] ∈ ℱ i) → x ∈ InfCPrd I ℱ.
 Proof with auto.
   intros * Hx Hxi. apply SepI. apply arrowI...
   intros i Hi. apply Hxi...
 Qed.
 
-Lemma InfCProdE : ∀ x I ℱ, x ∈ InfCProd I ℱ →
+Lemma InfCPrdE : ∀ x I ℱ, x ∈ InfCPrd I ℱ →
   x: I ⇒ ⋃ {ℱ i | i ∊ I} ∧ ∀i ∈ I, x[i] ∈ ℱ i.
 Proof.
   intros * Hx. apply SepE in Hx as [Hx Hxi].
   apply SepE in Hx as [_ Hx]. split; auto.
 Qed.
 
-Example infcprod_self : ∀ I ℱ A, ⦿ I →
-  (∀i ∈ I, ℱ i = A) → InfCProd I ℱ = I ⟶ A.
+Example infcprd_self : ∀ I ℱ A, ⦿ I →
+  (∀i ∈ I, ℱ i = A) → InfCPrd I ℱ = I ⟶ A.
 Proof with eauto.
   intros * [i Hi] H.
   assert (Heq: ⋃ {ℱ i | i ∊ I} = A). {

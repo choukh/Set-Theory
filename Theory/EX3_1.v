@@ -6,13 +6,13 @@ Require Export ZFC.Theory.EST3_3.
 Example ex3_2_a : ∀ A B C, A × (B ∪ C) = (A × B) ∪ (A × C).
 Proof with auto.
   intros. ext.
-  - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
+  - apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
     apply BUnionE in Hb as [].
-    + apply BUnionI1. subst x. apply CProdI...
-    + apply BUnionI2. subst x. apply CProdI...
+    + apply BUnionI1. subst x. apply CPrdI...
+    + apply BUnionI2. subst x. apply CPrdI...
   - apply BUnionE in H as [];
-      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
-      subst x; apply CProdI...
+      apply CPrdE1 in H as [a [Ha [b [Hb H]]]];
+      subst x; apply CPrdI...
     + apply BUnionI1. apply Hb.
     + apply BUnionI2. apply Hb.
 Qed.
@@ -20,13 +20,13 @@ Qed.
 Example ex3_2_a' : ∀ A B C, (A ∪ B) × C = (A × C) ∪ (B × C).
 Proof with auto.
   intros. ext.
-  - apply CProdE1 in H as [a [Ha [b [Hb H]]]].
+  - apply CPrdE1 in H as [a [Ha [b [Hb H]]]].
     apply BUnionE in Ha as [].
-    + apply BUnionI1. subst x. apply CProdI...
-    + apply BUnionI2. subst x. apply CProdI...
+    + apply BUnionI1. subst x. apply CPrdI...
+    + apply BUnionI2. subst x. apply CPrdI...
   - apply BUnionE in H as [];
-      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
-      subst x; apply CProdI...
+      apply CPrdE1 in H as [a [Ha [b [Hb H]]]];
+      subst x; apply CPrdI...
     + apply BUnionI1. apply Ha.
     + apply BUnionI2. apply Ha.
 Qed.
@@ -34,21 +34,21 @@ Qed.
 Example ex3_2_b: ∀ A B C, ⦿ A → A × B = A × C → B = C.
 Proof with auto.
   intros A B C [a Ha] H. ext.
-  - assert (<a, x> ∈ A × B) by (apply CProdI; assumption).
-    rewrite H in H1. apply CProdE2 in H1 as []...
-  - assert (<a, x> ∈ A × C) by (apply CProdI; assumption).
-    rewrite <- H in H1. apply CProdE2 in H1 as []...
+  - assert (<a, x> ∈ A × B) by (apply CPrdI; assumption).
+    rewrite H in H1. apply CPrdE2 in H1 as []...
+  - assert (<a, x> ∈ A × C) by (apply CPrdI; assumption).
+    rewrite <- H in H1. apply CPrdE2 in H1 as []...
 Qed.
 
 Example ex3_3: ∀ A ℬ, A × ⋃ℬ = ⋃{A × X | X ∊ ℬ}.
 Proof.
   intros. ext.
-  - apply CProdE1 in H as [a [Ha [b [Hb Heq]]]].
+  - apply CPrdE1 in H as [a [Ha [b [Hb Heq]]]].
     apply UnionAx in Hb as [B [HB Hb]]. subst x.
-    eapply FUnionI. apply HB. apply CProdI; assumption.
+    eapply FUnionI. apply HB. apply CPrdI; assumption.
   - apply FUnionE in H as [B [HB Hx]].
-    apply CProdE1 in Hx as [a [Ha [b [Hb Heq]]]]. subst x.
-    apply CProdI. apply Ha. apply UnionAx.
+    apply CPrdE1 in Hx as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply CPrdI. apply Ha. apply UnionAx.
     exists B. split. apply HB. apply Hb.
 Qed.
 
@@ -68,25 +68,25 @@ Qed.
 Example ex3_5_b: ∀ A B, A × B = ⋃{⎨x⎬ × B | x ∊ A}.
 Proof.
   intros. ext.
-  - apply CProdE1 in H as [a [Ha [b [Hb Heq]]]].
+  - apply CPrdE1 in H as [a [Ha [b [Hb Heq]]]].
     eapply FUnionI. apply Ha. subst x.
-    apply CProdI. apply SingI. apply Hb.
+    apply CPrdI. apply SingI. apply Hb.
   - apply FUnionE in H as [a [Ha Hx]].
-    apply CProdE1 in Hx as [a' [Ha' [b [Hb Heq]]]].
+    apply CPrdE1 in Hx as [a' [Ha' [b [Hb Heq]]]].
     apply SingE in Ha'. subst a. subst x.
-    apply CProdI; assumption.
+    apply CPrdI; assumption.
 Qed.
 
 Example ex3_6: ∀ X, is_rel X ↔ X ⊆ dom X × ran X.
 Proof.
   intros X. split.
   - intros Hr. unfold Sub. intros x Hx. assert (Heq := Hx).
-    apply rel_pair in Heq. rewrite Heq. rewrite Heq in Hx. apply CProdI.
+    apply rel_pair in Heq. rewrite Heq. rewrite Heq in Hx. apply CPrdI.
     + eapply domI. apply Hx.
     + eapply ranI. apply Hx.
     + apply Hr.
   - unfold is_rel. intros Hsub x Hx. apply Hsub in Hx.
-    apply CProdE1 in Hx as [a [Ha [b [Hb Heq]]]].
+    apply CPrdE1 in Hx as [a [Ha [b [Hb Heq]]]].
     exists a, b. apply Heq.
 Qed.
 
@@ -295,9 +295,9 @@ Example ex3_20: ∀ F A, F ↾ A = F ∩ A × ran F.
 Proof with eauto.
   intros. ext Hx.
   - apply restrE1 in Hx as [a [b [Ha [Hp Heq]]]].
-    subst x. apply BInterI... apply CProdI... eapply ranI...
+    subst x. apply BInterI... apply CPrdI... eapply ranI...
   - apply BInterE in Hx as [Hx Hcp].
-    apply CProdE1 in Hcp as [a [Ha [b [Hb Heq]]]].
+    apply CPrdE1 in Hcp as [a [Ha [b [Hb Heq]]]].
     subst x. apply restrI...
 Qed.
 

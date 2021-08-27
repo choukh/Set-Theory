@@ -453,7 +453,7 @@ Proof with eauto; try congruence.
     intros y1 y2 H1 H2.
     apply SepE in H1 as [Hp [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [_  [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
-    apply CProdE2 in Hp as [Hxmn _]; zfc_simple.
+    apply CPrdE2 in Hp as [Hxmn _]; zfc_simple.
     - rewrite H21 in Hxm1. exfalso.
       assert (Hbw: b2 ∈ ω) by (eapply ω_trans; eauto).
       eapply (leq_iff_not_gt m Hm (m + b2))...
@@ -474,8 +474,8 @@ Proof with eauto; try congruence.
     intros x1 x2 H1 H2.
     apply SepE in H1 as [Hp1 [[Hxm1 H1]|[b1 [Hb1 [H11 H12]]]]];
     apply SepE in H2 as [Hp2 [[Hxm2 H2]|[b2 [Hb2 [H21 H22]]]]];
-    apply CProdE2 in Hp1 as [Hxmn1 _];
-    apply CProdE2 in Hp2 as [Hxmn2 _]; zfc_simple.
+    apply CPrdE2 in Hp1 as [Hxmn1 _];
+    apply CPrdE2 in Hp2 as [Hxmn2 _]; zfc_simple.
     + rewrite <- Hfd in Hxm1, Hxm2.
       eapply injectiveE; revgoals... split...
     + exfalso. rewrite <- Hfd in Hxm1. rewrite <- Hgd in Hb2.
@@ -493,13 +493,13 @@ Proof with eauto; try congruence.
   - ext Hx.
     (* dom h ⊆ m + n *)
     apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as []...
+    apply CPrdE2 in Hp as []...
     (* dom h ⊇ m + n *)
     destruct (classic (x ∈ m)) as [Hxm|Hxm].
     + assert (Hxd := Hxm). rewrite <- Hfd in Hxd.
       apply domE in Hxd as [y Hp].
       eapply domI. apply SepI; zfc_simple.
-      * apply CProdI... apply BUnionI1.
+      * apply CPrdI... apply BUnionI1.
         rewrite <- Hfr. eapply ranI. apply Hp.
       * left. split... apply func_ap in Hp...
     + assert (Hxmn := Hx). ω_destruct n.
@@ -514,25 +514,25 @@ Proof with eauto; try congruence.
       rewrite <- Hn'eq, <- Hgd in Hb.
       apply domE in Hb as [c Hp].
       eapply domI. apply SepI; zfc_simple.
-      * apply CProdI... apply BUnionI2.
+      * apply CPrdI... apply BUnionI2.
         rewrite <- Hgr. eapply ranI...
       * right. exists b. split... split... apply func_ap in Hp...
   - ext y Hy.
     (* ran h ⊆ A ∪ B *)
     apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as []...
+    apply CPrdE2 in Hp as []...
     (* ran h ⊇ A ∪ B *)
     assert (Hy' := Hy). apply BUnionE in Hy' as [].
     + rewrite <- Hfr in H. apply ranE in H as [x Hp].
       eapply ranI. apply SepI; zfc_simple.
-      * apply CProdI... apply domI in Hp.
+      * apply CPrdI... apply domI in Hp.
         rewrite Hfd in Hp. apply add_enlarge_lt...
       * left. split. apply domI in Hp... apply func_ap in Hp...
     + rewrite <- Hgr in H. apply ranE in H as [b Hp].
       apply domI in Hp as Hd. rewrite Hgd in Hd.
       assert (Hbw: b ∈ ω) by (eapply ω_trans; eauto).
       eapply ranI. apply SepI; zfc_simple.
-      * apply CProdI... rewrite add_comm...
+      * apply CPrdI... rewrite add_comm...
         apply add_preserve_lt; revgoals...
       * right. exists b. split... split.
         rewrite add_comm... apply func_ap in Hp...
@@ -649,10 +649,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].
     apply SepE in H2 as
       [Hp2 [i2 [Hi2 [j2 [Hj2 [Hf2 [Hg2 Heq2]]]]]]].
-    apply CProdE2 in Hp1 as [Hxmn Hy1].
-    apply CProdE2 in Hp2 as [_ Hy2].
-    apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
-    apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
+    apply CPrdE2 in Hp1 as [Hxmn Hy1].
+    apply CPrdE2 in Hp2 as [_ Hy2].
+    apply CPrdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
+    apply CPrdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
     zfc_simple. rewrite Heq1 in Heq2.
     assert (Hi1w: i1 ∈ ω) by (eapply ω_trans; eauto).
@@ -673,10 +673,10 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
       [Hp1 [i1 [Hi1 [j1 [Hj1 [Hf1 [Hg1 Heq1]]]]]]].
     apply SepE in H2 as
       [Hp2 [i2 [Hi2 [j2 [Hj2 [Hf2 [Hg2 Heq2]]]]]]].
-    apply CProdE2 in Hp1 as [Hxmn1 Hy1].
-    apply CProdE2 in Hp2 as [Hxmn2 Hy2].
-    apply CProdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
-    apply CProdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
+    apply CPrdE2 in Hp1 as [Hxmn1 Hy1].
+    apply CPrdE2 in Hp2 as [Hxmn2 Hy2].
+    apply CPrdE1 in Hy1 as [u1 [Hu1 [v1 [Hv1 Hy1]]]].
+    apply CPrdE1 in Hy2 as [u2 [Hu2 [v2 [Hv2 Hy2]]]].
     rewrite Hy1 in Hf1, Hg1. rewrite Hy2 in Hf2, Hg2.
     zfc_simple. rewrite Hy1 in Hy2.
     apply op_iff in Hy2 as [Hequ Heqv].
@@ -687,7 +687,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   - ext Hx.
     (* dom h ⊆ m ⋅ n *)
     apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as []...
+    apply CPrdE2 in Hp as []...
     (* dom h ⊇ m ⋅ n *)
     assert (Hxmn := Hx).
     apply ex4_37_2 in Hx as [i [Hi [j [Hj Heq]]]]...
@@ -695,7 +695,7 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
     rewrite <- Hfd in Hid. apply domE in Hid as [yf Hpf].
     rewrite <- Hgd in Hjd. apply domE in Hjd as [yg Hpg].
     eapply domI. apply SepI; zfc_simple.
-    apply CProdI... apply CProdI.
+    apply CPrdI... apply CPrdI.
     rewrite <- Hfr. eapply ranI...
     rewrite <- Hgr. eapply ranI... zfc_simple.
     exists i. split... exists j. split...
@@ -703,16 +703,16 @@ intros * [Hm [f [[Hff Hfs] [Hfd Hfr]]]]
   - ext y Hy.
     (* ran h ⊆ A ∪ B *)
     apply ranE in Hy as [x Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as []...
+    apply CPrdE2 in Hp as []...
     (* ran h ⊇ A ∪ B *)
     assert (Hy' := Hy).
-    apply CProdE1 in Hy' as [u [Hu [v [Hv H]]]]. subst y.
+    apply CPrdE1 in Hy' as [u [Hu [v [Hv H]]]]. subst y.
     rewrite <- Hfr in Hu. apply ranE in Hu as [i Hpf].
     rewrite <- Hgr in Hv. apply ranE in Hv as [j Hpg].
     apply domI in Hpf as Hi. rewrite Hfd in Hi.
     apply domI in Hpg as Hj. rewrite Hgd in Hj.
     eapply ranI. apply SepI; zfc_simple.
-    apply CProdI... apply ex4_37_3...
+    apply CPrdI... apply ex4_37_3...
     exists i. split... exists j. split...
     apply func_ap in Hpf... apply func_ap in Hpg...
 Qed.

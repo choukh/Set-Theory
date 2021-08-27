@@ -32,7 +32,7 @@ Lemma preIntMul_maps_onto : PreIntMul: (ω²)² ⟹ ω².
 Proof with eauto.
   apply planeArith_maps_onto.
   - intros m Hm n Hn p Hp q Hq.
-    apply CProdI; apply add_ran; apply mul_ran...
+    apply CPrdI; apply add_ran; apply mul_ran...
   - intros a Ha b Hb. pose proof mul_split
       as [m [Hm [n [Hn [p [Hp [q [Hq H1]]]]]]]].
     apply Ha. apply Hb.
@@ -46,8 +46,8 @@ Lemma preIntMul_m_n_p_q : ∀ m n p q ∈ ω,
 Proof with auto.
   intros m Hm n Hn p Hp q Hq.
   eapply func_ap. destruct preIntMul_maps_onto...
-  apply SepI. apply CProdI; apply CProdI;
-    try apply CProdI; try apply add_ran; try apply mul_ran...
+  apply SepI. apply CPrdI; apply CPrdI;
+    try apply CPrdI; try apply add_ran; try apply mul_ran...
   zfc_simple...
 Qed.
 
@@ -58,13 +58,13 @@ Proof with auto.
   destruct preIntMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProdE1 in Hx as [m [Hm [n [Hn Hxeq]]]].
-  apply CProdE1 in Hy as [p [Hp [q [Hq Hyeq]]]].
-  apply CProdE1 in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
-  apply CProdE1 in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
+  apply CPrdE1 in Hx as [m [Hm [n [Hn Hxeq]]]].
+  apply CPrdE1 in Hy as [p [Hp [q [Hq Hyeq]]]].
+  apply CPrdE1 in Hu as [m' [Hm' [n' [Hn' Hueq]]]].
+  apply CPrdE1 in Hv as [p' [Hp' [q' [Hq' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preIntMul_m_n_p_q, preIntMul_m_n_p_q...
-  apply SepI. apply CProdI; apply CProdI;
+  apply SepI. apply CPrdI; apply CPrdI;
     apply add_ran; apply mul_ran... zfc_simple. simpl.
   unfold IntEq in *.
   assert (H3: (m+n')⋅p = (m'+n)⋅p) by congruence.
@@ -139,7 +139,7 @@ Lemma intMul_m_n_p_q : ∀ m n p q ∈ ω,
 Proof with auto.
   intros m Hm n Hn p Hp q Hq.
   rewrite intMul_a_b, preIntMul_m_n_p_q...
-  apply CProdI... apply CProdI...
+  apply CPrdI... apply CPrdI...
 Qed.
 
 Lemma intMul_0_r_r : ∀a ∈ ℤ, a ⋅ Int 0 = Int 0.
@@ -393,7 +393,7 @@ Lemma intLtE : ∀ a b, a <𝐳 b → ∃ m n p q ∈ ω,
   a = [<m, n>]~ ∧ b = [<p, q>]~ ∧ m + q ∈ p + n.
 Proof with auto.
   intros a b Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE2 in H1 as [Ha Hb]. zfc_simple.
+  apply CPrdE2 in H1 as [Ha Hb]. zfc_simple.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]].
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst.
   exists m. split... exists n. split...
@@ -409,7 +409,7 @@ Lemma intLt : ∀ m n p q ∈ ω,
 Proof.
   intros m Hm n Hn p Hp q Hq. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE2 in H1 as [Ha Hb]. zfc_simple.
+    apply CPrdE2 in H1 as [Ha Hb]. zfc_simple.
     pose proof (intProj m Hm n Hn) as [r [Hr [s [Hs [H11 [H12 _]]]]]].
     pose proof (intProj p Hp q Hq) as [u [Hu [v [Hv [H21 [H22 _]]]]]].
     rewrite H11, H21 in H2. simpl in H2. zfc_simple.
@@ -504,7 +504,7 @@ Qed.
 Lemma intPos_neg : ∀ a, intPos a → intNeg (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
-    apply SepE in H as [H _]. apply CProdE2 in H as []...
+    apply SepE in H as [H _]. apply CPrdE2 in H as []...
   }
   apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.
@@ -512,7 +512,7 @@ Qed.
 Lemma intNeg_pos : ∀ a, intNeg a → intPos (-a).
 Proof with nauto.
   intros. assert (Ha: a ∈ ℤ). {
-    apply SepE in H as [H _]. apply CProdE2 in H as []...
+    apply SepE in H as [H _]. apply CPrdE2 in H as []...
   }
   apply intLt_addInv in H... rewrite intAddInv_0 in H...
 Qed.

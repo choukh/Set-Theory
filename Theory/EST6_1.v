@@ -132,37 +132,37 @@ Proof. intros. now repeat rewrite eqnum_single. Qed.
 Global Hint Immediate all_single_eqnum : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
-Lemma eqnum_cprod_single : ∀ A a, A ≈ A × ⎨a⎬.
+Lemma eqnum_cprd_single : ∀ A a, A ≈ A × ⎨a⎬.
 Proof with auto.
   intros. set (Func A (A × ⎨ a ⎬) (λ x, <x, a>)) as F.
   exists F. apply meta_bijection.
-  - intros x Hx. apply CProdI...
+  - intros x Hx. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq.
     apply op_iff in Heq as []...
-  - intros y Hy. apply CProdE1 in Hy as [b [Hb [c [Hc Heq]]]].
+  - intros y Hy. apply CPrdE1 in Hy as [b [Hb [c [Hc Heq]]]].
     apply SingE in Hc. subst. exists b. split...
 Qed.
 
 (* 笛卡尔积在等势意义下满足交换律 *)
-Lemma eqnum_cprod_comm : ∀ A B, A × B ≈ B × A.
+Lemma eqnum_cprd_comm : ∀ A B, A × B ≈ B × A.
 Proof with auto.
   intros. set (Func (A × B) (B × A) (λ x, <π2 x, π1 x>)) as F.
   exists F. apply meta_bijection.
   - intros x Hx.
-    apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-    subst. zfc_simple. apply CProdI...
+    apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+    subst. zfc_simple. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply CProdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
-    apply CProdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
+    apply CPrdE1 in Hx1 as [a [Ha [b [Hb Hx1]]]].
+    apply CPrdE1 in Hx2 as [c [Hc [d [Hd Hx2]]]].
     subst. zfc_simple.
     apply op_iff in Heq as []. congruence.
   - intros y Hy.
-    apply CProdE1 in Hy as [a [Ha [c [Hc Hy]]]].
-    exists <c, a>. split. apply CProdI... zfc_simple.
+    apply CPrdE1 in Hy as [a [Ha [c [Hc Hy]]]].
+    exists <c, a>. split. apply CPrdI... zfc_simple.
 Qed.
 
 (* 笛卡尔积在等势意义下满足结合律 *)
-Lemma eqnum_cprod_assoc : ∀ A B C, (A × B) × C ≈ A × (B × C).
+Lemma eqnum_cprd_assoc : ∀ A B C, (A × B) × C ≈ A × (B × C).
 Proof with auto.
   intros.
   set (Func ((A × B) × C) (A × (B × C)) (λ x,
@@ -170,20 +170,20 @@ Proof with auto.
   )) as F.
   exists F. apply meta_bijection.
   - intros x Hx.
-    apply CProdE1 in Hx as [d [Hd [c [Hc H1]]]].
-    apply CProdE1 in Hd as [a [Ha [b [Hb H2]]]].
-    subst. zfc_simple. apply CProdI... apply CProdI...
+    apply CPrdE1 in Hx as [d [Hd [c [Hc H1]]]].
+    apply CPrdE1 in Hd as [a [Ha [b [Hb H2]]]].
+    subst. zfc_simple. apply CPrdI... apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq.
-    apply CProdE1 in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
-    apply CProdE1 in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
-    apply CProdE1 in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
-    apply CProdE1 in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
+    apply CPrdE1 in Hx1 as [d1 [Hd1 [c1 [Hc1 H11]]]].
+    apply CPrdE1 in Hd1 as [a1 [Ha1 [b1 [Hb1 H12]]]].
+    apply CPrdE1 in Hx2 as [d2 [Hd2 [c2 [Hc2 H21]]]].
+    apply CPrdE1 in Hd2 as [a2 [Ha2 [b2 [Hb2 H22]]]].
     apply op_iff in Heq as [H1 H2].
     apply op_iff in H2 as [H2 H3]. subst. zfc_simple.
   - intros y Hy.
-    apply CProdE1 in Hy as [a [Ha [d [Hd H1]]]].
-    apply CProdE1 in Hd as [b [Hb [c [Hc H2]]]].
-    exists <a, b, c>. split. apply CProdI... apply CProdI... zfc_simple.
+    apply CPrdE1 in Hy as [a [Ha [d [Hd H1]]]].
+    apply CPrdE1 in Hd as [b [Hb [c [Hc H2]]]].
+    exists <a, b, c>. split. apply CPrdI... apply CPrdI... zfc_simple.
 Qed.
 
 (* 任意集合的幂集与该集合到贰的所有函数的集合等势 *)
@@ -204,36 +204,36 @@ Proof with neauto.
     apply func_is_func. split.
     + ext Hx.
       * apply domE in Hx as [y Hp]. apply SepE1 in Hp.
-        apply CProdE2 in Hp as []...
+        apply CPrdE2 in Hp as []...
       * destruct (classic (x ∈ B)). {
           eapply domI. apply SepI.
-          - apply CProdI. apply Hx. apply H1_2.
+          - apply CPrdI. apply Hx. apply H1_2.
           - zfc_simple. destruct (ixm (x ∈ B))... exfalso...
         } {
           eapply domI. apply SepI.
-          - apply CProdI. apply Hx. apply H0_2.
+          - apply CPrdI. apply Hx. apply H0_2.
           - zfc_simple. destruct (ixm (x ∈ B))... exfalso...
         }
     + intros x Hx. destruct (classic (x ∈ B)).
       * cut ((ℱ B)[x] = 1). congruence.
         apply func_ap... apply func_is_func.
-        apply SepI. apply CProdI... zfc_simple.
+        apply SepI. apply CPrdI... zfc_simple.
         destruct (ixm (x ∈ B))... exfalso...
       * cut ((ℱ B)[x] = 0). congruence.
         apply func_ap... apply func_is_func.
-        apply SepI. apply CProdI... zfc_simple.
+        apply SepI. apply CPrdI... zfc_simple.
         destruct (ixm (x ∈ B))... exfalso...
   - intros B1 H1 B2 H2 Heq.
     apply PowerAx in H1. apply PowerAx in H2.
     ext a Hab.
     + assert (Hp: <a, 1> ∈ ℱ B1). {
-        apply SepI. apply CProdI... zfc_simple.
+        apply SepI. apply CPrdI... zfc_simple.
         destruct (ixm (a ∈ B1))... exfalso...
       }
       rewrite Heq in Hp. apply SepE2 in Hp. zfc_simple.
       destruct (ixm (a ∈ B2))... exfalso. eapply suc_neq_0...
     + assert (Hp: <a, 1> ∈ ℱ B2). {
-        apply SepI. apply CProdI... zfc_simple.
+        apply SepI. apply CPrdI... zfc_simple.
         destruct (ixm (a ∈ B2))... exfalso...
       }
       rewrite <- Heq in Hp. apply SepE2 in Hp. zfc_simple.
@@ -243,7 +243,7 @@ Proof with neauto.
     apply SepE in Hy as [Hy [Hfy [Hdy Hry]]]. apply PowerAx in Hy.
     ext x Hxy.
     + apply SepE in Hxy as [Hx Heq].
-      apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
       subst x. zfc_simple. rewrite <- Hdy in Ha.
       destruct (ixm (a ∈ B)) as [H|H]; subst b.
       * apply SepE in H as [].
@@ -257,7 +257,7 @@ Proof with neauto.
           rewrite <- Hdy... rewrite one...
         }
     + apply Hy in Hxy as Hxp. apply SepI...
-      apply CProdE1 in Hxp as [a [Ha [b [Hb Hx]]]].
+      apply CPrdE1 in Hxp as [a [Ha [b [Hb Hx]]]].
       subst x. zfc_simple. destruct (ixm (a ∈ B)) as [H|H].
       * apply SepE2 in H as Hap. rewrite <- Hap.
         symmetry. apply func_ap...
@@ -705,36 +705,36 @@ Proof.
   eapply subset_of_finite_is_finite; eauto.
 Qed.
 
-Lemma cprod_disjoint_l : ∀ A B C D,
+Lemma cprd_disjoint_l : ∀ A B C D,
   disjoint A C → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
-  apply CProdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
-  apply CProdE2 in H2 as [Ha' _].
+  apply CPrdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CPrdE2 in H2 as [Ha' _].
   eapply disjointE; eauto.
 Qed.
 
-Lemma cprod_disjoint_r : ∀ A B C D,
+Lemma cprd_disjoint_r : ∀ A B C D,
   disjoint B D → disjoint (A × B) (C × D).
 Proof.
   intros * Hdj. apply disjointI. intros [x [H1 H2]].
-  apply CProdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
-  apply CProdE2 in H2 as [_ Hb'].
+  apply CPrdE1 in H1 as [a [Ha [b [Hb Hx]]]]. subst x.
+  apply CPrdE2 in H2 as [_ Hb'].
   eapply disjointE; eauto.
 Qed.
 
 (* 不交化：通过笛卡尔积构造出分别与原集合等势但不交的两个集合 *)
-Lemma cprod_disjointify : ∀ A B m n,
+Lemma cprd_disjointify : ∀ A B m n,
   m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
 Proof.
-  intros. apply cprod_disjoint_r.
+  intros. apply cprd_disjoint_r.
   apply disjointI. intros [x [H1 H2]].
   apply SingE in H1. apply SingE in H2. congruence.
 Qed.
 
 Corollary disjointify_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
 Proof.
-  intros. apply cprod_disjointify. intro. eapply suc_neq_0. eauto.
+  intros. apply cprd_disjointify. intro. eapply suc_neq_0. eauto.
 Qed.
 
 (* 任意自然数与自身的单集不交 *)
@@ -762,7 +762,7 @@ Proof with eauto; try congruence.
   apply (bijection_swap_value _ _ _ _ Ha _ Hb) in Hf as Hg.
   assert (Hga: g[a] = b). {
     apply func_ap... destruct Hg as [[Hg _] _]...
-    apply SepI. apply CProdI... zfc_simple.
+    apply SepI. apply CPrdI... zfc_simple.
     destruct (ixm (a = a))... rewrite inv_ran_reduction... 
   }
   clear Hf Hi Hd Hr Ha Hbr Hb.

@@ -123,7 +123,7 @@ Proof with eauto.
   intros. split.
   - intros [Hrl [Htr Hir]]. repeat split...
     + apply trich_iff...
-    + intros x Hx. apply Hrl in Hx. apply cprod_is_pairs in Hx...
+    + intros x Hx. apply Hrl in Hx. apply cprd_is_pairs in Hx...
     + eapply trich_iff...
   - intros [Hcon [Hbr [_ [Htr Hir]]]]. repeat split...
     apply trich_iff...
@@ -210,9 +210,9 @@ Lemma inv_binRel : ∀ A R, is_binRel R A → is_binRel R⁻¹ A.
 Proof.
   intros * Hbr p Hp.
   apply SepE in Hp as [H [_ Hp]].
-  apply CProdE1 in H as [a [_ [b [_ Heq]]]].
+  apply CPrdE1 in H as [a [_ [b [_ Heq]]]].
   subst p. zfc_simple. apply Hbr in Hp.
-  apply CProdE2 in Hp as [Ha Hb]. apply CProdI; auto.
+  apply CPrdE2 in Hp as [Ha Hb]. apply CPrdI; auto.
 Qed.
 
 (* 传递关系的逆仍是传递关系 *)
@@ -315,7 +315,7 @@ Lemma memberRel_is_binRel : ∀ A, is_binRel (MemberRel A) A.
 Proof.
   intros S p Hp.
   apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
-  subst. apply CProdI; auto.
+  subst. apply CPrdI; auto.
 Qed.
 
 Notation "a ⋸ b" := (a ∈ b ∨ a = b) (at level 70) : set_scope.
@@ -380,7 +380,7 @@ Lemma subsetRel_is_binRel : ∀ S, is_binRel (SubsetRel S) S.
 Proof.
   intros S p Hp.
   apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
-  subst. apply CProdI; auto.
+  subst. apply CPrdI; auto.
 Qed.
 
 Lemma subsetRel_tranr : ∀ S, tranr (SubsetRel S).
@@ -634,12 +634,12 @@ Lemma subRel_absorption : ∀ R A B, B ⊆ A → (R ⥏ A) ⥏ B = R ⥏ B.
 Proof with auto.
   intros * Hsub. ext Hx.
   - apply SepE in Hx as [Hx Hp]. apply SepE1 in Hx.
-    apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
-    apply SepI... apply CProdI...
+    apply CPrdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply SepI... apply CPrdI...
   - apply SepE in Hx as [Hx Hp].
-    apply CProdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
-    apply SepI; [|apply CProdI]...
-    apply SepI... apply CProdI; apply Hsub...
+    apply CPrdE1 in Hp as [a [Ha [b [Hb Heq]]]]. subst x.
+    apply SepI; [|apply CPrdI]...
+    apply SepI... apply CPrdI; apply Hsub...
 Qed.
 
 (* Theorem 7J *)
@@ -651,9 +651,9 @@ Proof with eauto.
   - eapply binRel_is_rel.
     intros p Hp. apply SepE2 in Hp...
   - intros x y z Hxy Hyz.
-    apply SepE in Hxy as [Hxy Hx]. apply CProdE2 in Hx as [Hx _].
-    apply SepE in Hyz as [Hyz Hz]. apply CProdE2 in Hz as [_ Hz].
-    apply SepI. eapply Htr... apply CProdI...
+    apply SepE in Hxy as [Hxy Hx]. apply CPrdE2 in Hx as [Hx _].
+    apply SepE in Hyz as [Hyz Hz]. apply CPrdE2 in Hz as [_ Hz].
+    apply SepI. eapply Htr... apply CPrdI...
   - intros x Hp. eapply Hir. apply SepE1 in Hp...
 Qed.
 
@@ -666,15 +666,15 @@ Proof with eauto.
   split; [|eapply subRel_poset]...
   intros x Hx y Hy Hnq.
   apply Hcon in Hnq as []; [left|right|apply Hsub..]...
-  - apply SepI... apply CProdI...
-  - apply SepI... apply CProdI...
+  - apply SepI... apply CPrdI...
+  - apply SepI... apply CPrdI...
 Qed.
 
 Lemma subRel_empty : ∀ R, R ⥏ ∅ = ∅.
 Proof with auto.
   intros. ext Hx.
   - apply SepE in Hx as [_ Hx].
-    rewrite cprod_0_l in Hx. exfalso0.
+    rewrite cprd_0_l in Hx. exfalso0.
   - exfalso0.
 Qed.
 

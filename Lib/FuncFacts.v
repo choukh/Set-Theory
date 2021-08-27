@@ -41,9 +41,9 @@ Lemma meta_dom : ∀ A B F, (∀x ∈ A, F x ∈ B) →
 Proof with eauto.
   intros. ext Hx.
   - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as [Hx _]...
+    apply CPrdE2 in Hp as [Hx _]...
   - eapply domI. apply SepI.
-    apply CProdI... zfc_simple.
+    apply CPrdI... zfc_simple.
 Qed.
 
 (* 通过类型论函数证明集合论函数的定义域与值域 *)
@@ -54,7 +54,7 @@ Proof with auto.
   - apply meta_dom...
   - intros y Hy. eapply ranE in Hy as [x Hp].
     apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as [_ Hy]...
+    apply CPrdE2 in Hp as [_ Hy]...
 Qed.
 
 (* 将集合论函数应用表达为类型论函数应用 *)
@@ -77,8 +77,8 @@ Proof with eauto.
   intros y Hy. rewrite <- unique_existence.
   split. apply ranE in Hy...
   intros x1 x2 H1 H2.
-  apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [Hx1 _].
-  apply SepE in H2 as [H21 H22]. apply CProdE2 in H21 as [Hx2 _].
+  apply SepE in H1 as [H11 H12]. apply CPrdE2 in H11 as [Hx1 _].
+  apply SepE in H2 as [H21 H22]. apply CPrdE2 in H21 as [Hx2 _].
   zfc_simple. subst y. apply Hinj...
 Qed.
 
@@ -92,7 +92,7 @@ Proof with eauto.
   apply meta_function in Hf as [Hf [Hd Hr]].
   split; [|split]... apply sub_antisym...
   intros y Hy. pose proof (Hsurj _ Hy) as [x [Hx Hap]].
-  eapply ranI. apply SepI. apply CProdI... zfc_simple.
+  eapply ranI. apply SepI. apply CPrdI... zfc_simple.
 Qed.
 
 (* 通过类型论函数证明集合论函数是双射 *)
@@ -893,20 +893,20 @@ Proof with eauto; try congruence.
     ext y Hy.
     - apply ranE in Hy as [x Hp].
       apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [_ Hy]...
+      apply CPrdE2 in Hp as [_ Hy]...
     - assert (Hy' := Hy).
       apply ranE in Hy' as [x Hp].
       apply domI in Hp as Hx. apply func_ap in Hp...
       destruct (classic (x = a)) as [Hxa|Hxa]; [|
       destruct (classic (x = b)) as [Hxb|Hxb]]; eapply ranI.
-      + apply SepI. apply CProdI; auto.
+      + apply SepI. apply CPrdI; auto.
         rewrite Hd. apply Hb. zfc_simple.
         destruct (ixm (b = a)) as []...
         destruct (ixm (b = b)) as []...
-      + apply SepI. apply CProdI; auto.
+      + apply SepI. apply CPrdI; auto.
         rewrite Hd. apply Ha. zfc_simple.
         destruct (ixm (a = a)) as []...
-      + apply SepI. apply CProdI... zfc_simple.
+      + apply SepI. apply CPrdI... zfc_simple.
         destruct (ixm (x = a)) as []...
         destruct (ixm (x = b)) as []...
   }
@@ -934,29 +934,29 @@ Proof with eauto; try congruence.
   - apply func_pair in Hp as Heq... rewrite Heq in Hp.
     apply domI in Hp as Hpd. apply ranI in Hp as Hpr.
     apply func_ap in Hp... rewrite Heq.
-    apply SepI. apply CProdI... zfc_simple.
+    apply SepI. apply CPrdI... zfc_simple.
     destruct (ixm (π1 p = a)). {
       symmetry. apply func_ap... rewrite HeqF'.
-      apply SepI. apply CProdI... zfc_simple.
+      apply SepI. apply CPrdI... zfc_simple.
       destruct (ixm (b = a))...
       destruct (ixm (b = b))...
     }
     destruct (ixm (π1 p = b)).
     + symmetry. apply func_ap... rewrite HeqF'.
-      apply SepI. apply CProdI... zfc_simple.
+      apply SepI. apply CPrdI... zfc_simple.
       destruct (ixm (a = a))...
     + symmetry. apply func_ap... rewrite HeqF'.
-      apply SepI. apply CProdI... zfc_simple.
+      apply SepI. apply CPrdI... zfc_simple.
       destruct (ixm (π1 p = a))...
       destruct (ixm (π1 p = b))...
   - apply SepE in Hp as [Hp Heq].
-    apply CProdE1 in Hp as [x [Hx [y [Hy Hp]]]].
+    apply CPrdE1 in Hp as [x [Hx [y [Hy Hp]]]].
     subst p. zfc_simple.
     destruct (ixm (x = a))... {
       rewrite <- Hd' in Hb. apply func_correct in Hb...
       rewrite <- Heq, HeqF' in Hb. clear Heq.
       apply SepE in Hb as [Hp Heq].
-      apply CProdE2 in Hp as [Hb Hyr]. zfc_simple.
+      apply CPrdE2 in Hp as [Hb Hyr]. zfc_simple.
       destruct (ixm (b = a)). subst a b y. apply func_correct...
       destruct (ixm (b = b))... subst a y. apply func_correct...
     }
@@ -964,13 +964,13 @@ Proof with eauto; try congruence.
     + rewrite <- Hd' in Ha. apply func_correct in Ha...
       rewrite <- Heq, HeqF' in Ha. clear Heq.
       apply SepE in Ha as [Hp Heq].
-      apply CProdE2 in Hp as [Ha Hyr]. zfc_simple.
+      apply CPrdE2 in Hp as [Ha Hyr]. zfc_simple.
       destruct (ixm (a = a)). subst b y. apply func_correct...
       destruct (ixm (a = b))...
     + apply func_correct in Hx...
       rewrite <- Heq, HeqF' in Hx. clear Heq.
       apply SepE in Hx as [Hp Heq].
-      apply CProdE2 in Hp as [Hx Hyr]. zfc_simple.
+      apply CPrdE2 in Hp as [Hx Hyr]. zfc_simple.
       destruct (ixm (x = a))...
       destruct (ixm (x = b))... subst y. apply func_correct...
 Qed.
@@ -988,8 +988,8 @@ Proof with eauto; try congruence.
   intros y Hy. rewrite <- unique_existence.
   split. apply ranE in Hy as [x1 H1]...
   intros x1 x2 H1 H2.
-  apply SepE in H1 as [H11 H12]. apply CProdE2 in H11 as [].
-  apply SepE in H2 as [H21 H22]. apply CProdE2 in H21 as []. zfc_simple.
+  apply SepE in H1 as [H11 H12]. apply CPrdE2 in H11 as [].
+  apply SepE in H2 as [H21 H22]. apply CPrdE2 in H21 as []. zfc_simple.
   destruct (ixm (x1 = a)); destruct (ixm (x2 = a));
   destruct (ixm (x1 = b)); destruct (ixm (x2 = b)); try congruence;
     [..|eapply injectiveE; eauto; congruence]; exfalso.

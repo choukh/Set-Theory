@@ -126,72 +126,72 @@ Proof.
 Qed.
 
 (* 如果集合A与非空集合B的笛卡尔积是有限集，那么A是有限集 *)
-Lemma finite_cprod_l : ∀ A B, ⦿ B → finite (A × B) → finite A.
+Lemma finite_cprd_l : ∀ A B, ⦿ B → finite (A × B) → finite A.
 Proof with auto.
   intros * [b Hb] Hfin.
   apply (dominated_by_finite_is_finite _ (A × B))...
   set (Func A (A × B) (λ x, <x, b>)) as f.
   exists f. apply meta_injection.
-  - intros x Hx. apply CProdI...
+  - intros x Hx. apply CPrdI...
   - intros x1 H1 x2 H2 Heq.
     apply op_iff in Heq as []; subst...
 Qed.
 
 (* 如果集合B与非空集合A的笛卡尔积是有限集，那么B是有限集 *)
-Lemma finite_cprod_r : ∀ A B, ⦿ A → finite (A × B) → finite B.
+Lemma finite_cprd_r : ∀ A B, ⦿ A → finite (A × B) → finite B.
 Proof with auto.
   intros * [a Ha] Hfin.
   apply (dominated_by_finite_is_finite _ (A × B))...
   set (Func B (A × B) (λ x, <a, x>)) as f.
   exists f. apply meta_injection.
-  - intros x Hx. apply CProdI...
+  - intros x Hx. apply CPrdI...
   - intros x1 H1 x2 H2 Heq.
     apply op_iff in Heq as []; subst...
 Qed.
 
 (* 如果两个非空集合的笛卡尔积是有限集，那么这两个集合都是有限集 *)
-Lemma finite_cprod : ∀ A B, ⦿ A → ⦿ B →
+Lemma finite_cprd : ∀ A B, ⦿ A → ⦿ B →
   finite (A × B) → finite A ∧ finite B.
 Proof with auto.
   intros * Ha Hb Hfin. split.
-  apply (finite_cprod_l A B)...
-  apply (finite_cprod_r A B)...
+  apply (finite_cprd_l A B)...
+  apply (finite_cprd_r A B)...
 Qed.
 
 (* 两个非空集合的笛卡尔积是有限集当且仅当这两个集合都是有限集 *)
-Theorem cprod_finite_iff : ∀ A B, ⦿ A → ⦿ B →
+Theorem cprd_finite_iff : ∀ A B, ⦿ A → ⦿ B →
   finite A ∧ finite B ↔ finite (A × B).
 Proof with auto.
   intros * Hnea Hneb. split.
-  - intros [Ha Hb]. apply cprod_finite...
-  - apply finite_cprod...
+  - intros [Ha Hb]. apply cprd_finite...
+  - apply finite_cprd...
 Qed.
 
 (* 如果两个集合的笛卡尔积是无限集那么这两个集合中至少有一个是无限集 *)
-Corollary infinite_cprod : ∀ A B,
+Corollary infinite_cprd : ∀ A B,
   infinite (A × B) → infinite A ∨ infinite B.
 Proof.
   intros. apply not_and_or. intros [Ha Hb].
-  apply H. apply cprod_finite; auto.
+  apply H. apply cprd_finite; auto.
 Qed.
 
 (* 无限集与任意非空集合的笛卡尔积是无限集 *)
-Corollary cprod_infinite_l : ∀ A B, ⦿ B → infinite A → infinite (A × B).
+Corollary cprd_infinite_l : ∀ A B, ⦿ B → infinite A → infinite (A × B).
 Proof.
-  intros * Hne Hinf Hfin. apply Hinf. eapply finite_cprod_l; eauto.
+  intros * Hne Hinf Hfin. apply Hinf. eapply finite_cprd_l; eauto.
 Qed.
 
 (* 任意非空集合与无限集的笛卡尔积是无限集 *)
-Corollary cprod_infinite_r : ∀ A B, ⦿ A → infinite B → infinite (A × B).
+Corollary cprd_infinite_r : ∀ A B, ⦿ A → infinite B → infinite (A × B).
 Proof.
-  intros * Hne Hinf Hfin. apply Hinf. eapply finite_cprod_r; eauto.
+  intros * Hne Hinf Hfin. apply Hinf. eapply finite_cprd_r; eauto.
 Qed.
 
 (* 两个非空集合的笛卡尔积是无限集当且仅当这两个集合中至少有一个是无限集 *)
-Corollary cprod_infinite_iff : ∀ A B, ⦿ A → ⦿ B →
+Corollary cprd_infinite_iff : ∀ A B, ⦿ A → ⦿ B →
   infinite A ∨ infinite B ↔ infinite (A × B).
 Proof.
-  intros. unfold infinite. rewrite <- cprod_finite_iff; tauto.
+  intros. unfold infinite. rewrite <- cprd_finite_iff; tauto.
 Qed.
 
 (* 如果集合A到至少包含两个元素的集合B的函数空间是有限集，那么A是有限集 *)
@@ -273,19 +273,19 @@ Proof.
 Qed.
 
 (* 无限集到至少包含两个元素的集合的函数空间是无限集 *)
-Corollary cprod_arrow_l : ∀ A B, 2 ≤ |B| → infinite A → infinite (A ⟶ B).
+Corollary cprd_arrow_l : ∀ A B, 2 ≤ |B| → infinite A → infinite (A ⟶ B).
 Proof.
   intros * Hne Hinf Hfin. apply Hinf. eapply finite_arrow_l; eauto.
 Qed.
 
 (* 非空集合到无限集的函数空间是无限集 *)
-Corollary cprod_arrow_r : ∀ A B, ⦿ A → infinite B → infinite (A ⟶ B).
+Corollary cprd_arrow_r : ∀ A B, ⦿ A → infinite B → infinite (A ⟶ B).
 Proof.
   intros * Hne Hinf Hfin. apply Hinf. eapply finite_arrow_r; eauto.
 Qed.
 
 (* 非空集合到至少包含两个元素的集合的函数空间是无限集当且仅当这两个集合中至少有一个是无限集 *)
-Corollary cprod_arrow_iff : ∀ A B, ⦿ A → 2 ≤ |B| →
+Corollary cprd_arrow_iff : ∀ A B, ⦿ A → 2 ≤ |B| →
   infinite A ∨ infinite B ↔ infinite (A ⟶ B).
 Proof.
   intros. unfold infinite. rewrite <- arrow_finite_iff; tauto.
@@ -563,7 +563,7 @@ Proof with neauto; try congruence.
       apply UnionAx in Hp as [C [HC Hp]].
       apply Hsub in HC. apply SepE in HC as [HC _].
       apply PowerAx in HC. apply HC in Hp.
-      apply CProdE2 in Hp as [_ Hx]...
+      apply CPrdE2 in Hp as [_ Hx]...
     } {
       split; split; [| | |rewrite ex3_8_b]...
       - apply ex3_15.
@@ -597,7 +597,7 @@ Proof with neauto; try congruence.
           apply SepE in Hf as [_ []].
           - subst f. ext Hx.
             + apply domE in Hx as [y Hp]. exfalso0.
-            + apply CProdE1 in Hx as [a [Ha _]].
+            + apply CPrdE1 in Hx as [a [Ha _]].
               apply ranE in Ha as [w Hp]. exfalso0.
           - destruct H as [C [_ [_ [_ [Hd Hr]]]]]...
         }
@@ -605,19 +605,19 @@ Proof with neauto; try congruence.
         + apply domE in Hx as [y Hp].
           apply UnionAx in Hp as [f [Hf Hx]].
           apply domI in Hx. rewrite Hdr in Hx...
-          apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-          apply CProdI; eapply Hsubr...
-        + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+          apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+          apply CPrdI; eapply Hsubr...
+        + apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
           apply HA in Ha as [f [Hf Ha]].
           apply HA in Hb as [g [Hg Hb]].
           rewrite ex3_8_a. apply UnionAx.
           pose proof (Hchn _ Hf _ Hg) as [].
           * apply ranE in Ha as [y Hp].
             exists (dom g). split. apply ReplAx. exists g. split...
-            rewrite Hdr... apply CProdI... eapply ranI. apply H...
+            rewrite Hdr... apply CPrdI... eapply ranI. apply H...
           * apply ranE in Hb as [y Hp].
             exists (dom f). split. apply ReplAx. exists f. split...
-            rewrite Hdr... apply CProdI... eapply ranI. apply H...
+            rewrite Hdr... apply CPrdI... eapply ranI. apply H...
     }
   }
   (* if f₀ = ∅ *)
@@ -649,13 +649,13 @@ Proof with neauto; try congruence.
         apply func_pair' in Hp as [x [y [Hp Heqp]]]... subst p.
         apply domI in Hp as Hx. rewrite Hd in Hx.
         apply ranI in Hp as Hy. rewrite Hr in Hy.
-        apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-        apply CProdI. apply CProdI; apply HsubA... apply HsubA...
+        apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        apply CPrdI. apply CPrdI; apply HsubA... apply HsubA...
       + right. exists A. split... 
     - destruct Hg as [[Hg _] [Hd _]].
       apply infinite_set_nonempty in HinfA as [a Ha].
       apply EmptyNI. exists <<a, a>, g[<a, a>]>.
-      apply func_correct... rewrite Hd. apply CProdI...
+      apply func_correct... rewrite Hd. apply CPrdI...
   }
   (* if f₀ ≠ ∅ *)
   destruct H as [A₀ [HinfA₀ [HsubA₀ Hf₀]]].
@@ -705,12 +705,12 @@ Proof with neauto; try congruence.
   assert (Hqn: (A₀ × D) ∪ (D × A₀) ∪ (D × D) ≈ D). {
     apply cardAdd_disjoint_iff. {
       apply disjointI. intros [x [H1 H2]]. apply BUnionE in H1 as [].
-      - eapply disjointE. apply cprod_disjoint_l... apply H. apply H2.
-      - eapply disjointE. apply cprod_disjoint_r... apply H. apply H2.
+      - eapply disjointE. apply cprd_disjoint_l... apply H. apply H2.
+      - eapply disjointE. apply cprd_disjoint_r... apply H. apply H2.
     }
     rewrite <- cardAdd_disjoint; revgoals. {
       apply disjointI. intros [x [H1 H2]].
-      eapply disjointE. apply cprod_disjoint_l... apply H1. apply H2.
+      eapply disjointE. apply cprd_disjoint_l... apply H1. apply H2.
     }
     do 3 rewrite <- cardMul.
     fold 𝜆. rewrite <- Heq𝜆, Hmul.
@@ -740,10 +740,10 @@ Proof with neauto; try congruence.
       apply infinite_set_nonempty in HinfA₀ as [d Hd].
       assert (Hp: <<d, d>, g[<d, d>]> ∈ f₀ ∪ g). {
         apply BUnionI2. apply func_correct...
-        rewrite Hdg. apply BUnionI2. apply CProdI...
+        rewrite Hdg. apply BUnionI2. apply CPrdI...
       }
       rewrite <- H in Hp. apply domI in Hp.
-      rewrite Hdf₀ in Hp. apply CProdE2 in Hp as [Hd' _].
+      rewrite Hdf₀ in Hp. apply CPrdE2 in Hp as [Hd' _].
       apply HsubD in Hd. apply SepE2 in Hd...
   }
   (* Goal: f₀ ∪ g ∈ ℋ *)
@@ -757,14 +757,14 @@ Proof with neauto; try congruence.
       apply domI in H as Hx. rewrite Hdg in Hx.
       apply ranI in H as Hy. rewrite Hrg in Hy.
       apply BUnionE in Hx as [Hx|Hx]; [apply BUnionE in Hx as [Hx|Hx]|].
-      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-        apply CProdI; [apply CProdI|].
+      * apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        apply CPrdI; [apply CPrdI|].
         apply HsubA₀... apply HsubD'... apply HsubD'...
-      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-        apply CProdI; [apply CProdI|].
+      * apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        apply CPrdI; [apply CPrdI|].
         apply HsubD'... apply HsubA₀... apply HsubD'...
-      * apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
-        apply CProdI; [apply CProdI|]; apply HsubD'...
+      * apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+        apply CPrdI; [apply CPrdI|]; apply HsubD'...
   - right. exists (A₀ ∪ D). split; [|split].
     + intros Hfin. apply finite_bunion in Hfin as [Hfin _].
       apply set_finite_iff_card_finite in Hfin. apply HinfA₀...
@@ -777,9 +777,9 @@ Proof with neauto; try congruence.
           intros x Hx. exfalso. apply BInterE in Hx as [H1 H2].
           rewrite Hdf₀ in H1. rewrite Hdg in H2.
           apply BUnionE in H2 as []; [apply BUnionE in H as []|].
-          - eapply disjointE. apply cprod_disjoint_r... apply H1. apply H.
-          - eapply disjointE. apply cprod_disjoint_l... apply H1. apply H.
-          - eapply disjointE. apply cprod_disjoint_r... apply H1. apply H.
+          - eapply disjointE. apply cprd_disjoint_r... apply H1. apply H.
+          - eapply disjointE. apply cprd_disjoint_l... apply H1. apply H.
+          - eapply disjointE. apply cprd_disjoint_r... apply H1. apply H.
         } {
           intros y Hy. exfalso. apply BInterE in Hy as [H1 H2].
           rewrite Hrf₀ in H1. rewrite Hrg in H2. eapply disjointE...

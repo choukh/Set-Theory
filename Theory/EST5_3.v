@@ -131,7 +131,7 @@ Notation "a +ᵥ b" := (PreRatAdd[<a, b>]) (at level 50) : PreRat_scope.
 Lemma preRatAdd_maps_onto : PreRatAdd: (ℤ × ℤ')² ⟹ (ℤ × ℤ').
 Proof with neauto.
   apply planeArith_maps_onto.
-  - intros a Ha b Hb c Hc d Hd. apply CProdI. amr;nz. nzmr.
+  - intros a Ha b Hb c Hc d Hd. apply CPrdI. amr;nz. nzmr.
   - intros a Ha b Hb.
     exists a. split... exists b. split...
     exists (Int 0). split... exists (Int 1). split...
@@ -145,8 +145,8 @@ Lemma preRatAdd_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ �
 Proof with auto.
   intros a Ha b Hb c Hc d Hd.
   eapply func_ap. destruct preRatAdd_maps_onto...
-  apply SepI. apply CProdI; apply CProdI.
-  apply CProdI... apply CProdI... amr;nz. nzmr. zfc_simple...
+  apply SepI. apply CPrdI; apply CPrdI.
+  apply CPrdI... apply CPrdI... amr;nz. nzmr. zfc_simple...
 Qed.
 
 Lemma preRatAdd_binCompatible :
@@ -156,13 +156,13 @@ Proof with eauto.
   destruct preRatAdd_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl. 
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply CProdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply CProdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply CPrdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply CPrdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatAdd_a_b_c_d, preRatAdd_a_b_c_d...
-  apply SepI. apply CProdI; (apply CProdI; [amr;nz|nzmr]).
+  apply SepI. apply CPrdI; (apply CPrdI; [amr;nz|nzmr]).
   zfc_simple. simpl. unfold RatEq in *.
   rewrite intMul_distr', intMul_distr'; [|mr;nz..].
   erewrite 
@@ -204,7 +204,7 @@ Lemma ratAdd_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
 Proof with auto.
   intros a Ha b Hb c Hc d Hd.
   rewrite ratAdd_r_s, preRatAdd_a_b_c_d...
-  apply CProdI... apply CProdI...
+  apply CPrdI... apply CPrdI...
 Qed.
 
 Lemma ratAdd_ran : ∀ r s ∈ ℚ, r + s ∈ ℚ.
@@ -333,10 +333,10 @@ Proof with nauto.
   apply nzIntE0 in Hb as Hb0.
   apply intLt_connected in Hb0 as [Hnb|Hpb]; nz...
   - exists < -a, -b>. apply SepI. apply eqvcI.
-    apply planeEquiv_intAddInv. apply Hrefl. apply CProdI...
+    apply planeEquiv_intAddInv. apply Hrefl. apply CPrdI...
     zfc_simple. apply intNeg_pos...
   - exists <a, b>. apply SepI. apply eqvcI.
-    apply Hrefl. apply CProdI... zfc_simple...
+    apply Hrefl. apply CPrdI... zfc_simple...
 Qed.
 
 Lemma natDenoms_nonempty : ∀a ∈ ℤ, ∀b ∈ ℤ',
@@ -555,7 +555,7 @@ Notation "r ⋅ᵥ s" := (PreRatMul[<r, s>])
 Lemma preRatMul_maps_onto : PreRatMul: (ℤ × ℤ')² ⟹ ℤ × ℤ'.
 Proof with neauto.
   apply planeArith_maps_onto.
-  - intros a Ha b Hb c Hc d Hd. apply CProdI; [mr|nzmr].
+  - intros a Ha b Hb c Hc d Hd. apply CPrdI; [mr|nzmr].
   - intros r Hr s Hs.
     exists r. split... exists s. split...
     exists (Int 1). split... exists (Int 1). split...
@@ -567,8 +567,8 @@ Lemma preRatMul_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ �
 Proof with auto.
   intros a Ha b Hb c Hc d Hd.
   eapply func_ap. destruct preRatMul_maps_onto...
-  apply SepI. apply CProdI; apply CProdI.
-  apply CProdI... apply CProdI... mr. nzmr. zfc_simple...
+  apply SepI. apply CPrdI; apply CPrdI.
+  apply CPrdI... apply CPrdI... mr. nzmr. zfc_simple...
 Qed.
 
 Lemma preRatMul_binCompatible :
@@ -578,13 +578,13 @@ Proof with auto.
   destruct preRatMul_maps_onto as [Hf [Hd Hr]].
   split... split... rewrite Hr. apply sub_refl.
   intros x Hx y Hy u Hu v Hv H1 H2.
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
-  apply CProdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
-  apply CProdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hxeq]]]].
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hyeq]]]].
+  apply CPrdE1 in Hu as [a' [Ha' [b' [Hb' Hueq]]]].
+  apply CPrdE1 in Hv as [c' [Hc' [d' [Hd' Hveq]]]]. subst.
   apply planeEquiv in H1... apply planeEquiv in H2...
   rewrite preRatMul_a_b_c_d, preRatMul_a_b_c_d...
-  apply SepI. apply CProdI; apply CProdI; try mr; try nzmr.
+  apply SepI. apply CPrdI; apply CPrdI; try mr; try nzmr.
   zfc_simple. simpl. unfold RatEq in *.
   rewrite
     (intMul_assoc a), (intMul_comm c),
@@ -623,7 +623,7 @@ Lemma ratMul_a_b_c_d : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
 Proof with auto.
   intros a Ha b Hb c Hc d Hd.
   rewrite ratMul_r_s, preRatMul_a_b_c_d...
-  apply CProdI... apply CProdI...
+  apply CPrdI... apply CPrdI...
 Qed.
 
 Lemma ratMul_0_r_r : ∀r ∈ ℚ, r ⋅ Rat 0 = Rat 0.

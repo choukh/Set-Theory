@@ -19,8 +19,8 @@ Proof with eauto.
   apply ReplAx in Ha as [p [_ Ha]]. subst a.
   apply grounded_intro. intros q Hq.
   apply SepE2 in Hq. apply SepE1 in Hq.
-  apply CProdE2 in Hq as [_ Hq]. clear p.
-  apply CProdE1 in Hq as [m [Hm [n [Hn Hq]]]]. subst q.
+  apply CPrdE2 in Hq as [_ Hq]. clear p.
+  apply CPrdE1 in Hq as [m [Hm [n [Hn Hq]]]]. subst q.
   apply grounded_intro. intros p Hp.
   apply PairE in Hp as []; subst p.
   - apply grounded_intro. intros x Hx.
@@ -39,8 +39,8 @@ Proof with eauto.
   apply ReplAx in Hr as [p [_ Hr]]. subst r.
   apply grounded_intro. intros q Hq.
   apply SepE2 in Hq. apply SepE1 in Hq.
-  apply CProdE2 in Hq as [_ Hq]. clear p.
-  apply CProdE1 in Hq as [a [Ha [b [Hb Hq]]]]. subst q.
+  apply CPrdE2 in Hq as [_ Hq]. clear p.
+  apply CPrdE1 in Hq as [a [Ha [b [Hb Hq]]]]. subst q.
   apply grounded_intro. intros p Hp.
   apply PairE in Hp as []; subst p.
   - apply grounded_intro. intros x Hx.
@@ -71,8 +71,8 @@ Proof with neauto.
   ext Hx.
   - apply FUnionE in Hx as [a [Ha Hx]].
     apply SepE2 in Ha. apply SepE1 in Ha.
-    apply CProdE2 in Ha as [_ Ha].
-    apply CProdE1 in Ha as [p [Hp [q [Hq Ha]]]].
+    apply CPrdE2 in Ha as [_ Ha].
+    apply CPrdE1 in Ha as [p [Hp [q [Hq Ha]]]].
     subst a. rewrite rank_of_op in Hx.
     eapply ord_trans... repeat apply ω_inductive.
     rewrite rank_of_ord, rank_of_ord.
@@ -127,8 +127,8 @@ Proof with neauto.
   ext Hx.
   - apply FUnionE in Hx as [r [Hr Hx]].
     apply SepE2 in Hr. apply SepE1 in Hr.
-    apply CProdE2 in Hr as [_ Hr].
-    apply CProdE1 in Hr as [c [Hc [d [Hd Hr]]]].
+    apply CPrdE2 in Hr as [_ Hr].
+    apply CPrdE1 in Hr as [c [Hc [d [Hd Hr]]]].
     subst r. apply SepE1 in Hd.
     rewrite rank_of_op, rank_of_int, rank_of_int,
       bunion_of_ords_eq_l in Hx...

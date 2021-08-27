@@ -179,16 +179,16 @@ Proof with nauto.
   apply Schröeder_Bernstein.
   - set (Func ω (ω × ω) (λ n, <n, ∅>)) as f.
     exists f. apply meta_injection.
-    + intros n Hn. apply CProdI...
+    + intros n Hn. apply CPrdI...
     + intros x1 _ x2 _ Heq. apply op_iff in Heq as []...
   - set (Func (ω × ω) ω (λ p, (2 ^ π1 p ⋅ 3 ^ π2 p)%ω)) as f.
     exists f. apply meta_injection.
     + intros p Hp.
-      apply CProdE1 in Hp as [n [Hn [m [Hm Hp]]]].
+      apply CPrdE1 in Hp as [n [Hn [m [Hm Hp]]]].
       subst p. zfc_simple. apply mul_ran; apply exp_ran...
     + intros p1 H1 p2 H2 Heq.
-      apply CProdE1 in H1 as [n [Hn [m [Hm H1]]]].
-      apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]].
+      apply CPrdE1 in H1 as [n [Hn [m [Hm H1]]]].
+      apply CPrdE1 in H2 as [p [Hp [q [Hq H2]]]].
       subst p1 p2. zfc_simple.
       do 4 rewrite pow_isomorphic_ω in Heq...
       do 2 rewrite mul_isomorphic_ω in Heq...

@@ -531,10 +531,10 @@ Proof.
 Qed.
 
 (* 良基集的笛卡尔积是良基集 *)
-Lemma cprod_grounded : ∀ A B ⋵ 𝐖𝐅, A × B ⋵ 𝐖𝐅.
+Lemma cprd_grounded : ∀ A B ⋵ 𝐖𝐅, A × B ⋵ 𝐖𝐅.
 Proof.
   intros A HgA B HgB. apply grounded_intro.
-  intros p Hp. apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]];
+  intros p Hp. apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]];
   subst; apply op_grounded; eapply member_grounded; revgoals; eauto.
 Qed.
 

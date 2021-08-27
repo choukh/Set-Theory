@@ -14,7 +14,7 @@ Definition AC_I' := ∀ A,
 
 (* 选择公理等效表述2：任意多个非空集合的笛卡尔积非空 *)
 Definition AC_II :=
-  ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
+  ∀ I ℱ, (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCPrd I ℱ.
 
 (* 选择公理等效表述3：非空子集所组成的集合上存在选择函数 *)
 Definition AC_III := ∀ A,
@@ -56,16 +56,16 @@ Proof with eauto.
   assert (Hdeq2: dom f = I). {
     rewrite Hdeq. ext i Hi.
     - apply domE in Hi as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [Hi _]...
+      apply CPrdE2 in Hp as [Hi _]...
     - apply Hxi in Hi as Hx. destruct Hx.
-      eapply domI. apply SepI. apply CProdI...
+      eapply domI. apply SepI. apply CPrdI...
       eapply FUnionI... zfc_simple.
   }
-  exists f. apply InfCProdI.
+  exists f. apply InfCPrdI.
   - split... split... intros y Hy.
     apply ranE in Hy as [i Hp].
     apply Hsub in Hp. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as [_ Hy]...
+    apply CPrdE2 in Hp as [_ Hy]...
   - intros i Hi. rewrite <- Hdeq2 in Hi.
     apply func_correct in Hi... apply Hsub in Hi.
     apply SepE in Hi as [_ Hy]. zfc_simple.
@@ -83,14 +83,14 @@ Proof with eauto; try congruence.
       rewrite Hdeq. ext Hx.
       - apply domE in Hx as [y Hp].
         apply SepE in Hp as [Hp _].
-        apply CProdE2 in Hp as [Hx _]...
+        apply CPrdE2 in Hp as [Hx _]...
       - assert (Hu := Hx). apply UnionAx in Hx as [a [Ha Hx]].
-        eapply domI. apply SepI. apply CProdI... zfc_simple.
+        eapply domI. apply SepI. apply CPrdI... zfc_simple.
     }
     exists f. split; [split; [|split]|]...
     + intros y Hy. apply ranE in Hy as [x Hp].
       apply Hsub in Hp. apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [_ Hy]...
+      apply CPrdE2 in Hp as [_ Hy]...
     + intros x Hx. apply domE in Hx as [y Hp].
       apply func_ap in Hp as Hap... rewrite Hap.
       apply Hsub in Hp. apply SepE in Hp as [_ H]. zfc_simple.
@@ -116,7 +116,7 @@ Proof with eauto; try congruence.
     }
     exists g. split; [|split]...
     + intros p Hp. apply SepE in Hp as [Hp Heq].
-      apply CProdE1 in Hp as [x [Hx [y [_ Hp]]]].
+      apply CPrdE1 in Hp as [x [Hx [y [_ Hp]]]].
       subst p. zfc_simple. subst y.
       apply Hdf in Hx as Hsx. apply Hin in Hsx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
@@ -126,9 +126,9 @@ Proof with eauto; try congruence.
       * apply single_eq_pair in H as [H1 H2]...
     + ext Hx.
       * apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-        apply CProdE2 in Hp as [Hx _]...
+        apply CPrdE2 in Hp as [Hx _]...
       * assert (Hx' := Hx). apply Hrf in Hx' as [a [b [Hp Hfx]]].
-        apply ranI in Hp. eapply domI. apply SepI. apply CProdI...
+        apply ranI in Hp. eapply domI. apply SepI. apply CPrdI...
         zfc_simple. rewrite Hfx. zfc_simple.
 Qed.
 
@@ -160,7 +160,7 @@ Proof with eauto.
   destruct AC4 with 𝒜 as [C Hsg]. {
     intros H. apply ReplAx in H as [B [HB H]].
     apply SepE in HB as [_ [b Hb]].
-    apply cprod_to_0 in H as [].
+    apply cprd_to_0 in H as [].
     assert (B ∈ ⎨B⎬)... rewrite H in H0. exfalso0.
     subst. exfalso0.
   } {
@@ -168,8 +168,8 @@ Proof with eauto.
     apply ReplAx in Hx as [B [_ Hx]].
     apply ReplAx in Hy as [C [_ Hy]].
     apply disjointI. intros [p [H1 H2]]. apply Hnq. subst.
-    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-    apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]]. subst.
+    apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
+    apply CPrdE1 in H2 as [c [Hc [d [Hd H2]]]]. subst.
     apply SingE in Ha. apply SingE in Hc.
     apply op_iff in H2 as []. congruence.
   }
@@ -185,7 +185,7 @@ Proof with eauto.
     repeat split.
     - intros x Hx. apply BInterE in Hx as [_ Hx].
       apply Hstar in Hx as [B [_ Hp]].
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       apply SingE in Ha. subst...
     - intros x H. rewrite <- unique_existence.
       split. apply domE in H...
@@ -194,15 +194,15 @@ Proof with eauto.
       apply BInterE in H2 as [Hc2 H2].
       apply Hstar in H1 as [B1 [_ H1]].
       apply Hstar in H2 as [B2 [HB2 H2]].
-      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-      apply CProdE1 in H2 as [c [Hc [d [Hd H2]]]].
+      apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CPrdE1 in H2 as [c [Hc [d [Hd H2]]]].
       apply SingE in Ha. apply SingE in Hc.
       apply op_iff in H1 as []. apply op_iff in H2 as []. subst.
       apply Hcp in HB2 as H0.
       assert (H1: <B2, b> ∈ ⎨B2⎬ × B2 ∩ C).
-        { apply BInterI... apply CProdI... }
+        { apply BInterI... apply CPrdI... }
       assert (H2: <B2, d> ∈ ⎨B2⎬ × B2 ∩ C).
-        { apply BInterI... apply CProdI... }
+        { apply BInterI... apply CPrdI... }
       apply Hsg in H0 as [x Hx]. rewrite Hx in H1, H2.
       apply SingE in H1. apply SingE in H2. subst.
       apply op_iff in H2 as []...
@@ -212,13 +212,13 @@ Proof with eauto.
     + apply domE in Hx as [y Hp].
       apply BInterE in Hp as [_ Hp].
       apply Hstar in Hp as [B [HB Hp]].
-      apply CProdE2 in Hp as [Hx _].
+      apply CPrdE2 in Hp as [Hx _].
       apply SingE in Hx. subst...
     + assert (H: ⎨x⎬ × x ∈ 𝒜). { apply ReplAx. exists x. split... }
       pose proof (Hsg _ H) as [p Heq].
       assert (Hp: p ∈ ⎨x⎬ × x ∩ C). { rewrite Heq... }
       apply BInterE in Hp as [H1 H2]. assert (H1' := H1).
-      apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
       apply SingE in Ha. subst. eapply domI. apply BInterI...
       apply UnionAx. exists (⎨x⎬ × x). split...
   - intros B Hi Hsub.
@@ -226,10 +226,10 @@ Proof with eauto.
     apply Hcp in HB. pose proof (Hsg _ HB) as [p Heq].
     assert (Hp: p ∈ ⎨B⎬ × B ∩ C). { rewrite Heq... }
     apply BInterE in Hp as [H1 H2].
-    apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
+    apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
     apply SingE in Ha. subst. cut (F[B] = b). congruence.
     apply func_ap... apply BInterI... apply UnionAx.
-    exists (⎨B⎬ × B). split... apply CProdI...
+    exists (⎨B⎬ × B). split... apply CPrdI...
 Qed.
 
 Theorem AC_III_iff_III' : AC_III ↔ AC_III'.
@@ -275,7 +275,7 @@ Proof with auto.
   destruct Hf as [Hff [Hfd _]].
   exists F. split; [|split]...
   intros p Hp. apply SepE in Hp as [H1 H2].
-  apply CProdE1 in H1 as [a [Ha [b [Hb Hp]]]].
+  apply CPrdE1 in H1 as [a [Ha [b [Hb Hp]]]].
   subst. zfc_simple. subst. apply Hstar...
 Qed.
 
@@ -341,7 +341,7 @@ Proof with eauto; try congruence.
       apply PowerAx in HC. apply HC...
     }
     apply SepI... apply PowerAx in Hu. split; [split|].
-    - intros x Hx. apply Hu in Hx. apply cprod_is_pairs in Hx...
+    - intros x Hx. apply Hu in Hx. apply cprd_is_pairs in Hx...
     - intros x H. rewrite <- unique_existence.
       split. apply domE in H...
       intros y1 y2 H1 H2.
@@ -371,20 +371,20 @@ Proof with eauto; try congruence.
   destruct (classic (dom M = A ∨ ran M = B)). {
     destruct H; [left; exists M|right; exists (M⁻¹)].
     - split... split... intros y Hy. apply ranE in Hy as [x Hp].
-      apply Hsub in Hp. apply CProdE2 in Hp as []...
+      apply Hsub in Hp. apply CPrdE2 in Hp as []...
     - split. apply inv_injective... split.
       rewrite inv_dom... rewrite inv_ran.
       intros x Hx. apply domE in Hx as [y Hp].
-      apply Hsub in Hp. apply CProdE2 in Hp as []...
+      apply Hsub in Hp. apply CPrdE2 in Hp as []...
   }
   exfalso. apply not_or_and in H as [Hnq1 Hnq2].
   assert (Hps1: dom M ⊂ A). {
     split... intros x Hx. apply domE in Hx as [y Hp].
-    apply Hsub in Hp. apply CProdE2 in Hp as []...
+    apply Hsub in Hp. apply CPrdE2 in Hp as []...
   }
   assert (Hps2: ran M ⊂ B). {
     split... intros y Hy. apply ranE in Hy as [x Hp].
-    apply Hsub in Hp. apply CProdE2 in Hp as []...
+    apply Hsub in Hp. apply CPrdE2 in Hp as []...
   }
   apply comp_nonempty in Hps1 as [a Ha].
   apply comp_nonempty in Hps2 as [b Hb].
@@ -398,7 +398,7 @@ Proof with eauto; try congruence.
   assert (Hinj' := Hinj). destruct Hinj' as [Hf Hs].
   apply SepI; [|split].
   - apply PowerAx. intros p Hp. apply BUnionE in Hp as [].
-    apply Hsub... apply SingE in H. subst. apply CProdI...
+    apply Hsub... apply SingE in H. subst. apply CPrdI...
   - apply bunion_is_func... apply single_pair_is_func.
     intros x Hx. apply BInterE in Hx as [H1 H2].
     apply domE in H1 as [y1 H1].
@@ -635,15 +635,15 @@ Proof with eauto.
   assert (HdF: dom F = C). {
     rewrite Hd. ext Hx.
     - apply domE in Hx as [y Hp]. apply SepE in Hp as [Hp _].
-      apply CProdE2 in Hp as [Hx _]...
+      apply CPrdE2 in Hp as [Hx _]...
     - apply Hs2 in Hx as Hxb.
       apply UnionAx in Hxb as [B [HB Hxb]].
-      eapply domI. apply SepI. apply CProdI... zfc_simple.
+      eapply domI. apply SepI. apply CPrdI... zfc_simple.
   }
   assert (Hsub: ran F ⊆ ℬ). {
     intros y Hy. apply ranE in Hy as [x Hp].
     apply HsF in Hp. apply SepE in Hp as [Hp _].
-    apply CProdE2 in Hp as [_ Hy]...
+    apply CPrdE2 in Hp as [_ Hy]...
   }
   pose proof (finite_chain_has_max (ran F)) as [M [HM Hmax]].
   - apply EmptyNE in H as [c Hc].

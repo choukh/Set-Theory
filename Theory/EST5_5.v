@@ -365,7 +365,7 @@ Lemma realAddI1 : ∀ p, ∀ x y ∈ ℝ,
 Proof with auto.
   intros p x Hx y Hy q Hqx r Hry Heq.
   apply ReplAx. exists <q, r>. split.
-  apply CProdI... zfc_simple.
+  apply CPrdI... zfc_simple.
 Qed.
 
 Lemma realAddI2 : ∀ x y ∈ ℝ,
@@ -373,7 +373,7 @@ Lemma realAddI2 : ∀ x y ∈ ℝ,
 Proof with auto.
   intros x Hx y Hy q Hqx r Hry.
   apply ReplAx. exists <q, r>. split.
-  apply CProdI... zfc_simple.
+  apply CPrdI... zfc_simple.
 Qed.
 
 Lemma realAddE : ∀ x y ∈ ℝ, ∀q ∈ x + y,
@@ -381,7 +381,7 @@ Lemma realAddE : ∀ x y ∈ ℝ, ∀q ∈ x + y,
 Proof with eauto.
   intros x Hx y Hy q Hq.
   apply ReplAx in Hq as [t [Ht Heq]].
-  apply CProdE1 in Ht as [r [Hr [s [Hs Ht]]]].
+  apply CPrdE1 in Ht as [r [Hr [s [Hs Ht]]]].
   exists r. split. eapply real_sub_rat; revgoals...
   exists s. split. eapply real_sub_rat; revgoals...
   subst. zfc_simple. split...
@@ -391,7 +391,7 @@ Lemma realAdd_sub_rat : ∀ x y ∈ ℝ, x + y ∈ 𝒫 ℚ.
 Proof with auto.
   intros x Hx y Hy. apply PowerAx. intros s Hs.
   apply ReplAx in Hs as [p [Hp Hs]].
-  apply CProdE1 in Hp as [q [Hq [r [Hr Hp]]]].
+  apply CPrdE1 in Hp as [q [Hq [r [Hr Hp]]]].
   subst. zfc_simple. apply ratAdd_ran.
   apply (real_sub_rat _ Hx)... apply (real_sub_rat _ Hy)...
 Qed.
@@ -403,7 +403,7 @@ Proof with eauto.
   - apply realE0 in Hx as [q [_ Hq]].
     apply realE0 in Hy as [r [_ Hr]].
     apply EmptyNI. exists (q + r)%q. apply ReplAx.
-    exists <q, r>. split. apply CProdI... zfc_simple.
+    exists <q, r>. split. apply CPrdI... zfc_simple.
   - assert (Hx' := Hx). assert (Hy' := Hy).
     apply realE1' in Hx' as [q [Hq H1]]...
     apply realE1' in Hy' as [r [Hr H2]]...
@@ -576,7 +576,7 @@ Proof with neauto.
     assert (Hnpq: -p ∈ ℚ) by (apply ratAddInv_ran; auto).
     assert (H2q: p / Rat 2 ∈ ℚ) by (apply ratMul_ran; nauto).
     assert (Hp2: ratPos (-p / Rat 2))
-      by (eapply ratMul_pos_prod; neauto).
+      by (eapply ratMul_pos_prd; neauto).
     apply (ex5_19 x) in Hp2 as [q [Hqq [Hq Hleft]]];
       [|auto|apply ratMul_ran; nauto].
     assert (Hnqq: -q ∈ ℚ) by (apply ratAddInv_ran; auto).

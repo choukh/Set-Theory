@@ -15,14 +15,14 @@ Lemma binRelI : ∀ A (P : set → set → Prop), ∀ a b ∈ A,
   P a b → <a, b> ∈ BinRel A P.
 Proof.
   intros A P a Ha b Hb H. apply SepI.
-  apply CProdI; auto. zfc_simple.
+  apply CPrdI; auto. zfc_simple.
 Qed.
 
 Lemma binRelE1 : ∀ A P p,
   p ∈ BinRel A P → ∃a ∈ A, ∃b ∈ A, p = <a, b> ∧ P a b.
 Proof with auto.
   intros. apply SepE in H as [Hp H].
-  apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+  apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
   zfc_simple. exists a. split... exists b. split...
 Qed.
 
@@ -30,7 +30,7 @@ Lemma binRelE2 : ∀ A P a b,
   <a, b> ∈ BinRel A P → a ∈ A ∧ b ∈ A ∧ P a b.
 Proof.
   intros. apply SepE in H as [Hp H].
-  apply CProdE2 in Hp as [Ha Hb]. zfc_simple. split; auto.
+  apply CPrdE2 in Hp as [Ha Hb]. zfc_simple. split; auto.
 Qed.
 
 Lemma binRelE3 : ∀ A P a b,
@@ -43,24 +43,24 @@ Lemma binRel_is_binRel : ∀ A P, is_binRel (BinRel A P) A.
 Proof.
   intros * p Hp.
   apply binRelE1 in Hp as [a [Ha [b [Hb [Hp _]]]]].
-  subst p. apply CProdI; auto.
+  subst p. apply CPrdI; auto.
 Qed.
 
 Lemma binRel_is_rel : ∀ R A, is_binRel R A → is_rel R.
 Proof.
-  intros * H p Hp. apply H in Hp. apply cprod_is_pairs in Hp. apply Hp.
+  intros * H p Hp. apply H in Hp. apply cprd_is_pairs in Hp. apply Hp.
 Qed.
 
 Lemma dom_binRel : ∀ R A, is_binRel R A → dom R ⊆ A.
 Proof.
   intros * Hr x Hx. apply domE in Hx as [y Hp].
-  apply Hr in Hp. apply CProdE2 in Hp as [Hx _]. apply Hx.
+  apply Hr in Hp. apply CPrdE2 in Hp as [Hx _]. apply Hx.
 Qed.
 
 Lemma ran_binRel : ∀ R A, is_binRel R A → ran R ⊆ A.
 Proof.
   intros * Hr x Hx. apply ranE in Hx as [y Hp].
-  apply Hr in Hp. apply CProdE2 in Hp as [_ Hx]. apply Hx.
+  apply Hr in Hp. apply CPrdE2 in Hp as [_ Hx]. apply Hx.
 Qed.
 
 (* 自反性 *)
@@ -84,7 +84,7 @@ Theorem equiv_fld : ∀ R, is_rel R →
 Proof with eauto.
   intros R Hr Hs Ht. repeat split...
   - intros x Hx. apply rel_pair in Hx as Hxp... rewrite Hxp in *.
-    apply CProdI. apply BUnionI1. eapply domI...
+    apply CPrdI. apply BUnionI1. eapply domI...
     apply BUnionI2. eapply ranI...
   - intros x Hx. apply BUnionE in Hx as [].
     + apply domE in H as [y Hp]. apply Hs in Hp as Hp'. eapply Ht...
@@ -146,7 +146,7 @@ Proof with eauto.
       exists a. apply eqvcI. apply Hrf...
     + intros x Hx. apply quotE in HB as [a [Ha Heq]].
       subst B. apply eqvcE in Hx. apply Hr in Hx.
-      apply CProdE2 in Hx as [_ Hx]...
+      apply CPrdE2 in Hx as [_ Hx]...
   - intros X HX Y HY Hnq. apply EmptyI.
     intros t Ht. apply Hnq. apply BInterE in Ht as [H1 H2].
     apply ReplAx in HX as [x [Hx Hxeq]].
@@ -263,7 +263,7 @@ Theorem lo_irrefl : ∀ R A,
   linearOrder R A → irrefl R.
 Proof.
   intros * [Hrl [_ Htri]] x Hp. apply Hrl in Hp as Hx.
-  apply CProdE2 in Hx as [Hx _]. firstorder.
+  apply CPrdE2 in Hx as [Hx _]. firstorder.
 Qed.
 
 Theorem lo_connected : ∀ R A,

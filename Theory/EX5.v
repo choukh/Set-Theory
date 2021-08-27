@@ -69,8 +69,8 @@ Proof with neauto.
   exists ([<a⋅d + c⋅b, Int 2 ⋅ b ⋅ d>]~). split.
   apply pQuotI; [amr;nz|nzmr; nzmr].
   assert (Hpp: intPos ((Int 2 ⋅ b) ⋅ d)). {
-    apply intMul_pos_prod; nz... mr;nz.
-    apply intMul_pos_prod; nz...
+    apply intMul_pos_prd; nz... mr;nz.
+    apply intMul_pos_prd; nz...
   }
   intros Hlt. apply ratLt in Hlt...
   split; (apply ratLt; try timeout 1 auto; [amr;nz|nzmr; nzmr|]).

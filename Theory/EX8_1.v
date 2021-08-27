@@ -110,10 +110,10 @@ Proof with auto; try congruence.
   assert (Hbr: is_binRel R' A'). {
     intros x Hx. apply ReplAx in Hx as [p [Hp Hx]]. subst x.
     apply ordered_struct in Hp.
-    apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
+    apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst p.
     unfold ReplR. zfc_simple.
     destruct (ixm (a = a₀)); destruct (ixm (b = a₀));
-    apply CProdI; apply ReplAx; unfold ReplA.
+    apply CPrdI; apply ReplAx; unfold ReplA.
     - exists a₀. split... destruct (ixm (a₀ = a₀))...
     - exists b. split... destruct (ixm (b = a₀))...
     - exists a. split... destruct (ixm (a = a₀))...
@@ -144,7 +144,7 @@ Proof with auto; try congruence.
       destruct (ixm (x = a₀)); destruct (ixm (y = a₀))...
     - apply ReplAx in H as [p [Hp Heq]].
       apply ordered_struct in Hp as H.
-      apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst p.
+      apply CPrdE1 in H as [a [Ha [b [Hb H]]]]. subst p.
       unfold ReplR in Heq. zfc_simple.
       destruct (ixm (a = a₀)); destruct (ixm (b = a₀));
       apply op_iff in Heq as [Hfx Hfy]; unfold f in Hfx, Hfy;
@@ -265,12 +265,12 @@ Proof with auto.
   apply binRelE1 in Hx as [s [Hs [t [Ht [Hx _]]]]];
   apply BUnionE in Hs as [Hs|Hs];
   apply BUnionE in Ht as [Ht|Ht];
-  apply CProdE1 in Hs as [a [Ha [b [Hb Hs]]]];
-  apply CProdE1 in Ht as [c [Hc [d [Hd Ht]]]];
+  apply CPrdE1 in Hs as [a [Ha [b [Hb Hs]]]];
+  apply CPrdE1 in Ht as [c [Hc [d [Hd Ht]]]];
   apply SingE in Hb; apply SingE in Hd;
-  subst; zfc_simple; apply CProdI; solve [
-    apply BUnionI1; apply CProdI; auto|
-    apply BUnionI2; apply CProdI; auto].
+  subst; zfc_simple; apply CPrdI; solve [
+    apply BUnionI1; apply CPrdI; auto|
+    apply BUnionI2; apply CPrdI; auto].
 Qed.
 
 Local Lemma lt_0_0 : (0 <ᵣ 0) (MemberRel 2) → False.
@@ -307,18 +307,18 @@ Proof with eauto.
   apply BUnionE in Hx as [Hx|Hx];
   apply BUnionE in Hy as [Hy|Hy];
   apply BUnionE in Hz as [Hz|Hz];
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
-  apply CProdE1 in Hz as [e [He [f [Hf Hz]]]];
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply CPrdE1 in Hz as [e [He [f [Hf Hz]]]];
   apply SingE in Hb; apply SingE in Hd; apply SingE in Hf;
   subst; zfc_simple; (apply binRelI; zfc_simple; [
     solve [
-      apply BUnionI1; apply CProdI; auto|
-      apply BUnionI2; apply CProdI; auto
+      apply BUnionI1; apply CPrdI; auto|
+      apply BUnionI2; apply CPrdI; auto
     ]|
     solve [
-      apply BUnionI1; apply CProdI; auto|
-      apply BUnionI2; apply CProdI; auto
+      apply BUnionI1; apply CPrdI; auto|
+      apply BUnionI2; apply CPrdI; auto
     ]|
   ]).
   left... left...
@@ -333,7 +333,7 @@ Proof with neauto.
   intros S T x H.
   apply binRelE2 in H as [Hx [_ [Hlt|[Heq [[H0 Hlt]|[H1 Hlt]]]]]].
   - apply binRelE3 in Hlt. eapply nat_irrefl; revgoals...
-    apply BUnionE in Hx as []; apply CProdE0 in H as [_ H];
+    apply BUnionE in Hx as []; apply CPrdE0 in H as [_ H];
     apply SingE in H; rewrite H...
   - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
   - eapply relLt_irrefl; revgoals... eapply lo_irrefl. apply lo.
@@ -345,26 +345,26 @@ Proof with eauto; try congruence.
   intros S T x Hx y Hy Hnq.
   apply BUnionE in Hx as [Hx|Hx];
   apply BUnionE in Hy as [Hy|Hy];
-  apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]];
-  apply CProdE1 in Hy as [c [Hc [d [Hd Hy]]]];
+  apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]];
+  apply CPrdE1 in Hy as [c [Hc [d [Hd Hy]]]];
   apply SingE in Hb; apply SingE in Hd; subst; zfc_simple.
   - destruct (classic (a = c)). subst...
     eapply lo_connected in H; revgoals... apply lo.
     destruct H; [left|right]; (
-      apply binRelI; [apply BUnionI1; apply CProdI; auto..|]
+      apply binRelI; [apply BUnionI1; apply CPrdI; auto..|]
     ); zfc_simple...
   - left. apply binRelI.
-    apply BUnionI1. apply CProdI...
-    apply BUnionI2. apply CProdI...
+    apply BUnionI1. apply CPrdI...
+    apply BUnionI2. apply CPrdI...
     zfc_simple. left. apply lt_0_1.
   - right. apply binRelI.
-    apply BUnionI1. apply CProdI...
-    apply BUnionI2. apply CProdI...
+    apply BUnionI1. apply CPrdI...
+    apply BUnionI2. apply CPrdI...
     zfc_simple. left. apply lt_0_1.
   - destruct (classic (a = c)). subst...
       eapply lo_connected in H; revgoals... apply lo.
     destruct H; [left|right]; (
-      apply binRelI; [apply BUnionI2; apply CProdI; auto..|]
+      apply binRelI; [apply BUnionI2; apply CPrdI; auto..|]
     ); zfc_simple...
 Qed.
 
@@ -396,10 +396,10 @@ Proof with auto.
   - apply binRelE1 in Hx as [a [Ha [b [Hb [Hx [Hlt|[Heq [[H0 Hlt]|[H1 Hlt]]]]]]]]];
     apply BUnionE in Ha as [Ha|Ha];
     apply BUnionE in Hb as [Hb|Hb];
-    apply CProdE1 in Ha as [s [Hs [t [Ht Ha]]]];
-    apply CProdE1 in Hb as [u [Hu [v [Hv Hb]]]];
+    apply CPrdE1 in Ha as [s [Hs [t [Ht Ha]]]];
+    apply CPrdE1 in Hb as [u [Hu [v [Hv Hb]]]];
     apply SingE in Ht; apply SingE in Hv; subst; zfc_simple.
-    + apply BUnionI2. apply CProdI; apply CProdI...
+    + apply BUnionI2. apply CPrdI; apply CPrdI...
     + apply BUnionI1. apply BUnionI1. apply ReplAx.
       exists <s, u>. split; zfc_simple...
     + apply BUnionI1. apply BUnionI2. apply ReplAx.
@@ -410,19 +410,19 @@ Proof with auto.
       apply BUnionE in Hx as [Hx|Hx];
       apply ReplAx in Hx as [p [Hp Heq]];
       [apply HbrS in Hp as H|apply HbrT in Hp as H];
-      apply CProdE1 in H as [a [Ha [b [Hb H]]]];
+      apply CPrdE1 in H as [a [Ha [b [Hb H]]]];
       subst; zfc_simple; apply binRelI; zfc_simple...
-      * apply BUnionI1; apply CProdI...
-      * apply BUnionI1; apply CProdI...
-      * apply BUnionI2; apply CProdI...
-      * apply BUnionI2; apply CProdI...
-    + apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
-      apply CProdE1 in Ha as [s [Hs [t [Ht Ha]]]].
-      apply CProdE1 in Hb as [u [Hu [v [Hv Hb]]]].
+      * apply BUnionI1; apply CPrdI...
+      * apply BUnionI1; apply CPrdI...
+      * apply BUnionI2; apply CPrdI...
+      * apply BUnionI2; apply CPrdI...
+    + apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+      apply CPrdE1 in Ha as [s [Hs [t [Ht Ha]]]].
+      apply CPrdE1 in Hb as [u [Hu [v [Hv Hb]]]].
       apply SingE in Ht. apply SingE in Hv.
       subst. zfc_simple. apply binRelI; zfc_simple...
-      apply BUnionI1; apply CProdI...
-      apply BUnionI2; apply CProdI...
+      apply BUnionI1; apply CPrdI...
+      apply BUnionI2; apply CPrdI...
 Qed.
 
 Lemma alternative_loAdd_correct : ∀ S T, S + T ≅ S +' T.
@@ -490,17 +490,17 @@ Proof with auto.
   rewrite otMul_eq_ot_of_loMul in H0. unfold otⁿ in H0.
   apply ot_correct in H0 as [f [Hf _]]. simpl in Hf.
   apply bijection_to_empty in Hf.
-  apply cprod_to_0 in Hf as []; [left|right];
+  apply cprd_to_0 in Hf as []; [left|right];
   apply ot_correct.
   - replace (LOⁿ 0) with S. reflexivity.
     apply eq_intro... ext Hx.
     + destruct (lo S) as [Hbr _].
-      apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
+      apply Hbr in Hx. rewrite H, cprd_0_l in Hx. exfalso0.
     + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
   - replace (LOⁿ 0) with T. reflexivity.
     apply eq_intro... ext Hx.
     + destruct (lo T) as [Hbr _].
-      apply Hbr in Hx. rewrite H, cprod_0_l in Hx. exfalso0.
+      apply Hbr in Hx. rewrite H, cprd_0_l in Hx. exfalso0.
     + apply binRelE1 in Hx as [a [Ha _]]. exfalso0.
 Qed.
 

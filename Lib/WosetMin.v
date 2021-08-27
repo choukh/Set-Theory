@@ -15,7 +15,7 @@ Lemma minE : ∀ R B m, <B, m> ∈ Min R →
   B ∈ 𝒫 (fld R) - ⎨∅⎬ ∧ minimum m B R.
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
-  apply CProdE2 in Hp as [HN _].
+  apply CPrdE2 in Hp as [HN _].
   zfc_simple. repeat split; auto.
 Qed.
 
@@ -24,7 +24,7 @@ Lemma min_function : ∀ A R, woset A R → (fld R) = A →
 Proof with eauto.
   intros * [Hlo Hmin] Heq. subst A. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
-    apply cprod_is_pairs in Hp...
+    apply cprd_is_pairs in Hp...
   - intros B HB. rewrite <- unique_existence.
     split. apply domE in HB...
     intros a b H1 H2.
@@ -40,7 +40,7 @@ Proof with eauto.
       apply SingNE in HB' as Hne. apply EmptyNE in Hne.
       pose proof (Hmin B Hne Hsub) as [a [Ha Hle]].
       apply (domI _ _ a). apply SepI.
-      * apply CProdI. apply SepI... apply Hsub...
+      * apply CPrdI. apply SepI... apply Hsub...
       * split. zfc_simple. intros m Hm. zfc_simple. apply Hle...
   - intros a Ha. apply ranE in Ha as [B Hp].
     apply minE in Hp as [HB [Ha _]]. apply SepE in HB as [HB _].
@@ -71,9 +71,9 @@ Proof with eauto.
   ext Hx.
   - destruct Hwo as [[Hbr _] _]. apply BUnionE in Hx as [].
     + apply domE in H as [y Hp]. apply Hbr in Hp.
-      apply CProdE2 in Hp as []...
+      apply CPrdE2 in Hp as []...
     + apply ranE in H as [w Hp]. apply Hbr in Hp.
-      apply CProdE2 in Hp as []...
+      apply CPrdE2 in Hp as []...
   - destruct Hwo as [Hlo _].
     destruct (classic (x = a)).
       + destruct (classic (x = b)).
@@ -100,7 +100,7 @@ Proof with eauto.
   - exists b. apply SepI...
   - destruct Hwo as [[Hbr _] _].
     intros x Hx. apply SepE in Hx as [_ Hp].
-    apply Hbr in Hp. apply CProdE2 in Hp as []...
+    apply Hbr in Hp. apply CPrdE2 in Hp as []...
   - split...
 Qed.
 
@@ -209,7 +209,7 @@ Lemma minE : ∀ A R B m, <B, m> ∈ Min A R →
   B ∈ 𝒫 A - ⎨∅⎬ ∧ minimum m B R.
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
-  apply CProdE2 in Hp as [HN _].
+  apply CPrdE2 in Hp as [HN _].
   zfc_simple. repeat split; auto.
 Qed.
 
@@ -217,7 +217,7 @@ Lemma min_function : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
 Proof with eauto.
   intros * [Hlo Hmin]. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
-    apply cprod_is_pairs in Hp...
+    apply cprd_is_pairs in Hp...
   - intros B HB. rewrite <- unique_existence.
     split. apply domE in HB...
     intros a b H1 H2.
@@ -233,7 +233,7 @@ Proof with eauto.
       apply SingNE in HB' as Hne. apply EmptyNE in Hne.
       pose proof (Hmin B Hne Hsub) as [a [Ha Hle]].
       apply (domI _ _ a). apply SepI.
-      * apply CProdI. apply SepI... apply Hsub...
+      * apply CPrdI. apply SepI... apply Hsub...
       * split. zfc_simple. intros m Hm. zfc_simple. apply Hle...
   - intros a Ha. apply ranE in Ha as [B Hp].
     apply minE in Hp as [HB [Ha _]]. apply SepE in HB as [HB _].

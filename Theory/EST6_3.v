@@ -256,7 +256,7 @@ Proof with auto.
   repeat split... eapply cardLeq_well_defined.
   symmetry. apply cardAdd_preserve_eqnum. apply Hk.
   symmetry. apply cardAdd_preserve_eqnum. apply Hl.
-  apply cardLeq_sub. apply sub_mono_bunion. apply sub_mono_cprod...
+  apply cardLeq_sub. apply sub_mono_bunion. apply sub_mono_cprd...
 Qed.
 
 (* 基数乘法保持序关系 *)
@@ -267,7 +267,7 @@ Proof with auto.
   apply cardLeq_iff. eapply cardLeq_well_defined.
   apply cardMul_well_defined. symmetry. apply H1. reflexivity.
   apply cardMul_well_defined. symmetry. apply H2. reflexivity.
-  apply dominate_sub. apply sub_mono_cprod...
+  apply dominate_sub. apply sub_mono_cprd...
 Qed.
 
 Corollary cardAdd_preserve_leq' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 + 𝜅 ≤ 𝜇 + 𝜆.
@@ -332,20 +332,20 @@ Proof with neauto.
     apply SepE in Hf as [Hf [Hff [Hdf Hrf]]].
     apply SepI. {
       apply PowerAx. intros x Hx. apply BUnionE in Hx as [].
-      - apply PowerAx in Hf. apply Hf in H. eapply sub_mono_cprod...
-      - apply CProdE1 in H as [a [Ha [b [Hb H]]]]. subst x.
-        apply CProdI. apply SepE1 in Ha...
+      - apply PowerAx in Hf. apply Hf in H. eapply sub_mono_cprd...
+      - apply CPrdE1 in H as [a [Ha [b [Hb H]]]]. subst x.
+        apply CPrdI. apply SepE1 in Ha...
         apply SingE in Hb. subst b...
     }
     split; [|split].
     + apply bunion_is_func... {
         repeat split.
-        - apply cprod_is_rel.
+        - apply cprd_is_rel.
         - intros x H. rewrite <- unique_existence.
           split. apply domE in H...
           intros y1 y2 Hp1 Hp2.
-          apply CProdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
-          apply CProdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
+          apply CPrdE1 in Hp1 as [a [Ha [b [Hb H1]]]].
+          apply CPrdE1 in Hp2 as [c [Hc [d [Hd H2]]]].
           apply op_iff in H1 as []; subst x y1.
           apply op_iff in H2 as []; subst y2.
           apply SingE in Hb. apply SingE in Hd. congruence.
@@ -353,13 +353,13 @@ Proof with neauto.
       apply EmptyI. intros x Hx.
       apply BInterE in Hx as [H1 H2].
       apply domE in H2 as [y H2].
-      apply CProdE1 in H2 as [a [Ha [b [_ H2]]]].
+      apply CPrdE1 in H2 as [a [Ha [b [_ H2]]]].
       apply op_iff in H2 as [H _]; subst x.
       apply SepE in Ha as [_ H]. congruence.
     + ext Hx. {
         apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
         - apply Hsub. rewrite <- Hdf. eapply domI...
-        - apply CProdE1 in H as [a [Ha [b [_ H]]]].
+        - apply CPrdE1 in H as [a [Ha [b [_ H]]]].
           apply op_iff in H as [H _]; subst x.
           apply SepE1 in Ha...
       } {
@@ -367,24 +367,24 @@ Proof with neauto.
         - rewrite <- Hdf in H. apply domE in H as [y Hp].
           eapply domI. apply BUnionI1...
         - eapply domI. apply BUnionI2...
-          apply CProdI... apply SepI...
+          apply CPrdI... apply SepI...
       }
     + intros y Hy. apply ranE in Hy as [x Hp].
       apply BUnionE in Hp as [].
       * apply ranI in H. apply Hrf...
-      * apply CProdE2 in H as [_ Hy].
+      * apply CPrdE2 in H as [_ Hy].
         apply SingE in Hy. subst y...
   - intros f1 Hf1 f2 Hf2 Heq. eapply ex2_20'...
     ext Hx.
     + apply BInterE in Hx as [H1 H2].
       apply SepE in Hf1 as [Hf1 _]. apply PowerAx in Hf1.
-      apply Hf1 in H1. apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-      subst x. apply CProdE2 in H2 as [H _].
+      apply Hf1 in H1. apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      subst x. apply CPrdE2 in H2 as [H _].
       apply SepE in H as [_ H]. exfalso...
     + apply BInterE in Hx as [H1 H2].
       apply SepE in Hf2 as [Hf2 _]. apply PowerAx in Hf2.
-      apply Hf2 in H1. apply CProdE1 in H1 as [a [Ha [b [Hb H1]]]].
-      subst x. apply CProdE2 in H2 as [H _].
+      apply Hf2 in H1. apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
+      subst x. apply CPrdE2 in H2 as [H _].
       apply SepE in H as [_ H]. exfalso...
 Qed.
 
@@ -474,10 +474,10 @@ Proof with neauto; try congruence.
   end)) as f.
   exists f. apply meta_bijection.
   - intros x Hx. apply BUnionE in Hx as [].
-    + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
+    + apply CPrdE1 in H as [n [Hn [b [Hb H]]]].
       subst x. zfc_simple. apply SingE in Hb.
       destruct (ixm (b = 0))... apply mul_ran...
-    + apply CProdE1 in H as [n [Hn [b [Hb H]]]].
+    + apply CPrdE1 in H as [n [Hn [b [Hb H]]]].
       subst x. zfc_simple. apply SingE in Hb.
       destruct (ixm (b = 0)).
       * subst b. exfalso. eapply suc_neq_0...
@@ -486,8 +486,8 @@ Proof with neauto; try congruence.
     assert (H20: Embed 2 ≠ 0). { intros H. eapply suc_neq_0... }
     apply BUnionE in H1 as [H1|H1];
     apply BUnionE in H2 as [H2|H2];
-    apply CProdE1 in H1 as [m [Hm [n [Hn H1]]]];
-    apply CProdE1 in H2 as [p [Hp [q [Hq H2]]]];
+    apply CPrdE1 in H1 as [m [Hm [n [Hn H1]]]];
+    apply CPrdE1 in H2 as [p [Hp [q [Hq H2]]]];
     apply SingE in Hn; apply SingE in Hq;
     subst x1 x2 n q; zfc_simple; apply op_iff.
     + destruct (ixm (Embed 0 = Embed 0))...
@@ -514,10 +514,10 @@ Proof with neauto; try congruence.
         apply suc_injective in Heq... apply mul_cancel' in Heq...
   - intros y Hy. destruct (even_or_odd y Hy).
     + destruct H as [n [Hn Heqy]].
-      exists <n, 0>. split. apply BUnionI1. apply CProdI...
+      exists <n, 0>. split. apply BUnionI1. apply CPrdI...
       zfc_simple. destruct (ixm (Embed 0 = Embed 0))...
     + destruct H as [n [Hn Heqy]].
-      exists <n, 1>. split. apply BUnionI2. apply CProdI...
+      exists <n, 1>. split. apply BUnionI2. apply CPrdI...
       zfc_simple. destruct (ixm (Embed 1 = Embed 0))...
       exfalso. eapply suc_neq_0...
 Qed.

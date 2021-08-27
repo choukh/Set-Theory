@@ -126,7 +126,7 @@ Proof with eauto; try congruence.
   assert (Hf: f: ω × ω ⟹ ⋃ 𝒜'). {
     apply meta_surjection.
     - intros p Hp.
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst p. zfc_simple. apply UnionAx.
       exists (g[b]). split. apply Hgm... apply (ap_ran ω)...
       apply surjection_is_func. apply HFm...
@@ -137,7 +137,7 @@ Proof with eauto; try congruence.
       pose proof (HFm b Hb) as [HfF [HdF HrF]].
       rewrite <- Hgb, <- HrF in Hy. apply ranE in Hy as [a HFb].
       apply domI in HFb as Ha. apply func_ap in HFb...
-      exists <a, b>. split. apply CProdI... zfc_simple.
+      exists <a, b>. split. apply CPrdI... zfc_simple.
   }
   destruct ω_eqnum_ω_cp_ω as [i Hi].
   apply (countable_if_mapped_onto_by_ω _ (f ∘ i)).
@@ -181,9 +181,9 @@ Fact sq_empty : 𝗦𝗾 ∅ = 1.
 Proof with nauto.
   ext Hx.
   - apply SepE in Hx as [Hx _].
-    rewrite cprod_0_r, power_empty, <- one in Hx...
+    rewrite cprd_0_r, power_empty, <- one in Hx...
   - rewrite one in Hx. apply SingE in Hx. subst. apply SepI.
-    + rewrite cprod_0_r, power_empty. apply SingI.
+    + rewrite cprd_0_r, power_empty. apply SingI.
     + exists 0. split... apply injection_is_func.
       apply empty_injection.
 Qed.
@@ -195,12 +195,12 @@ Proof with neauto.
   exists f. apply meta_injection.
   + intros x Hx. apply SepI.
     * apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-      subst p. apply CProdI... eapply ω_trans...
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      subst p. apply CPrdI... eapply ω_trans...
     * exists 1. split... apply meta_function. intros _ _...
   + intros x1 Hx1 x2 Hx2 Heq.
     assert (<∅, x1> ∈ Func 1 A (λ _, x1)). {
-      apply SepI. apply CProdI... apply suc_has_0... zfc_simple.
+      apply SepI. apply CPrdI... apply suc_has_0... zfc_simple.
     }
     rewrite Heq in H. apply SepE in H as [_ H]. zfc_simple.
 Qed.
@@ -236,8 +236,8 @@ Proof with eauto; try congruence.
     assert (Hf' := Hf). destruct Hf' as [_ [Hdf _]].
     apply SepI.
     + apply PowerAx. intros p Hp. apply SepE in Hp as [Hp _].
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-      subst p. apply CProdI... eapply ω_trans...
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      subst p. apply CPrdI... eapply ω_trans...
     + exists n. split... rewrite Hdf.
       apply meta_function. intros x Hx. eapply ap_ran.
       apply injection_is_func... eapply ap_ran...
@@ -323,7 +323,7 @@ Proof with auto; try congruence.
   assert (Hf: f: 𝒜' × K ⟹ ⋃ 𝒜'). {
     apply meta_surjection.
     - intros p Hp.
-      apply CProdE1 in Hp as [A [HA [k [Hk Hp]]]].
+      apply CPrdE1 in Hp as [A [HA [k [Hk Hp]]]].
       subst p. zfc_simple. apply UnionAx.
       exists A. split... apply (ap_ran K)...
       apply surjection_is_func. apply HFA...
@@ -331,7 +331,7 @@ Proof with auto; try congruence.
       pose proof (HFA A HA) as [HfF [HdF HrF]].
       rewrite <- HrF in Ha. apply ranE in Ha as [k HFAk].
       apply domI in HFAk as Ha. apply func_ap in HFAk...
-      exists <A, k>. split. apply CProdI... zfc_simple.
+      exists <A, k>. split. apply CPrdI... zfc_simple.
   }
   eapply domain_of_surjection_dominate_range... apply Hf.
 Qed.
@@ -382,7 +382,7 @@ Proof with neauto; try congruence.
     apply SepI. apply HGp... apply HG...
   }
   exists F. apply meta_injection.
-  - intros f Hf. apply CProdI.
+  - intros f Hf. apply CPrdI.
     apply SepE in Hf as [_ [n [Hn [_ [Hd _]]]]]...
     apply SepI; unfold g; rewrite meta_func_ap...
   - intros f1 H1 f2 H2 Heq.

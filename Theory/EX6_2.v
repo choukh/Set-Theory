@@ -98,7 +98,7 @@ Qed.
 
 (* ==不需要选择公理== *)
 (* 有限个非空集合的笛卡尔积非空 *)
-Example ex6_19 : ∀ I ℱ, finite I → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCProd I ℱ.
+Example ex6_19 : ∀ I ℱ, finite I → (∀i ∈ I, ⦿ ℱ i) → ⦿ InfCPrd I ℱ.
 Proof with eauto; try congruence.
   intros * [n [Hn Hqn]]. generalize dependent I.
   ω_induction n; intros I Hqn HneX.

@@ -39,10 +39,10 @@ Proof with auto.
   intros A B Hsub.
   ext Hx.
   - apply SepE in Hx as [Hx Hp].
-    apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst x.
+    apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]]. subst x.
     apply binRelE3 in Hx. apply binRelI...
   - apply binRelE1 in Hx as [a [Ha [b [Hb [Hx H]]]]]. subst x.
-    apply SepI. apply binRelI; [apply Hsub..|]... apply CProdI...
+    apply SepI. apply binRelI; [apply Hsub..|]... apply CPrdI...
 Qed.
 
 (* 佐恩引理一般形式到集合论形式 *)
@@ -138,7 +138,7 @@ Proof with eauto; try congruence.
     assert (Hoε: ε ⋵ 𝐎𝐍). eapply ord_is_ords; revgoals...
     destruct (classic (δ = ε)) as [|Hnq']...
     apply ord_connected in Hnq' as []; auto; [left|right];
-    (apply SepI; [|apply CProdI; auto]); unfold a;
+    (apply SepI; [|apply CPrdI; auto]); unfold a;
     [rewrite (recursion_spec _ ε)|rewrite (recursion_spec _ δ)]; auto;
     (apply f_strict; [apply IH|apply ReplI])...
   }
@@ -233,7 +233,7 @@ Proof with eauto; try congruence.
       contra as Hx'.
       assert (x ∈ B - C). apply SepI... apply Hble in H.
       eapply (lo_irrefl _ B)... eapply relLt_le_tranr...
-      apply HloB. apply SepI... apply CProdI...
+      apply HloB. apply SepI... apply CPrdI...
     + contra as Hnsub.
       pose proof (HminC (C - seg b B)) as [c [Hc Hcle]]... {
         apply EmptyNE. intros H. apply sub_iff_no_comp in H...
@@ -256,14 +256,14 @@ Proof with eauto; try congruence.
           assert (Hx': x ∈ B - seg c C). apply SepI...
           apply Hdle in Hx'. eapply (lo_irrefl _ B)...
           eapply relLt_le_tranr... apply HloB.
-          apply SepI... apply CProdI...
+          apply SepI... apply CPrdI...
         - apply SepE in Hx as [Hx Hxc].
           destruct (classic (d = b)) as [|Hnq]. {
             subst d. contra.
             assert (Hx': x ∈ C - seg b B). apply SepI...
             apply Hcle in Hx'. eapply (lo_irrefl _ C)...
             eapply relLt_le_tranr... apply HloC.
-            apply SepI... apply CProdI...
+            apply SepI... apply CPrdI...
           }
           assert (HdC: d ∈ C). {
             contra as HdC.
@@ -278,7 +278,7 @@ Proof with eauto; try congruence.
             }
             apply Hcle in Hx'. eapply (lo_irrefl _ C)...
             eapply relLt_le_tranr... apply HloC.
-            apply SepI... apply CProdI...
+            apply SepI... apply CPrdI...
           }
           apply SepI...
           destruct (classic (d = c)). subst...
@@ -317,18 +317,18 @@ Proof with eauto; try congruence.
     destruct (classic (X = Y)) as [|HnQ]. {
       subst Y. apply (lo_connected (R ⥏ X) X) in Hnq...
       destruct Hnq; [left|right]; apply SepE1 in H;
-      apply SepI; auto; apply CProdI... apply HX.
+      apply SepI; auto; apply CPrdI... apply HX.
     }
     pose proof (comparability X Y HnQ HX HY).
     destruct H as [[t [Ht Hseg]]|[t [Ht Hseg]]].
     + subst Y. apply SepE1 in Hy'.
       apply (lo_connected (R ⥏ X) X) in Hnq...
       destruct Hnq; [left|right]; apply SepE1 in H;
-      apply SepI; auto; apply CProdI... apply HX.
+      apply SepI; auto; apply CPrdI... apply HX.
     + subst X. apply SepE1 in Hx'.
       apply (lo_connected (R ⥏ Y) Y) in Hnq...
       destruct Hnq; [left|right]; apply SepE1 in H;
-      apply SepI; auto; apply CProdI... apply HY.
+      apply SepI; auto; apply CPrdI... apply HY.
   }
   assert (union_wo: woset ⋃ 𝒞 (R ⥏ ⋃ 𝒞)). {
     split... intros B [b Hb] Hsub.
@@ -348,7 +348,7 @@ Proof with eauto; try congruence.
       destruct (classic (x ∈ C)) as [HxC|HxC].
       + assert (x ∈ B ∩ C) by (apply BInterI; auto).
         apply Hmin in H as []; [left|right]...
-        apply SepE1 in H. apply SepI... apply CProdI...
+        apply SepE1 in H. apply SepI... apply CPrdI...
       + destruct (classic (m = x))...
         eapply lo_connected in H as [|Hxm]... left... right.
         exfalso. apply SepE1 in Hxm. apply Hsubu in HxU as HxA.
@@ -389,11 +389,11 @@ Proof with eauto; try congruence.
     apply BUnionE in Hx as [Hx|Hx];
     apply BUnionE in Hy as [Hy|Hy].
     - apply (lo_connected (R ⥏ ⋃ 𝒞) ⋃ 𝒞) in Hnq as []; auto; [left|right];
-      apply SepE1 in H; apply SepI; auto; apply CProdI...
+      apply SepE1 in H; apply SepI; auto; apply CPrdI...
     - left. apply SingE in Hy. rewrite Hy.
-      apply f_strict in Hx... apply SepI... apply CProdI...
+      apply f_strict in Hx... apply SepI... apply CPrdI...
     - right. apply SingE in Hx. rewrite Hx.
-      apply f_strict in Hy... apply SepI... apply CProdI...
+      apply f_strict in Hy... apply SepI... apply CPrdI...
     - apply SingE in Hx; apply SingE in Hy...
   }
   assert (suc_wo: woset S (R ⥏ S)). {
@@ -421,9 +421,9 @@ Proof with eauto; try congruence.
           apply BInterE in Hx as [HxB _].
           destruct H; [left|right]...
           apply SepE1 in H. apply SepI...
-          apply CProdI; apply Hsub...
+          apply CPrdI; apply Hsub...
         * left. subst x. apply SepI. apply f_strict...
-          apply CProdI; apply Hsub...
+          apply CPrdI; apply Hsub...
   }
   assert (suc_good: good S). {
     split... split... intros t Ht.
@@ -522,7 +522,7 @@ Proof with eauto; try congruence.
     apply SepE1 in Hb as HbA.
     eapply lo_connected in Hnq as [];
     [left|right|apply Hwo|auto..];
-    (apply SepI; [apply HC|apply CProdI])...
+    (apply SepI; [apply HC|apply CPrdI])...
   }
   pose proof (Hub C) as [u [Hu Hle]]...
   exists u. split... intros d Hd.
@@ -566,8 +566,8 @@ Proof with eauto; try congruence.
         * apply SepE in Hx as [H1 H2].
           rewrite H12. apply SepI...
           rewrite H22. apply SepI...
-          apply CProdE1 in H2 as [a [Ha [b [Hb Hx]]]].
-          subst x. apply CProdI; apply H11...
+          apply CPrdE1 in H2 as [a [Ha [b [Hb Hx]]]].
+          subst x. apply CPrdI; apply H11...
       + intros a Ha b Hb.
         destruct (classic (b ∈ π1 v)) as [Hb'|Hb'].
         * assert ((a <ᵣ b) (π2 v)). {
@@ -584,18 +584,18 @@ Proof with eauto; try congruence.
     set (BinRel U (λ s t, ∃ C RC, (s <ᵣ t) RC ∧ <C, RC> ∈ 𝓒)) as RU.
     assert (HU: <U, RU> ∈ 𝓦). {
       apply SepI; zfc_simple. {
-        apply CProdI.
+        apply CPrdI.
         - apply PowerAx. intros x Hx.
           apply UnionAx in Hx as [A [HA Hx]].
           apply ReplAx in HA as [p [Hp Heq]].
           apply Hsub in Hp. apply SepE1 in Hp.
-          apply CProdE1 in Hp as [A' [HA [R [_ Hp]]]].
+          apply CPrdE1 in Hp as [A' [HA [R [_ Hp]]]].
           subst p. zfc_simple. subst A'.
           apply PowerAx in HA. apply HA...
         - apply PowerAx. intros p Hp.
           apply binRelE1 in Hp as [a [Ha [b [Hb [Heq [C [RC [Hlt Hp]]]]]]]].
           subst p. apply Hsub in Hp. apply SepE1 in Hp.
-          apply CProdE2 in Hp as [_ H].
+          apply CPrdE2 in Hp as [_ H].
           apply PowerAx in H. apply H...
       }
       (* woset U RU *)
@@ -610,7 +610,7 @@ Proof with eauto; try congruence.
         destruct (classic (p = q)). {
           subst. apply Hsub in HpC.
           apply SepE in HpC as [Hp Hwo].
-          apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
+          apply CPrdE1 in Hp as [A [_ [RA [_ Hp]]]].
           subst. zfc_simple.
           eapply lo_connected in Hnq as [];
           [left|right|apply Hwo|auto..]; apply binRelI...
@@ -620,8 +620,8 @@ Proof with eauto; try congruence.
         apply binRelE2 in H as [Hp [Hq [HAB _]]];
         apply SepE in Hp as [Hp HwoA];
         apply SepE in Hq as [Hq HwoB];
-        apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]];
-        apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
+        apply CPrdE1 in Hp as [A [_ [RA [_ Hp]]]];
+        apply CPrdE1 in Hq as [B [_ [RB [_ Hq]]]];
         subst; zfc_simple; [apply HAB in Ha|apply HAB in Hb];
         (eapply lo_connected in Hnq as [];
         [left|right|apply HwoB|auto..]; apply binRelI)...
@@ -643,8 +643,8 @@ Proof with eauto; try congruence.
           apply binRelE2 in H as [Hp [Hq [_ [H _]]]];
           apply SepE in Hp as [Hp HwoA];
           apply SepE in Hq as [Hq HwoB];
-          apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]];
-          apply CProdE1 in Hq as [B [_ [RB [_ Hq]]]];
+          apply CPrdE1 in Hp as [A [_ [RA [_ Hp]]]];
+          apply CPrdE1 in Hq as [B [_ [RB [_ Hq]]]];
           apply op_iff in Hp as [];
           apply op_iff in Hq as [];
           subst; zfc_simple; apply binRelI; auto;
@@ -662,7 +662,7 @@ Proof with eauto; try congruence.
         apply ReplAx in HC as [p [HpC HC]].
         apply Hsub in HpC as Hp.
         apply SepE in Hp as [Hp [_ Hmin]].
-        apply CProdE1 in Hp as [C' [_ [RC [_ Hp]]]].
+        apply CPrdE1 in Hp as [C' [_ [RC [_ Hp]]]].
         subst p. zfc_simple. subst C'.
         pose proof (Hmin (A ∩ C)) as [m [Hm Hle]].
         + exists a. apply BInterI...
@@ -680,7 +680,7 @@ Proof with eauto; try congruence.
           apply ReplAx in HD as [q [HqC HD]].
           apply Hsub in HqC as Hq.
           apply SepE in Hq as [Hq Hwo].
-          apply CProdE1 in Hq as [D' [_ [RD [_ Hq]]]].
+          apply CPrdE1 in Hq as [D' [_ [RD [_ Hq]]]].
           subst q. zfc_simple. subst D'.
           destruct (classic (<C, RC> = <D, RD>)) as [|Hnq]. {
             apply op_iff in H as []; subst...
@@ -696,7 +696,7 @@ Proof with eauto; try congruence.
     destruct (classic (p = <U, RU>)) as [|Hnq]. right... left.
     apply binRelI... apply Hsub in HpC as Hp.
     apply SepE in Hp as [Hp Hwo].
-    apply CProdE1 in Hp as [A [_ [RA [_ Hp]]]].
+    apply CPrdE1 in Hp as [A [_ [RA [_ Hp]]]].
     subst. zfc_simple.
     assert (HAU: A ⊆ U). {
       apply union_is_ub. apply ReplAx.
@@ -706,19 +706,19 @@ Proof with eauto; try congruence.
       destruct Hwo as [[Hbr _] _].
       ext p Hp.
       - apply Hbr in Hp as H.
-        apply CProdE1 in H as [a [Ha [b [Hb Heqp]]]].
+        apply CPrdE1 in H as [a [Ha [b [Hb Heqp]]]].
         subst p. apply SepI.
-        apply binRelI; [apply HAU..|]... apply CProdI...
+        apply binRelI; [apply HAU..|]... apply CPrdI...
       - apply SepE in Hp as [Hp Hpp].
         apply binRelE1 in Hp as [a [Ha [b [Hb [Hp [B [RB [Hlt HP]]]]]]]].
-        subst p. apply CProdE2 in Hpp as [HaA HaB]. 
+        subst p. apply CPrdE2 in Hpp as [HaA HaB]. 
         destruct (classic (<A, RA> = <B, RB>)). {
           apply op_iff in H as []; subst...
         }
         eapply lo_connected in H as [];
         [| |apply Hlo|auto..]; apply SepE1 in H;
         apply binRelE3 in H as [_ [H2 _]]; zfc_simple.
-        * rewrite H2. apply SepI... apply CProdI...
+        * rewrite H2. apply SepI... apply CPrdI...
         * rewrite H2 in Hlt. apply SepE1 in Hlt...
     }
     repeat split...
@@ -733,7 +733,7 @@ Proof with eauto; try congruence.
       apply ReplAx in HB as [q [HqC HB]].
       apply Hsub in HqC as Hq.
       apply SepE in Hq as [Hq HwoB].
-      apply CProdE1 in Hq as [B' [_ [RB [_ Hq]]]].
+      apply CPrdE1 in Hq as [B' [_ [RB [_ Hq]]]].
       subst q. zfc_simple. subst B'.
       destruct (classic (<A, RA> = <B, RB>)). {
         apply op_iff in H as []; subst...
@@ -747,7 +747,7 @@ Proof with eauto; try congruence.
   }
   (* by contradiction show that M = X and RM is the desired well order *)
   apply SepE in H𝓜 as H. destruct H as [Hp Hwo].
-  apply CProdE1 in Hp as [M [Hsub [RM [_ Hp]]]].
+  apply CPrdE1 in Hp as [M [Hsub [RM [_ Hp]]]].
   subst. zfc_simple. apply PowerAx in Hsub.
   exists RM. replace X with M...
   contra as HMX.
@@ -769,10 +769,10 @@ Proof with eauto; try congruence.
   }
   assert (HM': <M', RM'> ∈ 𝓦). {
     apply SepI; zfc_simple.
-    apply CProdI; apply PowerAx...
+    apply CPrdI; apply PowerAx...
     intros p Hp. apply SepE1 in Hp.
-    apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
-    subst. apply CProdI; apply Hsub'...
+    apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+    subst. apply CPrdI; apply Hsub'...
     (* woset M' RM' *)
     split; [apply loset_iff_connected_poset; split|].
     - (* connected RM' M' *)
@@ -854,13 +854,13 @@ Proof with eauto; try congruence.
   - ext Hx.
     + destruct Hwo as [[Hbr _] _].
       apply Hbr in Hx as Hp. apply SepI...
-      apply CProdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
       subst. apply binRelI; [apply BUnionI1..|]...
       destruct (ixm (a = s))...
       destruct (ixm (b = s))...
     + apply SepE in Hx as [H1 H2].
       apply binRelE1 in H1 as [a [_ [b [_ [Heq Hlt]]]]].
-      subst. apply CProdE2 in H2 as [Ha Hb].
+      subst. apply CPrdE2 in H2 as [Ha Hb].
       destruct (ixm (a = s))...
       destruct (ixm (b = s))...
   - intros a Ha b Hb.

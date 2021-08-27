@@ -270,11 +270,11 @@ Proof.
 Qed.
 
 (** 笛卡儿积 **)
-Definition CProd := λ A B,
+Definition CPrd := λ A B,
   {p ∊ 𝒫 𝒫 (A ∪ B) | ∃a ∈ A, ∃b ∈ B, p = <a, b>}.
-Notation "A × B" := (CProd A B) (at level 40) : set_scope.
+Notation "A × B" := (CPrd A B) (at level 40) : set_scope.
 
-Lemma CProdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
+Lemma CPrdI : ∀ A B, ∀a ∈ A, ∀b ∈ B, <a, b> ∈ A × B.
 Proof with auto.
   intros A B a Ha b Hb. apply SepI; [|firstorder].
   apply PowerAx. intros p Hp.
@@ -285,69 +285,69 @@ Proof with auto.
     apply BUnionI1... apply BUnionI2...
 Qed.
 
-Lemma CProdE0 : ∀ p A B, p ∈ A × B → π1 p ∈ A ∧ π2 p ∈ B.
+Lemma CPrdE0 : ∀ p A B, p ∈ A × B → π1 p ∈ A ∧ π2 p ∈ B.
 Proof.
   intros. apply SepE in H as [_ [a [Ha [b [Hb Hp]]]]].
   subst. zfc_simple. split; auto.
 Qed.
 
-Lemma CProdE1 : ∀ p A B, p ∈ A × B → ∃a ∈ A, ∃b ∈ B, p = <a, b>.
+Lemma CPrdE1 : ∀ p A B, p ∈ A × B → ∃a ∈ A, ∃b ∈ B, p = <a, b>.
 Proof with auto.
   intros. apply SepE in H as [_ [a [Ha [b [Hb Hp]]]]].
   exists a. split... exists b. split...
 Qed.
 
-Lemma CProdE2 : ∀ a b A B, <a, b> ∈ A × B → a ∈ A ∧ b ∈ B.
+Lemma CPrdE2 : ∀ a b A B, <a, b> ∈ A × B → a ∈ A ∧ b ∈ B.
 Proof.
-  intros. apply CProdE1 in H as [c [Hc [d [Hd Hp]]]].
+  intros. apply CPrdE1 in H as [c [Hc [d [Hd Hp]]]].
   apply op_iff in Hp as []; subst. auto.
 Qed.
 
-Lemma cprod_is_pairs : ∀ p A B, p ∈ A × B → is_pair p.
+Lemma cprd_is_pairs : ∀ p A B, p ∈ A × B → is_pair p.
 Proof.
   intros. apply SepE in H as [_ [a [Ha [b [Hb Hp]]]]].
   subst p. exists a, b. auto.
 Qed.
 
-Fact cprod_0_l : ∀ B, ∅ × B = ∅.
+Fact cprd_0_l : ∀ B, ∅ × B = ∅.
 Proof.
   intros. apply sub_empty. intros x H.
-  apply CProdE1 in H as [a [Ha _]]. exfalso0.
+  apply CPrdE1 in H as [a [Ha _]]. exfalso0.
 Qed.
 
-Fact cprod_0_r : ∀ A, A × ∅ = ∅.
+Fact cprd_0_r : ∀ A, A × ∅ = ∅.
 Proof.
   intros. apply sub_empty. intros x H.
-  apply CProdE1 in H as [_ [_ [b [Hb _]]]]. exfalso0.
+  apply CPrdE1 in H as [_ [_ [b [Hb _]]]]. exfalso0.
 Qed.
 
-Fact cprod_to_0 : ∀ A B, A × B = ∅ → A = ∅ ∨ B = ∅.
+Fact cprd_to_0 : ∀ A B, A × B = ∅ → A = ∅ ∨ B = ∅.
 Proof with eauto.
   intros. contra.
   apply not_or_and in H0 as [H1 H2].
   apply EmptyNE in H1 as [a Ha].
   apply EmptyNE in H2 as [b Hb].
-  eapply EmptyE in H. apply H. apply CProdI...
+  eapply EmptyE in H. apply H. apply CPrdI...
 Qed.
 
-Fact cprod_single_single : ∀ x, ⎨x⎬ × ⎨x⎬ = ⎨<x, x>⎬.
+Fact cprd_single_single : ∀ x, ⎨x⎬ × ⎨x⎬ = ⎨<x, x>⎬.
 Proof with auto.
   intros. ext Hx.
-  - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]].
+  - apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].
     apply SingE in Ha. apply SingE in Hb. subst...
-  - apply SingE in Hx. subst. apply CProdI...
+  - apply SingE in Hx. subst. apply CPrdI...
 Qed.
 
-Fact cprod_alternative_definition : ∀ A B,
+Fact cprd_alternative_definition : ∀ A B,
   A × B = ⋃ {{<a, b> | b ∊ B} | a ∊ A}.
 Proof with auto.
   intros. ext Hx.
-  - apply CProdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
+  - apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]]. subst x.
     apply UnionAx. exists {<a, b> | b ∊ B}. split.
     + apply ReplAx. exists a. split...
     + apply ReplAx. exists b. split...
   - apply UnionAx in Hx as [y [Hy Hx]].
     apply ReplAx in Hy as [a [Ha Hy]].
     subst y. apply ReplAx in Hx as [b [Hb Hx]].
-    subst x. apply CProdI...
+    subst x. apply CPrdI...
 Qed.

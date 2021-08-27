@@ -21,16 +21,16 @@ Definition Rel : set → set → (set → set → Prop) → set :=
 Lemma rel_is_rel : ∀ A B P, is_rel (Rel A B P).
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
-  eapply cprod_is_pairs; eauto.
+  eapply cprd_is_pairs; eauto.
 Qed.
 
-Lemma cprod_is_rel : ∀ A B, is_rel (A × B).
-Proof. intros * x Hx. apply cprod_is_pairs in Hx. apply Hx. Qed.
+Lemma cprd_is_rel : ∀ A B, is_rel (A × B).
+Proof. intros * x Hx. apply cprd_is_pairs in Hx. apply Hx. Qed.
 
 Lemma sep_cp_is_rel : ∀ A B P, is_rel {p ∊ A × B | P p}.
 Proof.
   intros * x Hx. apply SepE in Hx as [Hx _].
-  apply cprod_is_pairs in Hx. apply Hx.
+  apply cprd_is_pairs in Hx. apply Hx.
 Qed.
 
 (* 恒等关系 *)
@@ -58,9 +58,9 @@ Fact ident_eq_rel : ∀ A,
 Proof with auto.
   intros. ext.
   - apply ReplAx in H as [a [Ha Heq]]. subst x.
-    apply SepI. apply CProdI... zfc_simple.
+    apply SepI. apply CPrdI... zfc_simple.
   - apply SepE in H as [Hx Heq].
-    apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
+    apply CPrdE1 in Hx as [a [Ha [b [_ Hp]]]].
     apply ReplAx. exists a. split...
     rewrite Hp. rewrite Hp in Heq. zfc_simple.
 Qed.
@@ -110,7 +110,7 @@ Proof.
   intros * x Hx.
   apply domE in Hx as [y Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE2 in Hp as [Hx _]. zfc_simple.
+  apply CPrdE2 in Hp as [Hx _]. zfc_simple.
 Qed.
 
 Lemma ran_rel : ∀ A B P, ran (Rel A B P) ⊆ B.
@@ -118,7 +118,7 @@ Proof.
   intros * y Hy.
   apply ranE in Hy as [x Hp].
   apply SepE in Hp as [Hp _].
-  apply CProdE2 in Hp as [_ Hy]. zfc_simple.
+  apply CPrdE2 in Hp as [_ Hy]. zfc_simple.
 Qed.
 
 Lemma dom_ident : ∀ X, dom (Ident X) = X.
@@ -204,9 +204,9 @@ Fact ident_eq_func : ∀ A, Ident A = Func A A (λ x, x).
 Proof with auto.
 intros. ext.
 - apply ReplAx in H as [a [Ha Heq]]. subst x.
-  apply SepI. apply CProdI... zfc_simple.
+  apply SepI. apply CPrdI... zfc_simple.
 - apply SepE in H as [Hx Heq].
-  apply CProdE1 in Hx as [a [Ha [b [_ Hp]]]].
+  apply CPrdE1 in Hx as [a [Ha [b [_ Hp]]]].
   apply ReplAx. exists a. split...
   rewrite Hp. rewrite Hp in Heq. zfc_simple.
 Qed.
@@ -395,7 +395,7 @@ Global Hint Immediate inv_rel : core.
 
 Lemma inv_dom_ran : ∀ F a b, <a, b> ∈ F → <b, a> ∈ ran F × dom F.
 Proof.
-  intros. apply CProdI.
+  intros. apply CPrdI.
   eapply ranI. apply H. eapply domI. apply H.
 Qed.
 
@@ -523,7 +523,7 @@ Proof with eauto.
       apply inv_func_iff_sr. apply Hinj.
   - apply ReplAx in Hp as [q [Hq Heq]].
     rewrite (rel_pair F q) in Hq; [|auto|apply Hinj].
-    subst p. apply SepI. apply CProdI.
+    subst p. apply SepI. apply CPrdI.
     eapply ranI... eapply domI... split... zfc_simple.
 Qed.
 
@@ -537,7 +537,7 @@ Lemma compoI : ∀ F G x y t,
   <x, t> ∈ G → <t, y> ∈ F → <x, y> ∈ (F ∘ G).
 Proof with eauto.
   intros * Hpg Hpf. apply SepI; try split.
-  - apply CProdI. eapply domI... eapply ranI...
+  - apply CPrdI. eapply domI... eapply ranI...
   - exists x, y...
   - rewrite π1_correct, π2_correct. exists t...
 Qed.

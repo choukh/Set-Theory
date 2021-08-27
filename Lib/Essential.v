@@ -13,5 +13,5 @@ Global Opaque Sep.
 Global Opaque Inter.
 Global Opaque BInter.
 (* Global Opaque OPair. *)
-Global Opaque CProd.
+Global Opaque CPrd.
 Global Opaque Choice.

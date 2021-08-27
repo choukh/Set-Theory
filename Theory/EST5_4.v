@@ -26,7 +26,7 @@ Lemma intNeg_sn : ∀ n, intNeg (-Int (S n)).
 Proof. intros. apply intPos_neg. nauto. Qed.
 Global Hint Immediate intNeg_sn : number_hint.
 
-Lemma intMul_pos_prod : ∀a b ∈ ℤ,
+Lemma intMul_pos_prd : ∀a b ∈ ℤ,
   intPos a → intPos b → intPos (a ⋅ b).
 Proof with nauto.
   intros a Ha b Hb Hpa Hpb. unfold intPos.
@@ -89,7 +89,7 @@ Proof.
   assert (Had: a⋅d ∈ ℤ) by (mr;nz).
   assert (Hcb: c⋅b ∈ ℤ) by (mr;nz).
   assert (Hb'd': b'⋅d' ∈ ℤ) by (mr;nz).
-  assert (Hpb'd': intPos (b'⋅d')) by (apply intMul_pos_prod; auto; nz).
+  assert (Hpb'd': intPos (b'⋅d')) by (apply intMul_pos_prd; auto; nz).
   rewrite (intMul_preserve_lt _ Had _ Hcb _ Hb'd' Hpb'd').
   rewrite (intMul_assoc a), (intMul_comm d), (intMul_assoc b'),
     <- (intMul_assoc a), (intMul_assoc c), (intMul_comm b),
@@ -101,7 +101,7 @@ Proof.
   assert (Ha'd': a'⋅d' ∈ ℤ) by (mr;nz).
   assert (Hc'b': c'⋅b' ∈ ℤ) by (mr;nz).
   assert (Hbd: b⋅d ∈ ℤ) by (mr;nz).
-  assert (Hpbd: intPos (b⋅d)) by (apply intMul_pos_prod; auto; nz).
+  assert (Hpbd: intPos (b⋅d)) by (apply intMul_pos_prd; auto; nz).
   erewrite <- (intMul_preserve_lt _ Ha'd' _ Hc'b' _ Hbd Hpbd).
   reflexivity.
 Qed.
@@ -135,7 +135,7 @@ Lemma ratLtE : ∀ r s, r <𝐪 s → ∃a ∈ ℤ, ∃b ∈ ℤ', ∃c ∈ ℤ,
   r = [<a, b>]~ ∧ s = [<c, d>]~ ∧ a ⋅ d <𝐳 c ⋅ b.
 Proof with eauto.
   intros r s Hlt. apply SepE in Hlt as [H1 H2].
-  apply CProdE2 in H1 as [Hr Hs]. zfc_simple.
+  apply CPrdE2 in H1 as [Hr Hs]. zfc_simple.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]]. subst.
   exists a. split... exists b. split...
@@ -154,7 +154,7 @@ Lemma ratLt : ∀a ∈ ℤ, ∀b ∈ ℤ', ∀c ∈ ℤ, ∀d ∈ ℤ',
 Proof with eauto.
   intros a Ha b Hb c Hc d Hd Hpb Hpd. split; intros.
   - apply SepE in H as [H1 H2].
-    apply CProdE2 in H1 as [Hr Hs]. zfc_simple.
+    apply CPrdE2 in H1 as [Hr Hs]. zfc_simple.
     pose proof (ratProj a Ha b Hb)
       as [a' [Ha' [b' [Hb' [H11 [H12 [_ Hpb']]]]]]].
     pose proof (ratProj c Hc d Hd)
@@ -271,7 +271,7 @@ Proof with neauto.
   subst q r. apply ratLt in H...
   assert (Hpa: intPos a). { eapply ratPos_intPos; revgoals... }
   assert (Ha': a ∈ ℤ'). { apply nzIntI0... apply int_neq_0... }
-  assert (Hpad: intPos (a ⋅ d)%z) by (apply intMul_pos_prod; nz; auto).
+  assert (Hpad: intPos (a ⋅ d)%z) by (apply intMul_pos_prd; nz; auto).
   assert (Hpcb: intPos (c ⋅ b)%z) by (eapply intLt_tranr; eauto).
   assert (Hpc: intPos c) by (eapply intMul_pos_factor; revgoals; eauto; nz).
   assert (Hc': c ∈ ℤ'). { apply nzIntI0... apply int_neq_0... }
@@ -282,13 +282,13 @@ Qed.
 Lemma ratPos_rat : ∀ r, ratPos r → r ∈ ℚ.
 Proof with auto.
   intros. apply SepE in H as [H _].
-  apply CProdE2 in H as []...
+  apply CPrdE2 in H as []...
 Qed.
 
 Lemma ratNeg_rat : ∀ r, ratNeg r → r ∈ ℚ.
 Proof with auto.
   intros. apply SepE in H as [H _].
-  apply CProdE2 in H as []...
+  apply CPrdE2 in H as []...
 Qed.
 
 Lemma ratPos_neg : ∀ r, ratPos r → ratNeg (-r).
@@ -421,8 +421,8 @@ Proof with auto.
   assert (Hz2: b⋅f ∈ ℤ') by nzmr.
   assert (Hz3: c⋅f + e⋅d ∈ ℤ) by (amr;nz).
   assert (Hz4: d⋅f ∈ ℤ') by nzmr.
-  assert (Hpbf: intPos (b⋅f)) by (apply intMul_pos_prod; nz; auto).
-  assert (Hpdf: intPos (d⋅f)) by (apply intMul_pos_prod; nz; auto).
+  assert (Hpbf: intPos (b⋅f)) by (apply intMul_pos_prd; nz; auto).
+  assert (Hpdf: intPos (d⋅f)) by (apply intMul_pos_prd; nz; auto).
   rewrite (ratLt _ Hz1 _ Hz2 _ Hz3 _ Hz4 Hpbf Hpdf).
   rewrite intMul_distr', intMul_distr'; [|mr;nz..].
   assert (Hzf: f ∈ ℤ) by nz.
@@ -439,7 +439,7 @@ Proof with auto.
   assert (Hz7: (e⋅d)⋅(f⋅b) ∈ ℤ) by (apply intMul_ran; mr;nz).
   rewrite <- (intAdd_preserve_lt _ Hz5 _ Hz6 _ Hz7).
   apply intMul_preserve_lt; revgoals; [|mr;nz..].
-  apply intMul_pos_prod...
+  apply intMul_pos_prd...
 Qed.
 
 Theorem ratMul_preserve_lt : ∀ r s t ∈ ℚ,
@@ -459,7 +459,7 @@ Proof with nauto.
   apply ratLt in Hpt... rewrite intMul_0_l, intMul_1_r in Hpt; nz...
   apply ratLt in Hlt... rewrite ratMul_a_b_c_d, ratMul_a_b_c_d...
   apply ratLt. mr. nzmr. mr. nzmr.
-  apply intMul_pos_prod; nz... apply intMul_pos_prod; nz...
+  apply intMul_pos_prd; nz... apply intMul_pos_prd; nz...
   rewrite
     (intMul_assoc a), (intMul_comm e),
     (intMul_assoc d), <- (intMul_assoc a),
@@ -467,7 +467,7 @@ Proof with nauto.
     (intMul_assoc b), <- (intMul_assoc c);
       nz; auto; [|mr;nz..].
   apply intMul_preserve_lt... mr;nz. mr;nz. mr;nz.
-  apply intMul_pos_prod; nz...
+  apply intMul_pos_prd; nz...
 Qed.
 
 Close Scope Int_scope.
@@ -581,7 +581,7 @@ Proof with nauto.
     left. apply ratAdd_pos_sum...
 Qed.
 
-Lemma ratMul_pos_prod : ∀ p q ∈ ℚ,
+Lemma ratMul_pos_prd : ∀ p q ∈ ℚ,
   ratPos p → ratPos q → ratPos (p ⋅ q).
 Proof with nauto.
   intros p Hp q Hq Hpp Hpq. unfold ratPos.
@@ -589,7 +589,7 @@ Proof with nauto.
   apply ratMul_preserve_lt...
 Qed.
 
-Lemma ratMul_neg_prod : ∀ p q ∈ ℚ,
+Lemma ratMul_neg_prd : ∀ p q ∈ ℚ,
   ratPos p → ratNeg q → ratNeg (p ⋅ q).
 Proof with nauto.
   intros p Hp q Hq Hpp Hnq.
@@ -597,7 +597,7 @@ Proof with nauto.
   apply ratMul_preserve_lt...
 Qed.
 
-Lemma ratMul_nonNeg_prod : ∀ p q ∈ ℚ,
+Lemma ratMul_nonNeg_prd : ∀ p q ∈ ℚ,
   ratNonNeg p → ratNonNeg q → ratNonNeg (p ⋅ q).
 Proof with nauto.
   intros p Hp q Hq Hnnp Hnnq.
@@ -606,7 +606,7 @@ Proof with nauto.
     rewrite ratMul_0_l... rewrite ratMul_0_r_r...
   - apply not_or_and in H as [].
     destruct Hnnp; destruct Hnnq; [|exfalso; auto..].
-    left. apply ratMul_pos_prod...
+    left. apply ratMul_pos_prd...
 Qed.
 
 (** 整数嵌入 **)
@@ -741,7 +741,7 @@ Proof with auto.
     auto; apply ratAddInv_ran...
 Qed.
 
-Lemma ratMulInv_prod : ∀ r s ∈ ℚ', (r ⋅ s)⁻¹ = r⁻¹ ⋅ s⁻¹.
+Lemma ratMulInv_prd : ∀ r s ∈ ℚ', (r ⋅ s)⁻¹ = r⁻¹ ⋅ s⁻¹.
 Proof with auto.
   intros r Hr s Hs.
   apply nzRatE2 in Hr as [a [Ha [b [Hb Hr]]]]. subst r.
@@ -753,7 +753,7 @@ Qed.
 Lemma ratMulInv_quot : ∀ r s ∈ ℚ', (r / s)⁻¹ = s / r.
 Proof with auto.
   intros r Hr s Hs.
-  rewrite ratMulInv_prod, ratMulInv_double, ratMul_comm...
+  rewrite ratMulInv_prd, ratMulInv_double, ratMul_comm...
   apply nzRatE1. apply ratMulInv_ran...
   apply nzRatE1... apply ratMulInv_ran...
 Qed.
