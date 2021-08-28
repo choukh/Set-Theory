@@ -145,6 +145,7 @@ Proof with nauto.
   rewrite ω_tower_suc... apply ordExp_preserve_lt...
 Qed.
 
+(* ε数 *)
 Definition ε_number := λ ε, ε ⋵ 𝐎𝐍 ∧ ω ^ ε = ε.
 
 (* ε₀是ε数 *)
@@ -197,6 +198,7 @@ Proof with eauto.
   eapply ord_trans... apply ε_number_has_ω_tower_n... split...
 Qed.
 
+(* ε运算 *)
 Definition ε := Enumerate ε_number.
 
 (* ε数是序数子类 *)
@@ -213,12 +215,12 @@ Local Hint Resolve ε_number_unbounded : core.
 Lemma ε_spec : ∀α ⋵ 𝐎𝐍, ∀ξ ⋵ ε_number, ξ ∉ {ε x | x ∊ α} → ε α ⋸ ξ.
 Proof. intros α Hα ξ Hξ. apply enum_spec; auto. Qed.
 
-(* ε是对ε数的枚举 *)
+(* ε运算是对ε数的枚举 *)
 Lemma ε_is_ε_number : ε :ᶜ 𝐎𝐍 ⇒ ε_number.
 Proof. apply enum_into_class; auto. Qed.
 Local Hint Resolve ε_is_ε_number : core.
 
-(* ε是序数运算 *)
+(* ε运算是序数运算 *)
 Lemma ε_operative : ε :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof. intros. apply enum_operative; auto. Qed.
 Local Hint Resolve ε_operative : core.
