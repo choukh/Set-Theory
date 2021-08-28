@@ -5,22 +5,22 @@ Require Import ZFC.Lib.Class.
 Require Import ZFC.Lib.ChoiceFacts.
 Require Export ZFC.Lib.Ordinal.
 
-(*** EST第八章1：序数类，序数操作，阿列夫数，ℶ数 ***)
+(*** EST第八章1：序数类，序数运算，阿列夫数，ℶ数 ***)
 
 Module Import OrdinalClass.
 
-(* 序数操作的单调性 *)
+(* 序数运算的单调性 *)
 Definition monotone := λ F,
   ∀α ⋵ 𝐎𝐍, ∀β ∈ α, F β ∈ F α.
 
-(* 序数操作在极限处的连续性 *)
+(* 序数运算在极限处的连续性 *)
 Definition continuous := λ F,
   ∀ 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ → F 𝜆 = sup{F α | α ∊ 𝜆}.
 
-(* 序数操作的规范性 *)
+(* 序数运算的规范性 *)
 Definition normal := λ F, monotone F ∧ continuous F.
 
-(* 序数操作的递增性 *)
+(* 序数运算的递增性 *)
 Definition ascending := λ F, ∀α ⋵ 𝐎𝐍, F α ∈ F α⁺.
 
 (* 𝐎𝐍子类对上界的封闭性 *)
@@ -35,15 +35,15 @@ Definition bounded := λ C : Class,
 Definition unbounded := λ C : Class,
   ∀α ⋵ 𝐎𝐍, ∃β ⋵ C, α ∈ β.
 
-(* 序数操作的与指定值域对应的定义域 *)
+(* 序数运算的与指定值域对应的定义域 *)
 Definition Domain := λ F A,
   ϕ_Repl (λ x y, y ⋵ 𝐎𝐍 ∧ F y = x) A.
 
-(* 序数操作的与指定定义域对应的值域 *)
+(* 序数运算的与指定定义域对应的值域 *)
 Definition Range := λ F Ω,
   {F α | α ∊ Ω}.
 
-(* 序数操作的包含于指定集合里的值域 *)
+(* 序数运算的包含于指定集合里的值域 *)
 Definition RangeAmong := λ F Ω,
   {y ∊ Ω | ∃α ⋵ 𝐎𝐍, F α = y}.
 
@@ -66,7 +66,7 @@ Qed.
 
 End OrdinalClass.
 
-(* 序数的后继操作是单调的 *)
+(* 序数的后继运算是单调的 *)
 Example ord_suc_monotone : monotone Suc.
 Proof with eauto.
   intros α Hoα β Hβ.
@@ -74,7 +74,7 @@ Proof with eauto.
   eapply ord_is_ords...
 Qed.
 
-(* ex8_3_b 单调操作具有单射性 *)
+(* ex8_3_b 单调运算具有单射性 *)
 Lemma monotone_operation_injective :
   ∀ F C, F:ᶜ 𝐎𝐍 ⇒ C → C ⫃ 𝐎𝐍 →
   monotone F → class_injective F 𝐎𝐍.
@@ -115,7 +115,7 @@ Proof with auto.
     intros β Hβ. apply HA in Hβ. apply ord_sup_is_ub...
 Qed.
 
-(* ex8_6_a 单调操作的值域无界 *)
+(* ex8_6_a 单调运算的值域无界 *)
 Lemma monotone_operation_range_unbounded :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → monotone F → unbounded C.
 Proof with eauto; try congruence.
@@ -129,7 +129,7 @@ Proof with eauto; try congruence.
   split... apply HA... apply HF...
 Qed.
 
-(* 如果具有单调性的序数操作的值域是封闭的，那么该序数操作具有连续性 *)
+(* 如果具有单调性的序数运算的值域是封闭的，那么该序数运算具有连续性 *)
 Lemma monotone_operation_continuous_if_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 →
   monotone F → closed C → continuous F.
@@ -180,7 +180,7 @@ Proof with eauto; try congruence.
     apply ord_leq_iff_lt_suc in H...
 Qed.
 
-(* ex8_6_b 序数规范操作的值域封闭 *)
+(* ex8_6_b 序数规范运算的值域封闭 *)
 Lemma normal_operation_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → normal F → closed C.
 Proof with eauto; try congruence.
@@ -225,7 +225,7 @@ Proof with eauto; try congruence.
     destruct H; [left|right]...
 Qed.
 
-(* 具有单调性的序数操作的值域是封闭的当且仅当该序数操作具有连续性 *)
+(* 具有单调性的序数运算的值域是封闭的当且仅当该序数运算具有连续性 *)
 Fact monotone_operation_continuous_iff_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → 
   monotone F → closed C ↔ continuous F.
@@ -237,12 +237,12 @@ Proof with eauto.
     split...
 Qed.
 
-(* 单调操作递增 *)
+(* 单调运算递增 *)
 Fact monotone_operation_ascending :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → monotone F → ascending F.
 Proof. intros F HF Hmono α Hoα. apply Hmono; auto. Qed.
 
-(* 连续递增操作单调 *)
+(* 连续递增运算单调 *)
 Theorem continuous_ascending_operation_monotone :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → continuous F → ascending F → monotone F.
 Proof with eauto.
@@ -319,7 +319,7 @@ Proof with auto.
   apply Hmin... rewrite ran_of_op_repl...
 Qed.
 
-(* 枚举操作映射到子类 *)
+(* 枚举运算映射到子类 *)
 Lemma enum_into_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
   Enumerate C :ᶜ 𝐎𝐍 ⇒ C.
 Proof.
@@ -327,7 +327,7 @@ Proof.
   apply (recursion_spec (γ C) α); auto.
 Qed.
 
-(* 枚举是序数操作 *)
+(* 枚举是序数运算 *)
 Lemma enum_operative : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
   Enumerate C :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof.
@@ -335,7 +335,7 @@ Proof.
   apply enum_into_class; auto.
 Qed.
 
-(* 枚举操作单调增 *)
+(* 枚举运算单调增 *)
 Theorem enum_monotone : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
   monotone (Enumerate C).
 Proof with eauto.
@@ -352,7 +352,7 @@ Proof with eauto.
   exfalso. apply Hout. rewrite <- H. apply ReplI...
 Qed.
 
-(* 枚举操作具有单射性 *)
+(* 枚举运算具有单射性 *)
 Corollary enum_injective : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
   class_injective (Enumerate C) 𝐎𝐍.
 Proof with eauto.
@@ -409,7 +409,7 @@ Proof with eauto; try congruence.
     apply SepI... apply enum_into_class...
 Qed.
 
-(* 枚举操作是到子类的满射 *)
+(* 枚举运算是到子类的满射 *)
 Corollary enum_onto_class : ∀ C, C ⫃ 𝐎𝐍 → unbounded C →
   Enumerate C :ᶜ 𝐎𝐍 ⟹ C.
 Proof with auto.
@@ -464,7 +464,7 @@ Proof. intros α Hα ξ Hξ. apply (enum_spec 𝐂𝐃ⁱⁿᶠ); auto. Qed.
 Lemma aleph_is_infcard : ℵ :ᶜ 𝐎𝐍 ⇒ 𝐂𝐃ⁱⁿᶠ.
 Proof. apply enum_into_class; auto. Qed.
 
-(* 阿列夫是序数操作 *)
+(* 阿列夫是序数运算 *)
 Lemma aleph_operative : ℵ :ᶜ 𝐎𝐍 ⇒ 𝐎𝐍.
 Proof. intros. apply enum_operative; auto. Qed.
 
@@ -482,7 +482,7 @@ Local Hint Resolve aleph_infinite : core.
 Theorem aleph_monotone : monotone ℵ.
 Proof. apply enum_monotone; auto. Qed.
 
-(* 阿列夫操作具有单射性 *)
+(* 阿列夫运算具有单射性 *)
 Corollary aleph_injective : class_injective ℵ 𝐎𝐍.
 Proof. apply enum_injective; auto. Qed.
 
@@ -568,13 +568,13 @@ Proof with eauto.
       apply Hfin in Ha as Hfina. apply HA in Ha as [_ Hinf]...
 Qed.
 
-(* 阿列夫是规范操作 *)
+(* 阿列夫是规范运算 *)
 Theorem aleph_normal : normal ℵ.
 Proof. split. apply aleph_monotone. apply aleph_limit. Qed.
 
 End Aleph.
 
-(* 序数操作 *)
+(* 序数运算 *)
 Module 𝐎𝐍Operation.
 Import RecursionSchemaOnOrdinals.
 
@@ -746,7 +746,7 @@ Proof with nauto.
   - rewrite beth_limit... intros Hfin.
     apply finite_union in Hfin as [_ Hfin].
     assert (ℶ 0 ∈ {ℶ ξ | ξ ∊ α}). {
-      eapply ReplI. apply ord_nq_0_gt_0...
+      eapply ReplI. apply ord_neq_0_gt_0...
     }
     apply Hfin in H. rewrite beth_0 in H.
     apply aleph0_infinite...
@@ -758,7 +758,7 @@ Proof with auto.
   intros. split... apply beth_is_card... apply beth_infinite...
 Qed.
 
-(* ℶ是规范操作 *)
+(* ℶ是规范运算 *)
 Theorem beth_normal : normal ℶ.
 Proof with auto.
   apply operation_normal...

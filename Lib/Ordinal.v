@@ -2,7 +2,7 @@
 
 Require Export ZFC.Lib.Cardinal.
 
-Lemma gt_1_iff_nq_0_1 : ∀ α ⋵ 𝐎𝐍, 1 ∈ α ↔ α ≠ 0 ∧ α ≠ 1.
+Lemma gt_1_iff_neq_0_1 : ∀ α ⋵ 𝐎𝐍, 1 ∈ α ↔ α ≠ 0 ∧ α ≠ 1.
 Proof with nauto.
   intros α Hα. split.
   - intros Hlt. split; intros H; subst.

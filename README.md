@@ -219,5 +219,8 @@ make
 ## EST8_7.v
 - Ordinal Arithmetic (defined by recursion)
 
+## EST8_8.v
+- Epsilon numbers
+
 ## EX{n}.v
 - Solution to exercises of Chapter n

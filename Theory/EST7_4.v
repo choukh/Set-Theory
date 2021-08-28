@@ -578,7 +578,7 @@ Proof.
 Qed.
 
 (* 不等于零的序数大于零 *)
-Lemma ord_nq_0_gt_0 : ∀α ⋵ 𝐎𝐍, α ≠ ∅ ↔ ∅ ∈ α.
+Lemma ord_neq_0_gt_0 : ∀α ⋵ 𝐎𝐍, α ≠ ∅ ↔ ∅ ∈ α.
 Proof with auto.
   intros α Hα. split; intros.
   - apply ord_connected in H as []... exfalso0.
@@ -588,7 +588,7 @@ Qed.
 (* 后继序数不等于零 *)
 Corollary ord_suc_neq_0 : ∀α ⋵ 𝐎𝐍, α⁺ ≠ ∅.
 Proof with auto.
-  intros α Hα. eapply ord_nq_0_gt_0; revgoals...
+  intros α Hα. eapply ord_neq_0_gt_0; revgoals...
   apply ord_suc_has_0...
 Qed.
 

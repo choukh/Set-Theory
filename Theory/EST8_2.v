@@ -5,9 +5,9 @@ Require Import ZFC.Lib.Class.
 Require Export ZFC.Theory.EST8_1.
 Import OrdinalClass.
 
-(*** EST第八章2：序数操作的性质，Veblen不动点定理 ***)
+(*** EST第八章2：序数运算的性质，Veblen不动点定理 ***)
 
-(* ex8_3_a 单调操作保序 *)
+(* ex8_3_a 单调运算保序 *)
 Fact monotone_operation_preserve_order :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → monotone F →
   ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ F α ∈ F β.
@@ -21,7 +21,7 @@ Proof with auto.
   apply (ord_not_lt_gt (F α) (HF α Hoα) (F β))...
 Qed.
 
-(* ex8_4 规范操作在极限处的值是极限 *)
+(* ex8_4 规范运算在极限处的值是极限 *)
 Fact normal_operation_limit_is_limit :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
   ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ → F 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ.
@@ -44,7 +44,7 @@ Proof with auto.
     apply HF. apply (ord_is_ords 𝜆)... apply Hlim.
 Qed.
 
-(* 规范操作的定义域有最大元 *)
+(* 规范运算的定义域有最大元 *)
 Theorem normal_operation_domain_has_maximum :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → ∀β ⋵ 𝐎𝐍, F 0 ∈ β →
   ∃γ ⋵ 𝐎𝐍, ε_maximum γ (Domain F (RangeAmong F β⁺)).
@@ -94,7 +94,7 @@ Proof with eauto.
       apply SepE1 in HFα. apply ord_leq_iff_lt_suc...
 Qed.
 
-(* 序数集上界的规范操作等于序数集规范操作的上界 *)
+(* 序数集上界的规范运算等于序数集规范运算的上界 *)
 Theorem operation_of_sup_eq_sup_of_operation :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → ∀ S, S ⪽ 𝐎𝐍 → S ≠ ∅ →
   F (sup S) = sup (Range F S).
@@ -130,7 +130,7 @@ Proof with eauto; try congruence.
         eapply ReplI... apply Hmono...
 Qed.
 
-(* ex8_5 单调操作的值不小于原值 *)
+(* ex8_5 单调运算的值不小于原值 *)
 Lemma monotone_operation_leq :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → monotone F → ∀α ⋵ 𝐎𝐍, α ⋸ F α.
 Proof with auto.
@@ -146,10 +146,10 @@ Qed.
 Module VeblenFixedPoint.
 Import 𝐎𝐍Operation.
 
-(* 序数操作的不动点 *)
+(* 序数运算的不动点 *)
 Definition fixed_point := λ F α, α ⋵ 𝐎𝐍 ∧ F α = α.
 
-(* Veblen不动点定理：规范操作存在任意大的不动点 *)
+(* Veblen不动点定理：规范运算存在任意大的不动点 *)
 Theorem Veblen_fixed_point : ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
   ∀β ⋵ 𝐎𝐍, ∃ γ, fixed_point F γ ∧ β ⋸ γ.
 Proof with neauto; try congruence.
@@ -187,7 +187,7 @@ Proof with neauto; try congruence.
     unfold f. rewrite operation_0...
 Qed.
 
-(* ex8_7 规范操作存在比指定序数大的最小不动点 *)
+(* ex8_7 规范运算存在比指定序数大的最小不动点 *)
 Corollary ex_least_fixed_point :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F →
   ∀β ⋵ 𝐎𝐍, ∃ γ, fixed_point F γ ∧ β ⋸ γ ∧
@@ -236,10 +236,10 @@ Local Hint Resolve fixed_point_class_sub_on : core.
 
 Import 𝐎𝐍Separation.
 
-(* 不动点的枚举操作 *)
+(* 不动点的枚举运算 *)
 Definition FixedPoint := λ F, Enumerate (fixed_point F).
 
-(* 不动点的枚举操作是单调的 *)
+(* 不动点的枚举运算是单调的 *)
 Lemma fixed_point_monotone :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → monotone (FixedPoint F).
 Proof with auto.
@@ -247,7 +247,7 @@ Proof with auto.
   apply fixed_point_class_sub_on...
 Qed.
 
-(* 不动点的枚举操作是连续的 *)
+(* 不动点的枚举运算是连续的 *)
 Lemma fixed_point_continuous :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → continuous (FixedPoint F).
 Proof with eauto; try congruence.
@@ -282,7 +282,7 @@ Proof with eauto; try congruence.
       destruct H... eapply ord_trans... apply Hnml...
 Qed.
 
-(* ex8_8 不动点的枚举操作是规范的 *)
+(* ex8_8 不动点的枚举运算是规范的 *)
 Theorem fixed_point_normal :
   ∀ F, F:ᶜ 𝐎𝐍 ⇒ 𝐎𝐍 → normal F → normal (FixedPoint F).
 Proof with auto.

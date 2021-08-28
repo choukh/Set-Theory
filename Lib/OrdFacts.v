@@ -138,7 +138,7 @@ Proof with neauto; try congruence.
   end end)) as f.
   exists f. apply meta_bijection.
   - intros x Hx. destruct (ixm (x = α)).
-    + apply ord_nq_0_gt_0... apply EmptyNI.
+    + apply ord_neq_0_gt_0... apply EmptyNI.
       apply infinite_set_nonempty...
     + apply BUnionE in Hx as []; [|apply SingE in H]...
       destruct (ixm (x ∈ ω))... destruct Hgeω as [Hlt|Heq].
