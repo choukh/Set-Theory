@@ -12,7 +12,7 @@ Local Hint Resolve
   ω_is_ords enum_operative operation_operative ordExp_ran : core.
 
 (* ω指数塔 *)
-Definition ω_tower := Operation ω (λ ε, ω ^ ε).
+Definition ω_tower := Operation ω (λ α, ω ^ α).
 
 (* 0层塔 *)
 Lemma ω_tower_0 : ω_tower 0 = ω.
