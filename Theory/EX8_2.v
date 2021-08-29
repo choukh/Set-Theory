@@ -8,7 +8,6 @@ Require Import ZFC.Lib.Real.
 Require Import ZFC.Lib.LoStruct.
 Require Import ZFC.Lib.WosetMin.
 Require Import ZFC.Lib.IndexedFamilyUnion.
-Close Scope WoStruct_scope.
 
 (** EX8_17 **)
 
@@ -83,6 +82,7 @@ Qed.
 
 Import LoStruct.
 Import WosetMin.SimpleVer.
+Close Scope WoStruct_scope.
 
 (* 可数无穷稠密线序集有可数无穷稠密无界子集 *)
 Lemma countable_dense_loset_has_unbounded_subset :
