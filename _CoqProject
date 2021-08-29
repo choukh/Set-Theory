@@ -40,7 +40,7 @@ Theory/EST5_7.v
 Lib/Real.v
 
 Theory/EST6_1.v
-Lib/algebra/Inj_2n3m.v
+Lib/Algebra/Inj_2n3m.v
 Lib/IndexedFamilyUnion.v
 Lib/Dominate.v
 Lib/ChoiceFacts.v
