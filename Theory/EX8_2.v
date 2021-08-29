@@ -8,6 +8,7 @@ Require Import ZFC.Lib.Real.
 Require Import ZFC.Lib.LoStruct.
 Require Import ZFC.Lib.WosetMin.
 Require Import ZFC.Lib.IndexedFamilyUnion.
+Close Scope WoStruct_scope.
 
 (** EX8_17 **)
 
