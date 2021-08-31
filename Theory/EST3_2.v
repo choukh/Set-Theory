@@ -74,7 +74,7 @@ Proof with auto.
   apply Hr. eapply ranI. apply func_correct... rewrite Hd...
 Qed.
 
-Lemma cprd_single_is_func : ∀ F a, is_function (F × ⎨a⎬).
+Lemma cprd_single_is_func : ∀ F a, is_function (F × {a,}).
 Proof with auto.
   split.
   - apply cprd_is_rel.
@@ -134,7 +134,7 @@ Proof with eauto.
     split. apply inv_func_iff_sr... split.
     apply inv_dom. rewrite inv_ran...
   }
-  exists (F⁻¹ ∪ (B - ran F) × ⎨a⎬). split.
+  exists (F⁻¹ ∪ (B - ran F) × {a,}). split.
   (* G: B ⇒ A *) split.
   (* is_function G *)
   - apply bunion_is_func.
@@ -178,7 +178,7 @@ Proof with eauto.
 Qed.
 
 Lemma binter_unique : ∀ a b s C,
-  a ∈ s → b ∈ s → a ∈ C → b ∈ C → (∃ u, s ∩ C = ⎨u⎬) → a = b.
+  a ∈ s → b ∈ s → a ∈ C → b ∈ C → (∃ u, s ∩ C = {u,}) → a = b.
 Proof.
   intros a b s C Has Hbs Hac Hbc [u Hu].
   assert (Hai: a ∈ s ∩ C) by (apply BInterI; auto).
@@ -314,7 +314,7 @@ Proof.
   apply imgE in Hp as [x [Hx _]]. exfalso0. exfalso0.
 Qed.
 
-Fact img_single : ∀ f, is_function f → ∀x ∈ dom f, f⟦⎨x⎬⟧ = ⎨f[x]⎬.
+Fact img_single : ∀ f, is_function f → ∀x ∈ dom f, f⟦{x,}⟧ = {f[x],}.
 Proof with auto.
   intros f Hf x Hx.
   ext y Hy.

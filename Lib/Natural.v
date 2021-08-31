@@ -38,7 +38,7 @@ Proof with auto.
 Qed.
 
 (* 2的幂集 *)
-Lemma power_two : 𝒫 2 = 3 ∪ ⎨⎨1⎬⎬.
+Lemma power_two : 𝒫 2 = 3 ∪ {{1,},}.
 Proof with nauto.
   ext Hx.
   - destruct (empty_or_not x) as [|[a Ha]]. {
@@ -50,7 +50,7 @@ Proof with nauto.
     destruct (classic (x = 2)) as [|H2]. {
       subst. apply BUnionI1. apply BUnionI2...
     }
-    destruct (classic (x = ⎨1⎬)) as [|Hs]. {
+    destruct (classic (x = {1,})) as [|Hs]. {
       subst. apply BUnionI2...
     }
     exfalso. apply PowerAx in Hx.
@@ -87,7 +87,7 @@ Proof with nauto.
       apply SingE in Hy; subst. apply BUnionI2...
 Qed.
 
-Lemma suc_comp : ∀n ∈ ω, n⁺ - n = ⎨n⎬.
+Lemma suc_comp : ∀n ∈ ω, n⁺ - n = {n,}.
 Proof with auto.
   intros n Hn. ext Hx.
   - apply SepE in Hx as [H1 H2].
@@ -103,7 +103,7 @@ Proof with nauto.
   ω_induction n; intros [].
   - exfalso0.
   - subst. exists ∅. split... rewrite add_0_r...
-  - apply leq_iff_lt_suc in H...
+  - apply le_iff_lt_suc in H...
     apply IH in H as [d [Hd H]].
     exists d⁺. split. apply ω_inductive...
     rewrite <- H, suc, suc, add_assoc... apply add_ran...
@@ -114,7 +114,7 @@ Lemma nat_subtr' : ∀ m n ∈ ω, m ∈ n → ∃d ∈ ω, m + d = n ∧ d ≠ 
 Proof with nauto.
   intros k Hk n Hn.
   ω_induction n; intros Hlt. exfalso0.
-  apply leq_iff_lt_suc in Hlt as []...
+  apply le_iff_lt_suc in Hlt as []...
   - apply IH in H as [d [Hd [H1 H2]]].
     exists d⁺. split. apply ω_inductive...
     split. rewrite add_suc... subst... apply suc_neq_0.
@@ -161,7 +161,7 @@ Qed.
 Lemma bunion_of_nats_eq_l : ∀ m n ∈ ω, m ⋸ n → m ∪ n = n.
 Proof with auto.
   intros m Hm n Hn Hle.
-  apply leq_iff_sub in Hle...
+  apply le_iff_sub in Hle...
   ext Hx.
   - apply BUnionE in Hx as []...
   - apply BUnionI2...
@@ -170,7 +170,7 @@ Qed.
 Lemma bunion_of_nats_eq_r : ∀ m n ∈ ω, n ⋸ m → m ∪ n = m.
 Proof with auto.
   intros m Hm n Hn Hle.
-  apply leq_iff_sub in Hle...
+  apply le_iff_sub in Hle...
   ext Hx.
   - apply BUnionE in Hx as []...
   - apply BUnionI1...
@@ -181,7 +181,7 @@ Lemma nat_ε_minimum_iff_sub_minimum : ∀ m N, N ⊆ ω →
   ε_minimum m N ↔ sub_minimum m N.
 Proof with auto.
   split; intros [Hm Hmin]; split; auto; intros n Hn;
-  apply Hmin in Hn as Hle; (apply leq_iff_sub; [apply H..|])...
+  apply Hmin in Hn as Hle; (apply le_iff_sub; [apply H..|])...
 Qed.
 
 (* 自然数集子集最大元的两种定义等价 *)
@@ -189,7 +189,7 @@ Lemma nat_ε_maximum_iff_sub_maximum : ∀ m N, N ⊆ ω →
   ε_maximum m N ↔ sub_maximum m N.
 Proof with auto.
   split; intros [Hm Hmax]; split; auto; intros n Hn;
-  apply Hmax in Hn as Hle; (apply leq_iff_sub; [apply H..|])...
+  apply Hmax in Hn as Hle; (apply le_iff_sub; [apply H..|])...
 Qed.
 
 (* 自然数集子集的阿基米德性 *)
@@ -211,8 +211,8 @@ Proof with auto.
   intros m Hm p Hp q Hq Hmp Hpq.
   ω_destruct q. subst q. exfalso0. subst q.
   apply (suc_preserve_lt _ Hm _ Hn').
-  apply leq_iff_lt_suc in Hpq...
-  apply leq_iff_sub in Hpq...
+  apply le_iff_lt_suc in Hpq...
+  apply le_iff_sub in Hpq...
 Qed.
 
 (* 没有最大元的自然数非空子集具有阿基米德性 *)
@@ -230,7 +230,7 @@ Proof with neauto.
   intros n Hn. destruct (classic (n ∈ N)). apply Larger...
   ω_induction n.
   - apply Larger in Hk as [m [Hm Hkm]].
-    exists m. split... apply nq_0_gt_0.
+    exists m. split... apply neq_0_gt_0.
     apply Hsub... intros H0. subst m. exfalso0.
   - destruct IH as [p [Hp Hmp]].
     pose proof (Larger _ Hp) as [q [Hq Hpq]].

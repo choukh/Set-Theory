@@ -7,7 +7,7 @@ Require Export ZFC.Axiom.ZFC2.
 (*** ZFC集合论3：无穷公理，选择公理，正则公理 ***)
 
 (* 后续运算 *)
-Definition Suc := λ a, a ∪ ⎨a⎬.
+Definition Suc := λ a, a ∪ {a,}.
 Notation "a ⁺" := (Suc a) (at level 6, format "a ⁺") : set_scope.
 
 Lemma suc_has_n : ∀ n, n ∈ n⁺.

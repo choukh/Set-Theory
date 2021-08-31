@@ -424,7 +424,7 @@ Proof with auto.
   apply Hnq. apply int_ident...
 Qed.
 
-Lemma intLt_tranr : tranr IntLt.
+Lemma intLt_trans : tranr IntLt.
 Proof with auto.
   intros x y z H1 H2.
   assert (H1' := H1). assert (H2' := H2).
@@ -466,14 +466,14 @@ Qed.
 Lemma intLt_trich : trich IntLt ℤ.
 Proof.
   eapply trich_iff. apply binRel_is_binRel.
-  apply intLt_tranr. split.
+  apply intLt_trans. split.
   apply intLt_irrefl. apply intLt_connected.
 Qed.
 
 Theorem intLt_linearOrder : linearOrder IntLt ℤ.
 Proof.
   split. apply binRel_is_binRel. split.
-  apply intLt_tranr. apply intLt_trich.
+  apply intLt_trans. apply intLt_trich.
 Qed.
 
 Close Scope omega_scope.
@@ -550,7 +550,7 @@ Proof with neauto.
   subst. exfalso. eapply intLt_irrefl...
   apply intLt_connected in H as []... exfalso.
   eapply (Hright b Hb a Ha c Hc Hpc) in H.
-  eapply intLt_irrefl. eapply intLt_tranr...
+  eapply intLt_irrefl. eapply intLt_trans...
   intros a Ha b Hb c Hc Hpc Hlt.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
   apply pQuotE in Hb as [p [Hp [q [Hq Hb]]]]. subst b.
@@ -583,14 +583,14 @@ Qed.
 Close Scope omega_scope.
 Open Scope Int_scope.
 
-Corollary intAdd_preserve_lt_tran : ∀ a b c d ∈ ℤ,
+Corollary intAdd_preserve_lt_trans : ∀ a b c d ∈ ℤ,
   a <𝐳 b → c <𝐳 d → a + c <𝐳 b + d.
 Proof with auto.
   intros a Ha b Hb c Hc d Hd H1 H2.
   apply (intAdd_preserve_lt a Ha b Hb c Hc) in H1.
   apply (intAdd_preserve_lt c Hc d Hd b Hb) in H2.
   rewrite (intAdd_comm c), (intAdd_comm d) in H2...
-  eapply intLt_tranr; eauto.
+  eapply intLt_trans; eauto.
 Qed.
 
 Corollary intAdd_cancel : ∀ a b c ∈ ℤ, a + c = b + c → a = b.
@@ -634,7 +634,7 @@ Qed.
 
 Notation "a ≤ b" := (a <𝐳 b ∨ a = b) (at level 70) : Int_scope.
 
-Corollary intAdd_preserve_leq : ∀ a b c ∈ ℤ,
+Corollary intAdd_preserve_le : ∀ a b c ∈ ℤ,
   a ≤ b ↔ a + c ≤ b + c.
 Proof with eauto.
   intros a Ha b Hb c Hc. split; intros [].
@@ -644,7 +644,7 @@ Proof with eauto.
   - right. apply intAdd_cancel in H...
 Qed.
 
-Corollary intMul_preserve_leq : ∀ a b c ∈ ℤ,
+Corollary intMul_preserve_le : ∀ a b c ∈ ℤ,
   intPos c → a ≤ b ↔ a ⋅ c ≤ b ⋅ c.
 Proof with neauto.
   intros a Ha b Hb c Hc Hpc. split; intros [].
@@ -655,7 +655,7 @@ Proof with neauto.
     destruct (classic (c = Int 0))... apply int_neq_0...
 Qed.
 
-Lemma intLt_iff_leq_suc : ∀a b ∈ ℤ, a <𝐳 b ↔ a + Int 1 ≤ b.
+Lemma intLt_iff_le_suc : ∀a b ∈ ℤ, a <𝐳 b ↔ a + Int 1 ≤ b.
 Proof with neauto.
   intros a Ha b Hb.
   apply pQuotE in Ha as [m [Hm [n [Hn Ha]]]]. subst a.
@@ -685,7 +685,7 @@ Proof with neauto.
   - destruct (classic (Int 0 = a))...
     apply intLt_connected in H0 as []... exfalso...
   - intros Hneg. destruct H; eapply intLt_irrefl.
-    eapply intLt_tranr... subst...
+    eapply intLt_trans... subst...
 Qed.
 
 Lemma intNonNeg_ex_nat : ∀a ∈ ℤ, ¬intNeg a → ∃ n, a = Int n.

@@ -12,11 +12,11 @@ Import OrderType.
 
 Open Scope LoStruct_scope.
 
-Lemma loAdd_loRat_loRat_countable : ω ≈ A (ℚ̃ + ℚ̃).
+Lemma loAdd_loRat_loRat_cnt : ω ≈ A (ℚ̃ + ℚ̃).
 Proof.
   simpl. unfold LoDisj_A. simpl.
   symmetry. apply cardAdd_iff.
-  rewrite card_rat_eq_aleph0.
+  rewrite card_rat_cntinf.
   apply cardAdd_aleph0_aleph0.
 Qed.
 
@@ -85,10 +85,10 @@ Proof with auto.
     + apply BUnionI2. apply CPrdI; apply CPrdI...
 Qed.
 
-Lemma loMul_loRat_loRat_countable : ω ≈ A (ℚ̃ ⋅ ℚ̃).
+Lemma loMul_loRat_loRat_cnt : ω ≈ A (ℚ̃ ⋅ ℚ̃).
 Proof with auto.
   simpl. symmetry. apply cardMul_iff.
-  rewrite card_rat_eq_aleph0.
+  rewrite card_rat_cntinf.
   apply cardMul_aleph0_aleph0.
 Qed.
 
@@ -134,10 +134,10 @@ Theorem otAdd_otRat_otRat_eq_otRat : ℚ̅ + ℚ̅ = ℚ̅.
 Proof with auto.
   rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
   apply countable_unbounded_dense_loset_iso.
-  - apply loAdd_loRat_loRat_countable.
+  - apply loAdd_loRat_loRat_cnt.
   - apply loAdd_loRat_loRat_unbounded.
   - apply loAdd_loRat_loRat_dense.
-  - apply CardAx1. symmetry. apply card_rat_eq_aleph0.
+  - apply CardAx1. symmetry. apply card_rat_cntinf.
   - apply ratLt_unbounded.
   - apply ratLt_dense.
 Qed.
@@ -147,10 +147,10 @@ Theorem otMul_otRat_otRat_eq_otRat : ℚ̅ ⋅ ℚ̅ = ℚ̅.
 Proof with auto.
   rewrite otMul_eq_ot_of_loMul. apply ot_correct.
   apply countable_unbounded_dense_loset_iso.
-  - apply loMul_loRat_loRat_countable.
+  - apply loMul_loRat_loRat_cnt.
   - apply loMul_loRat_loRat_unbounded.
   - apply loMul_loRat_loRat_dense.
-  - apply CardAx1. symmetry. apply card_rat_eq_aleph0.
+  - apply CardAx1. symmetry. apply card_rat_cntinf.
   - apply ratLt_unbounded.
   - apply ratLt_dense.
 Qed.

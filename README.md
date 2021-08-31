@@ -215,11 +215,14 @@ make
 
 ## EST8_6.v
 - Ordinal Arithmetic (defined as order type arithmetic)
+  - Addition, multiplication
 
 ## EST8_7.v
 - Ordinal Arithmetic (defined by recursion)
+  - Addition, multiplication, exponentiation
 
 ## EST8_8.v
+- Ordinal tetration
 - Epsilon numbers
 
 ## EX{n}.v

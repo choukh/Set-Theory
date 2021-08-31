@@ -35,7 +35,7 @@ Proof.
   eapply intLt_irrefl; eauto.
 Qed.
 
-Lemma intLtWo_tranr : tranr IntLtWo.
+Lemma intLtWo_trans : tranr IntLtWo.
 Proof.
   intros a b c Hab Hbc.
   apply binRelE2 in Hab as [Ha [Hb Hab]].
@@ -44,7 +44,7 @@ Proof.
   destruct (ixm (intNeg a));
   destruct (ixm (intNeg b));
   destruct (ixm (intNeg c)); try tauto;
-  eapply intLt_tranr; eauto.
+  eapply intLt_trans; eauto.
 Qed.
 
 Lemma intLtWo_connected : connected IntLtWo ℤ.
@@ -71,14 +71,14 @@ Qed.
 Lemma intLtWo_trich : trich IntLtWo ℤ.
 Proof.
   eapply trich_iff. apply binRel_is_binRel.
-  apply intLtWo_tranr. split.
+  apply intLtWo_trans. split.
   apply intLtWo_irrefl. apply intLtWo_connected.
 Qed.
 
 Lemma intLtWo_loset : loset ℤ IntLtWo.
 Proof.
   split. apply binRel_is_binRel. split.
-  apply intLtWo_tranr. apply intLtWo_trich.
+  apply intLtWo_trans. apply intLtWo_trich.
 Qed.
 
 Definition NonNegInt := {a ∊ ℤ | Int 0 ≤ a}.
@@ -263,13 +263,13 @@ Proof. intros. eapply intLt_irrefl; eauto. Qed.
 Lemma int_1_not_neg : intNeg (Int 1) → False.
 Proof.
   intros. assert (intPos (Int 1)) by apply intPos_sn.
-  eapply intLt_irrefl; eapply intLt_tranr; eauto.
+  eapply intLt_irrefl; eapply intLt_trans; eauto.
 Qed.
 
 Lemma int_sn_not_neg : ∀ n, intNeg (Int (S n)) → False.
 Proof.
   intros. assert (intPos (Int (S n))) by apply intPos_sn.
-  eapply intLt_irrefl; eapply intLt_tranr; eauto.
+  eapply intLt_irrefl; eapply intLt_trans; eauto.
 Qed.
 
 Lemma int_n_not_neg : ∀ n, intNeg (Int n) → False.
@@ -318,10 +318,10 @@ Proof with neauto; try congruence.
     destruct (ixm (intNeg (Int 1)));
     destruct (ixm (intNeg s))... tauto.
     destruct Hlt as [_ [_ H1]]. destruct H as [_ [_ H2]].
-    exfalso. apply intLt_iff_leq_suc in H2...
+    exfalso. apply intLt_iff_le_suc in H2...
     rewrite intAdd_0_l in H2...
     destruct H2; eapply intLt_irrefl.
-    eapply intLt_tranr... subst...
+    eapply intLt_trans... subst...
   - apply BUnionE in Hx as []. exfalso0.
     apply SingE in H. subst x.
     eapply (e_intro _ _ (Int 0))...
@@ -377,7 +377,7 @@ Proof with neauto; try congruence; try tauto.
       destruct (ixm (intNeg s));
       destruct (ixm (intNeg (Int n)));
       destruct (ixm (intNeg (Int (S n))))...
-      eapply intLt_tranr...
+      eapply intLt_trans...
     + apply SingE in H. subst x. rewrite <- IHn.
       apply (e_intro _ _ (Int n))...
       apply binRelI...
@@ -393,7 +393,7 @@ Proof with neauto.
     apply binRelE3 in Hlt.
     destruct (ixm (intNeg s)) as [Hns|Hnns];
     destruct (ixm (intNeg (-Int 1))) as [Hnn1|Hnnn1].
-    + apply intLt_iff_leq_suc in Hlt...
+    + apply intLt_iff_le_suc in Hlt...
       rewrite intAdd_comm, intAddInv_annih in Hlt...
       apply intNonNeg_iff in Hlt...
       apply intNonNeg_ex_nat in Hlt as [n Heqs]... subst s.
@@ -428,9 +428,9 @@ Proof with neauto; try congruence.
     apply binRelE3 in Hlt.
     destruct (ixm (intNeg s)) as [Hns|Hnns];
     destruct (ixm (intNeg (-Int 2))) as [Hnn2|Hnnn2].
-    + apply intLt_iff_leq_suc in Hlt as []; nauto;
+    + apply intLt_iff_le_suc in Hlt as []; nauto;
       rewrite intAdd_n2_n in H.
-      * apply intLt_iff_leq_suc in H...
+      * apply intLt_iff_le_suc in H...
         rewrite intAdd_comm, intAddInv_annih in H...
         apply intNonNeg_iff in H...
       * subst s x. rewrite e_int_n1...
@@ -497,7 +497,7 @@ Proof with eauto.
         apply func_correct in Hx... apply ranI in Hx.
         apply Hr in Hx. apply PowerAx in Hx. apply Hx...
       * unfold F in Ha. rewrite meta_func_ap in Ha...
-        apply SepE2 in Ha. left. eapply relLe_lt_tranr...
+        apply SepE2 in Ha. left. eapply relLe_lt_trans...
     + unfold F. rewrite meta_func_ap, meta_func_ap... intros Heq.
       assert (y ∈ head y S). { apply SepI... right... }
       rewrite <- Heq in H. apply SepE2 in H as []...
@@ -550,7 +550,7 @@ Qed.
 (* ex7_16_2 see EST7_4 Lemma ord_suc_injective *)
 
 (* ex7_17 子结构的序数小于等于原结构的序数 *)
-Theorem ord_of_sub_struct_leq : ∀ S T, S ⊑ T → ord S ⋸ ord T.
+Theorem ord_of_sub_struct_le : ∀ S T, S ⊑ T → ord S ⋸ ord T.
 Proof with eauto.
   intros * [Has Hrs].
   destruct (classic (ord S = ord T))...
@@ -575,7 +575,7 @@ Proof with eauto.
       apply SepI... rewrite Hrs in Hlt. apply SepE1 in Hlt.
       apply Hoe in Hlt... apply SepE1 in Hlt...
     }
-    apply Hle in Hfmb. eapply lo_not_leq_gt...
+    apply Hle in Hfmb. eapply lo_not_le_gt...
 Qed.
 
 (* ex7_18 see EST7_4 limit ordinal *)

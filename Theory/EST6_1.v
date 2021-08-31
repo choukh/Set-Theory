@@ -34,9 +34,9 @@ Proof.
 Qed.
 
 (* 单集与1等势 *)
-Lemma eqnum_single : ∀ a, ⎨a⎬ ≈ 1.
+Lemma eqnum_single : ∀ a, {a,} ≈ 1.
 Proof with auto.
-  intros. set (Func ⎨a⎬ 1 (λ _, 0)) as F.
+  intros. set (Func {a,} 1 (λ _, 0)) as F.
   exists F. apply meta_bijection.
   - intros _ _. apply suc_has_n.
   - intros x1 H1 x2 H2 Heq.
@@ -68,7 +68,7 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 集合与1等势当且仅当它是单集 *)
-Lemma eqnum_one_iff : ∀ A, A ≈ 1 ↔ ∃ a, A = ⎨a⎬.
+Lemma eqnum_one_iff : ∀ A, A ≈ 1 ↔ ∃ a, A = {a,}.
 Proof with auto.
   split.
   - intros Hqn. symmetry in Hqn.
@@ -127,14 +127,14 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 所有的单集等势 *)
-Lemma all_single_eqnum : ∀ a b, ⎨a⎬ ≈ ⎨b⎬.
+Lemma all_single_eqnum : ∀ a b, {a,} ≈ {b,}.
 Proof. intros. now repeat rewrite eqnum_single. Qed.
 Global Hint Immediate all_single_eqnum : core.
 
 (* 集合与单集的笛卡尔积与原集合等势 *)
-Lemma eqnum_cprd_single : ∀ A a, A ≈ A × ⎨a⎬.
+Lemma eqnum_cprd_single : ∀ A a, A ≈ A × {a,}.
 Proof with auto.
-  intros. set (Func A (A × ⎨ a ⎬) (λ x, <x, a>)) as F.
+  intros. set (Func A (A × { a ,}) (λ x, <x, a>)) as F.
   exists F. apply meta_bijection.
   - intros x Hx. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq.
@@ -436,7 +436,7 @@ Proof. exists ∅. now split; nauto. Qed.
 Global Hint Resolve empty_finite : core.
 
 (* 单集是有限集 *)
-Fact single_finite : ∀ a, finite ⎨a⎬.
+Fact single_finite : ∀ a, finite {a,}.
 Proof. exists 1. split. nauto. apply eqnum_single. Qed.
 Global Hint Resolve single_finite : core.
 
@@ -506,7 +506,7 @@ Qed.
 (* ω是无限集 *)
 Corollary ω_infinite : infinite ω.
 Proof with nauto.
-  set (ω - ⎨0⎬) as B.
+  set (ω - {0,}) as B.
   assert (H0: 0 ∉ B). {
     intros H. apply SepE in H as [_ H]. apply H...
   }
@@ -645,7 +645,7 @@ Proof with neauto.
       apply IH in Hps as [m [Hmw [Hmk Hqn]]].
       exists m. split... split... apply BUnionI1...
     + (* C = {0, 1 ... k-2, k} | k-1 *)
-      assert (HC: C = (C ∩ k) ∪ ⎨k⎬). {
+      assert (HC: C = (C ∩ k) ∪ {k,}). {
         ext Hx.
         - destruct (classic (x = k)).
           + apply BUnionI2. subst...
@@ -667,7 +667,7 @@ Proof with neauto.
       apply IH in Hps as [m [Hmw [Hmk [f Hf]]]].
       exists (m⁺). split. apply ω_inductive... split.
       apply suc_preserve_lt in Hmk...
-      exists (f ∪ ⎨<k, m>⎬). rewrite HC.
+      exists (f ∪ {<k, m>,}). rewrite HC.
       apply bijection_add_point...
       * intros H. apply BInterE in H as [_ H].
         eapply nat_irrefl; revgoals...
@@ -725,20 +725,20 @@ Qed.
 
 (* 不交化：通过笛卡尔积构造出分别与原集合等势但不交的两个集合 *)
 Lemma cprd_disjointify : ∀ A B m n,
-  m ≠ n → disjoint (A × ⎨m⎬) (B × ⎨n⎬).
+  m ≠ n → disjoint (A × {m,}) (B × {n,}).
 Proof.
   intros. apply cprd_disjoint_r.
   apply disjointI. intros [x [H1 H2]].
   apply SingE in H1. apply SingE in H2. congruence.
 Qed.
 
-Corollary disjointify_0_1 : ∀ A B, disjoint (A × ⎨0⎬) (B × ⎨1⎬).
+Corollary disjointify_0_1 : ∀ A B, disjoint (A × {0,}) (B × {1,}).
 Proof.
   intros. apply cprd_disjointify. intro. eapply suc_neq_0. eauto.
 Qed.
 
 (* 任意自然数与自身的单集不交 *)
-Lemma nat_disjoint : ∀n ∈ ω, disjoint n ⎨n⎬.
+Lemma nat_disjoint : ∀n ∈ ω, disjoint n {n,}.
 Proof.
   intros n Hn. apply disjointI. intros [x [H1 H2]].
   apply SingE in H2. subst. eapply nat_irrefl; eauto.
@@ -746,15 +746,15 @@ Qed.
 
 (* 等势的集合分别除去一个元素仍然等势 *)
 Lemma eqnum_sets_removing_one_element_still_eqnum :
-  ∀ A B a b, A ∪ ⎨a⎬ ≈ B ∪ ⎨b⎬ →
-  disjoint A ⎨a⎬ → disjoint B ⎨b⎬ → A ≈ B.
+  ∀ A B a b, A ∪ {a,} ≈ B ∪ {b,} →
+  disjoint A {a,} → disjoint B {b,} → A ≈ B.
 Proof with eauto; try congruence.
   intros * [f Hf] Hdja Hdjb. assert (Hf' := Hf).
   destruct Hf' as [Hi [Hd Hr]].
   set (FuncSwapValue f a f⁻¹[b]) as g.
-  assert (Ha: a ∈ A ∪ ⎨a⎬) by (apply BUnionI2; auto).
+  assert (Ha: a ∈ A ∪ {a,}) by (apply BUnionI2; auto).
   assert (Hbr: b ∈ ran f). { rewrite Hr. apply BUnionI2... }
-  assert (Hb: f⁻¹[b] ∈ A ∪ ⎨a⎬). {
+  assert (Hb: f⁻¹[b] ∈ A ∪ {a,}). {
     destruct Hi as [Hff Hs].
     rewrite <- Hd, <- inv_ran. eapply ap_ran. split...
     apply inv_func_iff_sr... rewrite inv_dom...
@@ -794,8 +794,8 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 从有限集中取出一个元素则基数减1 *)
-Corollary finite_set_remove_one_element : ∀ A a, ∀n ∈ ω,
-  (A - ⎨a⎬) ∪ ⎨a⎬ ≈ n⁺ → A - ⎨a⎬ ≈ n.
+Corollary finite_set_remove_one_member : ∀ A a, ∀n ∈ ω,
+  (A - {a,}) ∪ {a,} ≈ n⁺ → A - {a,} ≈ n.
 Proof with eauto.
   intros A a n Hn Hqn.
   eapply eqnum_sets_removing_one_element_still_eqnum...

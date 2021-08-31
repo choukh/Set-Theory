@@ -59,7 +59,7 @@ Proof with eauto.
   apply H in HA. eapply HA...
 Qed.
 
-Example ex3_35: ∀ R x, [x]R = R⟦⎨x⎬⟧.
+Example ex3_35: ∀ R x, [x]R = R⟦{x,}⟧.
 Proof with eauto.
   intros. ext y Hy.
   - apply eqvcE in Hy. eapply imgI...
@@ -260,11 +260,11 @@ Proof with eauto.
     apply PairE in Hc as []; subst c.
     + apply SingE in Hbc. subst...
     + apply PairE in Hbc as []. subst... subst.
-      assert (⎨x⎬ ∈ <x, y>) by apply PairI1.
+      assert ({x,} ∈ <x, y>) by apply PairI1.
       apply Hb in H. apply SingE in H. subst...
   - apply InterI.
     + exists x. apply InterI.
-      * exists ⎨x⎬. apply PairI1.
+      * exists {x,}. apply PairI1.
       * intros b Hb.
         apply PairE in Hb as []; subst... apply PairI1.
     + intros b Hb. apply InterE in Hb as [[c Hc] Hb].
@@ -272,13 +272,13 @@ Proof with eauto.
       apply PairE in Hc as []; subst c.
       * apply SingE in Hbc. subst...
       * apply PairE in Hbc as []. subst... subst.
-        assert (⎨x⎬ ∈ <x, y>) by apply PairI1.
+        assert ({x,} ∈ <x, y>) by apply PairI1.
         apply Hb in H. apply SingE in H. subst...
 Qed.
 
-Example ex3_46_b: ∀ x y, ⋂⋂⋂⎨<x, y>⎬⁻¹ = y.
+Example ex3_46_b: ∀ x y, ⋂⋂⋂{<x, y>,}⁻¹ = y.
 Proof with eauto.
-  intros. set (⎨<x, y>⎬) as R.
+  intros. set ({<x, y>,}) as R.
   cut (⋂R⁻¹ = <y, x>). intros. rewrite H. apply ex3_46_a.
   ext a Ha.
   - apply InterE in Ha as [_ Ha].

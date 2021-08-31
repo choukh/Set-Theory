@@ -5,7 +5,7 @@ Require Import ZFC.Lib.IndexedFamilyUnion.
 Require Import ZFC.Lib.ChoiceFacts.
 Require Export ZFC.Theory.EST6_6.
 
-(* ex6_26 see EST6_5 Theorem cardLeq_union_cardMul *)
+(* ex6_26 see EST6_5 Theorem cardLe_union_cardMul *)
 (* ex6_28 see https://math.stackexchange.com/questions/201410/open-measurable-sets-containing-all-rational-numbers *)
 (* ex6_29 see https://math.stackexchange.com/questions/2876327/show-that-a-certain-set-of-positive-real-numbers-must-be-finite-or-countable *)
 (* ex6_30 see EST6_5 Fact sq_dominated_by_ω_arrow *)
@@ -35,7 +35,7 @@ Proof with auto.
 Qed.
 
 (* 零元子集只有空集 *)
-Fact finCardSubSet_0 : ∀ A, 𝗙𝗶𝗻𝗰 A 0 = ⎨∅⎬.
+Fact finCardSubSet_0 : ∀ A, 𝗙𝗶𝗻𝗰 A 0 = {∅,}.
 Proof with nauto.
   intros. ext Hx.
   - apply SepE in Hx as [_ Hx].
@@ -54,7 +54,7 @@ Proof with neauto.
   }
   apply CardAx1.
   set (λ B, <B, |B|>) as F.
-  set (Func (𝗙𝗶𝗻 A) (⋃ᵢ λ i, 𝗙𝗶𝗻𝗰 A i × ⎨i⎬) F) as f.
+  set (Func (𝗙𝗶𝗻 A) (⋃ᵢ λ i, 𝗙𝗶𝗻𝗰 A i × {i,}) F) as f.
   exists f. apply meta_bijection.
   + intros B HB. assert (HBw: |B| ∈ ω) by (apply Hw; auto).
     eapply IFUnionI... apply CPrdI...
@@ -71,12 +71,12 @@ Qed.
 
 (* ==需要选择公理== *)
 (* n元子集集的基数不大于原集合基数的n次幂 *)
-Lemma cardLeq_finCardSubSets_pow_n : AC_III' →
+Lemma cardLe_finCardSubSets_pow_n : AC_III' →
   ∀ A, ∀n ∈ ω, |𝗙𝗶𝗻𝗰 A n| ≤ |A| ^ n.
 Proof with auto.
   intros AC3' A n Hn.
   rewrite (card_of_nat n) at 2...
-  rewrite cardExp. apply cardLeq_iff.
+  rewrite cardExp. apply cardLe_iff.
   set (λ B, {f ∊ n ⟶ B | f: n ⟹ B}) as G.
   set {G B | B ∊ 𝗙𝗶𝗻𝗰 A n} as 𝒢.
   pose proof (AC3' 𝒢) as [F [HfF [HdF HrF]]]. {
@@ -130,24 +130,24 @@ Proof with neauto.
   assert (AC3': AC_III'). { apply AC_VI_to_III'... }
   apply set_infinite_iff_card_infinite in Hinf.
   apply Schröeder_Bernstein.
-  - set (Func A (𝗙𝗶𝗻 A) (λ a, ⎨a⎬)) as f.
+  - set (Func A (𝗙𝗶𝗻 A) (λ a, {a,})) as f.
     exists f. apply meta_injection.
     + intros a Ha. apply SepI... apply PowerAx.
       apply single_of_member_is_subset...
     + intros x1 H1 x2 H2 Heq. apply single_eq_single...
   - (* |𝗙𝗶𝗻 A| = ∑ᵢ(𝗙𝗶𝗻ᵢ A) ≤ ∑ᵢ|A| = ℵ₀⋅|A| = |A| *)
-    apply cardLeq_iff. rewrite card_of_finCardSubSets.
+    apply cardLe_iff. rewrite card_of_finCardSubSets.
     rewrite <- (cardInfSum_self AC6 (|A|)); [|split]...
-    apply cardInfSum_preserve_leq... intros i Hi.
+    apply cardInfSum_preserve_le... intros i Hi.
     rewrite <- (card_of_card (|A|))...
     (* |(𝗙𝗶𝗻ᵢ A)[n]| ≤ |A| *)
-    eapply cardLeq_tran. apply cardLeq_finCardSubSets_pow_n...
-    apply cardExp_infcard_leq... split...
+    eapply cardLe_trans. apply cardLe_finCardSubSets_pow_n...
+    apply cardExp_infcard_le... split...
 Qed.
 
 (* ==需要选择公理== *)
 (* 有限序列集的基数不大于原集合基数的有限次幂的累加 *)
-Lemma cardLeq_sq_infSum_pow_n : AC_III' → ∀ A,
+Lemma cardLe_sq_infSum_pow_n : AC_III' → ∀ A,
   |𝗦𝗾 A| ≤ ∑ᵢ (λ i, |A| ^ i).
 Proof with nauto.
   intros AC3' *.
@@ -157,7 +157,7 @@ Proof with nauto.
     rewrite (card_of_nat i) at 1... apply cardExp.
   }
   rewrite Heq, cardInfSum_of_disjoint.
-  - apply cardLeq_iff. apply dominate_sub.
+  - apply cardLe_iff. apply dominate_sub.
     apply sq_sub_ifunion_arrow.
   - intros i Hi j Hj Hnq. apply disjointI. intros [x [H1 H2]].
     apply SepE in H1 as [_ [_ [H1 _]]].
@@ -173,13 +173,13 @@ Proof with nauto.
   apply set_infinite_iff_card_infinite in Hinf.
   apply Schröeder_Bernstein. apply dominated_by_sq.
   (* |𝗦𝗾 A| ≤ ∑ᵢ|A|^n ≤ ∑ᵢ|A| = ℵ₀⋅|A| = |A| *)
-  apply cardLeq_iff. eapply cardLeq_tran. {
-    apply cardLeq_sq_infSum_pow_n...
+  apply cardLe_iff. eapply cardLe_trans. {
+    apply cardLe_sq_infSum_pow_n...
   }
   rewrite <- (cardInfSum_self AC6 (|A|)) at 1; [|split]...
-  apply cardInfSum_preserve_leq... intros i Hi.
+  apply cardInfSum_preserve_le... intros i Hi.
   rewrite <- card_of_card, <- (card_of_card (|A|))...
-  apply cardExp_infcard_leq... split...
+  apply cardExp_infcard_le... split...
 Qed.
 
 (* ==需要选择公理== *)
@@ -189,12 +189,12 @@ Theorem cardExp_infcard_infcard : AC_VI →
   𝜅 ^ 𝜆 = 2 ^ 𝜆.
 Proof with nauto.
   intros AC6 𝜅 𝜆 Hicl Hle1 Hle2.
-  apply cardLeq_antisym.
+  apply cardLe_antisym.
   - (* 𝜅 ^ 𝜆 ≤ 𝜆 ^ 𝜆 ≤ 2 ^ 𝜆 *)
-    eapply cardLeq_tran.
-    + apply cardExp_preserve_base_leq... apply Hle2.
-    + apply eq_cardLeq... apply cardExp_infcard_self...
-  - apply cardExp_preserve_base_leq...
+    eapply cardLe_trans.
+    + apply cardExp_preserve_base_le... apply Hle2.
+    + apply eq_cardLe... apply cardExp_infcard_self...
+  - apply cardExp_preserve_base_le...
 Qed.
 
 (* ex6_35
@@ -206,8 +206,8 @@ Qed.
 Lemma cardGeq_2_impl_suc_suc : ∀n ∈ ω, 2 ≤ n → ∃m ∈ ω, n = m⁺⁺.
 Proof with nauto.
   intros n Hn H2.
-  apply fin_cardLeq_iff_leq in H2...
-  apply lt_iff_suc_leq in H2; [|apply ω_inductive|]...
+  apply fin_cardLe_iff_le in H2...
+  apply lt_iff_suc_le in H2; [|apply ω_inductive|]...
   ω_destruct n; subst. exfalso0.
   ω_destruct n'; subst. apply BUnionE in H2 as []. exfalso0.
   apply SingE in H. exfalso. apply (suc_neq_0 0)...
@@ -219,7 +219,7 @@ Proof with nauto.
   intros 𝜅 Hcd H0 H1.
   destruct (classic (finite 𝜅)).
   - assert (Hk: 𝜅 ∈ ω). { apply nat_iff_fincard. split... }
-    apply fin_cardLeq_iff_leq... apply leq_iff_sub...
+    apply fin_cardLe_iff_le... apply le_iff_sub...
     contra.
     apply lt_iff_not_sub in H2...
     rewrite two in H2. apply PairE in H2 as []...
@@ -337,7 +337,7 @@ Proof with eauto; try congruence.
     | inl _ => f[<π1 f⁻¹[a], 1>]
     | inr _ => f[<π1 f⁻¹[a], 0>]
   end)) as g.
-  assert (Hf'Ap: ∀x ∈ A, f⁻¹[x] ∈ A × ⎨ 0 ⎬ ∪ A × ⎨ 1 ⎬). {
+  assert (Hf'Ap: ∀x ∈ A, f⁻¹[x] ∈ A × { 0 ,} ∪ A × { 1 ,}). {
     intros x Hx. rewrite <- Hdf' in Hx. eapply ap_ran...
   }
   assert (Hπ1: ∀x ∈ A, π1 f⁻¹[x] ∈ A). {
@@ -447,33 +447,33 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的阶乘大于等于自身 *)
-Lemma cardLeq_infcard_factorial : AC_VI →
+Lemma cardLe_infcard_factorial : AC_VI →
   ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 ≤ 𝜅!.
 Proof with neauto; try congruence.
   intros AC6 𝜅 [Hcd Hinf].
   assert (AC3': AC_III'). { apply AC_VI_to_III'... }
   rewrite card_of_card at 1... clear Hcd.
-  apply cardLeq_iff. rename 𝜅 into A.
-  set {Shuffle (A - ⎨a⎬) | a ∊ A} as 𝒮.
+  apply cardLe_iff. rename 𝜅 into A.
+  set {Shuffle (A - {a,}) | a ∊ A} as 𝒮.
   pose proof (AC3' 𝒮) as [F [HfF [HdF HrF]]]. {
     intros S HS. apply ReplAx in HS as [B [HB HS]]. subst S.
     apply shuffle_exists... apply cardLt_infcard_n...
     split... rewrite <- set_infinite_iff_card_infinite.
     apply remove_one_member_from_infinite...
   }
-  set (λ a, F[Shuffle (A - ⎨a⎬)]) as F'.
-  set (λ a, F' a ∪ Ident ⎨a⎬) as G.
+  set (λ a, F[Shuffle (A - {a,})]) as F'.
+  set (λ a, F' a ∪ Ident {a,}) as G.
   set (Func A (Permutation A) G) as g.
-  assert (HS: ∀a ∈ A, Shuffle (A - ⎨a⎬) ∈ 𝒮). {
+  assert (HS: ∀a ∈ A, Shuffle (A - {a,}) ∈ 𝒮). {
     intros a Ha. apply ReplAx. exists a. split...
   }
-  assert (Hdj: ∀a ∈ A, (A - ⎨a⎬) ∩ ⎨a⎬ = ∅). {
+  assert (Hdj: ∀a ∈ A, (A - {a,}) ∩ {a,} = ∅). {
     intros a Ha. ext Hx; [exfalso|exfalso0].
     apply BInterE in Hx as [H1 H2]. apply SepE2 in H1...
   }
   assert (HF'a: ∀a ∈ A,
-    (F' a : A - ⎨a⎬ ⟺ A - ⎨a⎬) ∧
-    ∀x ∈ A - ⎨a⎬, (F' a)[x] ≠ x
+    (F' a : A - {a,} ⟺ A - {a,}) ∧
+    ∀x ∈ A - {a,}, (F' a)[x] ≠ x
   ). {
     intros a Ha. apply HS in Ha.
     apply HrF in Ha. apply shuffle_iff...
@@ -488,8 +488,8 @@ Proof with neauto; try congruence.
     - intros y Hy. rewrite Hdj in Hy... exfalso0.
   }
   assert (Huap: ∀a ∈ A,
-    (∀x ∈ A - ⎨a⎬, (G a)[x] = (F' a)[x]) ∧
-    ∀x ∈ ⎨a⎬, (G a)[x] = (Ident ⎨a⎬)[x]
+    (∀x ∈ A - {a,}, (G a)[x] = (F' a)[x]) ∧
+    ∀x ∈ {a,}, (G a)[x] = (Ident {a,})[x]
   ). {
     intros a Ha. eapply bunion_func_ap.
     - apply bijection_is_func. apply HF'a...
@@ -498,13 +498,13 @@ Proof with neauto; try congruence.
     - intros y Hy. rewrite Hdj in Hy... exfalso0.
   }
   assert (Heq1: ∀ a ∈ A, (G a)[a] = a). {
-    intros a Ha. rewrite <- (ident_ap ⎨a⎬ a) at 3...
+    intros a Ha. rewrite <- (ident_ap {a,} a) at 3...
     apply Huap in Ha as [_ Heq]. rewrite Heq...
   }
   assert (Heq2: ∀ a x ∈ A, (G a)[x] = x → a = x). {
     intros a Ha x Hx Hap.
     contra.
-    assert (x ∈ A - ⎨a⎬). { apply SepI... apply SingNI... }
+    assert (x ∈ A - {a,}). { apply SepI... apply SingNI... }
     pose proof (Huap a Ha) as [Heq _].
     rewrite Heq in Hap... eapply (HF'a a Ha)...
   }
@@ -523,7 +523,7 @@ Proof with eauto.
   assert (AC3: AC_III). { apply AC_VI_to_III... }
   pose proof (aleph0_is_the_least_infinite_card AC3 _ Hinf)...
   apply cardGeq_aleph0_infinite. unfold CardFactorial...
-  eapply cardLeq_tran; revgoals... apply cardLeq_infcard_factorial...
+  eapply cardLe_trans; revgoals... apply cardLe_infcard_factorial...
 Qed.
 
 (* ==需要选择公理== *)
@@ -534,21 +534,21 @@ Proof with neauto; try congruence.
   intros AC6 𝜅 [Hcd Hinf].
   assert (AC3: AC_III). { apply AC_VI_to_III... }
   assert (AC3': AC_III'). { apply AC_III_iff_III'... }
-  eapply cardLeq_antisym. {
-    eapply cardLeq_tran.
-    - apply cardLeq_iff. apply dominate_sub.
+  eapply cardLe_antisym. {
+    eapply cardLe_trans.
+    - apply cardLe_iff. apply dominate_sub.
       intros x Hx. apply SepE in Hx as [Hx _]. apply Hx.
     - rewrite <- cardExp, <- card_of_card...
-      apply eq_cardLeq... apply cardExp_infcard_self... split...
+      apply eq_cardLe... apply cardExp_infcard_self... split...
   }
   rewrite <- (cardAdd_absorption AC6 (𝜅!) 𝜅); revgoals. {
-    apply cardLeq_infcard_factorial... split...
+    apply cardLe_infcard_factorial... split...
   } {
     apply cardFactorial_infinite... split...
   }
   unfold CardFactorial.
   rewrite (card_of_card 𝜅) at 3...
-  rewrite cardAdd. apply cardLeq_iff. rename 𝜅 into A.
+  rewrite cardAdd. apply cardLe_iff. rename 𝜅 into A.
   set {B ∊ 𝒫 A | 2 ≤ (|B|)} as ℬ.
   set {Shuffle B | B ∊ ℬ} as 𝒮.
   pose proof (AC3' 𝒮) as [F [HfF [HdF HrF]]]. {
@@ -566,7 +566,7 @@ Proof with neauto; try congruence.
       | inr _ => <G f, 0>
     end
   end) as G'.
-  set (Func (A ⟶ 2) (Permutation A × ⎨0⎬ ∪ A × ⎨1⎬) G') as g.
+  set (Func (A ⟶ 2) (Permutation A × {0,} ∪ A × {1,}) G') as g.
   assert (HOf: ∀f ∈ A ⟶ 2, O f ∈ 𝒫 A). {
     intros f Hf. apply PowerAx. intros x Hx.
     apply SepE1 in Hx...
@@ -735,8 +735,8 @@ Qed.
 (* 1的阶乘等于1 *)
 Fact cardFactorial_1 : 1! = 1.
 Proof with nauto; try easy.
-  rewrite <- (card_of_single ⎨<∅, ∅>⎬) at 2. apply CardAx1.
-  replace ⎨⎨<∅, ∅>⎬⎬ with (Permutation 1)...
+  rewrite <- (card_of_single {<∅, ∅>,}) at 2. apply CardAx1.
+  replace {{<∅, ∅>,},} with (Permutation 1)...
   ext Hx.
   - apply SepE in Hx as [Hx [_ [Hd _]]]. apply SepE in Hx as [Hx _].
     rewrite one in Hx. unfold One in Hx.
@@ -744,15 +744,15 @@ Proof with nauto; try easy.
     apply PairE in Hx as []; subst...
     assert (0 ∈ 1). { apply suc_has_0... }
     rewrite <- Hd in H. apply domE in H as [y Hp]. exfalso0.
-  - assert (Hf: ⎨<∅, ∅>⎬: ⎨∅⎬ ⟺ ⎨∅⎬) by apply single_pair_bijection.
+  - assert (Hf: {<∅, ∅>,}: {∅,} ⟺ {∅,}) by apply single_pair_bijection.
     rewrite one. apply SingE in Hx; subst. apply permutation_iff...
 Qed.
 
 (* 基数阶乘保持序关系 *)
-Lemma cardFactorial_preserve_leq : ∀ A B, |A| ≤ |B| → A! ≤ B!.
+Lemma cardFactorial_preserve_le : ∀ A B, |A| ≤ |B| → A! ≤ B!.
 Proof with eauto; try congruence.
-  intros. apply cardLeq_iff.
-  apply cardLeq_iff in H as [g [Hig [Hdg Hrg]]].
+  intros. apply cardLe_iff.
+  apply cardLe_iff in H as [g [Hig [Hdg Hrg]]].
   set (λ f, g ∘ f ∘ g⁻¹) as ℱ.
   assert (Hgbi: g: A ⟺ ran g) by (split; auto).
   assert (Hcom: ∀ f, f: A ⟺ A → g ∘ f ∘ g⁻¹: ran g ⟺ ran g). {

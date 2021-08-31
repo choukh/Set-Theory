@@ -198,7 +198,7 @@ Proof with eauto; try congruence.
 Qed.
 
 (* 后继函数是双射 *)
-Lemma σ_bijective : σ: ω ⟺ ω - ⎨∅⎬.
+Lemma σ_bijective : σ: ω ⟺ ω - {∅,}.
 Proof with eauto.
   pose proof σ_function as [Hf [Hd Hr]]. split; split...
   - intros x Hx. rewrite <- unique_existence.
@@ -339,7 +339,7 @@ Proof with eauto; try congruence.
       apply Hstar. exists v. split...
   }
   assert (H0dh: ∅ ∈ dom h). {
-    set ⎨<∅, a>⎬ as f0.
+    set {<∅, a>,} as f0.
     assert (Hf: is_function f0). {
       split.
       - intros x Hx. apply SingE in Hx. subst x. eexists...
@@ -360,7 +360,7 @@ Proof with eauto; try congruence.
     eapply domI. apply Hstar. exists f0.
     split; [|split; [apply Hac|apply SingI]].
     apply SepI... eapply UnionI. apply ReplI.
-    apply PowerAx. cut (⎨∅⎬ ⊆ ω)...
+    apply PowerAx. cut ({∅,} ⊆ ω)...
     intros x Hx. apply SingE in Hx. subst x. apply ω_has_0.
     apply arrow_iff. split... split.
     + ext.
@@ -373,7 +373,7 @@ Proof with eauto; try congruence.
     apply ω_ind... split... intros k Hk.
     destruct (classic (k⁺ ∈ dom h)) as [|Hc]...
     set <k⁺, F[h[k]]> as p1.
-    set (h ∪ ⎨p1⎬) as v.
+    set (h ∪ {p1,}) as v.
     assert (Hp1: p1 ∈ v) by (apply BUnionI2; apply SingI).
     assert (Hf: is_function v). {
       split.

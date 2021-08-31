@@ -9,7 +9,7 @@ Require Export ZFC.Axiom.ZFC1.
 (** 集合建构式 **)
 Definition Sep : set → (set → Prop) → set := λ A P,
   let F := (λ x, match (ixm (P x)) with
-    | inl _ => ⎨x⎬
+    | inl _ => {x,}
     | inr _ => ∅
   end) in ⋃{F x | x ∊ A}.
 Notation "{ x ∊ A | P }" := (Sep A (λ x, P)) : set_scope.
@@ -23,7 +23,7 @@ Proof with auto.
     destruct (ixm (P a)).
     + apply SingE in Hx. subst x...
     + exfalso0.
-  - intros [Hx HP]. apply UnionAx. exists ⎨x⎬. split...
+  - intros [Hx HP]. apply UnionAx. exists {x,}. split...
     apply ReplAx. exists x. split...
     destruct (ixm (P x))... exfalso...
 Qed.
@@ -57,15 +57,15 @@ Proof.
 Qed.
 
 Lemma sep_sing : ∀ x P,
-  ( P x ∧ {x ∊ ⎨x⎬ | P x} = ⎨x⎬) ∨
-  (¬P x ∧ {x ∊ ⎨x⎬ | P x} = ∅).
+  ( P x ∧ {x ∊ {x,} | P x} = {x,}) ∨
+  (¬P x ∧ {x ∊ {x,} | P x} = ∅).
 Proof with auto.
-  intros. pose proof (sep_sub ⎨x⎬ P).
+  intros. pose proof (sep_sub {x,} P).
   apply subset_of_single in H. destruct H.
   - rewrite H. right. split...
     eapply sep_empty_inv. apply H... apply SingI.
   - rewrite H. left. split...
-    apply (SepE2 ⎨x⎬). rewrite H...
+    apply (SepE2 {x,}). rewrite H...
 Qed.
 
 Lemma sep_ext : ∀ A P Q,
@@ -184,7 +184,7 @@ Proof with auto.
 Qed.
 
 (** 有序对 **)
-Definition OPair := λ x y, {⎨x⎬, {x, y}}.
+Definition OPair := λ x y, {{x,}, {x, y}}.
 Notation "< x , y , .. , z >" := ( OPair .. ( OPair x y ) .. z )
   (z at level 69, format "< x ,  y ,  .. ,  z >") : set_scope.
 
@@ -205,13 +205,13 @@ Proof.
     + subst. apply BUnionI2. apply PairI2.
 Qed.
 
-Lemma op_inter : ∀ x y, ⋂<x, y> = ⎨x⎬.
+Lemma op_inter : ∀ x y, ⋂<x, y> = {x,}.
 Proof.
   intros. ext a H.
   - apply InterE in H as [_ H].
     apply H. apply PairI1.
   - apply SingE in H. subst. apply InterI.
-    + exists ⎨x⎬. apply PairI1.
+    + exists {x,}. apply PairI1.
     + intros z Hz. apply PairE in Hz. destruct Hz.
       * subst. apply SingI.
       * subst. apply PairI1.
@@ -330,7 +330,7 @@ Proof with eauto.
   eapply EmptyE in H. apply H. apply CPrdI...
 Qed.
 
-Fact cprd_single_single : ∀ x, ⎨x⎬ × ⎨x⎬ = ⎨<x, x>⎬.
+Fact cprd_single_single : ∀ x, {x,} × {x,} = {<x, x>,}.
 Proof with auto.
   intros. ext Hx.
   - apply CPrdE1 in Hx as [a [Ha [b [Hb Hx]]]].

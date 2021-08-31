@@ -8,7 +8,7 @@ Require Export ZFC.Theory.EST6_5.
 
 (* finite_union的引理 *)
 Local Lemma finite_repl : ∀ a 𝒜,
-  finite {X - ⎨a⎬ | X ∊ 𝒜} → finite 𝒜.
+  finite {X - {a,} | X ∊ 𝒜} → finite 𝒜.
 Proof with auto.
   intros * [n [Hn Hrpl]].
   generalize dependent 𝒜.
@@ -18,10 +18,10 @@ Proof with auto.
   apply set_eqnum_suc_nonempty in Hqn as Hne...
   destruct Hne as [A HA].
   apply split_one_element in HA as HeqA. rewrite HeqA in Hqn.
-  apply finite_set_remove_one_element in Hqn...
+  apply finite_set_remove_one_member in Hqn...
   destruct (classic (a ∈ A)).
-  - replace ({X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
-    with {X - ⎨a⎬ | X ∊ 𝒜} in Hqn. {
+  - replace ({X - {a,} | X ∊ 𝒜} - {A,})
+    with {X - {a,} | X ∊ 𝒜} in Hqn. {
       apply IH in Hqn...
     }
     ext Hx.
@@ -32,8 +32,8 @@ Proof with auto.
     + apply SepE in Hx as [Hx _].
       apply ReplAx in Hx as [X [HX Hx]].
       apply ReplAx. exists X. split...
-  - replace ({X - ⎨a⎬ | X ∊ 𝒜} - ⎨A⎬)
-    with {X - ⎨a⎬ | X ∊ 𝒜 - ⎨A⎬ - ⎨A ∪ ⎨a⎬⎬} in Hqn. {
+  - replace ({X - {a,} | X ∊ 𝒜} - {A,})
+    with {X - {a,} | X ∊ 𝒜 - {A,} - {A ∪ {a,},}} in Hqn. {
       apply IH in Hqn. eapply add_one_still_finite_1.
       eapply add_one_still_finite_1. apply Hqn.
     }
@@ -73,10 +73,10 @@ Proof with nauto.
   - apply set_eqnum_suc_nonempty in Hu as Hne...
     destruct Hne as [a Ha].
     apply split_one_element in Ha as Hequ. rewrite Hequ in Hu.
-    apply finite_set_remove_one_element in Hu...
+    apply finite_set_remove_one_member in Hu...
     apply UnionAx in Ha as [A [HA Ha]].
-    set {X - ⎨a⎬ | X ∊ 𝒜} as 𝒜'.
-    assert (Hequ': ⋃𝒜' = ⋃𝒜 - ⎨a⎬). {
+    set {X - {a,} | X ∊ 𝒜} as 𝒜'.
+    assert (Hequ': ⋃𝒜' = ⋃𝒜 - {a,}). {
       ext Hx.
       - apply UnionAx in Hx as [B [HB Hx]].
         apply ReplAx in HB as [C [HC Heq]]. subst B.
@@ -84,18 +84,18 @@ Proof with nauto.
         apply SepI... apply UnionAx. exists C. split...
       - apply SepE in Hx as [Hx Hx'].
         apply UnionAx in Hx as [B [HB Hx]].
-        apply UnionAx. exists (B - ⎨a⎬). split...
+        apply UnionAx. exists (B - {a,}). split...
         apply ReplAx. exists B. split... apply SepI...
     }
     rewrite <- Hequ' in Hu.
     apply IH in Hu as [H1 H2]. split.
     + apply finite_repl in H1...
     + intros B HB.
-      assert (HB': B - ⎨a⎬ ∈ 𝒜'). { apply ReplAx. exists B. split... }
+      assert (HB': B - {a,} ∈ 𝒜'). { apply ReplAx. exists B. split... }
       apply H2 in HB'. destruct (classic (a ∈ B)).
       * rewrite <- (remove_one_member_then_return _ a)...
         apply bunion_finite...
-      * replace B with (B - ⎨a⎬)...
+      * replace B with (B - {a,})...
         ext Hx.
         apply SepE1 in Hx...
         apply SepI... apply SingNI. intros Heq. subst...
@@ -198,7 +198,7 @@ Qed.
 Lemma finite_arrow_l : ∀ A B, 2 ≤ |B| → finite (A ⟶ B) → finite A.
 Proof with nauto.
   intros * H2 Hfin.
-  rewrite (card_of_nat 2), cardLeq_iff, two in H2...
+  rewrite (card_of_nat 2), cardLe_iff, two in H2...
   assert (H02: 0 ∈ 2%zfc1) by apply PairI1.
   assert (H12: 1 ∈ 2%zfc1) by (rewrite one; apply PairI2).
   destruct H2 as [f [Hif [Hdf Hrf]]].
@@ -307,11 +307,11 @@ Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hfin.
   apply cardLt_aleph0_iff_finite in Hfin... split.
   - apply cardLt_aleph0_iff_finite...
-    eapply cardLeq_lt_tran... rewrite <- cardAdd_0_r at 1...
-    apply cardAdd_preserve_leq'. apply cardLeq_0...
+    eapply cardLe_lt_trans... rewrite <- cardAdd_0_r at 1...
+    apply cardAdd_preserve_le'. apply cardLe_0...
   - apply cardLt_aleph0_iff_finite...
-    eapply cardLeq_lt_tran... rewrite <- cardAdd_0_r at 1...
-    rewrite cardAdd_comm. apply cardAdd_preserve_leq. apply cardLeq_0...
+    eapply cardLe_lt_trans... rewrite <- cardAdd_0_r at 1...
+    rewrite cardAdd_comm. apply cardAdd_preserve_le. apply cardLe_0...
 Qed.
 
 (* 两个基数的和是有限基数当且仅当这两个基数都是有限基数 *)
@@ -369,8 +369,8 @@ Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl Hnel Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
-  eapply cardLeq_lt_tran... rewrite <- cardMul_1_r at 1...
-  apply cardMul_preserve_leq'. apply cardLeq_1...
+  eapply cardLe_lt_trans... rewrite <- cardMul_1_r at 1...
+  apply cardMul_preserve_le'. apply cardLe_1...
 Qed.
 
 (* 如果非零基数与基数𝜆的积是有限基数那么𝜆是有限基数 *)
@@ -448,10 +448,10 @@ Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl H0 Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
-  eapply cardLeq_lt_tran... rewrite <- cardExp_1_r at 1...
-  apply cardExp_preserve_exponent_leq.
+  eapply cardLe_lt_trans... rewrite <- cardExp_1_r at 1...
+  apply cardExp_preserve_exponent_le.
   - left. apply suc_neq_0.
-  - apply cardLeq_1...
+  - apply cardLe_1...
 Qed.
 
 (* 如果不小于2的基数的𝜆次幂是有限基数那么𝜆是有限基数 *)
@@ -461,8 +461,8 @@ Proof with eauto.
   intros 𝜅 Hcdk 𝜆 Hcdl H0 Hfin.
   apply cardLt_aleph0_iff_finite in Hfin...
   apply cardLt_aleph0_iff_finite...
-  eapply cardLeq_lt_tran... eapply cardLt_leq_tran...
-  apply cardLt_power... apply cardExp_preserve_base_leq...
+  eapply cardLe_lt_trans... eapply cardLt_le_trans...
+  apply cardLt_power... apply cardExp_preserve_base_le...
 Qed.
 
 (* 如果不小于2的基数𝜅的非零基数𝜆次幂是有限基数那么𝜅和𝜆都是有限基数 *)
@@ -523,7 +523,7 @@ Proof with nauto.
   intros. apply set_infinite_iff_card_infinite.
   rewrite card_of_power. apply cardExp_infinite_exponent...
   split... rewrite <- set_infinite_iff_card_infinite...
-  apply cardLeq_refl...
+  apply cardLe_refl...
 Qed.
 
 (* ==需要选择公理== *)
@@ -668,13 +668,13 @@ Proof with neauto; try congruence.
     exists f₀...
   }
   replace 𝜅 with 𝜆...
-  apply cardLeq_antisym. {
-    rewrite Heq𝜅. apply cardLeq_iff. apply dominate_sub...
+  apply cardLe_antisym. {
+    rewrite Heq𝜅. apply cardLe_iff. apply dominate_sub...
   }
   (* Goal: 𝜅 ≤ 𝜆 *)
   rewrite <- Hmul.
-  eapply cardLeq_tran; revgoals. {
-    apply cardMul_preserve_leq.
+  eapply cardLe_trans; revgoals. {
+    apply cardMul_preserve_le.
     apply cardLt_infcard_n. split...
     apply (embed_ran 2).
   }
@@ -689,13 +689,13 @@ Proof with neauto; try congruence.
   }
   rewrite Heq𝜅, <- Heq... clear Heq.
   pose proof (card_comparability AC5 (|B - A₀|)) as []... {
-    eapply cardLeq_tran; revgoals. {
-      apply cardAdd_preserve_leq'. apply H.
+    eapply cardLe_trans; revgoals. {
+      apply cardAdd_preserve_le'. apply H.
     }
-    apply cardLeq_refl. apply cardAdd_is_card.
+    apply cardLe_refl. apply cardAdd_is_card.
   }
   (* Goal: 𝜆 ≰ |B - A₀| *)
-  exfalso. unfold 𝜆 in H. rewrite cardLeq_iff in H.
+  exfalso. unfold 𝜆 in H. rewrite cardLe_iff in H.
   apply dominate_iff in H as [D [HsubD HqnD]].
   assert (Heq𝜆: 𝜆 = |D|). { apply CardAx1... }
   assert (Hdj: disjoint A₀ D). {
@@ -714,13 +714,13 @@ Proof with neauto; try congruence.
     }
     do 3 rewrite <- cardMul.
     fold 𝜆. rewrite <- Heq𝜆, Hmul.
-    apply cardLeq_antisym; revgoals. {
+    apply cardLe_antisym; revgoals. {
       rewrite cardAdd_assoc. apply cardAdd_enlarge...
     }
     (* Goal: 𝜆 + 𝜆 + 𝜆 ≤ 𝜆 *)
     rewrite <- Hmul at 4.
     replace (𝜆 + 𝜆 + 𝜆) with (3 ⋅ 𝜆). {
-      apply cardMul_preserve_leq.
+      apply cardMul_preserve_le.
       apply cardLt_infcard_n. split...
       apply (embed_ran 3).
     }
@@ -824,7 +824,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数的有限次幂不大于自身 *)
-Corollary cardExp_infcard_leq : AC_VI →
+Corollary cardExp_infcard_le : AC_VI →
   ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ∀n ∈ ω, 𝜅 ^ n ≤ 𝜅.
 Proof with nauto.
   intros AC6 𝜅 [Hinf Hcd] n Hn.
@@ -832,17 +832,17 @@ Proof with nauto.
     subst n. rewrite cardExp_0_r.
     apply cardLt_infcard_n... split...
   }
-  rewrite cardExp_infcard_id... apply cardLeq_refl... split...
+  rewrite cardExp_infcard_id... apply cardLe_refl... split...
 Qed.
 
 (* ==需要选择公理== *)
 (* 无限基数自加等于自身 *)
 Theorem cardAdd_infcard_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 + 𝜅 = 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 Hic. apply cardLeq_antisym.
-  - rewrite cardAdd_k_k. eapply cardLeq_tran.
-    apply cardMul_preserve_leq. apply (cardLt_infcard_n 𝜅)...
-    rewrite cardMul_infcard_self... apply cardLeq_refl. apply Hic.
+  intros AC6 𝜅 Hic. apply cardLe_antisym.
+  - rewrite cardAdd_k_k. eapply cardLe_trans.
+    apply cardMul_preserve_le. apply (cardLt_infcard_n 𝜅)...
+    rewrite cardMul_infcard_self... apply cardLe_refl. apply Hic.
   - apply cardAdd_enlarge; apply Hic.
 Qed.
 
@@ -850,9 +850,9 @@ Qed.
 (* 无限基数加1等于自身 *)
 Theorem cardAdd_infcard_1 : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 + 1 = 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 Hic. apply cardLeq_antisym.
+  intros AC6 𝜅 Hic. apply cardLe_antisym.
   - rewrite <- (cardAdd_infcard_self AC6 𝜅) at 2...
-    rewrite cardAdd_comm... apply cardAdd_preserve_leq.
+    rewrite cardAdd_comm... apply cardAdd_preserve_le.
     apply (cardLt_infcard_n 𝜅)...
   - apply cardAdd_enlarge... apply Hic.
 Qed.
@@ -862,10 +862,10 @@ Qed.
 Theorem cardAdd_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜅 + 𝜆 = 𝜅.
 Proof.
-  intros AC6 * Hinf Hle. apply cardLeq_antisym.
-  - eapply cardLeq_tran. apply cardAdd_preserve_leq'. apply Hle.
+  intros AC6 * Hinf Hle. apply cardLe_antisym.
+  - eapply cardLe_trans. apply cardAdd_preserve_le'. apply Hle.
     rewrite cardAdd_infcard_self; [|auto|split; auto; apply Hle].
-    apply cardLeq_refl. apply Hle.
+    apply cardLe_refl. apply Hle.
   - apply cardAdd_enlarge; apply Hle.
 Qed.
 
@@ -874,10 +874,10 @@ Qed.
 Theorem cardMul_absorption : AC_VI → ∀ 𝜅 𝜆,
   infinite 𝜅 → 𝜆 ≤ 𝜅 → 𝜆 ≠ 0 → 𝜅 ⋅ 𝜆 = 𝜅.
 Proof.
-  intros AC6 * Hinf Hle H0. apply cardLeq_antisym.
-  - eapply cardLeq_tran. apply cardMul_preserve_leq'. apply Hle.
+  intros AC6 * Hinf Hle H0. apply cardLe_antisym.
+  - eapply cardLe_trans. apply cardMul_preserve_le'. apply Hle.
     rewrite cardMul_infcard_self; [|auto|split; auto; apply Hle].
-    apply cardLeq_refl. apply Hle.
+    apply cardLe_refl. apply Hle.
 - apply cardMul_enlarge; auto; apply Hle.
 Qed.
 
@@ -885,12 +885,12 @@ Qed.
 (* 无限基数自乘方等于2的幂 *)
 Theorem cardExp_infcard_self : AC_VI → ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, 𝜅 ^ 𝜅 = 2 ^ 𝜅.
 Proof with nauto.
-  intros AC6 𝜅 [Hinf Hcd]. apply cardLeq_antisym.
+  intros AC6 𝜅 [Hinf Hcd]. apply cardLe_antisym.
   - rewrite <- (cardMul_infcard_self AC6 𝜅) at 3; [|split]...
     rewrite <- cardExp_exp.
-    apply cardExp_preserve_base_leq. apply cardLt_power...
-  - apply cardExp_preserve_base_leq.
-    eapply cardLt_leq_tran.
+    apply cardExp_preserve_base_le. apply cardLt_power...
+  - apply cardExp_preserve_base_le.
+    eapply cardLt_le_trans.
     apply cardLt_aleph0_if_finite...
     apply aleph0_is_the_least_infinite_card.
     apply AC_VI_to_III... split...

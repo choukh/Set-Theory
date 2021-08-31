@@ -608,7 +608,7 @@ Proof with neauto.
       eapply add_cancel; revgoals...
 Qed.
 
-Lemma preIntProj : ∀a ∈ ℤ, ∃p, PreIntProj a = ⎨p⎬.
+Lemma preIntProj : ∀a ∈ ℤ, ∃p, PreIntProj a = {p,}.
 Proof with auto.
   intros a Ha.
   apply preIntProj_unique in Ha as [p [Hp Hu]].
@@ -622,7 +622,7 @@ Lemma intProj : ∀ m n ∈ ω, ∃ p q ∈ ω,
 Proof with auto.
   intros m Hm n Hn.
   pose proof (preIntProj ([<m, n>]~)) as [x Hsg].
-  apply pQuotI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
+  apply pQuotI... assert (Hx: x ∈ {x,}) by apply SingI.
   rewrite <- Hsg in Hx. apply preIntProjE in Hx
     as [p [Hp [q [Hq [Hx [H1 H2]]]]]]...
   exists p. split... exists q. repeat split...

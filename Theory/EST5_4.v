@@ -44,7 +44,7 @@ Proof with neauto.
   - apply intLt_connected in H as []... exfalso.
     eapply intMul_preserve_lt in H...
     rewrite intMul_0_l in H...
-    eapply intLt_irrefl. eapply intLt_tranr...
+    eapply intLt_irrefl. eapply intLt_trans...
 Qed.
 
 Lemma intMul_neg_factor : ∀a b ∈ ℤ,
@@ -58,7 +58,7 @@ Proof with neauto.
     eapply intMul_preserve_lt in H.
     apply H in Hpb as Hc.
     rewrite (intMul_comm b), intMul_0_l in Hc...
-    eapply intLt_irrefl. eapply intLt_tranr... nauto. auto. auto.
+    eapply intLt_irrefl. eapply intLt_trans... nauto. auto. auto.
 Qed.
 
 Lemma pQuotE_ratPosDenom : ∀r ∈ ℚ, ∃a ∈ ℤ, ∃b ∈ ℤ',
@@ -171,7 +171,7 @@ Proof with auto.
   apply Hnq. apply rat_ident...
 Qed.
 
-Lemma ratLt_tranr : tranr RatLt.
+Lemma ratLt_trans : tranr RatLt.
 Proof with auto.
   intros x y z H1 H2.
   assert (H1' := H1). assert (H2' := H2).
@@ -192,7 +192,7 @@ Proof with auto.
     (intMul_assoc e), (intMul_comm d), <- (intMul_assoc e)
     in H2'; nz...
   eapply intMul_preserve_lt; revgoals; [
-    eapply intLt_tranr; revgoals|..
+    eapply intLt_trans; revgoals|..
   ]; try eassumption; nz; mr; nz.
 Qed.
 
@@ -217,14 +217,14 @@ Qed.
 Lemma ratLt_trich : trich RatLt ℚ.
 Proof.
   eapply trich_iff. apply binRel_is_binRel.
-  apply ratLt_tranr. split.
+  apply ratLt_trans. split.
   apply ratLt_irrefl. apply ratLt_connected.
 Qed.
 
 Theorem ratLt_linearOrder : linearOrder RatLt ℚ.
 Proof.
   split. apply binRel_is_binRel. split.
-  apply ratLt_tranr. apply ratLt_trich.
+  apply ratLt_trans. apply ratLt_trich.
 Qed.
 
 Close Scope Int_scope.
@@ -272,7 +272,7 @@ Proof with neauto.
   assert (Hpa: intPos a). { eapply ratPos_intPos; revgoals... }
   assert (Ha': a ∈ ℤ'). { apply nzIntI0... apply int_neq_0... }
   assert (Hpad: intPos (a ⋅ d)%z) by (apply intMul_pos_prd; nz; auto).
-  assert (Hpcb: intPos (c ⋅ b)%z) by (eapply intLt_tranr; eauto).
+  assert (Hpcb: intPos (c ⋅ b)%z) by (eapply intLt_trans; eauto).
   assert (Hpc: intPos c) by (eapply intMul_pos_factor; revgoals; eauto; nz).
   assert (Hc': c ∈ ℤ'). { apply nzIntI0... apply int_neq_0... }
   rewrite ratMulInv, ratMulInv... apply ratLt; nz...
@@ -352,7 +352,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hn. destruct H.
-    + eapply ratLt_irrefl. eapply ratLt_tranr...
+    + eapply ratLt_irrefl. eapply ratLt_trans...
     + subst. eapply ratLt_irrefl...
 Qed.
 
@@ -371,7 +371,7 @@ Proof with neauto.
     apply not_or_and in H0 as [].
     apply ratLt_connected in H1 as []...
   - intros Hp. destruct H.
-    + eapply ratLt_irrefl. eapply ratLt_tranr...
+    + eapply ratLt_irrefl. eapply ratLt_trans...
     + subst. eapply ratLt_irrefl...
 Qed.
 
@@ -399,7 +399,7 @@ Proof with neauto.
     + right. rewrite H0, ratAddInv_0...
     + apply ratLt_connected in H0 as []... left...
       apply ratPos_neg in H0. exfalso.
-      eapply ratLt_irrefl. eapply ratLt_tranr...
+      eapply ratLt_irrefl. eapply ratLt_trans...
   - destruct (classic (r = Rat 0)). right...
     apply ratLt_connected in H0 as []...
     exfalso. apply H. apply ratNeg_pos... left...
@@ -451,7 +451,7 @@ Proof with nauto.
   subst. exfalso. eapply ratLt_irrefl; eauto.
   apply ratLt_connected in H as []... exfalso.
   apply (Hright s Hs r Hr t Ht Hpt) in H.
-  eapply ratLt_irrefl. eapply ratLt_tranr; eauto.
+  eapply ratLt_irrefl. eapply ratLt_trans; eauto.
   intros r Hr s Hs t Ht Hpt Hlt.
   apply pQuotE_ratPosDenom in Hr as [a [Ha [b [Hb [Hr Hpb]]]]].
   apply pQuotE_ratPosDenom in Hs as [c [Hc [d [Hd [Hs Hpd]]]]].
@@ -481,14 +481,14 @@ Proof with auto.
   apply ratAdd_preserve_lt...
 Qed.
 
-Corollary ratAdd_preserve_lt_tran : ∀ q r s t ∈ ℚ,
+Corollary ratAdd_preserve_lt_trans : ∀ q r s t ∈ ℚ,
   q <𝐪 r → s <𝐪 t → q + s <𝐪 r + t.
 Proof with auto.
   intros q Hq r Hr s Hs t Ht H1 H2.
   apply (ratAdd_preserve_lt q Hq r Hr s Hs) in H1.
   apply (ratAdd_preserve_lt s Hs t Ht r Hr) in H2.
   rewrite (ratAdd_comm s), (ratAdd_comm t) in H2...
-  eapply ratLt_tranr; eauto.
+  eapply ratLt_trans; eauto.
 Qed.
 
 Corollary ratMul_preserve_lt' : ∀ r s t ∈ ℚ,
@@ -499,14 +499,14 @@ Proof with auto.
   apply ratMul_preserve_lt...
 Qed.
 
-Corollary ratMul_preserve_lt_tran : ∀ q r s t ∈ ℚ,
+Corollary ratMul_preserve_lt_trans : ∀ q r s t ∈ ℚ,
   ratPos r → ratPos s → q <𝐪 r → s <𝐪 t → q ⋅ s <𝐪 r ⋅ t.
 Proof with auto.
   intros q Hq r Hr s Hs t Ht Hpr Hps H1 H2.
   apply (ratMul_preserve_lt q Hq r Hr s Hs) in H1...
   apply (ratMul_preserve_lt s Hs t Ht r Hr) in H2...
   rewrite (ratMul_comm s), (ratMul_comm t) in H2...
-  eapply ratLt_tranr; eauto.
+  eapply ratLt_trans; eauto.
 Qed.
 
 Theorem ratAdd_cancel : ∀ r s t ∈ ℚ, r + t = s + t → r = s.
@@ -542,7 +542,7 @@ Proof with eauto.
   rewrite ratMul_comm, (ratMul_comm s); auto; apply nzRatE1...
 Qed.
 
-Corollary ratMul_preserve_leq : ∀ r s t ∈ ℚ,
+Corollary ratMul_preserve_le : ∀ r s t ∈ ℚ,
   ratPos t → r ≤ s ↔ r ⋅ t ≤ s ⋅ t.
 Proof with auto.
   intros r Hr s Hs t Ht Hpt. split; intros [Hlt|Heq].
@@ -558,7 +558,7 @@ Lemma ratAdd_pos_sum : ∀ r s ∈ ℚ,
 Proof with nauto.
   intros r Hr s Hs Hnr Hns.
   unfold ratPos. rewrite <- (ratAdd_0_r (Rat 0))...
-  apply ratAdd_preserve_lt_tran...
+  apply ratAdd_preserve_lt_trans...
 Qed.
 
 Lemma ratAdd_neg_sum : ∀ r s ∈ ℚ,
@@ -566,7 +566,7 @@ Lemma ratAdd_neg_sum : ∀ r s ∈ ℚ,
 Proof with nauto.
   intros r Hr s Hs Hnr Hns.
   unfold ratNeg. rewrite <- (ratAdd_0_r (Rat 0))...
-  apply ratAdd_preserve_lt_tran...
+  apply ratAdd_preserve_lt_trans...
 Qed.
 
 Lemma ratAdd_nonNeg_sum : ∀ p q ∈ ℚ,

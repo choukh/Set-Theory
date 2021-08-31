@@ -30,7 +30,7 @@ Proof with neauto.
   - destruct Hsuc as [β [Hoβ Heq]]. subst.
     destruct Hle as [Hlt|Heq].
     + rewrite operation_suc... f_equal.
-      apply IH... apply ord_leq_iff_lt_suc...
+      apply IH... apply ord_le_iff_lt_suc...
     + exfalso. apply (limord_iff_not_sucord ω)...
       exists β. split...
   - rewrite operation_limit...
@@ -42,10 +42,10 @@ Proof with neauto.
       }
       assert (Hnω: n ∈ ω). {
         contra.
-        apply Hω. apply ord_leq_iff_not_gt...
+        apply Hω. apply ord_le_iff_not_gt...
       }
       rewrite ex8_2_a in Hx...
-      apply ord_leq_iff_sub in Hle... apply Hle.
+      apply ord_le_iff_sub in Hle... apply Hle.
       eapply ord_trans... apply add_ran...
     + assert (Hox: x ⋵ 𝐎𝐍). eapply ord_is_ords...
       destruct (classic (ω ⋸ x⁺)) as [Hω|Hω]. {
@@ -54,7 +54,7 @@ Proof with neauto.
       }
       assert (Hxpω: x⁺ ∈ ω). {
         contra.
-        apply Hω. apply ord_leq_iff_not_gt...
+        apply Hω. apply ord_le_iff_not_gt...
       }
       assert (Hxω: x ∈ ω). eapply ω_trans; revgoals...
       eapply FUnionI... rewrite ex8_2_a...
@@ -68,7 +68,7 @@ End EX8_1_and_2.
 (* ex8_3_a see EST8_2 Fact monotone_operation_preserve_order *)
 (* ex8_3_b see EST8_1 Lemma monotone_operation_injective *)
 (* ex8_4 see EST8_2 Fact normal_operation_limit_is_limit *)
-(* ex8_5 see EST8_2 Lemma monotone_operation_leq *)
+(* ex8_5 see EST8_2 Lemma monotone_operation_le *)
 (* ex8_6_a see EST8_1 Lemma monotone_operation_range_unbounded *)
 (* ex8_6_b see EST8_1 Lemma normal_operation_range_closed *)
 (* ex8_7 see EST8_2 Corollary ex_least_fixed_point *)
@@ -86,7 +86,7 @@ Proof with auto; try congruence.
   apply EmptyNE in Hne as [a₀ Ha₀].
   destruct (classic (xₒ ∈ A S)) as [|Hout]. {
     apply UnionAx. exists (A S). split...
-    apply UnionAx. exists ⎨A S⎬. split...
+    apply UnionAx. exists {A S,}. split...
     apply UnionAx. exists <A S, R S>. split.
     apply Hall. reflexivity. apply PairI1.
   }
@@ -152,7 +152,7 @@ Proof with auto; try congruence.
       destruct (ixm (x = a₀)) in Hfx; destruct (ixm (y = a₀)) in Hfy; subst...
   }
   apply UnionAx. exists A'. split.
-  apply UnionAx. exists ⎨A'⎬. split...
+  apply UnionAx. exists {A',}. split...
   apply UnionAx. exists <A T, R T>. split...
   apply PairI1. apply ReplAx. exists a₀. split...
   unfold ReplA. destruct (ixm (a₀ = a₀))...
@@ -165,7 +165,7 @@ Import Kard.
 Import RegularityConsequences.
 Hint Resolve all_grounded : core.
 
-Example kard_0 : kard 0 = ⎨0⎬.
+Example kard_0 : kard 0 = {0,}.
 Proof with auto.
   ext Hx.
   - apply kard_elim in Hx as [Hx _].
@@ -176,13 +176,13 @@ Proof with auto.
     apply eqnum_empty in Hx. subst x...
 Qed.
 
-Example kard_1 : kard 1 = ⎨1⎬.
+Example kard_1 : kard 1 = {1,}.
 Proof with neauto.
   ext Hx.
   - apply kard_elim in Hx as [Hqn Hle].
     apply Hle in Hqn as Hx.
     rewrite (rank_of_ord 1) in Hx...
-    apply ord_leq_iff_lt_suc in Hx...
+    apply ord_le_iff_lt_suc in Hx...
     apply BUnionE in Hx as [Hx|Hx].
     + rewrite one in Hx. apply SingE in Hx.
       apply rank_0 in Hx. subst x. symmetry in Hqn.
@@ -193,12 +193,12 @@ Proof with neauto.
     intros x Hx. symmetry in Hx.
     apply eqnum_one_iff in Hx as [a Hx]. subst x.
     rewrite rank_of_single, rank_of_ord...
-    apply ord_leq_iff_sub... intros x Hx.
+    apply ord_le_iff_sub... intros x Hx.
     rewrite one in Hx. apply SingE in Hx. subst x.
     apply ord_suc_has_0...
 Qed.
 
-Example kard_2 : kard 2 = ⎨2⎬.
+Example kard_2 : kard 2 = {2,}.
 Proof with neauto; try congruence.
   assert (Hnqn: 1 ≉ 2). {
     intros Hqn. apply CardAx1 in Hqn.
@@ -209,7 +209,7 @@ Proof with neauto; try congruence.
   - apply kard_elim in Hx as [Hqn Hle].
     apply Hle in Hqn as Hx.
     rewrite (rank_of_ord 2) in Hx...
-    apply ord_leq_iff_lt_suc in Hx...
+    apply ord_le_iff_lt_suc in Hx...
     apply BUnionE in Hx as [Hx|Hx].
     + rewrite two in Hx.
       apply TwoE in Hx as [Hx|Hx]; exfalso.
@@ -227,7 +227,7 @@ Proof with neauto; try congruence.
       intros x Hx. apply PairE in Hx as []; subst...
     }
     rewrite rank_of_pair, rank_of_ord...
-    apply ord_leq_iff_sub... intros x Hx. rewrite two in Hx.
+    apply ord_le_iff_sub... intros x Hx. rewrite two in Hx.
     apply TwoE in Hx as []; subst. eapply ord_suc_has_0...
     rewrite <- one. apply ord_lt_suc_iff_sub...
     intros x Hx. rewrite one in Hx. apply SingE in Hx; subst.
@@ -249,7 +249,7 @@ Import OrderType.
 Open Scope LoStruct_scope.
 
 (* 字典序 *)
-Definition LoAdd_R := λ S T, BinRel (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (λ p1 p2,
+Definition LoAdd_R := λ S T, BinRel (A S × {0,} ∪ A T × {1,}) (λ p1 p2,
   (π2 p1 <ᵣ π2 p2) (MemberRel 2) ∨
   π2 p1 = π2 p2 ∧ (
     π2 p1 = 0 ∧ (π1 p1 <ᵣ π1 p2) (R S) ∨
@@ -259,7 +259,7 @@ Definition LoAdd_R := λ S T, BinRel (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (λ p1 
 Notation "S ⨁' T" := (LoAdd_R S T) (at level 70) : LoStruct_scope.
 
 Lemma loAdd_is_binRel : ∀ S T,
-  is_binRel (S ⨁' T) (A S × ⎨0⎬ ∪ A T × ⎨1⎬).
+  is_binRel (S ⨁' T) (A S × {0,} ∪ A T × {1,}).
 Proof with auto.
   intros * x Hx.
   apply binRelE1 in Hx as [s [Hs [t [Ht [Hx _]]]]];
@@ -295,7 +295,7 @@ Proof.
   eapply nat_irrefl; revgoals; neauto.
 Qed.
 
-Lemma loAdd_tranr : ∀ S T, tranr (S ⨁' T).
+Lemma loAdd_trans : ∀ S T, tranr (S ⨁' T).
 Proof with eauto.
   intros S T x y z Hxy Hyz.
   pose proof lt_0_0 as H00.
@@ -323,9 +323,9 @@ Proof with eauto.
   ]).
   left... left...
   right; split... left; split...
-  eapply relLt_tranr; revgoals... apply lo.
+  eapply relLt_trans; revgoals... apply lo.
   right; split... right; split...
-  eapply relLt_tranr; revgoals... apply lo.
+  eapply relLt_trans; revgoals... apply lo.
 Qed.
 
 Lemma loAdd_irrefl : ∀ S T, irrefl (S ⨁' T).
@@ -340,7 +340,7 @@ Proof with neauto.
 Qed.
 
 Lemma loAdd_connected : ∀ S T,
-  connected (S ⨁' T) (A S × ⎨0⎬ ∪ A T × ⎨1⎬).
+  connected (S ⨁' T) (A S × {0,} ∪ A T × {1,}).
 Proof with eauto; try congruence.
   intros S T x Hx y Hy Hnq.
   apply BUnionE in Hx as [Hx|Hx];
@@ -369,19 +369,19 @@ Proof with eauto; try congruence.
 Qed.
 
 Theorem loAdd_loset : ∀ S T,
-  loset (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (S ⨁' T).
+  loset (A S × {0,} ∪ A T × {1,}) (S ⨁' T).
 Proof.
   intros S T.
   apply loset_iff_connected_poset. repeat split.
   - apply loAdd_connected.
   - apply loAdd_is_binRel.
   - eapply binRel_is_rel. apply loAdd_is_binRel.
-  - apply loAdd_tranr.
+  - apply loAdd_trans.
   - apply loAdd_irrefl.
 Qed.
 
 Definition LoAdd := λ S T,
-  constr (A S × ⎨0⎬ ∪ A T × ⎨1⎬) (S ⨁' T) (loAdd_loset S T).
+  constr (A S × {0,} ∪ A T × {1,}) (S ⨁' T) (loAdd_loset S T).
 Notation "S +' T" := (LoAdd S T) (at level 50): LoStruct_scope.
 
 Lemma alternative_loAdd_R_correct : ∀ S T,

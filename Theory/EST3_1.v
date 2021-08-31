@@ -235,7 +235,7 @@ Proof.
 Qed.
 
 Lemma preAp : ∀ F,
-  is_function F → ∀x ∈ dom F, ∃y ∈ ran F, PreAp F x = ⎨<x, y>⎬.
+  is_function F → ∀x ∈ dom F, ∃y ∈ ran F, PreAp F x = {<x, y>,}.
 Proof.
   intros F Hf x Hd.
   pose proof (preAp_unique F Hf x Hd) as [p [Hp Hu]].
@@ -258,7 +258,7 @@ Proof.
   pose proof (preAp F H x Hd) as [y [Hr Heq]].
   exists y. repeat split.
   - apply Hr.
-  - assert (Hxy: < x, y > ∈ ⎨< x, y >⎬) by apply SingI.
+  - assert (Hxy: < x, y > ∈ {< x, y >,}) by apply SingI.
     rewrite <- Heq in Hxy.
     apply SepE in Hxy as [Hxy _]. apply Hxy.
   - unfold Ap. rewrite Heq. rewrite union_single.

@@ -1,6 +1,7 @@
 (** Adapted from "Elements of Set Theory" Chapter 6 **)
 (** Coq coding by choukh, Oct 2020 **)
 
+Require Import ZFC.Lib.FuncFacts.
 Require Import ZFC.Lib.WosetMin.
 Require Import ZFC.Lib.IndexedFamilyUnion.
 Require Import ZFC.Lib.ChoiceFacts.
@@ -27,6 +28,14 @@ Proof with auto.
     + exists f. apply bijection_is_injection...
 Qed.
 
+(* 有限集是是可数集 *)
+Lemma countableI1 : ∀ A, finite A → countable A.
+Proof. intros. apply countable_iff. now left. Qed.
+
+(* 可数无限集是是可数集 *)
+Lemma countableI2 : ∀ A, A ≈ ω → countable A.
+Proof. intros. apply countable_iff. now right. Qed.
+
 (* 集合是不可数集当且仅当它是无限集且不与ω等势 *)
 Lemma uncountable_iff :
   ∀ A, uncountable A ↔ infinite A ∧ A ≉ ω.
@@ -36,24 +45,21 @@ Proof.
 Qed.
 
 (* 集合是可数集当且仅当其基数小于等于阿列夫零 *)
-Lemma countable_iff_cardLeq_aleph0 : ∀ A, countable A ↔ |A| ≤ ℵ₀.
-Proof. split; apply cardLeq_iff; auto. Qed.
+Lemma countable_iff_cardLe_aleph0 : ∀ A, countable A ↔ |A| ≤ ℵ₀.
+Proof. split; apply cardLe_iff; auto. Qed.
 
 (* 空集是可数集 *)
-Lemma empty_countable : countable ∅.
-Proof.
-  apply countable_iff.
-  left. apply empty_finite.
-Qed.
+Lemma empty_cnt : countable ∅.
+Proof. apply countableI1, empty_finite. Qed.
 
 (* 可数集的子集仍是可数集 *)
-Lemma subset_of_countable : ∀ A B,
+Lemma subset_of_cnt : ∀ A B,
   B ⊆ A → countable A → countable B.
 Proof with auto.
   intros * Hsub [f [Hi [Hd Hr]]].
   exists (f ↾ B). split. apply restr_injective...
   split. apply restr_dom. destruct Hi... rewrite Hd...
-  eapply sub_tran. apply restr_ran_included. apply Hr.
+  eapply sub_trans. apply restr_ran_included. apply Hr.
 Qed.
 
 (* 集合是可数集如果它被ω满射 *)
@@ -90,10 +96,10 @@ Proof with eauto; try congruence.
     - apply UnionAx in Hx as [A [HA Hx]]. apply UnionAx.
       exists A. split...
   }
-  apply (subset_of_countable _ 𝒜') in Hcnt...
+  apply (subset_of_cnt _ 𝒜') in Hcnt...
   rewrite Hequ. clear Hequ.
   destruct (classic (𝒜' = ∅)) as [Heq|Hne]. {
-    rewrite Heq, union_empty. apply empty_countable.
+    rewrite Heq, union_empty. apply empty_cnt.
   }
   apply EmptyNE in Hne.
   apply countable_impl_mapped_onto_by_ω in Hcnt as [g Hg]...
@@ -144,15 +150,76 @@ Proof with eauto; try congruence.
   eapply compo_surjection... apply bijection_is_surjection...
 Qed.
 
+(* ==需要选择公理== *)
+(* 可数多个可数无穷集的并是可数无穷集 *)
+Theorem countable_union_of_cntinf : AC_II →
+  ∀ 𝒜, ⦿ 𝒜 → countable 𝒜 → (∀A ∈ 𝒜, |A| = ℵ₀) → |⋃ 𝒜| = ℵ₀.
+Proof with eauto; try congruence.
+  intros AC2 𝒜 Hne Hcnt Hinf.
+  symmetry. apply CardAx1. apply Schröeder_Bernstein. {
+    destruct Hne as [A HA]. apply Hinf in HA as Hqn.
+    symmetry in Hqn. apply CardAx1 in Hqn as [f [Hi [Hd Hr]]].
+    exists f. split... split... intros y Hy. rewrite Hr in Hy.
+    apply UnionAx. exists A...
+  }
+  apply countable_impl_mapped_onto_by_ω in Hcnt as [g Hg]...
+  assert (Hgm: ∀m ∈ ω, g[m] ∈ 𝒜). {
+    intros m Hm. eapply ap_ran... apply surjection_is_func...
+  }
+  set (Func ω 𝒫 (ω ⟶ ⋃ 𝒜) (λ m,
+    {f ∊ ω ⟶ ⋃ 𝒜 | f: ω ⟹ g[m]}
+  )) as h.
+  assert (Hh: h: ω ⇒ 𝒫 (ω ⟶ ⋃ 𝒜)). {
+    apply meta_function. intros m Hm. apply PowerAx.
+    intros x Hx. apply SepE1 in Hx...
+  }
+  assert (Hneh: ∀m ∈ ω, ⦿ h[m]). {
+    intros m Hm. apply Hgm in Hm as Hgma.
+    apply Hinf in Hgma. symmetry in Hgma.
+    apply CardAx1 in Hgma as [f Hf].
+    apply bijection_is_surjection in Hf as [Hf _].
+    exists f. unfold h. rewrite meta_func_ap... apply SepI...
+    destruct Hf as [Hf [Hd Hr]].
+    apply arrow_iff. split... split... intros x Hx.
+    apply UnionAx. exists (g[m]). split...
+    rewrite <- Hr. eapply ranI. apply func_correct...
+  }
+  apply AC2 in Hneh as [F HF]. apply SepE in HF as [_ HF].
+  assert (HFm: ∀m ∈ ω, F[m]: ω ⟹ g[m]). {
+    intros m Hm. apply HF in Hm as HFm. unfold h in HFm.
+    rewrite meta_func_ap in HFm... apply SepE2 in HFm...
+  }
+  set (Func (ω × ω) ⋃ 𝒜 (λ p, F[π2 p][π1 p])) as f.
+  assert (Hf: f: ω × ω ⟹ ⋃ 𝒜). {
+    apply meta_surjection.
+    - intros p Hp.
+      apply CPrdE1 in Hp as [a [Ha [b [Hb Hp]]]].
+      subst p. zfc_simple. apply UnionAx.
+      exists (g[b]). split. apply Hgm... apply (ap_ran ω)...
+      apply surjection_is_func. apply HFm...
+    - intros y Hy. apply UnionAx in Hy as [A [HA Hy]].
+      destruct Hg as [Hfg [Hdg Hrg]]. rewrite <- Hrg in HA.
+      apply ranE in HA as [b Hgb]. apply domI in Hgb as Hb.
+      apply func_ap in Hgb... rewrite Hdg in Hb.
+      pose proof (HFm b Hb) as [HfF [HdF HrF]].
+      rewrite <- Hgb, <- HrF in Hy. apply ranE in Hy as [a HFb].
+      apply domI in HFb as Ha. apply func_ap in HFb...
+      exists <a, b>. split. apply CPrdI... zfc_simple.
+  }
+  destruct ω_eqnum_ω_cp_ω as [i Hi].
+  apply (dominated_by_ω_if_mapped_onto_by_ω _ (f ∘ i)).
+  eapply compo_surjection... apply bijection_is_surjection...
+Qed.
+
 (* ==可以不用选择公理== (用算术基本定理直接建立双射) *)
 (* 所有自然数到ω的函数空间的并是可数集 *)
-Fact ifunion_arrow_ω_countable :
+Fact ifunion_arrow_ω_cnt :
   countable ⋃ᵢ λ i, i ⟶ ω.
 Proof with neauto.
   apply countable_union_of_coutable_set.
   - apply ac2.
-  - apply countable_iff. right. symmetry.
-    apply eqnum_repl. intros n Hn m Hm Heq.
+  - apply countableI2.
+    apply eqnum_repl. reflexivity. intros n Hn m Hm Heq.
     set (Func n ω (λ x, x)) as f.
     assert (Hf: f ∈ n ⟶ ω). {
       apply SepI. apply PowerAx.
@@ -217,15 +284,15 @@ Qed.
 Fact ω_eqnum_sq_ω : ω ≈ 𝗦𝗾 ω.
 Proof.
   apply Schröeder_Bernstein. apply dominated_by_sq.
-  eapply dominate_tran. apply dominate_sub.
+  eapply dominate_trans. apply dominate_sub.
   apply sq_sub_ifunion_arrow.
-  apply ifunion_arrow_ω_countable.
+  apply ifunion_arrow_ω_cnt.
 Qed.
 
-Fact sq_countable : ∀ A, countable A → countable (𝗦𝗾 A).
+Fact sq_cnt : ∀ A, countable A → countable (𝗦𝗾 A).
 Proof with eauto; try congruence.
   intros A [g Hg].
-  eapply dominate_tran; revgoals. {
+  eapply dominate_trans; revgoals. {
     apply eqnum_dominate. now rewrite ω_eqnum_sq_ω.
   }
   set (Func (𝗦𝗾 A) (𝗦𝗾 ω) (λ f,
@@ -271,13 +338,13 @@ Proof with eauto; try congruence.
 Qed.
 
 (* “定理：可数多个可数集的并是可数集“的推广 *)
-Theorem cardLeq_union : AC_I →
+Theorem cardLe_union : AC_I →
   ∀ 𝒜, ∀𝜅 ⋵ 𝐂𝐃, (∀A ∈ 𝒜, |A| ≤ 𝜅) → |⋃ 𝒜| ≤ |𝒜| ⋅ 𝜅.
 Proof with auto; try congruence.
   intros AC1 𝒜 𝜅 [K HK] Hle.
   set {A ∊ 𝒜 | ⦿ A} as 𝒜'.
   assert (Hle': |𝒜'| ≤ |𝒜|). {
-    apply cardLeq_sub. intros x Hx. apply SepE1 in Hx...
+    apply cardLe_sub. intros x Hx. apply SepE1 in Hx...
   }
   assert (Hequ: ⋃ 𝒜 = ⋃ 𝒜'). {
     ext Hx.
@@ -289,9 +356,9 @@ Proof with auto; try congruence.
       exists A. split... apply SepE1 in HA...
   }
   rewrite HK, Hequ in *. clear HK 𝜅 Hequ.
-  eapply cardLeq_tran; revgoals.
-  apply cardMul_preserve_leq. apply Hle'.
-  apply cardLeq_iff.
+  eapply cardLe_trans; revgoals.
+  apply cardMul_preserve_le. apply Hle'.
+  apply cardLe_iff.
   eapply dominate_rewrite_r. {
     apply cardMul_well_defined. apply CardAx0. apply CardAx0.
   }
@@ -305,7 +372,7 @@ Proof with auto; try congruence.
   assert (Hneh: ∀A ∈ 𝒜', ⦿ h[A]). {
     intros A HA. assert (HA' := HA).
     apply SepE in HA as [HA HneA].
-    apply Hle in HA. apply cardLeq_iff in HA.
+    apply Hle in HA. apply cardLe_iff in HA.
     apply dominated_impl_mapped_onto in HA as [f Hf]...
     exists f. unfold h. rewrite meta_func_ap... apply SepI...
     destruct Hf as [Hf [Hd Hr]].
@@ -342,9 +409,9 @@ Proof with neauto; try congruence.
   eapply dominate_rewrite_r. {
     apply cardExp_well_defined; symmetry; apply CardAx0.
   }
-  cut (|𝗦𝗾 A| ≤ |A| ^ ℵ₀). { apply cardLeq_iff. }
+  cut (|𝗦𝗾 A| ≤ |A| ^ ℵ₀). { apply cardLe_iff. }
   rewrite <- cardMul_aleph0_expAleph0...
-  apply cardLeq_iff.
+  apply cardLe_iff.
   eapply dominate_rewrite_r. {
     apply cardMul_well_defined. apply CardAx0.
     eapply Equivalence_Transitive; revgoals. apply CardAx0.
@@ -352,8 +419,8 @@ Proof with neauto; try congruence.
   }
   assert (Hne: ⦿ A). {
     apply EmptyNE. intros H. apply card_eq_0 in H.
-    rewrite H in Hle. apply fin_cardLeq_iff_leq in Hle...
-    apply leq_iff_sub in Hle... apply sub_empty in Hle.
+    rewrite H in Hle. apply fin_cardLe_iff_le in Hle...
+    apply le_iff_sub in Hle... apply sub_empty in Hle.
     eapply (nat_irrefl 2)... rewrite Hle at 1.
     apply suc_has_0. apply ω_inductive...
   }

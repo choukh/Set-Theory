@@ -54,8 +54,16 @@ Proof with auto.
   - exfalso0.
 Qed.
 
+(* 集合加入自身的元素，集合不变 *)
+Lemma add_no_member : ∀ A a, a ∈ A → A ∪ {a,} = A.
+Proof with auto.
+  intros * Ha. ext Hx.
+  - apply BUnionE in Hx as []... apply SingE in H. subst...
+  - apply BUnionI1...
+Qed.
+
 (* 集合除去非自身的元素，集合不变 *)
-Lemma remove_no_member : ∀ a A, a ∉ A → A - ⎨a⎬ = A.
+Lemma remove_no_member : ∀ A a, a ∉ A → A - {a,} = A.
 Proof with auto.
   intros * Ha. ext Hx.
   - apply SepE1 in Hx...
@@ -63,8 +71,18 @@ Proof with auto.
     apply Ha. subst...
 Qed.
 
+(* 集合加入一个不是自身的元素再去掉，集合不变 *)
+Lemma add_one_member_then_remove : ∀ A a, a ∉ A → (A ∪ {a,}) - {a,} = A.
+Proof with auto.
+  intros. ext Hx.
+  - apply SepE in Hx as [].
+    apply BUnionE in H0 as []... exfalso...
+  - apply SepI. apply BUnionI1...
+    apply SingNI. intros Heq. congruence.
+Qed.
+
 (* 集合除去自身的一个元素再放回去，集合不变 *)
-Lemma remove_one_member_then_return : ∀ A a, a ∈ A → A - ⎨a⎬ ∪ ⎨a⎬ = A.
+Lemma remove_one_member_then_return : ∀ A a, a ∈ A → (A - {a,}) ∪ {a,} = A.
 Proof with auto.
   intros. ext Hx.
   - apply BUnionE in Hx as [].
@@ -75,28 +93,9 @@ Proof with auto.
     + apply BUnionI1. apply SepI... apply SingNI...
 Qed.
 
-(* 集合加入一个不是自身的元素再去掉，集合不变 *)
-Lemma add_one_member_then_remove : ∀ A a, a ∉ A → A ∪ ⎨a⎬ - ⎨a⎬ = A.
-Proof with auto.
-  intros. ext Hx.
-  - apply SepE in Hx as [].
-    apply BUnionE in H0 as []... exfalso...
-  - apply SepI. apply BUnionI1...
-    apply SingNI. intros Heq. congruence.
-Qed.
-
 (* 从集合中取出一个元素组成单集，它与取完元素后的集合的并等于原集合 *)
-Lemma split_one_element : ∀ A a, a ∈ A → A = (A - ⎨a⎬) ∪ ⎨a⎬.
-Proof with auto.
-  intros. ext Hx.
-  - destruct (classic (x = a)).
-    + subst x. apply BUnionI2...
-    + apply BUnionI1. apply SepI...
-      intros contra. apply SingE in contra...
-  - apply BUnionE in Hx as [].
-    + apply SepE1 in H0...
-    + apply SingE in H0. subst x...
-Qed.
+Corollary split_one_element : ∀ A a, a ∈ A → A = (A - {a,}) ∪ {a,}.
+Proof. intros. symmetry. apply remove_one_member_then_return; auto. Qed.
 
 (** 真子集 **)
 Notation "A ⊂ B" := (A ⊆ B ∧ A ≠ B) (at level 70) : set_scope.
@@ -480,4 +479,33 @@ Proof.
     apply CompI. apply HC. intros HU.
     apply InterE in HU as [_ H].
     apply Hy2. apply H. apply Hy1.
+Qed.
+
+(* 替代二元并分配律 *)
+Lemma repl_bunion_distr : ∀ F A B,
+  {F x | x ∊ A ∪ B} = {F x | x ∊ A} ∪ {F x | x ∊ B}.
+Proof with auto.
+  intros. ext y H.
+  - apply ReplAx in H as [x [Hx HFx]].
+    apply BUnionE in Hx as [].
+    + apply BUnionI1. apply ReplAx. exists x...
+    + apply BUnionI2. apply ReplAx. exists x...
+  - apply BUnionE in H as [];
+    apply ReplAx in H as [x [Hx HFx]];
+    apply ReplAx; exists x; split...
+    apply BUnionI1... apply BUnionI2...
+Qed.
+
+(* 任意并二元并分配律 *)
+Lemma union_bunion_distr : ∀ A B, ⋃ (A ∪ B) = ⋃ A ∪ ⋃ B.
+Proof with auto.
+  intros. ext y H.
+  - apply UnionAx in H as [x [Hx HFx]].
+    apply BUnionE in Hx as [].
+    + apply BUnionI1. apply UnionAx. exists x...
+    + apply BUnionI2. apply UnionAx. exists x...
+  - apply BUnionE in H as [];
+    apply UnionAx in H as [x [Hx HFx]];
+    apply UnionAx; exists x; split...
+    apply BUnionI1... apply BUnionI2...
 Qed.

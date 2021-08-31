@@ -69,7 +69,7 @@ Proof with eauto; try congruence.
     exists m. split... symmetry. exists f. split...
   }
   apply infinite_set_nonempty in Hinf' as [a Ha].
-  exists (f ∪ ⎨<m, a>⎬). split; [|split].
+  exists (f ∪ {<m, a>,}). split; [|split].
   - apply bunion_injective...
     apply single_pair_injective. split.
     + intros x Hx. exfalso.
@@ -114,7 +114,7 @@ Proof with neauto; try congruence.
   intros AC3 A Hinf.
   pose proof (AC3 A) as [F [_ [_ Hch]]].
   set {B ∊ 𝒫 A | finite B} as 𝒜.
-  set (Func 𝒜 𝒜 (λ B, B ∪ ⎨F[A - B]⎬)) as ℋ.
+  set (Func 𝒜 𝒜 (λ B, B ∪ {F[A - B],})) as ℋ.
   assert (Hℋ: ℋ: 𝒜 ⇒ 𝒜). {
     apply meta_function. intros B HB.
     apply SepE in HB as [Hsub Hfin].
@@ -173,7 +173,7 @@ Corollary aleph0_is_the_least_infinite_card : AC_III →
   ∀𝜅 ⋵ 𝐂𝐃ⁱⁿᶠ, ℵ₀ ≤ 𝜅.
 Proof with auto.
   intros AC3 𝜅 [Hcd Hinf]. rewrite (card_of_card 𝜅)...
-  apply cardLeq_iff. apply ω_is_the_least_infinite_set...
+  apply cardLe_iff. apply ω_is_the_least_infinite_set...
 Qed.
 
 (* ==使用选择公理的代替证法== *)
@@ -206,8 +206,8 @@ Corollary cardLt_aleph0_iff_finite :
   ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 ℵ₀ ↔ finite 𝜅.
 Proof with auto.
   intros 𝜅 Hcd. split.
-  - intros [Hleq Hnq]. contra.
-    apply Hnq. apply cardLeq_antisym...
+  - intros [Hle Hnq]. contra.
+    apply Hnq. apply cardLe_antisym...
     apply aleph0_is_the_least_infinite_card. apply ac3. split...
   - intros [k [Hk Hqn]]. apply CardAx1 in Hqn.
     rewrite <- card_of_card, <- card_of_nat in Hqn... rewrite Hqn.
@@ -222,7 +222,7 @@ Proof with auto.
   intros * Hdm Hfin.
   rewrite set_finite_iff_card_finite.
   apply cardLt_aleph0_iff_finite...
-  eapply cardLeq_lt_tran. apply cardLeq_iff. apply Hdm.
+  eapply cardLe_lt_trans. apply cardLe_iff. apply Hdm.
   apply cardLt_aleph0_iff_finite...
   rewrite <- set_finite_iff_card_finite...
 Qed.
@@ -260,11 +260,11 @@ Proof with neauto; try congruence.
     split. apply inv_dom. rewrite inv_ran...
   }
   assert (Hif': injective f⁻¹) by (apply inv_injective; auto).
-  set (Func A (A - ⎨f[0]⎬) (λ x, match (ixm (x ∈ ran f)) with
+  set (Func A (A - {f[0],}) (λ x, match (ixm (x ∈ ran f)) with
     | inl _ => f[f⁻¹[x]⁺]
     | inr _ => x
   end)) as g.
-  exists (A - ⎨f[0]⎬). split. {
+  exists (A - {f[0],}). split. {
     split... intros Heq.
     assert (Hf0: f[0] ∈ A)by (eapply ap_ran; neauto).
     rewrite <- Heq in Hf0. apply SepE in Hf0 as [_ H]. apply H...
@@ -309,7 +309,7 @@ Qed.
 
 (* 基数的无限累加和 *)
 Definition CardInfSum : set → (set → set) → set := λ I ℱ,
-  |⋃{ℱ i × ⎨i⎬ | i ∊ I}|.
+  |⋃{ℱ i × {i,} | i ∊ I}|.
 Notation "∑" := (CardInfSum) : Card_scope.
 Notation "∑ᵢ" := (CardInfSum ω) : Card_scope.
 
@@ -323,10 +323,10 @@ Notation "∏ᵢ" := (CardInfProd ω) : Card_scope.
   (1) 新函数的定义域是原函数的定义域与给定单集的笛卡尔积 且
   (2) 新函数的值域是原函数的值域与给定单集的笛卡尔积 *)
 Definition FuncDisjointify := λ i F,
-  Func (dom F × ⎨i⎬) (ran F × ⎨i⎬) (λ x, <F[π1 x], i>).
+  Func (dom F × {i,}) (ran F × {i,}) (λ x, <F[π1 x], i>).
 
 Lemma bijection_disjointify : ∀ F i, injective F →
-  (FuncDisjointify i F): dom F × ⎨i⎬ ⟺ ran F × ⎨i⎬.
+  (FuncDisjointify i F): dom F × {i,} ⟺ ran F × {i,}.
 Proof with eauto; try congruence.
   intros. apply meta_bijection.
   - intros x Hx. apply CPrdI... eapply ap_ran.
@@ -444,7 +444,7 @@ Proof with eauto; try congruence.
   - ext Hx.
     + apply domE in Hx as [y Hp].
       apply HpUG in Hp as [i [Hi Hp]].
-      apply UnionAx. exists (A i × ⎨i⎬). split...
+      apply UnionAx. exists (A i × {i,}). split...
       apply ReplAx. exists i. split...
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
       apply SepE in Hp as [Hp _]. apply CPrdE2 in Hp as [Hx _].
@@ -464,7 +464,7 @@ Proof with eauto; try congruence.
   - ext y Hy.
     + apply ranE in Hy as [x Hp].
       apply HpUG in Hp as [i [Hi Hp]].
-      apply UnionAx. exists (B i × ⎨i⎬). split...
+      apply UnionAx. exists (B i × {i,}). split...
       apply ReplAx. exists i. split...
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
       apply SepE in Hp as [Hp _]. apply CPrdE2 in Hp as [_ Hy].
@@ -580,7 +580,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 基数的无限累加保持序关系 *)
-Theorem cardInfSum_preserve_leq : AC_III' → ∀ I A B,
+Theorem cardInfSum_preserve_le : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| ≤ |B i|) → ∑ I A ≤ ∑ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
@@ -589,7 +589,7 @@ Proof with eauto; try congruence.
   set {F'_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
-    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    apply Heqcd in Hi. apply cardLe_iff in Hi as [f Hf].
     exists (FuncDisjointify i f). apply ReplAx.
     exists f. split... apply SepI... apply arrowI.
     apply injection_is_func...
@@ -607,7 +607,7 @@ Proof with eauto; try congruence.
     apply Hrg in HFi. apply ReplAx in HFi as [f [Hf Heq]].
     apply SepE in Hf as [_ Hf]. exists f. split...
   }
-  apply cardLeq_iff. exists (⋃ G). split; split.
+  apply cardLe_iff. exists (⋃ G). split; split.
   - repeat split.
     + intros p Hp. apply HpUG in Hp as [i [Hi Hp]].
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
@@ -653,7 +653,7 @@ Proof with eauto; try congruence.
   - ext Hx.
     + apply domE in Hx as [y Hp].
       apply HpUG in Hp as [i [Hi Hp]].
-      apply UnionAx. exists (A i × ⎨i⎬). split...
+      apply UnionAx. exists (A i × {i,}). split...
       apply ReplAx. exists i. split...
       apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
       apply SepE in Hp as [Hp _]. apply CPrdE2 in Hp as [Hx _].
@@ -673,7 +673,7 @@ Proof with eauto; try congruence.
   - intros y Hy.
     apply ranE in Hy as [x Hp].
     apply HpUG in Hp as [i [Hi Hp]].
-    apply UnionAx. exists (B i × ⎨i⎬). split...
+    apply UnionAx. exists (B i × {i,}). split...
     apply ReplAx. exists i. split...
     apply HgF in Hi as [f [Hf Heq]]. rewrite Heq in Hp.
     apply SepE in Hp as [Hp _].
@@ -684,7 +684,7 @@ Qed.
 
 (* ==需要选择公理== *)
 (* 基数的无限累乘保持序关系 *)
-Theorem cardInfProd_preserve_leq : AC_III' → ∀ I A B,
+Theorem cardInfProd_preserve_le : AC_III' → ∀ I A B,
   (∀i ∈ I, |A i| ≤ |B i|) → ∏ I A ≤ ∏ I B.
 Proof with eauto; try congruence.
   intros AC3' * Heqcd. unfold AC_III' in AC3'.
@@ -692,7 +692,7 @@ Proof with eauto; try congruence.
   set {F_ i | i ∊ I} as ℱ.
   specialize AC3' with ℱ as [g [Hfg [Hdg Hrg]]]. {
     intros x Hx. apply ReplAx in Hx as [i [Hi HFi]]. subst x.
-    apply Heqcd in Hi. apply cardLeq_iff in Hi as [f Hf].
+    apply Heqcd in Hi. apply cardLe_iff in Hi as [f Hf].
     exists f. apply SepI... apply arrowI. apply injection_is_func...
   }
   set (⋃{B i | i ∊ I}) as ℬ.
@@ -721,7 +721,7 @@ Proof with eauto; try congruence.
     intros x Hx. apply meta_function. intros i Hi. eapply HBi...
   }
   set (Func (InfCPrd I A) (InfCPrd I B) G) as h.
-  apply cardLeq_iff. exists h. apply meta_injection.
+  apply cardLe_iff. exists h. apply meta_injection.
   - intros x Hx. apply SepI.
     + apply arrowI. apply HG...
     + intros i Hi. unfold G. rewrite meta_func_ap...
@@ -749,10 +749,10 @@ Proof with auto; try congruence.
   intros I 𝜅 Hcd.
   rewrite (card_of_card 𝜅) at 1...
   rewrite cardMul_comm, cardMul. apply CardAx1.
-  replace (⋃ (Repl (λ i, 𝜅 × ⎨i⎬) I)) with (𝜅 × I). easy.
+  replace (⋃ (Repl (λ i, 𝜅 × {i,}) I)) with (𝜅 × I). easy.
   ext p Hp.
   - apply CPrdE1 in Hp as [k [Hk [i [Hi Hp]]]]. subst p.
-    apply UnionAx. exists (𝜅 × ⎨i⎬). split...
+    apply UnionAx. exists (𝜅 × {i,}). split...
     apply ReplAx. exists i. split... apply CPrdI...
   - apply UnionAx in Hp as [P [HP Hp]].
     apply ReplAx in HP as [i [Hi HP]]. subst P.
@@ -766,7 +766,7 @@ Lemma cardInfSum_of_disjoint : ∀ I ℱ,
   ∑ I ℱ = |⋃{ℱ i | i ∊ I}|.
 Proof with eauto.
   intros * Hdj. apply CardAx1.
-  set (⋃{ℱ i × ⎨i⎬ | i ∊ I}) as X.
+  set (⋃{ℱ i × {i,} | i ∊ I}) as X.
   set (⋃{ℱ i | i ∊ I}) as Y.
   set (Func X Y π1) as f.
   exists f. apply meta_bijection.
@@ -790,7 +790,7 @@ Qed.
 Fact cardInfSum_0_pow : ∑ᵢ (λ i, 0 ^ i) = 1.
 Proof with nauto.
   rewrite (card_of_nat 1)... apply CardAx1.
-  set (⋃ᵢ λ i, 0 ^ i × ⎨i⎬) as A.
+  set (⋃ᵢ λ i, 0 ^ i × {i,}) as A.
   set (Func A 1 (λ _, 0)) as f.
   exists f. apply meta_bijection.
   - intros _ _. apply suc_has_0...

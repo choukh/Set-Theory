@@ -15,10 +15,10 @@ Proof with eauto.
   intros [𝒜 H].
   specialize H with (𝒫 ⋃𝒜) as [A [H1 H2]].
   apply union_dominate in H1.
-  assert (𝒫 ⋃𝒜 ≼ ⋃𝒜) by (eapply dominate_tran; eauto).
-  apply cardLeq_iff in H. rewrite card_of_power in H.
+  assert (𝒫 ⋃𝒜 ≼ ⋃𝒜) by (eapply dominate_trans; eauto).
+  apply cardLe_iff in H. rewrite card_of_power in H.
   destruct (cardLt_power (|⋃𝒜|)) as [H3 H4]...
-  apply H4. eapply cardLeq_antisym...
+  apply H4. eapply cardLe_antisym...
 Qed.
 
 Example ex6_16_1 : ∀ A, A ≼ A ⟶ 2.
@@ -77,7 +77,7 @@ Qed.
 
 Example ex6_17_b : Embed 1 <𝐜 2 ^ ℵ₀ ∧ 1 ⋅ 2 ^ ℵ₀ = 2 ^ ℵ₀ ⋅ 2 ^ ℵ₀.
 Proof with nauto.
-  split. eapply cardLeq_lt_tran.
+  split. eapply cardLe_lt_trans.
   apply cardLt_aleph0_if_finite... apply cardLt_power...
   rewrite cardMul_comm, cardMul_1_r, cardMul_expAleph0_expAleph0...
 Qed.
@@ -109,28 +109,28 @@ Proof with eauto; try congruence.
     + intros i Hi. exfalso0.
   - apply set_eqnum_suc_nonempty in Hqn as HneI...
     destruct HneI as [j Hj]. apply split_one_element in Hj as HeqI.
-    rewrite HeqI in Hqn. apply finite_set_remove_one_element in Hqn...
-    specialize IH with (I - ⎨j⎬) as [f Hf]... {
+    rewrite HeqI in Hqn. apply finite_set_remove_one_member in Hqn...
+    specialize IH with (I - {j,}) as [f Hf]... {
       intros i Hi. apply HneX. apply SepE1 in Hi...
     }
     apply SepE in Hf as [Hf Hfi].
     apply arrow_iff in Hf as [Hf [Hd Hr]].
     pose proof (HneX _ Hj) as [xⱼ Hxj].
-    assert (Hf': is_function (f ∪ ⎨<j, xⱼ>⎬)). {
+    assert (Hf': is_function (f ∪ {<j, xⱼ>,})). {
       apply bunion_is_func... apply single_pair_is_func.
       apply EmptyI. intros x Hx. apply BInterE in Hx as [H1 H2].
       rewrite dom_of_single_pair in H2.
       rewrite Hd in H1. apply SepE2 in H1...
     }
-    assert (Hstar: ∀i ∈ I, (f ∪ ⎨<j, xⱼ>⎬)[i] ∈ ℱ i). {
+    assert (Hstar: ∀i ∈ I, (f ∪ {<j, xⱼ>,})[i] ∈ ℱ i). {
       intros i Hi. destruct (classic (i = j)).
-      * subst. replace ((f ∪ ⎨<j, xⱼ>⎬)[j]) with xⱼ...
+      * subst. replace ((f ∪ {<j, xⱼ>,})[j]) with xⱼ...
         symmetry. apply func_ap... apply BUnionI2...
-      * assert (Hi': i ∈ I - ⎨j⎬). { apply SepI... apply SingNI... }
-        replace ((f ∪ ⎨<j, xⱼ>⎬)[i]) with (f[i])...
+      * assert (Hi': i ∈ I - {j,}). { apply SepI... apply SingNI... }
+        replace ((f ∪ {<j, xⱼ>,})[i]) with (f[i])...
         symmetry. apply func_ap... apply BUnionI1. apply func_correct...
     }
-    exists (f ∪ ⎨<j, xⱼ>⎬). apply SepI.
+    exists (f ∪ {<j, xⱼ>,}). apply SepI.
     apply arrow_iff. split; [|split]...
     + ext Hx.
       * apply domE in Hx as [y Hp]. apply BUnionE in Hp as [].
@@ -152,7 +152,7 @@ Qed.
 Example ex6_23 : ∀ A F g h,
   is_function g → dom g = ω →
   (∀n ∈ ω, g[n] = F[A - h[n]]) → h[∅] = ∅ →
-  (∀n ∈ ω, h[n⁺] = h[n] ∪ ⎨F[A - h[n]]⎬) →
+  (∀n ∈ ω, h[n⁺] = h[n] ∪ {F[A - h[n]],}) →
   ∀n ∈ ω, g⟦n⟧ = h[n].
 Proof with eauto; try congruence.
   intros * Hfg Hdg Hrg Hh0 Hhn n Hn.
@@ -182,14 +182,14 @@ Definition incr_seq : (nat → set) → Prop := λ Q,
   ∀ n, Q n ⊆ Q (S n).
 
 (* 若增长序列的元素下标有小于等于关系那么元素有包含关系 *)
-Lemma incr_seq_index_leq_impl_sub : ∀ Q, incr_seq Q →
+Lemma incr_seq_index_le_impl_sub : ∀ Q, incr_seq Q →
   ∀ n m, n <= m → Q n ⊆ Q m.
 Proof with auto.
   intros Q Hinc n m Hle.
   induction m.
   - apply Le.le_n_0_eq in Hle. subst...
   - apply PeanoNat.Nat.le_succ_r in Hle as []; [|subst]...
-    eapply sub_tran. apply IHm... apply Hinc.
+    eapply sub_trans. apply IHm... apply Hinc.
 Qed.
 
 Import ZFC.Lib.Choice.
@@ -261,14 +261,14 @@ Proof with neauto; try congruence.
       apply lt_suc_iff_sub... apply Hmax.
       apply ReplAx. exists x. split...
     }
-    eapply sub_tran. apply Hsub.
+    eapply sub_trans. apply Hsub.
     intros x Hx. apply UnionAx in Hx as [q [Hq Hx]].
     apply ReplAx in Hq as [n [Hn Hq]]. subst q.
     assert (Hnw: n ∈ ω). {
       eapply ω_trans... apply ω_inductive...
     }
     apply BUnionE in Hn as [].
-    + apply (incr_seq_index_leq_impl_sub Q Hinc n)...
+    + apply (incr_seq_index_le_impl_sub Q Hinc n)...
       apply le_isomorphic. repeat rewrite embed_proj_id...
       apply lt_iff_psub...
     + apply SingE in H...
@@ -304,7 +304,7 @@ Proof with neauto; try congruence.
     apply lt_iff_psub in Hnm as [Hnm _]...
     rewrite <- (embed_proj_id m) in Hnm...
     apply le_isomorphic in Hnm.
-    apply (incr_seq_index_leq_impl_sub Q Hinc) in Hnm.
+    apply (incr_seq_index_le_impl_sub Q Hinc) in Hnm.
     apply Hnm in Hgm. specialize Hgn1 with m.
     apply SepE2 in Hgn1...
 Qed.

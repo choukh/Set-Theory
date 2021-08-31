@@ -38,7 +38,7 @@ Proof with eauto; try congruence.
       apply SepI. eapply ap_ran...
       apply Hoe... eapply ap_ran...
     }
-    apply Hlt in Hfm. eapply lo_not_leq_gt...
+    apply Hlt in Hfm. eapply lo_not_le_gt...
 Qed.
 
 Module EX7_15_AlternativeProof.
@@ -68,7 +68,7 @@ End EX7_15_AlternativeProof.
 Section EX7_6.
 Import WosetMin.SimpleVer.
 
-Lemma card_int_eq_aleph0 : |ℤ| = ℵ₀.
+Lemma card_int_cntinf : |ℤ| = ℵ₀.
 Proof with nauto.
   apply CardAx1. symmetry.
   apply Schröeder_Bernstein.
@@ -96,7 +96,7 @@ Proof with nauto.
         [apply intEqSymm; apply H22|apply H12|..]...
 Qed.
 
-Lemma card_rat_eq_aleph0 : |ℚ| = ℵ₀.
+Lemma card_rat_cntinf : |ℚ| = ℵ₀.
 Proof with nauto.
   apply CardAx1. symmetry.
   apply Schröeder_Bernstein.
@@ -110,7 +110,7 @@ Proof with nauto.
       do 2 rewrite add_0_r, embed_proj_id in Heq...
   - eapply dominate_rewrite_r.
     eapply Equivalence_Transitive; revgoals. now rewrite ω_eqnum_ω_cp_ω.
-    apply cardMul_well_defined; apply CardAx1; apply card_int_eq_aleph0.
+    apply cardMul_well_defined; apply CardAx1; apply card_int_cntinf.
     set (Func ℚ ℤ² RatProj) as f.
     exists f. apply meta_injection.
     + intros r Hr. apply pQuotE in Hr as [a [Ha [b [Hb Hr]]]].
@@ -132,20 +132,19 @@ Open Scope Real_scope.
 
 (* ==需要选择公理== *)
 (* 对实数的任意子集，如果它按小于关系是良序集，那么它是可数的 *)
-Theorem reals_well_ordered_by_lt_is_countable : AC_III →
+Theorem reals_well_ordered_by_lt_is_cnt : AC_III →
   ∀ A, A ⊆ ℝ → woset A (RealLt ⥏ A) → countable A.
 Proof with neauto.
   intros AC3 A Hsub Hwo.
   assert (H := Hwo). destruct H as [Hlo _].
   assert (AC3': AC_III') by (apply AC_III_iff_III'; auto).
-  apply countable_iff.
-  destruct (classic (finite A)) as [|Hinf]...
-  right. symmetry.
+  destruct (classic (finite A)) as [|Hinf].
+  apply countableI1... apply countableI2. symmetry.
   apply Schröeder_Bernstein. {
     apply ω_is_the_least_infinite_set...
   }
   eapply dominate_rewrite_r. {
-    apply CardAx1. apply card_rat_eq_aleph0.
+    apply CardAx1. apply card_rat_cntinf.
   }
   destruct (classic (∀x ∈ A, ∃y ∈ A, x <𝐫 y)) as [Hnomax|Hmax]. {
     set (Next A (RealLt ⥏ A)) as next.
@@ -197,18 +196,18 @@ Proof with neauto.
       + exfalso. apply Hstar in H1 as [[r [Hr Hbt]] Hle]...
         destruct HB1 as [_ Hlt1]. destruct HB2 as [Hlt2 _].
         apply SepE1 in Hlt. apply Hle in Hlt as []; auto;
-        eapply realLt_irrefl; eapply realLt_tranr.
-        apply Hlt1. eapply realLt_tranr...
+        eapply realLt_irrefl; eapply realLt_trans.
+        apply Hlt1. eapply realLt_trans...
         apply Hlt1. subst x2...
       + exfalso. apply Hstar in H2 as [[r [Hr Hbt]] Hle]...
         destruct HB2 as [_ Hlt1]. destruct HB1 as [Hlt2 _].
         apply SepE1 in Hlt. apply Hle in Hlt as []; auto;
-        eapply realLt_irrefl; eapply realLt_tranr.
-        apply Hlt1. eapply realLt_tranr...
+        eapply realLt_irrefl; eapply realLt_trans.
+        apply Hlt1. eapply realLt_trans...
         apply Hlt1. subst x1...
   } {
     apply set_not_all_ex_not in Hmax as [m [Hm Hmax]].
-    set (A - ⎨m⎬)%set as B.
+    set (A - {m,})%set as B.
     set (Next A (RealLt ⥏ A)) as next.
     set (λ x y z, x <𝐫 y ∧ y <𝐫 z) as bt.
     set (λ Q, ∃x ∈ B, ∀r ∈ ℚ, bt x RatEmbed[r] (next x) → r ∈ Q) as P.
@@ -277,25 +276,25 @@ Proof with neauto.
         * exfalso. apply Hstar in H1B as [[r [Hr Hbt]] [Hle _]]...
           destruct HB1 as [_ Hlt1]. destruct HB2 as [Hlt2 _].
           apply SepE1 in Hlt. apply Hle in Hlt as []; auto;
-          eapply realLt_irrefl; eapply realLt_tranr.
-          apply Hlt1. eapply realLt_tranr...
+          eapply realLt_irrefl; eapply realLt_trans.
+          apply Hlt1. eapply realLt_trans...
           apply Hlt1. subst x2...
         * exfalso. apply Hstar in H2B as [[r [Hr Hbt]] [Hle _]]...
           destruct HB2 as [_ Hlt1]. destruct HB1 as [Hlt2 _].
           apply SepE1 in Hlt. apply Hle in Hlt as []; auto;
-          eapply realLt_irrefl; eapply realLt_tranr.
-          apply Hlt1. eapply realLt_tranr...
+          eapply realLt_irrefl; eapply realLt_trans.
+          apply Hlt1. eapply realLt_trans...
           apply Hlt1. subst x1...
       + exfalso. apply HB in H1B as HB1. apply HrF in HB1.
         apply SepE2 in HB1. rewrite Heq in HB1.
         apply Hstar in H1B as [_ [_ Hn]]...
         apply Hmax. exists (next x1). split...
-        destruct HB1 as [_ Hlt]... eapply realLt_tranr...
+        destruct HB1 as [_ Hlt]... eapply realLt_trans...
       + exfalso. apply HB in H2B as HB2. apply HrF in HB2.
         apply SepE2 in HB2. rewrite <- Heq in HB2.
         apply Hstar in H2B as [_ [_ Hn]]...
         apply Hmax. exists (next x2). split...
-        destruct HB2 as [_ Hlt]... eapply realLt_tranr...
+        destruct HB2 as [_ Hlt]... eapply realLt_trans...
       + contra.
         apply H1B. apply SepI... apply SingNI. intros Heqx1.
         apply H2B. apply SepI... apply SingNI. congruence.
@@ -455,7 +454,7 @@ Proof with eauto; try congruence.
   set {x ∊ A | infinite (tail x)} as T.
   assert (Hinf2: ∀t ∈ A, ¬(finite (seg t) ∧ finite (tail t))). {
     intros t Ht [Hfin1 Hfin2]. apply Hinf.
-    replace A with (seg t ∪ tail t ∪ ⎨t⎬). {
+    replace A with (seg t ∪ tail t ∪ {t,}). {
       apply bunion_finite... apply bunion_finite... 
     }
     ext Hx.
@@ -487,7 +486,7 @@ Proof with eauto; try congruence.
       apply SepE2 in Hm.
       apply infinite_set_nonempty in Hm as [n Hn].
       apply SepE in Hn as [Hn Hlt]. rewrite <- H in Hn.
-      apply Hle in Hn. eapply lo_not_leq_gt...
+      apply Hle in Hn. eapply lo_not_le_gt...
     }
     set ((Min A R)[S]) as a.
     set ((Min A R⁻¹)[A - S]) as b.
@@ -498,7 +497,7 @@ Proof with eauto; try congruence.
     pose proof (min_correct A R⁻¹ (A - S)) as [Hb Hleb]...
     fold b in Hb, Hleb. apply SepE in Hb as [Hb Hb'].
     apply Hb'. apply SepI... intros Hfinb. apply Hfina.
-    replace (seg a) with (seg b ∪ ⎨b⎬). {
+    replace (seg a) with (seg b ∪ {b,}). {
       apply bunion_finite...
     }
     ext Hx.
@@ -516,7 +515,7 @@ Proof with eauto; try congruence.
     + apply SepE in Hx as [Hx Hxa].
       assert (Hx': x ∈ A - S). {
         apply SepI... intros H.
-        apply Hlea in H. eapply lo_not_leq_gt...
+        apply Hlea in H. eapply lo_not_le_gt...
       }
       apply Hleb in Hx' as [Hxb|Heq].
       * apply BUnionI1. apply SepI... rewrite <- inv_relLt...
@@ -533,7 +532,7 @@ Proof with eauto; try congruence.
       apply infinite_set_nonempty in Hm as [n Hn].
       apply SepE in Hn as [Hn Hlt]. rewrite <- H in Hn.
       apply Hle in Hn. rewrite <- inv_relLt in Hlt.
-      eapply lo_not_leq_gt...
+      eapply lo_not_le_gt...
     }
     set ((Min A R⁻¹)[T]) as a.
     set ((Min A R)[A - T]) as b.
@@ -544,7 +543,7 @@ Proof with eauto; try congruence.
     pose proof (min_correct A R (A - T)) as [Hb Hleb]...
     fold b in Hb, Hleb. apply SepE in Hb as [Hb Hb'].
     apply Hb'. apply SepI... intros Hfinb. apply Hfina.
-    replace (tail a) with (tail b ∪ ⎨b⎬). {
+    replace (tail a) with (tail b ∪ {b,}). {
       apply bunion_finite...
     }
     ext Hx.
@@ -562,7 +561,7 @@ Proof with eauto; try congruence.
     + apply SepE in Hx as [Hx Hxa].
       assert (Hx': x ∈ A - T). {
         apply SepI... intros H. apply Hlea in H.
-        rewrite <- inv_relLt in Hxa. eapply lo_not_leq_gt...
+        rewrite <- inv_relLt in Hxa. eapply lo_not_le_gt...
       }
       apply Hleb in Hx' as [Hxb|Heq].
       * apply BUnionI1. apply SepI...

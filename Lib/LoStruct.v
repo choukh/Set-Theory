@@ -79,14 +79,14 @@ Proof.
   apply OrderedStruct.iso_symm; auto.
 Qed.
 
-Theorem iso_tran : Transitive isomorphic.
+Theorem iso_trans : Transitive isomorphic.
 Proof.
   intros S T U H1 H2. rewrite parent_iso in H1, H2.
-  apply parent_iso. eapply OrderedStruct.iso_tran; eauto.
+  apply parent_iso. eapply OrderedStruct.iso_trans; eauto.
 Qed.
 
 Theorem iso_equiv : Equivalence isomorphic.
 Proof.
-  split. apply iso_refl. apply iso_symm. apply iso_tran.
+  split. apply iso_refl. apply iso_symm. apply iso_trans.
 Qed.
 Existing Instance iso_equiv.

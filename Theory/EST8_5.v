@@ -10,7 +10,7 @@ Import StructureCasting.
 
 (* 结构不交化 *)
 Definition WoDisj_A :=
-  λ S i, (A S × ⎨i⎬).
+  λ S i, (A S × {i,}).
 Definition WoDisj_R :=
   λ S i, {<<π1 p, i>, <π2 p, i>> | p ∊ R S}.
 
@@ -23,7 +23,7 @@ Proof.
   subst. zfc_simple. apply CPrdI; apply CPrdI; auto.
 Qed.
 
-Lemma woDisj_tranr : ∀ S i, tranr (WoDisj_R S i).
+Lemma woDisj_trans : ∀ S i, tranr (WoDisj_R S i).
 Proof.
   intros S i x y z Hxy Hyz.
   destruct (wo S) as [[Hbr [Htr _]] _].
@@ -67,7 +67,7 @@ Proof.
   apply loset_iff_connected_poset. repeat split.
   apply woDisj_connected. apply woDisj_is_binRel.
   eapply binRel_is_rel. apply woDisj_is_binRel.
-  apply woDisj_tranr. apply woDisj_irrefl.
+  apply woDisj_trans. apply woDisj_irrefl.
 Qed.
 
 Lemma woDisj_woset :
@@ -149,7 +149,7 @@ Proof with auto.
     apply CPrdI; [apply BUnionI1|apply BUnionI2]...
 Qed.
 
-Lemma woAdd_tranr : ∀ S T, disjoint (A S) (A T) → tranr (S ⨁ T).
+Lemma woAdd_trans : ∀ S T, disjoint (A S) (A T) → tranr (S ⨁ T).
 Proof with eauto.
   intros S T Hdj x y z Hxy Hyz.
   destruct (wo S) as [[HbrS [HtrS _]] _].
@@ -222,7 +222,7 @@ Proof.
   - apply woAdd_connected.
   - apply woAdd_is_binRel.
   - eapply binRel_is_rel. apply woAdd_is_binRel.
-  - apply woAdd_tranr. apply woDisj_disjoint. auto.
+  - apply woAdd_trans. apply woDisj_disjoint. auto.
   - apply woAdd_irrefl. apply woDisj_disjoint. auto.
 Qed.
 
@@ -312,7 +312,7 @@ Proof.
   subst x. apply CPrdI; auto.
 Qed.
 
-Lemma woMul_tranr : ∀ S T, tranr (S * T).
+Lemma woMul_trans : ∀ S T, tranr (S * T).
 Proof with eauto.
   intros S T x y z Hxy Hyz.
   destruct (wo S) as [[_ [HtrS _]] _].
@@ -354,7 +354,7 @@ Proof.
   - apply woMul_connected.
   - apply woMul_is_binRel.
   - eapply binRel_is_rel. apply woMul_is_binRel.
-  - apply woMul_tranr.
+  - apply woMul_trans.
   - apply woMul_irrefl.
 Qed.
 
@@ -449,7 +449,7 @@ Proof with eauto; try congruence.
   intros α Ho.
   unfold WOᵒ, WOⁿ, WoAdd. simpl.
   unfold WoDisj_A. simpl.
-  set (α × ⎨0⎬ ∪ 1 × ⎨1⎬) as Dom.
+  set (α × {0,} ∪ 1 × {1,}) as Dom.
   set (Func Dom α⁺ (λ p, match (ixm (π2 p = 0)) with
     | inl _ => π1 p | inr _ => α
   end)) as F.

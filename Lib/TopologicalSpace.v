@@ -77,7 +77,7 @@ End Trivial.
 
 Include Topology Trivial.
 
-Fact opens_eq : τ = ⎨∅⎬.
+Fact opens_eq : τ = {∅,}.
 Proof with auto.
   ext Hx.
   - apply SepE1 in Hx. simpl in Hx.

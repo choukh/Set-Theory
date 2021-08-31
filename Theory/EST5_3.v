@@ -13,7 +13,7 @@ Local Ltac amr := apply intAdd_ran; apply intMul_ran; nauto.
   有理数算术：加法，加法逆元，乘法，乘法逆元 ***)
 
 (* 非零整数 *)
-Definition ℤ' := (ℤ - ⎨Int 0⎬)%set.
+Definition ℤ' := (ℤ - {Int 0,})%set.
 
 Lemma nzIntI0 : ∀a ∈ ℤ, a ≠ Int 0 → a ∈ ℤ'.
 Proof with auto.
@@ -435,7 +435,7 @@ Proof with neauto; try congruence.
     apply intMul_cancel in H... apply SingNE in H2...
 Qed.
 
-Lemma preRatProj : ∀r ∈ ℚ, ∃p, PreRatProj r = ⎨p⎬.
+Lemma preRatProj : ∀r ∈ ℚ, ∃p, PreRatProj r = {p,}.
 Proof with auto.
   intros r Hr.
   apply preRatProj_unique in Hr as [p [Hp Hu]].
@@ -450,7 +450,7 @@ Lemma ratProj : ∀a ∈ ℤ, ∀b ∈ ℤ', ∃c ∈ ℤ, ∃d ∈ ℤ',
 Proof with auto.
   intros a Ha b Hb.
   pose proof (preRatProj ([<a, b>]~)) as [x Hsg].
-  apply pQuotI... assert (Hx: x ∈ ⎨x⎬) by apply SingI.
+  apply pQuotI... assert (Hx: x ∈ {x,}) by apply SingI.
   rewrite <- Hsg in Hx. apply preRatProjE in Hx
     as [c [Hc [d [Hd [Hx [H1 [H2 H3]]]]]]]...
   exists c. split... exists d. repeat split...
@@ -756,7 +756,7 @@ Proof with eauto.
 Qed.
 
 (* 非零有理数 *)
-Definition ℚ' := (ℚ - ⎨Rat 0⎬)%set.
+Definition ℚ' := (ℚ - {Rat 0,})%set.
 
 Lemma nzRatI0 : ∀r ∈ ℚ, r ≠ Rat 0 → r ∈ ℚ'.
 Proof with auto.

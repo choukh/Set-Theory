@@ -72,30 +72,30 @@ Qed.
 
 (** 单集 **)
 Definition Singleton : set → set := λ x, {x, x}.
-Notation "⎨ x ⎬" := (Singleton x) (format "⎨ x ⎬") : set_scope.
+Notation "{ x , }" := (Singleton x) (format "{ x , }") : set_scope.
 
-Lemma SingI : ∀ x, x ∈ ⎨x⎬.
+Lemma SingI : ∀ x, x ∈ {x,}.
 Proof. unfold Singleton. intros. apply PairI1. Qed.
 Global Hint Immediate SingI : core.
 
-Lemma SingE : ∀ x y, x ∈ ⎨y⎬ → x = y.
+Lemma SingE : ∀ x y, x ∈ {y,} → x = y.
 Proof.
   intros. apply PairE in H.
   destruct H; apply H.
 Qed.
 
-Lemma SingNI : ∀ A B, A ≠ B → A ∉ ⎨B⎬.
+Lemma SingNI : ∀ A B, A ≠ B → A ∉ {B,}.
 Proof.
   intros * Hnq H. apply Hnq. apply SingE in H. apply H.
 Qed.
 
-Lemma SingNE : ∀ A B, A ∉ ⎨B⎬ → A ≠ B.
+Lemma SingNE : ∀ A B, A ∉ {B,} → A ≠ B.
 Proof.
   intros * H Heq. apply H. subst A. apply SingI.
 Qed.
 
 (* 如果单集与配对相等那么它们的成员都相等 *)
-Lemma single_eq_pair : ∀ a b c, ⎨a⎬ = {b, c} → a = b ∧ b = c.
+Lemma single_eq_pair : ∀ a b c, {a,} = {b, c} → a = b ∧ b = c.
 Proof.
   intros. assert (Hb: b ∈ {b, c}) by apply PairI1.
   rewrite <- H in Hb. apply SingE in Hb.
@@ -121,7 +121,7 @@ Proof with auto; try congruence.
 Qed.
 
 (* 如果单集与单集相等那么它们的成员相等 *)
-Lemma single_eq_single : ∀ a b, ⎨a⎬ = ⎨b⎬ → a = b.
+Lemma single_eq_single : ∀ a b, {a,} = {b,} → a = b.
 Proof.
   intros. apply single_eq_pair in H as [H _]. apply H.
 Qed.
@@ -131,7 +131,7 @@ Delimit Scope ZFC1_scope with zfc1.
 Open Scope ZFC1_scope.
 
 (* 壹 *)
-Definition One := ⎨∅⎬.
+Definition One := {∅,}.
 Notation "1" := One : ZFC1_scope.
 
 Lemma OneI1 : ∅ ∈ 1.
@@ -172,14 +172,14 @@ Proof. intros. apply PairE. apply H. Qed.
 (* 更多引理 *)
 
 (* 集合的成员的单集是原集合的子集 *)
-Lemma single_of_member_is_subset : ∀ A, ∀x ∈ A, ⎨x⎬ ⊆ A.
+Lemma single_of_member_is_subset : ∀ A, ∀x ∈ A, {x,} ⊆ A.
 Proof.
   intros A x Hx y Hy.
   apply SingE in Hy. subst. apply Hx.
 Qed.
 
 (* 任意成员都与给定的任意成员相等的集合是单集 *)
-Lemma character_of_single : ∀ A, ∀x ∈ A, (∀y ∈ A, x = y) → A = ⎨x⎬.
+Lemma character_of_single : ∀ A, ∀x ∈ A, (∀y ∈ A, x = y) → A = {x,}.
 Proof.
   intros A x Hx H.
   ext.
@@ -188,7 +188,7 @@ Proof.
 Qed.
 
 (* 单集的子集是空集或该单集 *)
-Lemma subset_of_single : ∀ x A, A ⊆ ⎨x⎬ → A = ∅ ∨ A = ⎨x⎬.
+Lemma subset_of_single : ∀ x A, A ⊆ {x,} → A = ∅ ∨ A = {x,}.
 Proof.
   intros. destruct (empty_or_not A).
   - left. apply H0.
@@ -225,7 +225,7 @@ Proof.
 Qed.
 
 (* 任意集合的单集的并就是原集合 *)
-Lemma union_single : ∀ A, ⋃ ⎨A⎬ = A.
+Lemma union_single : ∀ A, ⋃ {A,} = A.
 Proof.
   intros. ext.
   - apply UnionAx in H as [a [H1 H2]].
@@ -281,7 +281,7 @@ Proof.
 Qed.
 
 (* 集合的单集的幂集 *)
-Lemma power_single : ∀ a, 𝒫 ⎨a⎬ = {∅, ⎨a⎬}.
+Lemma power_single : ∀ a, 𝒫 {a,} = {∅, {a,}}.
 Proof.
   intros. ext.
   - apply PowerAx in H.
@@ -295,6 +295,15 @@ Qed.
 (* 壹的幂集是贰 *)
 Lemma power_one : 𝒫 1 = 2.
 Proof. exact (power_single ∅). Qed.
+
+(* 单集的替代 *)
+Lemma repl_single : ∀ F a, {F x | x ∊ {a,}} = {F a,}.
+Proof.
+  intros F a. ext y H.
+  - apply ReplAx in H as [x [Hx H]].
+    apply SingE in Hx. subst. apply SingI.
+  - apply SingE in H. subst. apply ReplI; auto.
+Qed.
 
 (** 二元并 **)
 Definition BUnion := λ X Y, ⋃{X, Y}.

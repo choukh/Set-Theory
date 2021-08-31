@@ -28,7 +28,7 @@ Definition AC_III' := ∀ 𝒜, (∀A ∈ 𝒜, ⦿ A) →
 (* 选择公理等效表述4：策梅洛公设 (Zermelo’s Postulate) *)
 Definition AC_IV := ∀ 𝒜, ∅ ∉ 𝒜 →
   (∀ A B ∈ 𝒜, A ≠ B → A ∩ B = ∅) →
-  ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = ⎨x⎬.
+  ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = {x,}.
 
 (* 选择公理等效表述5：势具有可比较性 *)
 Definition AC_V := ∀ A B, A ≼ B ∨ B ≼ A.
@@ -96,19 +96,19 @@ Proof with eauto; try congruence.
       apply Hsub in Hp. apply SepE in Hp as [_ H]. zfc_simple.
   - intros AC1' R Hrel.
     specialize AC1' with R as [f [[Hf [Hd Hr]] Hin]].
-    assert (Hdf: ∀x ∈ dom R, ⎨x⎬ ∈ dom f). {
+    assert (Hdf: ∀x ∈ dom R, {x,} ∈ dom f). {
       intros x Hx. rewrite Hd. apply UnionAx.
       eapply domE in Hx as [y Hp].
       exists <x, y>. split... apply PairI1.
     }
-    assert (Hrf: ∀x ∈ dom R, ∃ a b, <a, b> ∈ R ∧ f[⎨x⎬] = <a, b>). {
+    assert (Hrf: ∀x ∈ dom R, ∃ a b, <a, b> ∈ R ∧ f[{x,}] = <a, b>). {
       intros x Hx. apply Hdf in Hx.
       apply domE in Hx as [y Hp]. apply ranI in Hp as Hy.
       apply func_ap in Hp... subst y. apply Hr in Hy.
       apply rel_pair in Hy as Heqy...
-      exists (π1 f[⎨x⎬]), (π2 f[⎨x⎬]). split...
+      exists (π1 f[{x,}]), (π2 f[{x,}]). split...
     }
-    set (Func (dom R) (ran R) (λ x, π2 f[⎨x⎬])) as g.
+    set (Func (dom R) (ran R) (λ x, π2 f[{x,}])) as g.
     assert (Hg: is_function g). {
       apply meta_function. intros x Hx.
       apply Hrf in Hx as [a [b [Hp Hfx]]].
@@ -156,12 +156,12 @@ Theorem AC_IV_to_III : AC_IV → AC_III.
 Proof with eauto.
   unfold AC_IV, AC_III. intros AC4 A.
   set {x ∊ 𝒫 A | nonempty x} as A'.
-  set {⎨B⎬ × B | B ∊ A'} as 𝒜.
+  set {{B,} × B | B ∊ A'} as 𝒜.
   destruct AC4 with 𝒜 as [C Hsg]. {
     intros H. apply ReplAx in H as [B [HB H]].
     apply SepE in HB as [_ [b Hb]].
     apply cprd_to_0 in H as [].
-    assert (B ∈ ⎨B⎬)... rewrite H in H0. exfalso0.
+    assert (B ∈ {B,})... rewrite H in H0. exfalso0.
     subst. exfalso0.
   } {
     intros x Hx y Hy Hnq.
@@ -173,11 +173,11 @@ Proof with eauto.
     apply SingE in Ha. apply SingE in Hc.
     apply op_iff in H2 as []. congruence.
   }
-  assert (Hstar: ∀x ∈ ⋃ 𝒜, ∃ B, B ∈ A' ∧ x ∈ ⎨B⎬ × B). {
+  assert (Hstar: ∀x ∈ ⋃ 𝒜, ∃ B, B ∈ A' ∧ x ∈ {B,} × B). {
     intros x Hx. apply UnionAx in Hx as [p [Hp Hx]].
     apply ReplAx in Hp as [B [HB Hp]]. subst. exists B. split...
   }
-  assert (Hcp: ∀B ∈ A', ⎨B⎬ × B ∈ 𝒜). {
+  assert (Hcp: ∀B ∈ A', {B,} × B ∈ 𝒜). {
     intros B HB. apply ReplAx. exists B. split...
   }
   set (C ∩ ⋃𝒜) as F.
@@ -199,9 +199,9 @@ Proof with eauto.
       apply SingE in Ha. apply SingE in Hc.
       apply op_iff in H1 as []. apply op_iff in H2 as []. subst.
       apply Hcp in HB2 as H0.
-      assert (H1: <B2, b> ∈ ⎨B2⎬ × B2 ∩ C).
+      assert (H1: <B2, b> ∈ {B2,} × B2 ∩ C).
         { apply BInterI... apply CPrdI... }
-      assert (H2: <B2, d> ∈ ⎨B2⎬ × B2 ∩ C).
+      assert (H2: <B2, d> ∈ {B2,} × B2 ∩ C).
         { apply BInterI... apply CPrdI... }
       apply Hsg in H0 as [x Hx]. rewrite Hx in H1, H2.
       apply SingE in H1. apply SingE in H2. subst.
@@ -214,22 +214,22 @@ Proof with eauto.
       apply Hstar in Hp as [B [HB Hp]].
       apply CPrdE2 in Hp as [Hx _].
       apply SingE in Hx. subst...
-    + assert (H: ⎨x⎬ × x ∈ 𝒜). { apply ReplAx. exists x. split... }
+    + assert (H: {x,} × x ∈ 𝒜). { apply ReplAx. exists x. split... }
       pose proof (Hsg _ H) as [p Heq].
-      assert (Hp: p ∈ ⎨x⎬ × x ∩ C). { rewrite Heq... }
+      assert (Hp: p ∈ {x,} × x ∩ C). { rewrite Heq... }
       apply BInterE in Hp as [H1 H2]. assert (H1' := H1).
       apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
       apply SingE in Ha. subst. eapply domI. apply BInterI...
-      apply UnionAx. exists (⎨x⎬ × x). split...
+      apply UnionAx. exists ({x,} × x). split...
   - intros B Hi Hsub.
     assert (HB: B ∈ A'). { apply SepI... apply PowerAx... }
     apply Hcp in HB. pose proof (Hsg _ HB) as [p Heq].
-    assert (Hp: p ∈ ⎨B⎬ × B ∩ C). { rewrite Heq... }
+    assert (Hp: p ∈ {B,} × B ∩ C). { rewrite Heq... }
     apply BInterE in Hp as [H1 H2].
     apply CPrdE1 in H1 as [a [Ha [b [Hb H1]]]].
     apply SingE in Ha. subst. cut (F[B] = b). congruence.
     apply func_ap... apply BInterI... apply UnionAx.
-    exists (⎨B⎬ × B). split... apply CPrdI...
+    exists ({B,} × B). split... apply CPrdI...
 Qed.
 
 Theorem AC_III_iff_III' : AC_III ↔ AC_III'.
@@ -313,7 +313,7 @@ Proof with eauto.
   }
   apply comp_nonempty in Hps as [a Ha].
   apply SepE in Ha as [Ha Hb]. apply domE in Ha as [b Hab].
-  set (M ∪ ⎨<a, b>⎬) as M'. cut (M' ∈ 𝒜). {
+  set (M ∪ {<a, b>,}) as M'. cut (M' ∈ 𝒜). {
     intros HM'. apply Hmax in HM' as [].
     - apply H. intros x Hx. apply BUnionI1...
     - apply Hb. rewrite H. eapply domI. apply BUnionI2...
@@ -390,7 +390,7 @@ Proof with eauto; try congruence.
   apply comp_nonempty in Hps2 as [b Hb].
   apply SepE in Ha as [Ha Ha'].
   apply SepE in Hb as [Hb Hb'].
-  set ((M ∪ ⎨<a, b>⎬)) as M'. cut (M' ∈ 𝒜). {
+  set ((M ∪ {<a, b>,})) as M'. cut (M' ∈ 𝒜). {
     intros HM'. apply Hmax in HM' as [].
     - apply H. intros x Hx. apply BUnionI1...
     - apply Ha'. rewrite H. eapply domI. apply BUnionI2...
@@ -591,13 +591,13 @@ Proof with eauto; try congruence.
   }
   destruct Hne as [B HB].
   apply split_one_element in HB as Heq.
-  destruct (classic (ℬ - ⎨B⎬ = ∅)) as [|Hne]. {
+  destruct (classic (ℬ - {B,} = ∅)) as [|Hne]. {
     exists B. split... intros x Hx.
     apply sub_iff_no_comp in H. apply H in Hx. apply SingE in Hx...
   }
-  pose proof (IH (ℬ - ⎨B⎬)) as [M [HM Hmax]].
+  pose proof (IH (ℬ - {B,})) as [M [HM Hmax]].
   - apply EmptyNE...
-  - apply finite_set_remove_one_element...
+  - apply finite_set_remove_one_member...
   - eapply sub_of_chain_is_chain...
   - assert (HM': M ∈ ℬ). { apply SepE1 in HM... }
     pose proof (Hchn B HB M HM') as [].
@@ -608,7 +608,7 @@ Proof with eauto; try congruence.
     + exists B. split... intros x Hx.
       destruct (classic (x = B))...
       destruct (Hmax x). { apply SepI... apply SingNI... }
-      * left. intros Hsub. apply H1. eapply sub_tran...
+      * left. intros Hsub. apply H1. eapply sub_trans...
       * left. subst x. intros Hsub. apply H0. apply sub_antisym...
 Qed.
 
@@ -670,7 +670,7 @@ Proof with eauto.
     apply SepE in HB as [HB Hu]. apply SepI.
     + eapply Hfc in HB...
     + apply Hfc. intros D HfD HsD.
-      eapply Hfc in Hu... eapply sub_tran. apply HsD.
+      eapply Hfc in Hu... eapply sub_trans. apply HsD.
       rewrite bunion_comm, (bunion_comm A). apply sub_mono_bunion...
   - intros H. apply SepI.
     + apply Hfc. intros C HfC HsC.
@@ -722,11 +722,11 @@ Proof with eauto.
   split.
   - intros HB C _ HsC.
     apply SepE in HB as [HsB Hchn]. apply PowerAx in HsB.
-    apply SepI. apply PowerAx. eapply sub_tran...
+    apply SepI. apply PowerAx. eapply sub_trans...
     eapply sub_of_chain_is_chain...
   - intros H. apply SepI.
     + apply PowerAx. intros x Hx.
-      assert (Hs: ⎨x⎬ ∈ Chains A). {
+      assert (Hs: {x,} ∈ Chains A). {
         apply H... intros s Hs. apply SingE in Hs. subst...
       }
       apply SepE in Hs as [Hs _]. apply PowerAx in Hs. apply Hs...
@@ -761,8 +761,8 @@ Proof with auto.
   exists N. split... intros K HK.
   destruct (classic (N ⊆ K)) as [Hsub|]... right.
   apply sub_antisym... apply Hmax'...
-  replace ℳ with (ℳ ∪ ⎨K⎬). apply BUnionI2...
-  cut (ℳ ∪ ⎨K⎬ ∈ Chains 𝒜). {
+  replace ℳ with (ℳ ∪ {K,}). apply BUnionI2...
+  cut (ℳ ∪ {K,} ∈ Chains 𝒜). {
     intros Hu. apply Hmax in Hu as [Hm|]... exfalso.
     apply Hm. intros x Hx. apply BUnionI1...
   }
@@ -774,9 +774,9 @@ Proof with auto.
     apply BUnionE in HC as [HC|HC]; apply BUnionE in HD as [HD|HD].
     + apply Hchn...
     + apply SingE in HD. subst D. left.
-      eapply sub_tran. apply Hmax'... apply Hsub.
+      eapply sub_trans. apply Hmax'... apply Hsub.
     + apply SingE in HC. subst C. right.
-      eapply sub_tran. apply Hmax'... apply Hsub.
+      eapply sub_trans. apply Hmax'... apply Hsub.
     + apply SingE in HC. apply SingE in HD. subst C D. left...
 Qed.
 

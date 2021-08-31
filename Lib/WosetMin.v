@@ -9,10 +9,10 @@ Module SimpleVer.
 (* 良序集上的最小元函数 *)
 Definition Min : set → set := λ R,
   let P := λ p, minimum (π2 p) (π1 p) R in
-  {p ∊ (𝒫 (fld R) - ⎨∅⎬) × fld R | P p}.
+  {p ∊ (𝒫 (fld R) - {∅,}) × fld R | P p}.
 
 Lemma minE : ∀ R B m, <B, m> ∈ Min R →
-  B ∈ 𝒫 (fld R) - ⎨∅⎬ ∧ minimum m B R.
+  B ∈ 𝒫 (fld R) - {∅,} ∧ minimum m B R.
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
   apply CPrdE2 in Hp as [HN _].
@@ -20,7 +20,7 @@ Proof.
 Qed.
 
 Lemma min_function : ∀ A R, woset A R → (fld R) = A →
-  (Min R): 𝒫 A - ⎨∅⎬ ⇒ A.
+  (Min R): 𝒫 A - {∅,} ⇒ A.
 Proof with eauto.
   intros * [Hlo Hmin] Heq. subst A. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].
@@ -129,7 +129,7 @@ Proof with eauto; try congruence.
       rewrite Heq, H in Hna. apply Hna.
 Qed.
 
-Lemma ω_min_function : (Min Lt): 𝒫 ω - ⎨∅⎬ ⇒ ω.
+Lemma ω_min_function : (Min Lt): 𝒫 ω - {∅,} ⇒ ω.
 Proof.
   apply min_function.
   apply Lt_wellOrder. apply fld_Lt.
@@ -203,17 +203,17 @@ Module FullVer.
 
 Definition Min : set → set → set := λ A R,
   let P := λ p, minimum (π2 p) (π1 p) R in
-  {p ∊ (𝒫 A - ⎨∅⎬) × A | P p}.
+  {p ∊ (𝒫 A - {∅,}) × A | P p}.
 
 Lemma minE : ∀ A R B m, <B, m> ∈ Min A R →
-  B ∈ 𝒫 A - ⎨∅⎬ ∧ minimum m B R.
+  B ∈ 𝒫 A - {∅,} ∧ minimum m B R.
 Proof.
   intros. apply SepE in H as [Hp [Hn Hle]].
   apply CPrdE2 in Hp as [HN _].
   zfc_simple. repeat split; auto.
 Qed.
 
-Lemma min_function : ∀ A R, woset A R → (Min A R): 𝒫 A - ⎨∅⎬ ⇒ A.
+Lemma min_function : ∀ A R, woset A R → (Min A R): 𝒫 A - {∅,} ⇒ A.
 Proof with eauto.
   intros * [Hlo Hmin]. split; split.
   - intros p Hp. apply SepE in Hp as [Hp _].

@@ -10,12 +10,12 @@ Require Export ZFC.Theory.EX6_1.
 (* dominate and Schröeder-Bernstein theorem see lib/Dominate *)
 
 (* 基数的序 *)
-Definition CardLeq : set → set → Prop := λ 𝜅 𝜆,
+Definition CardLe : set → set → Prop := λ 𝜅 𝜆,
   𝜅 ⋵ 𝐂𝐃 ∧ 𝜆 ⋵ 𝐂𝐃 ∧ 𝜅 ≼ 𝜆.
-Notation "𝜅 ≤ 𝜆" := (CardLeq 𝜅 𝜆) (at level 70) : Card_scope.
+Notation "𝜅 ≤ 𝜆" := (CardLe 𝜅 𝜆) (at level 70) : Card_scope.
 
 (* 两个集合的基数有序关系当且仅当这两个集合有支配关系 *)
-Lemma cardLeq_iff : ∀ A B, |A| ≤ |B| ↔ A ≼ B.
+Lemma cardLe_iff : ∀ A B, |A| ≤ |B| ↔ A ≼ B.
 Proof with eauto; try congruence.
   intros. split.
   - intros [_ [_ Hdm]].
@@ -44,11 +44,11 @@ Proof with eauto; try congruence.
     apply bijection_is_injection. apply Hh.
 Qed.
 
-Lemma cardLeq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → |𝜅| ≤ |𝜆|.
-Proof. intros * [_ [_ H]]. apply cardLeq_iff. apply H. Qed.
+Lemma cardLe : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → |𝜅| ≤ |𝜆|.
+Proof. intros * [_ [_ H]]. apply cardLe_iff. apply H. Qed.
 
 (* 基数的序关系良定义 *)
-Lemma cardLeq_well_defined : ∀ K₁ K₂ L₁ L₂,
+Lemma cardLe_well_defined : ∀ K₁ K₂ L₁ L₂,
   K₁ ≈ K₂ → L₁ ≈ L₂ → K₁ ≼ L₁ ↔ K₂ ≼ L₂.
 Proof with eauto.
   cut (∀ K₁ K₂ L₁ L₂, K₁ ≈ K₂ → L₁ ≈ L₂ → K₁ ≼ L₁ → K₂ ≼ L₂). {
@@ -72,9 +72,9 @@ Notation "𝜅 <𝐜 𝜆" := (CardLt 𝜅 𝜆) (at level 70) : Card_scope.
 Lemma cardLt_iff : ∀ A B, |A| <𝐜 |B| ↔ A ≺ B.
 Proof with auto.
   intros. split.
-  - intros [Hleq Hnq]. apply cardLeq_iff in Hleq.
+  - intros [Hle Hnq]. apply cardLe_iff in Hle.
     split... intros Hqn. apply Hnq. apply CardAx1...
-  - intros [Hdm Hnq]. split. apply cardLeq_iff...
+  - intros [Hdm Hnq]. split. apply cardLe_iff...
     intros Heq. apply Hnq. apply CardAx1...
 Qed.
 
@@ -85,7 +85,7 @@ Proof with auto.
   rewrite (card_of_card 𝜅), (card_of_card 𝜆)... apply CardAx1...
 Qed.
 
-Lemma cardLeq_iff_lt_or_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 ↔ 𝜅 <𝐜 𝜆 ∨
+Lemma cardLe_iff_lt_or_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 ↔ 𝜅 <𝐜 𝜆 ∨
   (𝜅 ⋵ 𝐂𝐃 ∧ 𝜆 ⋵ 𝐂𝐃 ∧ 𝜅 = 𝜆).
 Proof with auto.
   intros. split.
@@ -95,13 +95,13 @@ Proof with auto.
 Qed.
 
 (* 如果两个集合有子集关系，那么这两个集合的基数有序关系 *)
-Lemma cardLeq_sub : ∀ A B, A ⊆ B → |A| ≤ |B|.
+Lemma cardLe_sub : ∀ A B, A ⊆ B → |A| ≤ |B|.
 Proof.
-  intros. apply cardLeq_iff. apply dominate_sub. apply H.
+  intros. apply cardLe_iff. apply dominate_sub. apply H.
 Qed.
 
 (* 如果两个基数有序关系，那么存在有子集关系的集合，它们分别与这两个基数等势 *)
-Lemma cardLeq_sub_exists : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 →
+Lemma cardLe_sub_exists : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 →
   ∃ K L, K ≈ 𝜅 ∧ L ≈ 𝜆 ∧ K ⊆ L.
 Proof with auto; try easy.
   intros * [Hk [Hl [f [Hf [Hd Hr]]]]].
@@ -110,24 +110,24 @@ Proof with auto; try easy.
 Qed.
 
 (* 如果两个基数有序关系，那么存在有子集关系的集合，它们的基数就是这两个基数 *)
-Lemma cardLeq_sub_exists_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 →
+Lemma cardLe_sub_exists_eq : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 →
   ∃ K L, |K| = 𝜅 ∧ |L| = 𝜆 ∧ K ⊆ L.
 Proof with auto.
-  intros * Hleq. assert (H := Hleq). destruct H as [Hk [Hl _]].
-  apply cardLeq_sub_exists in Hleq as [K [L [H1 [H2 H]]]].
+  intros * Hle. assert (H := Hle). destruct H as [Hk [Hl _]].
+  apply cardLe_sub_exists in Hle as [K [L [H1 [H2 H]]]].
   exists K, L. repeat split...
   rewrite (card_of_card 𝜅)... apply CardAx1...
   rewrite (card_of_card 𝜆)... apply CardAx1...
 Qed.
 
 (* 任意基数大于等于零 *)
-Fact cardLeq_0 : ∀𝜅 ⋵ 𝐂𝐃, 0 ≤ 𝜅.
+Fact cardLe_0 : ∀𝜅 ⋵ 𝐂𝐃, 0 ≤ 𝜅.
 Proof.
   intros 𝜅 Hcd. split; [|split]; nauto. apply empty_dominated.
 Qed.
 
 (* 非零基数大于等于1 *)
-Fact cardLeq_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 1 ≤ 𝜅.
+Fact cardLe_1 : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≠ 0 → 1 ≤ 𝜅.
 Proof with nauto.
   intros 𝜅 Hcd. split; [|split]...
   apply EmptyNE in H as [k Hk].
@@ -138,33 +138,33 @@ Proof with nauto.
 Qed.
 
 (* 有限基数的序关系与支配关系等价 *)
-Lemma fin_cardLeq_iff_dominate : ∀ m n ∈ ω, m ≤ n ↔ m ≼ n.
+Lemma fin_cardLe_iff_dominate : ∀ m n ∈ ω, m ≤ n ↔ m ≼ n.
 Proof with auto.
   intros m Hm n Hn. split; intros.
-  - apply cardLeq in H. apply cardLeq_iff in H...
-  - apply cardLeq_iff in H.
+  - apply cardLe in H. apply cardLe_iff in H...
+  - apply cardLe_iff in H.
     rewrite <- card_of_nat, <- card_of_nat in H...
 Qed.
 
 (* 有限基数的序关系与自然数序关系等价 *)
-Lemma fin_cardLeq_iff_leq : ∀ m n ∈ ω, m ≤ n ↔ m ⋸ n.
+Lemma fin_cardLe_iff_le : ∀ m n ∈ ω, m ≤ n ↔ m ⋸ n.
 Proof with auto.
   intros m Hm n Hn. split; intros.
-  - apply fin_cardLeq_iff_dominate in H...
+  - apply fin_cardLe_iff_dominate in H...
     destruct (classic (m = n))... left.
     apply nat_connected in H0 as []... exfalso.
     apply lt_iff_psub in H0 as []... apply dominate_sub in H0.
     apply H1. apply nat_eqnum_eq... apply Schröeder_Bernstein...
-  - apply leq_iff_sub in H... apply dominate_sub in H.
-    apply fin_cardLeq_iff_dominate...
+  - apply le_iff_sub in H... apply dominate_sub in H.
+    apply fin_cardLe_iff_dominate...
 Qed.
 
 Lemma fin_cardLt_iff_lt : ∀ m n ∈ ω, m <𝐜 n ↔ m ∈ n.
 Proof with eauto.
   intros m Hm n Hn. split; intros.
-  - destruct H as [Hleq Hnq]. apply fin_cardLeq_iff_leq in Hleq...
-    apply leq_iff_sub in Hleq... apply lt_iff_psub...
-  - split. apply fin_cardLeq_iff_leq...
+  - destruct H as [Hle Hnq]. apply fin_cardLe_iff_le in Hle...
+    apply le_iff_sub in Hle... apply lt_iff_psub...
+  - split. apply fin_cardLe_iff_le...
     intros Heq. subst. eapply nat_irrefl...
 Qed.
 
@@ -173,70 +173,70 @@ Lemma cardLt_power : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 <𝐜 2 ^ 𝜅.
 Proof with auto.
   intros 𝜅 H. rewrite (card_of_card 𝜅), <- card_of_power...
   apply cardLt_iff. split; [|apply Cantor's].
-  set (Func 𝜅 (𝒫 𝜅) (λ x, ⎨x⎬)) as f.
+  set (Func 𝜅 (𝒫 𝜅) (λ x, {x,})) as f.
   exists f. apply meta_injection.
   - intros x Hx. apply PowerAx. intros y Hy.
     apply SingE in Hy. subst...
-  - intros x1 Hx1 x2 Hx2 Heq. assert (x1 ∈ ⎨x1⎬) by auto.
+  - intros x1 Hx1 x2 Hx2 Heq. assert (x1 ∈ {x1,}) by auto.
     rewrite Heq in H0. apply SingE in H0...
 Qed.
 
 (* 基数的序关系是自反的 *)
-Lemma cardLeq_refl : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜅.
+Lemma cardLe_refl : ∀𝜅 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜅.
 Proof with auto.
-  intros 𝜅 H. rewrite (card_of_card 𝜅)... apply cardLeq_iff...
+  intros 𝜅 H. rewrite (card_of_card 𝜅)... apply cardLe_iff...
 Qed.
 
 (* 相等的基数满足序关系 *)
-Lemma eq_cardLeq : ∀𝜅 ⋵ 𝐂𝐃, ∀ 𝜆, 𝜅 = 𝜆 → 𝜅 ≤ 𝜆.
+Lemma eq_cardLe : ∀𝜅 ⋵ 𝐂𝐃, ∀ 𝜆, 𝜅 = 𝜆 → 𝜅 ≤ 𝜆.
 Proof.
-  intros 𝜅 H 𝜆 Heq. subst. apply cardLeq_refl. apply H.
+  intros 𝜅 H 𝜆 Heq. subst. apply cardLe_refl. apply H.
 Qed.
 
 (* 基数的序关系是传递的 *)
-Lemma cardLeq_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
+Lemma cardLe_trans : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
 Proof with eauto.
   intros * [Hk [_ H1]] [_ [Hm H2]].
-  repeat split... eapply dominate_tran...
+  repeat split... eapply dominate_trans...
 Qed.
 
-Lemma cardLeq_rewrite_l : ∀ 𝜅 𝜆 𝜇, 𝜆 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
+Lemma cardLe_rewrite_l : ∀ 𝜅 𝜆 𝜇, 𝜆 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜅 ≤ 𝜇.
 Proof with eauto.
-  intros * Heq Hle. eapply cardLeq_tran; revgoals...
-  apply eq_cardLeq... destruct Hle as []... congruence.
+  intros * Heq Hle. eapply cardLe_trans; revgoals...
+  apply eq_cardLe... destruct Hle as []... congruence.
 Qed.
 
-Lemma cardLeq_rewrite_r : ∀ 𝜅 𝜆 𝜇, 𝜇 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜆 ≤ 𝜅.
+Lemma cardLe_rewrite_r : ∀ 𝜅 𝜆 𝜇, 𝜇 = 𝜅 → 𝜆 ≤ 𝜇 → 𝜆 ≤ 𝜅.
 Proof with eauto.
-  intros * Heq Hle. eapply cardLeq_tran; revgoals...
-  apply eq_cardLeq... destruct Hle as [_ []]...
+  intros * Heq Hle. eapply cardLe_trans; revgoals...
+  apply eq_cardLe... destruct Hle as [_ []]...
 Qed.
 
 (* 基数的序关系是反对称的 *)
-Lemma cardLeq_antisym : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜅 → 𝜅 = 𝜆.
+Lemma cardLe_antisym : ∀ 𝜅 𝜆, 𝜅 ≤ 𝜆 → 𝜆 ≤ 𝜅 → 𝜅 = 𝜆.
 Proof with auto.
   intros * [Hk [Hl H1]] [_ [_ H2]].
   rewrite (card_of_card 𝜅), (card_of_card 𝜆)...
   apply CardAx1. apply Schröeder_Bernstein...
 Qed.
 
-Corollary cardLeq_to_not_gt : ∀ 𝜅 𝜆,
+Corollary cardLe_to_not_gt : ∀ 𝜅 𝜆,
   𝜅 ≤ 𝜆 → ¬ 𝜆 <𝐜 𝜅.
 Proof.
-  intros 𝜅 𝜆 Hleq [Hgeq Hnq].
-  apply Hnq. apply cardLeq_antisym; auto.
+  intros 𝜅 𝜆 Hle [Hgeq Hnq].
+  apply Hnq. apply cardLe_antisym; auto.
 Qed.
 
-Corollary cardLeq_lt_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 <𝐜 𝜇 → 𝜅 <𝐜 𝜇.
+Corollary cardLe_lt_trans : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜆 <𝐜 𝜇 → 𝜅 <𝐜 𝜇.
 Proof with eauto.
-  intros * H1 [H2 Hnq]. split. eapply cardLeq_tran...
-  intros Heq. apply Hnq. rewrite Heq in H1. eapply cardLeq_antisym...
+  intros * H1 [H2 Hnq]. split. eapply cardLe_trans...
+  intros Heq. apply Hnq. rewrite Heq in H1. eapply cardLe_antisym...
 Qed.
 
-Corollary cardLt_leq_tran : ∀ 𝜅 𝜆 𝜇, 𝜅 <𝐜 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 <𝐜 𝜇.
+Corollary cardLt_le_trans : ∀ 𝜅 𝜆 𝜇, 𝜅 <𝐜 𝜆 → 𝜆 ≤ 𝜇 → 𝜅 <𝐜 𝜇.
 Proof with eauto.
-  intros * [H1 Hnq] H2. split. eapply cardLeq_tran...
-  intros Heq. apply Hnq. rewrite <- Heq in H2. eapply cardLeq_antisym...
+  intros * [H1 Hnq] H2. split. eapply cardLe_trans...
+  intros Heq. apply Hnq. rewrite <- Heq in H2. eapply cardLe_antisym...
 Qed.
 
 (* 基数加法保持等势关系 *)
@@ -249,49 +249,49 @@ Proof with auto.
 Qed.
 
 (* 基数加法保持序关系 *)
-Theorem cardAdd_preserve_leq : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 + 𝜇 ≤ 𝜆 + 𝜇.
+Theorem cardAdd_preserve_le : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 + 𝜇 ≤ 𝜆 + 𝜇.
 Proof with auto.
-  intros * Hleq.
-  apply cardLeq_sub_exists in Hleq as [K [L [Hk [Hl H]]]].
-  repeat split... eapply cardLeq_well_defined.
+  intros * Hle.
+  apply cardLe_sub_exists in Hle as [K [L [Hk [Hl H]]]].
+  repeat split... eapply cardLe_well_defined.
   symmetry. apply cardAdd_preserve_eqnum. apply Hk.
   symmetry. apply cardAdd_preserve_eqnum. apply Hl.
-  apply cardLeq_sub. apply sub_mono_bunion. apply sub_mono_cprd...
+  apply cardLe_sub. apply sub_mono_bunion. apply sub_mono_cprd...
 Qed.
 
 (* 基数乘法保持序关系 *)
-Theorem cardMul_preserve_leq : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 ⋅ 𝜇 ≤ 𝜆 ⋅ 𝜇.
+Theorem cardMul_preserve_le : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 ⋅ 𝜇 ≤ 𝜆 ⋅ 𝜇.
 Proof with auto.
-  intros * Hleq.
-  apply cardLeq_sub_exists in Hleq as [K [L [H1 [H2 H]]]].
-  apply cardLeq_iff. eapply cardLeq_well_defined.
+  intros * Hle.
+  apply cardLe_sub_exists in Hle as [K [L [H1 [H2 H]]]].
+  apply cardLe_iff. eapply cardLe_well_defined.
   apply cardMul_well_defined. symmetry. apply H1. reflexivity.
   apply cardMul_well_defined. symmetry. apply H2. reflexivity.
   apply dominate_sub. apply sub_mono_cprd...
 Qed.
 
-Corollary cardAdd_preserve_leq' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 + 𝜅 ≤ 𝜇 + 𝜆.
+Corollary cardAdd_preserve_le' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 + 𝜅 ≤ 𝜇 + 𝜆.
 Proof.
-  intros * Hleq. rewrite cardAdd_comm, (cardAdd_comm 𝜇).
-  apply cardAdd_preserve_leq. apply Hleq.
+  intros * Hle. rewrite cardAdd_comm, (cardAdd_comm 𝜇).
+  apply cardAdd_preserve_le. apply Hle.
 Qed.
 
-Corollary cardMul_preserve_leq' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 ⋅ 𝜅 ≤ 𝜇 ⋅ 𝜆.
+Corollary cardMul_preserve_le' : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜇 ⋅ 𝜅 ≤ 𝜇 ⋅ 𝜆.
 Proof.
-  intros * Hleq. rewrite cardMul_comm, (cardMul_comm 𝜇).
-  apply cardMul_preserve_leq. apply Hleq.
+  intros * Hle. rewrite cardMul_comm, (cardMul_comm 𝜇).
+  apply cardMul_preserve_le. apply Hle.
 Qed.
 
 Corollary cardAdd_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜅 ≤ 𝜅 + 𝜆.
 Proof with auto.
   intros 𝜅 Hk 𝜆 Hl. rewrite <- cardAdd_0_r at 1...
-  apply cardAdd_preserve_leq'. apply cardLeq_0...
+  apply cardAdd_preserve_le'. apply cardLe_0...
 Qed.
 
 Corollary cardMul_enlarge : ∀ 𝜅 𝜆 ⋵ 𝐂𝐃, 𝜆 ≠ 0 → 𝜅 ≤ 𝜅 ⋅ 𝜆.
 Proof with auto.
   intros 𝜅 Hk 𝜆 Hl H0. rewrite <- cardMul_1_r at 1...
-  apply cardMul_preserve_leq'. apply cardLeq_1...
+  apply cardMul_preserve_le'. apply cardLe_1...
 Qed.
 
 Lemma sub_mono_arrow : ∀ A B C, A ⊆ B → C ⟶ A ⊆ C ⟶ B.
@@ -302,31 +302,31 @@ Proof with auto.
 Qed.
 
 (* 基数乘方保持底数的序关系 *)
-Theorem cardExp_preserve_base_leq : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 ^ 𝜇 ≤ 𝜆 ^ 𝜇.
+Theorem cardExp_preserve_base_le : ∀ 𝜅 𝜆 𝜇, 𝜅 ≤ 𝜆 → 𝜅 ^ 𝜇 ≤ 𝜆 ^ 𝜇.
 Proof with auto.
-  intros * Hleq.
-  apply cardLeq_sub_exists in Hleq as [K [L [H1 [H2 H]]]].
-  apply cardLeq_iff. eapply cardLeq_well_defined.
+  intros * Hle.
+  apply cardLe_sub_exists in Hle as [K [L [H1 [H2 H]]]].
+  apply cardLe_iff. eapply cardLe_well_defined.
   apply cardExp_well_defined. symmetry. apply H1. reflexivity.
   apply cardExp_well_defined. symmetry. apply H2. reflexivity.
   apply dominate_sub. apply sub_mono_arrow...
 Qed.
 
 (* 基数乘方保持指数的序关系 *)
-Theorem cardExp_preserve_exponent_leq : ∀ 𝜅 𝜆 𝜇, (𝜅 ≠ ∅ ∨ 𝜇 ≠ ∅) →
+Theorem cardExp_preserve_exponent_le : ∀ 𝜅 𝜆 𝜇, (𝜅 ≠ ∅ ∨ 𝜇 ≠ ∅) →
   𝜅 ≤ 𝜆 → 𝜇 ^ 𝜅 ≤ 𝜇 ^ 𝜆.
 Proof with neauto.
-  intros * Hnq Hleq.
+  intros * Hnq Hle.
   destruct (classic (𝜇 = ∅)) as [|Hi]. destruct Hnq; [|exfalso]... {
     subst. rewrite cardExp_0_l... rewrite (card_of_nat 0)...
-    apply cardLeq_sub. apply empty_sub_all.
+    apply cardLe_sub. apply empty_sub_all.
   }
   apply EmptyNE in Hi as [m Hm].
-  apply cardLeq_sub_exists in Hleq as [K [L [Hk [Hl Hsub]]]].
-  apply cardLeq_iff. eapply cardLeq_well_defined.
+  apply cardLe_sub_exists in Hle as [K [L [Hk [Hl Hsub]]]].
+  apply cardLe_iff. eapply cardLe_well_defined.
   apply cardExp_well_defined. reflexivity. symmetry. apply Hk.
   apply cardExp_well_defined. reflexivity. symmetry. apply Hl.
-  set (Func (K ⟶ 𝜇) (L ⟶ 𝜇) (λ f, f ∪ ((L - K) × ⎨m⎬))) as G.
+  set (Func (K ⟶ 𝜇) (L ⟶ 𝜇) (λ f, f ∪ ((L - K) × {m,}))) as G.
   exists G. apply meta_injection.
   - intros f Hf.
     apply SepE in Hf as [Hf [Hff [Hdf Hrf]]].
@@ -407,9 +407,9 @@ Proof with nauto.
   ω_induction n; intros H.
   - apply CardAx1 in H. symmetry in H.
     apply eqnum_empty in H. rewrite H in Hn. exfalso0.
-  - assert (Heqw: ω = (ω - ⎨∅⎬) ∪ ⎨∅⎬) by (apply split_one_element; nauto).
+  - assert (Heqw: ω = (ω - {∅,}) ∪ {∅,}) by (apply split_one_element; nauto).
     apply CardAx1 in H. rewrite Heqw in H. symmetry in H.
-    apply finite_set_remove_one_element in H...
+    apply finite_set_remove_one_member in H...
     apply IH. apply CardAx1. rewrite <- H. symmetry.
     exists σ. apply σ_bijective.
 Qed.
@@ -446,7 +446,7 @@ Corollary cardGeq_aleph0_infinite : ∀𝜅 ⋵ 𝐂𝐃, ℵ₀ ≤ 𝜅 → in
 Proof with auto.
   intros AC3 𝜅 Hcd Hfin.
   apply cardLt_aleph0_iff_finite in Hfin as [Hle Hnq]...
-  apply Hnq. apply cardLeq_antisym...
+  apply Hnq. apply cardLe_antisym...
 Qed.
 
 (* 阿列夫零是无限基数 *)
@@ -467,7 +467,7 @@ Proof with neauto; try congruence.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
   apply cardMul_well_defined. symmetry. apply CardAx0. reflexivity.
   apply disjointify_0_1. apply disjointify_0_1.
-  set (Func (ω × ⎨0⎬ ∪ ω × ⎨1⎬) ω (λ x,
+  set (Func (ω × {0,} ∪ ω × {1,}) ω (λ x,
     match (ixm (π2 x = 0)) with
     | inl _ => (2 ⋅ (π1 x))%ω
     | inr _ => (2 ⋅ (π1 x) + 1)%ω
@@ -532,14 +532,14 @@ Qed.
 Fact cardMul_aleph0_expAleph0 :
   ∀ 𝜅, 2 ≤ 𝜅 → ℵ₀ ⋅ 𝜅 ^ ℵ₀ = 𝜅 ^ ℵ₀.
 Proof with auto.
-  intros. eapply cardLeq_antisym.
+  intros. eapply cardLe_antisym.
   - rewrite <- cardMul_expAleph0_expAleph0 at 2.
-    apply cardMul_preserve_leq.
-    eapply cardLeq_tran; revgoals.
-    apply cardExp_preserve_base_leq. apply H.
+    apply cardMul_preserve_le.
+    eapply cardLe_trans; revgoals.
+    apply cardExp_preserve_base_le. apply H.
     apply cardLt_power. apply aleph0_is_card.
   - rewrite <- (cardMul_1_r (𝜅 ^ ℵ₀)) at 1...
-    rewrite cardMul_comm. apply cardMul_preserve_leq.
+    rewrite cardMul_comm. apply cardMul_preserve_le.
     pose proof (cardLt_aleph0_if_finite 1) as []; nauto.
 Qed.
 
@@ -571,13 +571,13 @@ Qed.
 (* 阿列夫零的自乘方等于2的幂 *)
 Theorem cardExp_aleph0_aleph0 : ℵ₀ ^ ℵ₀ = 2 ^ ℵ₀.
 Proof with nauto.
-  apply cardLeq_antisym.
+  apply cardLe_antisym.
   - rewrite <- cardMul_aleph0_aleph0 at 3.
     rewrite <- cardExp_exp.
-    apply cardExp_preserve_base_leq.
+    apply cardExp_preserve_base_le.
     apply cardLt_power...
-  - apply cardExp_preserve_base_leq.
-    eapply cardLt_leq_tran.
+  - apply cardExp_preserve_base_le.
+    eapply cardLt_le_trans.
     apply cardLt_aleph0_if_finite...
-    apply cardLeq_refl...
+    apply cardLe_refl...
 Qed.

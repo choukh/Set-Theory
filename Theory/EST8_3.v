@@ -84,7 +84,7 @@ End OrderType.
 
 (* 结构不交化 *)
 Definition LoDisj_A :=
-  λ S i, (A S × ⎨i⎬).
+  λ S i, (A S × {i,}).
 Definition LoDisj_R :=
   λ S i, {<<π1 p, i>, <π2 p, i>> | p ∊ R S}.
 
@@ -97,7 +97,7 @@ Proof.
   subst. zfc_simple. apply CPrdI; apply CPrdI; auto.
 Qed.
 
-Lemma loDisj_tranr : ∀ S i, tranr (LoDisj_R S i).
+Lemma loDisj_trans : ∀ S i, tranr (LoDisj_R S i).
 Proof.
   intros S i x y z Hxy Hyz.
   destruct (lo S) as [Hbr [Htr _]].
@@ -141,7 +141,7 @@ Proof.
   apply loset_iff_connected_poset. repeat split.
   apply loDisj_connected. apply loDisj_is_binRel.
   eapply binRel_is_rel. apply loDisj_is_binRel.
-  apply loDisj_tranr. apply loDisj_irrefl.
+  apply loDisj_trans. apply loDisj_irrefl.
 Qed.
 
 Definition LoDisj :=
@@ -205,7 +205,7 @@ Proof with auto.
     apply CPrdI; [apply BUnionI1|apply BUnionI2]...
 Qed.
 
-Lemma loAdd_tranr : ∀ S T, disjoint (A S) (A T) → tranr (S ⨁ T).
+Lemma loAdd_trans : ∀ S T, disjoint (A S) (A T) → tranr (S ⨁ T).
 Proof with eauto.
   intros S T Hdj x y z Hxy Hyz.
   destruct (lo S) as [HbrS [HtrS _]].
@@ -278,7 +278,7 @@ Proof.
   - apply loAdd_connected.
   - apply loAdd_is_binRel.
   - eapply binRel_is_rel. apply loAdd_is_binRel.
-  - apply loAdd_tranr. apply loDisj_disjoint. auto.
+  - apply loAdd_trans. apply loDisj_disjoint. auto.
   - apply loAdd_irrefl. apply loDisj_disjoint. auto.
 Qed.
 
@@ -494,13 +494,13 @@ Lemma loAdd_n_m : ∀ n m : nat, (LOⁿ n + LOⁿ m)%lo ≅ LOⁿ (n + m)%nat.
 Proof with neauto; try congruence.
   intros. rewrite add_isomorphic_n.
   assert (Hcontra: ∀ a b ∈ ω, (a + b)%ω ∉ a). {
-    intros a Ha b Hb. apply leq_iff_not_gt... apply add_ran...
-    apply add_enlarge_leq...
+    intros a Ha b Hb. apply le_iff_not_gt... apply add_ran...
+    apply add_enlarge_le...
   }
   pose proof contra_0_1 as H01.
   unfold LoAdd, LoDisj, LoDisj_A; simpl.
   unfold LOⁿ, LOᵒ at 7.
-  set (n × ⎨0⎬ ∪ m × ⎨1⎬) as Dom.
+  set (n × {0,} ∪ m × {1,}) as Dom.
   set (n + m)%ω as Ran.
   set (Func Dom Ran (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
@@ -531,7 +531,7 @@ Proof with neauto; try congruence.
       + exists <y, 0>. split. apply BUnionI1. apply CPrdI...
         zfc_simple. destruct (ixm (Embed 0 = 0))...
       + assert (Hyw: y ∈ ω). eapply ω_trans... apply add_ran...
-        apply leq_iff_not_gt in H...
+        apply le_iff_not_gt in H...
         apply nat_subtr in H as [d [Hd H]]... subst y.
         apply add_preserve_lt' in Hy...
         exists <d, 1>. split. apply BUnionI2. apply CPrdI...
@@ -596,7 +596,7 @@ Proof with neauto; try congruence.
   unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
   erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd. simpl. unfold LoDisj_A. simpl.
-  set (1 × ⎨0⎬ ∪ ω × ⎨1⎬) as Dom.
+  set (1 × {0,} ∪ ω × {1,}) as Dom.
   set (Func Dom ω (λ x, match (ixm (π2 x = 0)) with
     | inl _ => 0
     | inr _ => (π1 x)⁺
@@ -676,7 +676,7 @@ Proof with neauto; try congruence.
   unfold otⁿ. rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
   erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd. simpl. unfold LoDisj_A. simpl.
-  set (ω × ⎨0⎬ ∪ 1 × ⎨1⎬) as Dom.
+  set (ω × {0,} ∪ 1 × {1,}) as Dom.
   set (Func Dom ω⁺ (λ x, match (ixm (π2 x = 0)) with
     | inl _ => π1 x
     | inr _ => ω
@@ -821,7 +821,7 @@ Proof with neauto; try congruence.
   rewrite otAdd_eq_ot_of_loAdd. apply ot_correct.
   erewrite loAdd_well_defined; revgoals. easy. easy.
   unfold LoAdd, LoDisj, LoDisj_A. simpl.
-  set (Func (ω × ⎨0⎬ ∪ ω × ⎨1⎬) ℤ (λ x,
+  set (Func (ω × {0,} ∪ ω × {1,}) ℤ (λ x,
     match (ixm (π2 x = 0)) with
     | inl _ => (-ω_Embed[π1 x])%z
     | inr _ => ω_Embed[(π1 x + 1)%ω]
@@ -838,7 +838,7 @@ Proof with neauto; try congruence.
     rewrite <- suc in H; [|apply add_ran]...
     eapply suc_neq_0...
   }
-  assert (Hbi: F: ω × ⎨0⎬ ∪ ω × ⎨1⎬ ⟺ ℤ). {
+  assert (Hbi: F: ω × {0,} ∪ ω × {1,} ⟺ ℤ). {
     apply meta_bijection.
     - intros x Hx.
       apply BUnionE in Hx as []; destruct (ixm (π2 x = 0));
@@ -868,7 +868,7 @@ Proof with neauto; try congruence.
         zfc_simple. destruct (ixm (Embed 0 = 0))...
         rewrite ω_embed_n, intAddInv...
         apply int_ident... rewrite add_0_l...
-      + destruct (classic (n ∈ m)); [|apply leq_iff_not_gt in H0]...
+      + destruct (classic (n ∈ m)); [|apply le_iff_not_gt in H0]...
         apply nat_subtr' in H0 as [d [Hd [Hsubstr H0]]]...
         ω_destruct d. exfalso...
         exists <n', 1>. split. apply BUnionI2. apply CPrdI...

@@ -29,7 +29,7 @@ Qed.
 Global Hint Immediate dominate_refl : core.
 
 (* 支配关系是传递的 *)
-Lemma dominate_tran : ∀ A B C, A ≼ B → B ≼ C → A ≼ C.
+Lemma dominate_trans : ∀ A B C, A ≼ B → B ≼ C → A ≼ C.
 Proof.
   intros * [f Hf] [g Hg].
   exists (g ∘ f). eapply compo_injection; eauto.
@@ -37,13 +37,13 @@ Qed.
 
 Lemma dominate_rewrite_l : ∀ A B C, B ≈ A → B ≼ C → A ≼ C.
 Proof.
-  intros * Hqn Hdm. eapply dominate_tran.
+  intros * Hqn Hdm. eapply dominate_trans.
   apply eqnum_dominate. symmetry. apply Hqn. apply Hdm.
 Qed.
 
 Lemma dominate_rewrite_r : ∀ A B C, C ≈ A → B ≼ C → B ≼ A.
 Proof.
-  intros * Hqn Hdm. eapply dominate_tran; revgoals.
+  intros * Hqn Hdm. eapply dominate_trans; revgoals.
   apply eqnum_dominate. apply Hqn. apply Hdm.
 Qed.
 
@@ -140,7 +140,7 @@ Proof.
   apply eqnum_dominate in Hqn as H3. symmetry in Hqn.
   apply eqnum_dominate in Hqn as H4.
   split; apply Schröeder_Bernstein; auto;
-  eapply dominate_tran; eauto.
+  eapply dominate_trans; eauto.
 Qed.
 
 (* B支配A当且仅当存在B的子集与A等势 *)

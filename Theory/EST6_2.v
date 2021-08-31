@@ -82,14 +82,14 @@ Proof with auto.
 Qed.
 
 (* 单集的基数为1 *)
-Lemma card_of_single : ∀ a, |⎨a⎬| = 1.
+Lemma card_of_single : ∀ a, |{a,}| = 1.
 Proof with nauto.
   intros. rewrite (card_of_nat 1)...
   apply CardAx1. apply eqnum_single.
 Qed.
 
 (* 基数为1的集合是单集 *)
-Lemma card_eq_1 : ∀ A, |A| = 1 → ∃ a, A = ⎨a⎬.
+Lemma card_eq_1 : ∀ A, |A| = 1 → ∃ a, A = {a,}.
 Proof with nauto.
   intros A H1. rewrite (card_of_nat 1), one in H1...
   symmetry in H1. apply CardAx1 in H1 as [f [[Hf _] [Hd Hr]]].
@@ -147,7 +147,7 @@ Delimit Scope Card_scope with cd.
 Open Scope Card_scope.
 
 (* 基数算术：加法，乘法，乘方 *)
-Definition CardAdd : set → set → set := λ 𝜅 𝜆, |𝜅 × ⎨0⎬ ∪ 𝜆 × ⎨1⎬|.
+Definition CardAdd : set → set → set := λ 𝜅 𝜆, |𝜅 × {0,} ∪ 𝜆 × {1,}|.
 Definition CardMul : set → set → set := λ 𝜅 𝜆, |𝜅 × 𝜆|.
 Definition CardExp : set → set → set := λ 𝜅 𝜆, |𝜆 ⟶ 𝜅|.
 
@@ -171,7 +171,7 @@ Proof. intros. apply card_is_card. Qed.
 Global Hint Immediate cardExp_is_card : core.
 
 (* 壹与单集的笛卡尔积 *)
-Lemma one_cp_single : ∀ n, 1 × ⎨n⎬ = ⎨<0, n>⎬.
+Lemma one_cp_single : ∀ n, 1 × {n,} = {<0, n>,}.
 Proof.
   intros. rewrite one. ext Hx.
   - apply CPrdE1 in Hx as [a [Ha [b [Hb H0]]]].
@@ -184,7 +184,7 @@ Example cardAdd_1_1_2 : 1 + 1 = 2.
 Proof with neauto; try congruence.
   rewrite (card_of_nat 2)...
   unfold CardAdd. apply CardAx1.
-  set (Func (1×⎨0⎬ ∪ 1×⎨1⎬) 2 (λ x,
+  set (Func (1×{0,} ∪ 1×{1,}) 2 (λ x,
     match (ixm (x = <0, 0>)) with
     | inl _ => 0
     | inr _ => 1
@@ -450,7 +450,7 @@ Qed.
 
 (* 二元并与基数加法的相互转化 *)
 Lemma cardAdd_iff : ∀ A B C,
-  A × ⎨0⎬ ∪ B × ⎨1⎬ ≈ C ↔ |A| + |B| = |C|.
+  A × {0,} ∪ B × {1,} ≈ C ↔ |A| + |B| = |C|.
 Proof with auto.
   intros. split; intros H.
   - apply CardAx1.
@@ -503,7 +503,7 @@ Lemma cardAdd_disjoint : ∀ A B, disjoint A B → |A| + |B| = |A ∪ B|.
 Proof. intros. now apply cardAdd_disjoint_iff. Qed.
 
 (* 基数的和等于它们的不交化二元并的基数 *)
-Lemma cardAdd : ∀ A B, |A| + |B| = |A × ⎨0⎬ ∪ B × ⎨1⎬|.
+Lemma cardAdd : ∀ A B, |A| + |B| = |A × {0,} ∪ B × {1,}|.
 Proof. intros. now apply cardAdd_iff. Qed.
 
 (* 集合的基数的积等于它们的笛卡尔积的基数*)
@@ -520,7 +520,7 @@ Proof with auto.
   intros 𝜅 Hcd. apply card_of_card in Hcd. simpl.
   rewrite Hcd at 2. apply CardAx1.
   rewrite cprd_0_l, bunion_empty. symmetry.
-  set (Func 𝜅 (𝜅 × ⎨0⎬) (λ x, <x, 0>)) as F.
+  set (Func 𝜅 (𝜅 × {0,}) (λ x, <x, 0>)) as F.
   exists F. apply meta_bijection.
   - intros x Hx. apply CPrdI...
   - intros x1 Hx1 x2 Hx2 Heq. apply op_iff in Heq as []...
@@ -547,16 +547,16 @@ Qed.
 Lemma arrow_from_one : ∀ A, 1 ⟶ A ≈ A.
 Proof with neauto; try congruence.
   intros. symmetry.
-  set (Func A (1 ⟶ A) (λ x, ⎨<0, x>⎬)) as F.
+  set (Func A (1 ⟶ A) (λ x, {<0, x>,})) as F.
   exists F. apply meta_bijection.
   - intros x Hx.
     destruct (single_pair_bijection 0 x) as [[Hf Hi] [Hd Hr]].
     rewrite one... apply arrow_iff. split; [|split]...
     intros w Hw. apply SingE in Hw. subst.
     eapply single_of_member_is_subset...
-    apply (ap_ran ⎨∅⎬)... split... split...
+    apply (ap_ran {∅,})... split... split...
   - intros x1 Hx1 x2 Hx2 Heq.
-    assert (<0, x1> ∈ ⎨<0, x1>⎬) by auto.
+    assert (<0, x1> ∈ {<0, x1>,}) by auto.
     rewrite Heq in H. apply SingE in H.
     apply op_iff in H as []...
   - intros f Hf. apply SepE in Hf as [Hsub [Hf [Hd Hr]]].
@@ -695,7 +695,7 @@ Qed.
 Fact cardAdd_k_k : ∀ 𝜅, 𝜅 + 𝜅 = 2 ⋅ 𝜅.
 Proof with auto.
   intros. rewrite cardMul_comm. apply CardAx1.
-  cut (𝜅 × ⎨0⎬ ∪ 𝜅 × ⎨1⎬ = 𝜅 × 2). { intros H. now rewrite H. }
+  cut (𝜅 × {0,} ∪ 𝜅 × {1,} = 𝜅 × 2). { intros H. now rewrite H. }
   assert (H1_2: 1 ∈ 2). apply suc_has_n.
   assert (H0_2: 0 ∈ 2) by (apply suc_has_0; apply ω_inductive; nauto).
   ext Hx.
@@ -805,7 +805,7 @@ Proof with eauto; try congruence.
     - rewrite <- CardAx0. apply cardExp_well_defined.
       reflexivity. apply (eqnum_cprd_single _ 1).
   }
-  remember (𝜆 × ⎨0⎬) as s. remember (𝜇 × ⎨1⎬) as t.
+  remember (𝜆 × {0,}) as s. remember (𝜇 × {1,}) as t.
   assert (Hdj: disjoint s t). { subst. apply disjointify_0_1. }
   clear Heqs Heqt. symmetry.
   set (Func (s ∪ t ⟶ 𝜅) ((s ⟶ 𝜅) × (t ⟶ 𝜅)) (λ f,
@@ -1203,13 +1203,13 @@ Proof with auto.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
     destruct Hne as [a Ha].
     apply split_one_element in Ha. rewrite Ha in *.
-    apply finite_set_remove_one_element in Hqn... rewrite bunion_comp.
+    apply finite_set_remove_one_member in Hqn... rewrite bunion_comp.
     apply bunion_finite. apply IH...
     destruct (classic (a ∈ B)).
-    + replace (⎨a⎬ - B) with ∅. apply empty_finite.
+    + replace ({a,} - B) with ∅. apply empty_finite.
       ext Hx. exfalso0. exfalso.
       apply SepE in Hx as [Hx Hx']. apply SingE in Hx; subst...
-    + replace (⎨a⎬ - B) with (⎨a⎬)...
+    + replace ({a,} - B) with ({a,})...
       ext Hx.
       * apply SingE in Hx; subst. apply SepI...
       * apply SepE1 in Hx...
@@ -1217,7 +1217,7 @@ Qed.
 
 (* 有限集加上一个元素仍是有限集 *)
 Lemma add_one_still_finite_1 :
-  ∀ a A, finite (A - ⎨a⎬) → finite A.
+  ∀ a A, finite (A - {a,}) → finite A.
 Proof with auto.
   intros * Hfin.
   destruct (classic (a ∈ A)).
@@ -1228,17 +1228,17 @@ Qed.
 
 (* 有限集加上一个元素仍是有限集 *)
 Lemma add_one_still_finite_2 : ∀ A a,
-  finite A → finite (A ∪ ⎨a⎬).
+  finite A → finite (A ∪ {a,}).
 Proof with auto.
   intros * Hfa.
-  destruct (classic (disjoint A ⎨a⎬)).
+  destruct (classic (disjoint A {a,})).
   - destruct Hfa as [m [Hm HA]].
     exists m⁺. split. apply ω_inductive...
     apply cardAdd_well_defined... apply nat_disjoint...
   - apply EmptyNE in H as [a' Ha].
     apply BInterE in Ha as [Ha Heq].
     apply SingE in Heq. subst a'.
-    replace (A ∪ ⎨ a ⎬) with A...
+    replace (A ∪ {a,}) with A...
     ext Hx.
     + apply BUnionI1...
     + apply BUnionE in Hx as []... apply SingE in H. subst x...
@@ -1246,55 +1246,39 @@ Qed.
 
 (* 无限集除去一个元素仍是无限集 *)
 Lemma remove_one_member_from_infinite :
-  ∀ a A, infinite A → infinite (A - ⎨a⎬).
+  ∀ a A, infinite A → infinite (A - {a,}).
 Proof.
   intros * Hinf Hfin. apply Hinf.
   eapply add_one_still_finite_1; eauto.
 Qed.
 
-(* 二元并的替代等于替代的二元并 *)
-Lemma bunion_of_repl_eq_repl_of_bunion : ∀ F A B,
-  {F x | x ∊ A ∪ B} = {F x | x ∊ A} ∪ {F x | x ∊ B}.
-Proof with auto.
-  intros; apply ExtAx; intros y; split; intros Hy.
-  - apply ReplAx in Hy as [x [Hx Heq]];
-    apply BUnionE in Hx as [];
-    [apply BUnionI1|apply BUnionI2];
-    apply ReplAx; exists x; split...
-  - apply BUnionE in Hy as [];
-    apply ReplAx in H as [x [Hx Heq]];
-    apply ReplAx; exists x; split; auto;
-    [apply BUnionI1|apply BUnionI2]...
-Qed.
-
 (* 任意集合与其一对一的替代等势 *)
-Lemma eqnum_repl : ∀ F A, (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
-  A ≈ {F x | x ∊ A}.
-Proof with auto.
-  intros. set (Func A {F x | x ∊ A} (λ x, F x)) as f.
-  exists f. apply meta_bijection.
-  - intros x Hx. apply ReplAx. exists x. split...
-  - intros x1 H1 x2 H2 Heq. apply H...
-  - intros y Hy. apply ReplAx in Hy...
+Lemma eqnum_repl : ∀ F A B, A ≈ B → (∀ x1 x2 ∈ A, F x1 = F x2 → x1 = x2) →
+  {F x | x ∊ A} ≈ B.
+Proof with eauto; try congruence.
+  intros * Hqn. symmetry.
+  symmetry in Hqn. destruct Hqn as [f Hbi].
+  assert (H' := Hbi). apply bijection_is_func in H' as [Hf [Hi Hr]].
+  assert (H' := Hf). destruct H' as [_ [Hd _]].
+  set (Func B {F x | x ∊ A} (λ x, F f[x])) as g.
+  exists g. apply meta_bijection.
+  - intros x Hx. apply ReplAx. exists (f[x]).
+    split... eapply ap_ran...
+  - intros x1 H1 x2 H2 Heq. apply H in Heq...
+    2-3: eapply ap_ran... eapply injectiveE...
+  - intros y Hy. apply ReplAx in Hy as [x [Hx HFx]].
+    exists (f⁻¹[x]). split. eapply ap_ran...
+    apply bijection_is_func. apply inv_bijection...
+    rewrite inv_ran_reduction...
 Qed.
 
 (* 任意单集与其任意替代等势 *)
-Lemma eqnum_repl_single : ∀ F a, ⎨a⎬ ≈ {F x | x ∊ ⎨a⎬}.
-Proof with auto.
-  intros. set (Func ⎨a⎬ {F x | x ∊ ⎨a⎬} (λ x, F x)) as f.
-  exists f. apply meta_bijection.
-  - intros x Hx. apply ReplAx. exists x. split...
-  - intros x1 H1 x2 H2 _.
-    apply SingE in H1. apply SingE in H2. congruence.
-  - intros y Hy. apply ReplAx in Hy...
-Qed.
+Lemma eqnum_repl_single : ∀ F a, {a,} ≈ {F x | x ∊ {a,}}.
+Proof. intros. rewrite repl_single. apply all_single_eqnum. Qed.
 
 (* 任意单集的任意替代是有限集 *)
-Lemma repl_single_finite : ∀ F a, finite {F x | x ∊ ⎨a⎬}.
-Proof with auto.
-  intros. exists 1. split. nauto.
-  rewrite <- eqnum_repl_single. apply eqnum_single.
-Qed.
+Lemma repl_single_finite : ∀ F a, finite {F x | x ∊ {a,}}.
+Proof. intros. rewrite repl_single. apply single_finite. Qed.
 
 (* 有限集的替代仍是有限集 *)
 Lemma repl_finite : ∀ F A, finite A → finite {F x | x ∊ A}.
@@ -1307,8 +1291,8 @@ Proof with auto.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
     destruct Hne as [a Ha].
     apply split_one_element in Ha. rewrite Ha in *.
-    apply finite_set_remove_one_element in Hqn...
-    rewrite bunion_of_repl_eq_repl_of_bunion.
+    apply finite_set_remove_one_member in Hqn...
+    rewrite repl_bunion_distr.
     apply bunion_finite. apply IH... apply repl_single_finite.
 Qed.
 
@@ -1323,15 +1307,15 @@ Proof with auto.
   - apply set_eqnum_suc_nonempty in Hqn as Hne...
     destruct Hne as [a Ha].
     apply split_one_element in Ha. rewrite Ha in *.
-    apply finite_set_remove_one_element in Hqn...
+    apply finite_set_remove_one_member in Hqn...
     rewrite binter_bunion_distr.
     apply bunion_finite. apply IH...
     destruct (classic (a ∈ A)).
-    + replace (A ∩ ⎨a⎬) with ⎨a⎬. apply single_finite.
+    + replace (A ∩ {a,}) with {a,}. apply single_finite.
       ext Hx.
       * apply SingE in Hx; subst. apply BInterI...
       * apply BInterE in Hx as []...
-    + replace (A ∩ ⎨a⎬) with ∅. apply empty_finite.
+    + replace (A ∩ {a,}) with ∅. apply empty_finite.
       ext Hx. exfalso0. exfalso.
       apply BInterE in Hx as []. apply SingE in H1; subst...
 Qed.

@@ -12,7 +12,7 @@ Proof with eauto.
     exists <x, y>. split... zfc_simple.
   - apply ReplAx in Hx as [p [Hp H1]]. 
     apply func_pair in Hp as Heq... apply SepI.
-    + apply UnionAx. exists ⎨x⎬. split...
+    + apply UnionAx. exists {x,}. split...
       apply UnionAx. exists p. split...
       rewrite Heq, <- H1. apply PairI1.
     + exists (π2 p). congruence.
@@ -125,10 +125,10 @@ Qed.
 
 (* 常函数 *)
 Definition Const : set → set → set := λ A b,
-  Func A ⎨b⎬ (λ _, b).
+  Func A {b,} (λ _, b).
 
 (* 常函数是映射 *)
-Lemma const_function : ∀ A b, (Const A b): A ⇒ ⎨b⎬.
+Lemma const_function : ∀ A b, (Const A b): A ⇒ {b,}.
 Proof.
   intros A b. apply meta_function. intros _ _. auto.
 Qed.
@@ -141,7 +141,7 @@ Proof with auto.
 Qed.
 
 (* 常函数是满射 *)
-Lemma const_surjection : ∀ A b, ⦿ A → (Const A b): A ⟹ ⎨b⎬.
+Lemma const_surjection : ∀ A b, ⦿ A → (Const A b): A ⟹ {b,}.
 Proof with auto.
   intros A b [a Ha]. apply meta_surjection. intros _ _...
   intros y Hy. apply SingE in Hy. exists a. split...
@@ -225,7 +225,7 @@ Proof.
 Qed.
 
 (* 单点集是函数 *)
-Lemma single_pair_is_func : ∀ a b, is_function ⎨<a, b>⎬.
+Lemma single_pair_is_func : ∀ a b, is_function {<a, b>,}.
 Proof with auto.
   intros. split.
   - intros x Hx. apply SingE in Hx. subst x...
@@ -237,7 +237,7 @@ Proof with auto.
 Qed.
 
 (* 单点集是单射 *)
-Lemma single_pair_injective : ∀ a b, injective ⎨<a, b>⎬.
+Lemma single_pair_injective : ∀ a b, injective {<a, b>,}.
 Proof with auto.
   intros. split. apply single_pair_is_func.
   intros x Hx. rewrite <- unique_existence.
@@ -248,7 +248,7 @@ Proof with auto.
 Qed.
 
 (* 单点集的定义域 *)
-Lemma dom_of_single_pair : ∀ a b, dom ⎨<a, b>⎬ = ⎨a⎬.
+Lemma dom_of_single_pair : ∀ a b, dom {<a, b>,} = {a,}.
 Proof with auto.
   intros. ext Hx.
   - apply domE in Hx as [y Hp]. apply SingE in Hp.
@@ -257,7 +257,7 @@ Proof with auto.
 Qed.
 
 (* 单点集的值域 *)
-Lemma ran_of_single_pair : ∀ a b, ran ⎨<a, b>⎬ = ⎨b⎬.
+Lemma ran_of_single_pair : ∀ a b, ran {<a, b>,} = {b,}.
 Proof with auto.
   intros. ext y Hy.
   - apply ranE in Hy as [x Hp]. apply SingE in Hp.
@@ -266,7 +266,7 @@ Proof with auto.
 Qed.
 
 (* 单点集是双射 *)
-Lemma single_pair_bijection : ∀ a b, ⎨<a, b>⎬: ⎨a⎬ ⟺ ⎨b⎬.
+Lemma single_pair_bijection : ∀ a b, {<a, b>,}: {a,} ⟺ {b,}.
 Proof with auto.
   intros. split. apply single_pair_injective. split.
   - apply dom_of_single_pair.
@@ -274,12 +274,12 @@ Proof with auto.
 Qed.
 
 (* 单点函数应用 *)
-Lemma single_pair_ap: ∀ a b, ∀x ∈ ⎨a⎬, ⎨<a, b>⎬[x] = b.
+Lemma single_pair_ap: ∀ a b, ∀x ∈ {a,}, {<a, b>,}[x] = b.
 Proof with auto.
   intros a b x Hx.
   apply SingE in Hx; subst.
   pose proof (single_pair_bijection a b) as [[Hf _] [Hd Hr]].
-  assert (Ha: a ∈ dom ⎨<a, b>⎬). rewrite Hd...
+  assert (Ha: a ∈ dom {<a, b>,}). rewrite Hd...
   apply func_correct in Ha... apply ranI in Ha.
   rewrite Hr in Ha. apply SingE in Ha...
 Qed.
@@ -371,7 +371,7 @@ Qed.
 
 (* 限制在单集上的函数的值域是单集 *)
 Lemma ran_of_restr_to_single : ∀ F a, is_function F →
-  a ∈ dom F → ran (F ↾ ⎨a⎬) = ⎨F[a]⎬.
+  a ∈ dom F → ran (F ↾ {a,}) = {F[a],}.
 Proof with auto.
   intros * Hf Ha. ext y Hy.
   - apply ranE in Hy as [x Hp].
@@ -384,7 +384,7 @@ Qed.
 
 (* 限制在单集上的函数是单射 *)
 Lemma restr_to_single_injective : ∀ f a, is_function f →
-  injective (f ↾ ⎨a⎬).
+  injective (f ↾ {a,}).
 Proof with auto.
   intros. split. apply restr_func...
   intros y Hy. rewrite <- unique_existence.
@@ -432,7 +432,7 @@ Proof with auto.
   intros * Hsub [Hf [Hd Hr]].
   split. apply restr_func...
   split. apply restr_dom... rewrite Hd...
-  eapply sub_tran. apply restr_ran_included. apply Hr.
+  eapply sub_trans. apply restr_ran_included. apply Hr.
 Qed.
 
 (* 单射的限制 *)
@@ -677,7 +677,7 @@ Qed.
 (* 函数加点仍是函数 *)
 Lemma add_point_is_func : ∀ F a b,
   is_function F → a ∉ dom F →
-  is_function (F ∪ ⎨<a, b>⎬).
+  is_function (F ∪ {<a, b>,}).
 Proof with eauto.
   intros F a b Hf Hout.
   pose proof (single_pair_bijection a b) as [[Hfs _] [Hds _]].
@@ -689,7 +689,7 @@ Qed.
 (* 单射加点仍是单射 *)
 Lemma add_point_injective : ∀ F a b,
   injective F → a ∉ dom F → b ∉ ran F →
-  injective (F ∪ ⎨<a, b>⎬).
+  injective (F ∪ {<a, b>,}).
 Proof with eauto.
   intros F a b Hf Hout1 Hout2.
   pose proof (single_pair_bijection a b) as [Hfs [Hds Hrs]].
@@ -705,7 +705,7 @@ Qed.
 (* 函数加点 *)
 Lemma function_add_point : ∀ F A B a b,
   F: A ⇒ B → a ∉ A → b ∉ B →
-  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⇒ B ∪ ⎨b⎬.
+  (F ∪ {<a, b>,}): A ∪ {a,} ⇒ B ∪ {b,}.
 Proof with eauto; try congruence.
   intros * [Hf [Hd Hr]] Hout1 Hout2.
   split; [|split].
@@ -731,7 +731,7 @@ Qed.
 (* 单射加点 *)
 Lemma injection_add_point : ∀ F A B a b,
   F: A ⇔ B → a ∉ A → b ∉ B →
-  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⇔ B ∪ ⎨b⎬.
+  (F ∪ {<a, b>,}): A ∪ {a,} ⇔ B ∪ {b,}.
 Proof with eauto; try congruence.
   intros * Hf Hout1 Hout2.
   apply injection_is_func in Hf as [Hf Hinj].
@@ -744,7 +744,7 @@ Qed.
 (* 双射加点 *)
 Lemma bijection_add_point : ∀ F A B a b,
   F: A ⟺ B → a ∉ A → b ∉ B →
-  (F ∪ ⎨<a, b>⎬): A ∪ ⎨a⎬ ⟺ B ∪ ⎨b⎬.
+  (F ∪ {<a, b>,}): A ∪ {a,} ⟺ B ∪ {b,}.
 Proof with eauto; try congruence.
   intros * Hf Hout1 Hout2.
   apply bijection_is_injection in Hf as [Hinj Hr].
@@ -766,13 +766,13 @@ Qed.
 (* 加点函数的应用 *)
 Lemma add_point_func_ap : ∀ F A B a b,
   F: A ⟺ B → a ∉ A → b ∉ B →
-  (∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
-  ∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = b.
+  (∀x ∈ A, (F ∪ {<a, b>,})[x] = F[x]) ∧
+  ∀x ∈ {a,}, (F ∪ {<a, b>,})[x] = b.
 Proof with eauto.
   intros * HF Hout1 Hout2.
   cut (
-    (∀x ∈ A, (F ∪ ⎨<a, b>⎬)[x] = F[x]) ∧
-    (∀x ∈ ⎨a⎬, (F ∪ ⎨<a, b>⎬)[x] = ⎨<a, b>⎬[x])
+    (∀x ∈ A, (F ∪ {<a, b>,})[x] = F[x]) ∧
+    (∀x ∈ {a,}, (F ∪ {<a, b>,})[x] = {<a, b>,}[x])
   ). {
     intros [H1 H2]. split. apply H1.
     intros x Hx. rewrite <- (single_pair_ap a b x) at 2...

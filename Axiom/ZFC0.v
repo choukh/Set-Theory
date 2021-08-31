@@ -34,7 +34,7 @@ Proof. easy. Qed.
 Global Hint Immediate sub_refl : core.
 
 (* 子集关系是传递的 *)
-Lemma sub_tran : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
+Lemma sub_trans : ∀ A B C, A ⊆ B → B ⊆ C → A ⊆ C.
 Proof. firstorder. Qed.
 
 (* 子集关系是反对称的 *)

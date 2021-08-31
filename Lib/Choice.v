@@ -4,7 +4,7 @@ Require Export ZFC.Lib.ChoiceFacts.
 
 Axiom AC : ∀ 𝒜, ∅ ∉ 𝒜 →
   (∀ A B ∈ 𝒜, A ≠ B → A ∩ B = ∅) →
-  ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = ⎨x⎬.
+  ∃ C, ∀A ∈ 𝒜, ∃ x, A ∩ C = {x,}.
 
 Theorem ac4 : AC_IV.
 Proof. exact AC. Qed.

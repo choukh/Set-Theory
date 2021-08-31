@@ -13,11 +13,11 @@ Notation "x ≤ᵣ y" := (relLe x y) (at level 60).
 Lemma relLt_irrefl : ∀ x R, irrefl R → (x <ᵣ x) R → False.
 Proof. intros. eapply H. apply H0. Qed.
 
-Lemma relLt_tranr : ∀ x y z R, tranr R →
+Lemma relLt_trans : ∀ x y z R, tranr R →
   (x <ᵣ y) R → (y <ᵣ z) R → (x <ᵣ z) R.
 Proof. intros; eapply H; eauto. Qed.
 
-Lemma relLe_tranr : ∀ x y z R, tranr R →
+Lemma relLe_trans : ∀ x y z R, tranr R →
   (x ≤ᵣ y) R → (y ≤ᵣ z) R → (x ≤ᵣ z) R.
 Proof with eauto.
   intros * Htr [Hxy|Hxy] [Hyz|Hyz].
@@ -27,13 +27,13 @@ Proof with eauto.
   - subst. right...
 Qed.
 
-Lemma relLt_le_tranr : ∀ x y z R, tranr R →
+Lemma relLt_le_trans : ∀ x y z R, tranr R →
   (x <ᵣ y) R → (y ≤ᵣ z) R → (x <ᵣ z) R.
 Proof with eauto.
   intros * Htr Hxy [Hyz|Hyz]. eapply Htr... subst...
 Qed.
 
-Lemma relLe_lt_tranr : ∀ x y z R, tranr R →
+Lemma relLe_lt_trans : ∀ x y z R, tranr R →
   (x ≤ᵣ y) R → (y <ᵣ z) R → (x <ᵣ z) R.
 Proof with eauto.
   intros * Htr [Hxy|Hyx] Hyz. eapply Htr... subst...
@@ -107,7 +107,7 @@ Definition poset := λ A R, is_binRel R A ∧ partialOrder R.
 (* 线序结构 *)
 Definition loset := λ A R, linearOrder R A.
 
-Lemma lo_not_leq_gt : ∀ A R, loset A R →
+Lemma lo_not_le_gt : ∀ A R, loset A R →
   ∀ x y, (x ≤ᵣ y) R → (y <ᵣ x) R → False.
 Proof.
   intros A R Hlo x y Hle Hgt.
@@ -216,7 +216,7 @@ Proof.
 Qed.
 
 (* 传递关系的逆仍是传递关系 *)
-Lemma inv_tranr : ∀ R, tranr R → tranr R⁻¹.
+Lemma inv_trans : ∀ R, tranr R → tranr R⁻¹.
 Proof.
   intros R Htr x y z Hxy Hyz. rewrite <- inv_op in *. firstorder.
 Qed.
@@ -239,7 +239,7 @@ Qed.
 Fact inv_po : ∀ R, partialOrder R → partialOrder R⁻¹.
 Proof with auto.
   intros R [Hrl [Htr Hir]]. split; [|split].
-  apply inv_rel. apply inv_tranr... apply inv_irrefl...
+  apply inv_rel. apply inv_trans... apply inv_irrefl...
 Qed.
 
 (* 线序的逆仍是线序 *)
@@ -383,12 +383,12 @@ Proof.
   subst. apply CPrdI; auto.
 Qed.
 
-Lemma subsetRel_tranr : ∀ S, tranr (SubsetRel S).
+Lemma subsetRel_trans : ∀ S, tranr (SubsetRel S).
 Proof with eauto.
   intros S a b c Hab Hbc.
   apply binRelE2 in Hab as [Ha [Hb [Hab Hnq]]].
   apply binRelE2 in Hbc as [_ [Hc [Hbc _]]].
-  apply binRelI... split. eapply sub_tran...
+  apply binRelI... split. eapply sub_trans...
   intros Heq. subst. apply Hnq. apply sub_antisym...
 Qed.
 
@@ -402,7 +402,7 @@ Proof with auto.
   repeat split.
   - apply subsetRel_is_binRel.
   - eapply binRel_is_rel. apply subsetRel_is_binRel.
-  - apply subsetRel_tranr.
+  - apply subsetRel_trans.
   - apply subsetRel_irrefl.
 Qed.
 
@@ -681,7 +681,7 @@ Qed.
 Lemma empty_is_binRel : is_binRel ∅ ∅.
 Proof. intros p Hp. exfalso0. Qed.
 
-Lemma empty_tranr : tranr ∅.
+Lemma empty_trans : tranr ∅.
 Proof. intros x y z Hxy. exfalso0. Qed.
 
 Lemma empty_trich : trich ∅ ∅.
@@ -690,5 +690,5 @@ Proof. intros x Hx. exfalso0. Qed.
 Lemma empty_loset : loset ∅ ∅.
 Proof with auto.
   split; [|split]. apply empty_is_binRel.
-  apply empty_tranr. apply empty_trich.
+  apply empty_trans. apply empty_trich.
 Qed.

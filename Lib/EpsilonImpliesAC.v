@@ -30,7 +30,7 @@ Qed.
 (* “单选题” *)
 Theorem one_chosen : ∀ S, (∀s ∈ S, ⦿s) →
   (∀ s t ∈ S, s ≠ t → disjoint s t) →
-  ∀s ∈ S, ∃ x, s ∩ {SetChoice s | s ∊ S} = ⎨x⎬.
+  ∀s ∈ S, ∃ x, s ∩ {SetChoice s | s ∊ S} = {x,}.
 Proof with eauto.
   intros S Hi Hdj s Hs.
   exists (SetChoice s). apply sub_antisym.

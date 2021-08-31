@@ -6,11 +6,11 @@ Require Export ZFC.Theory.EST2.
 Example ex1_3: ∀ B C, B ⊆ C → 𝒫 B ⊆ 𝒫 C.
 Proof.
   intros B C H x HB. apply PowerAx in HB.
-  pose proof (sub_tran _ _ _ HB H) as HC.
+  pose proof (sub_trans _ _ _ HB H) as HC.
   apply PowerAx. apply HC.
 Qed.
 
-Example ex1_4: ∀ B, ∀ x y ∈ B, {⎨x⎬, {x, y}} ∈ 𝒫 𝒫 B.
+Example ex1_4: ∀ B, ∀ x y ∈ B, {{x,}, {x, y}} ∈ 𝒫 𝒫 B.
 Proof.
   intros B b Hb a Ha. apply PowerAx. intros p Hp.
   apply PowerAx. intros x Hx.
@@ -83,12 +83,12 @@ Proof.
     apply BUnionI2. apply H in Hy. apply Hy.
 Qed.
 
-Example ex2_8: ¬ ∃ A, ∀ a, ⎨a⎬ ∈ A.
+Example ex2_8: ¬ ∃ A, ∀ a, {a,} ∈ A.
 Proof.
   intros [A H].
   apply no_set_of_all_set.
   exists (⋃A). intros x. apply UnionAx.
-  exists ⎨x⎬. split. apply H. apply SingI.
+  exists {x,}. split. apply H. apply SingI.
 Qed.
 
 Example ex2_10: ∀ A, ∀a ∈ A, 𝒫 a ∈ 𝒫 𝒫 ⋃A.
@@ -368,15 +368,15 @@ Proof.
     + apply BUnionI2. apply CompI; assumption.
 Qed.
 
-Example ex2_34: ∀ S, {∅, ⎨∅⎬} ∈ 𝒫 𝒫 𝒫 S.
+Example ex2_34: ∀ S, {∅, {∅,}} ∈ 𝒫 𝒫 𝒫 S.
 Proof.
   intros. pose proof (empty_sub_all S). apply PowerAx in H.
-  assert (⎨∅⎬ ⊆ 𝒫 S). {
+  assert ({∅,} ⊆ 𝒫 S). {
     intros x Hx. apply SingE in Hx. subst x. apply H.
   }
   pose proof (empty_sub_all (𝒫 S)).
   apply PowerAx in H0. apply PowerAx in H1.
-  assert ({∅, ⎨∅⎬} ⊆ 𝒫 𝒫 S). {
+  assert ({∅, {∅,}} ⊆ 𝒫 𝒫 S). {
     intros x Hx. apply PairE in Hx as []; subst; assumption.
   }
   apply PowerAx in H2. apply H2.
@@ -385,12 +385,12 @@ Qed.
 Example ex2_35: ∀ A B, 𝒫 A = 𝒫 B → A = B.
 Proof.
   intros. ext.
-  - assert (⎨x⎬ ⊆ A). {
+  - assert ({x,} ⊆ A). {
       intros y Hy. apply SingE in Hy. subst. assumption.
     }
     apply PowerAx in H1. rewrite H in H1.
     apply PowerAx in H1. apply H1. apply SingI.
-  - assert (⎨x⎬ ⊆ B). {
+  - assert ({x,} ⊆ B). {
       intros y Hy. apply SingE in Hy. subst. assumption.
     }
     apply PowerAx in H1. rewrite <- H in H1.

@@ -340,7 +340,7 @@ Section AddLimit.
 Let WOₒAdd := λ α β, (WOₒ α + WOₒ β)%wo.
 
 Local Lemma A_WOₒAdd : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍,
-  A (WOₒAdd α β) = α × ⎨0⎬ ∪ β × ⎨1⎬.
+  A (WOₒAdd α β) = α × {0,} ∪ β × {1,}.
 Proof.
   intros α Hoα β Hoβ.
   unfold WOₒAdd, WoAdd. simpl. unfold WoDisj_A.
@@ -350,7 +350,7 @@ Qed.
 Local Lemma R_WOₒAdd : ∀α ⋵ 𝐎𝐍, ∀β ⋵ 𝐎𝐍, R (WOₒAdd α β) =
   {<<π1 p, 0>, <π2 p, 0>> | p ∊ MemberRel α} ∪
   {<<π1 p, 1>, <π2 p, 1>> | p ∊ MemberRel β} ∪
-  (α × ⎨0⎬) × (β × ⎨1⎬).
+  (α × {0,}) × (β × {1,}).
 Proof.
   intros α Hoα β Hoβ.
   unfold WOₒAdd, WoAdd, WoAdd_R. simpl.
@@ -379,7 +379,7 @@ Local Lemma WOₒAdd_ees : ∀α ⋵ 𝐎𝐍, ∀β1 ⋵ 𝐎𝐍, ∀β2 ⋵ �
   β1 ⋸ β2 → WOₒAdd α β1 ⊑⊑ WOₒAdd α β2.
 Proof with auto.
   intros α Hoα β1 Ho1 β2 Ho2 Hsub.
-  apply ord_leq_iff_sub in Hsub...
+  apply ord_le_iff_sub in Hsub...
   repeat split.
   - rewrite A_WOₒAdd, A_WOₒAdd...
     intros x Hx. apply BUnionE in Hx as [].
@@ -459,7 +459,7 @@ Proof with auto.
       assert (Hoa: a ⋵ 𝐎𝐍). apply (ord_is_ords β1)...
       assert (Hoc: c ⋵ 𝐎𝐍). apply (ord_is_ords β2)...
       apply binRelI... apply ord_lt_iff_not_sub...
-      intros Hca. apply ord_leq_iff_sub in Hca...
+      intros Hca. apply ord_le_iff_sub in Hca...
       apply Hy'. apply BUnionI2. apply CPrdI...
       destruct Hca. eapply ord_trans; eauto. subst...
 Qed.
@@ -533,7 +533,7 @@ Proof with eauto.
 Qed.
 
 Local Lemma Unionₐ_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ →
-  Unionₐ (𝒞 α 𝜆) = α × ⎨0⎬ ∪ 𝜆 × ⎨1⎬.
+  Unionₐ (𝒞 α 𝜆) = α × {0,} ∪ 𝜆 × {1,}.
 Proof with eauto.
   intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
   unfold Unionₐ. rewrite π1_𝒞...
@@ -547,13 +547,13 @@ Proof with eauto.
   - apply BUnionE in Hx as [].
     + apply EmptyNE in Hne as [β Hβ].
       assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
-      apply UnionAx. exists (α × ⎨0⎬ ∪ β × ⎨1⎬). split.
+      apply UnionAx. exists (α × {0,} ∪ β × {1,}). split.
       * apply ReplAx. exists β. split... apply A_WOₒAdd...
       * apply BUnionI1...
     + apply CPrdE1 in H as [β [Hβ [b [Hb H]]]].
       apply SingE in Hb. subst.
       assert (Hoβ: β ⋵ 𝐎𝐍). apply (ord_is_ords 𝜆)...
-      apply UnionAx. exists (α × ⎨0⎬ ∪ β⁺ × ⎨1⎬). split.
+      apply UnionAx. exists (α × {0,} ∪ β⁺ × {1,}). split.
       * apply ReplAx. exists β⁺. split.
         apply sucord_in_limord... split... apply A_WOₒAdd...
       * apply BUnionI2... apply CPrdI...
@@ -563,7 +563,7 @@ Local Lemma Unionᵣ_𝒞 : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, �
   Unionᵣ (𝒞 α 𝜆) =
   {<π1 p, 0, <π2 p, 0>> | p ∊ MemberRel α} ∪
   {<π1 p, 1, <π2 p, 1>> | p ∊ MemberRel 𝜆} ∪
-  (α × ⎨0⎬) × (𝜆 × ⎨1⎬).
+  (α × {0,}) × (𝜆 × {1,}).
 Proof with eauto.
   intros α Ho 𝜆 [Ho𝜆 Heq𝜆] Hne.
   unfold Unionᵣ. rewrite π2_𝒞...
@@ -685,7 +685,7 @@ Local Lemma WOₒMul_ees : ∀α ⋵ 𝐎𝐍, ∀β1 ⋵ 𝐎𝐍, ∀β2 ⋵ �
   β1 ⋸ β2 → WOₒMul α β1 ⊑⊑ WOₒMul α β2.
 Proof with eauto.
   intros α Hoα β1 Ho1 β2 Ho2 Hsub.
-  apply ord_leq_iff_sub in Hsub...
+  apply ord_le_iff_sub in Hsub...
   repeat split.
   - rewrite A_WOₒMul, A_WOₒMul... intros x Hx.
     eapply sub_mono_cprd'...
@@ -716,7 +716,7 @@ Proof with eauto.
     apply binRelI... apply CPrdI... apply CPrdI...
     zfc_simple. left. apply binRelI...
     contra. apply Hy'.
-    apply ord_leq_iff_not_gt in H; [|eapply ord_is_ords..]...
+    apply ord_le_iff_not_gt in H; [|eapply ord_is_ords..]...
     apply CPrdI... destruct H. eapply ord_trans... congruence.
 Qed.
 

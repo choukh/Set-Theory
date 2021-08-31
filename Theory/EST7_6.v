@@ -144,7 +144,7 @@ Proof with eauto; try congruence.
   rewrite <- unique_existence. split.
   - exists μ. repeat split...
     intros β Hoβ Hsubβ.
-    apply ord_leq_iff_not_gt... intros Hβ.
+    apply ord_le_iff_not_gt... intros Hβ.
     assert (β ∈ B). {
       apply SepI... eapply ord_trans...
     }
@@ -153,8 +153,8 @@ Proof with eauto; try congruence.
     + eapply ord_not_lt_self...
   - intros a b [Ha [H11 H12]] [Hb [H21 H22]].
     apply H12 in H21... apply H22 in H11...
-    apply ord_leq_iff_sub in H11...
-    apply ord_leq_iff_sub in H21...
+    apply ord_le_iff_sub in H11...
+    apply ord_le_iff_sub in H21...
     apply sub_antisym...
 Qed.
 
@@ -251,7 +251,7 @@ Proof with eauto.
     apply α_is_ord. apply member_grounded...
   }
   apply sub_antisym.
-  - apply ord_leq_iff_sub... apply rank_spec_intro...
+  - apply ord_le_iff_sub... apply rank_spec_intro...
     apply grounded_in_α. apply member_grounded...
   - intros x Hx.
     apply FUnionE in Hx as [a [Ha Hx]].
@@ -309,7 +309,7 @@ Proof with eauto; try congruence.
   - intros Reg.
     contra.
     apply not_all_ex_not in H as [c Hngc].
-    set (𝗧𝗖 ⎨c⎬) as B.
+    set (𝗧𝗖 {c,}) as B.
     set {x ∊ B | ¬ x ⋵ 𝐖𝐅} as A.
     pose proof (Reg A) as [m [Hm H0]]. {
       apply EmptyNI. exists c. apply SepI...
@@ -351,9 +351,9 @@ Proof with neauto.
     + rewrite one in Hx...
 Qed.
 
-Fact rank_2 : ∀ a, rank a = 2 → a = 2 ∨ a = ⎨1⎬.
+Fact rank_2 : ∀ a, rank a = 2 → a = 2 ∨ a = {1,}.
 Proof with neauto.
-  intros a Ha. destruct (classic (a = ⎨1⎬)) as [|Hnq]... left.
+  intros a Ha. destruct (classic (a = {1,})) as [|Hnq]... left.
   ext Hx.
   - apply rank_of_member in Hx...
     rewrite Ha, two in Hx. apply TwoE in Hx as [Hx|Hx].
@@ -437,7 +437,7 @@ Corollary no_descending_chain_3 : ∀ a b c,
   a ∈ b → b ∈ c → c ∉ a.
 Proof with auto; try congruence.
   intros a b c Ha Hb Hc.
-  set ({a, b} ∪ ⎨c⎬) as A.
+  set ({a, b} ∪ {c,}) as A.
   assert (HaA: a ∈ A). apply BUnionI1; apply PairI1.
   assert (HbA: b ∈ A). apply BUnionI1; apply PairI2.
   assert (HcA: c ∈ A). apply BUnionI2...
@@ -467,9 +467,9 @@ Proof with auto; try congruence.
     destruct (ixm (c = b))...
 Qed.
 
-Corollary single_regularity : ∀ a, a ≠ ⎨a⎬.
+Corollary single_regularity : ∀ a, a ≠ {a,}.
 Proof with eauto.
-  intros a Heq. assert (a ∈ ⎨a⎬)...
+  intros a Heq. assert (a ∈ {a,})...
   rewrite <- Heq in H.
   eapply no_descending_chain_1...
 Qed.
@@ -494,7 +494,7 @@ Lemma rank_of_V : ∀α ⋵ 𝐎𝐍, rank (V α) = α.
 Proof with eauto.
   intros α Hoα.
   apply sub_antisym.
-  - apply ord_leq_iff_sub... apply rank_spec_intro...
+  - apply ord_le_iff_sub... apply rank_spec_intro...
   - intros x Hx.
     rewrite rank_recurrence...
     rewrite <- (rank_of_ord α), rank_recurrence in Hx...
@@ -519,7 +519,7 @@ Proof.
 Qed.
 
 (* 良基集的单集是良基集 *)
-Lemma single_grounded : ∀a ⋵ 𝐖𝐅, ⎨a⎬ ⋵ 𝐖𝐅.
+Lemma single_grounded : ∀a ⋵ 𝐖𝐅, {a,} ⋵ 𝐖𝐅.
 Proof. intros a H. apply pair_grounded; auto. Qed.
 
 (* 良基集的有序对是良基集 *)
@@ -566,10 +566,10 @@ Proof with eauto; try congruence.
   - apply FUnionE in Hx as [y [Hy Hx]].
     apply BUnionE in Hx as [].
     + apply BUnionI1. apply PairE in Hy as []; subst...
-      apply ord_leq_iff_sub in Hle...
+      apply ord_le_iff_sub in Hle...
     + apply SingE in H. subst x.
       apply PairE in Hy as []; subst...
-      apply ord_leq_iff_lt_suc...
+      apply ord_le_iff_lt_suc...
   - eapply FUnionI... apply PairI2.
 Qed.
 
@@ -586,7 +586,7 @@ Proof with auto.
 Qed.
 
 (* 单集的秩 *)
-Lemma rank_of_single : ∀a ⋵ 𝐖𝐅, rank ⎨a⎬ = (rank a)⁺.
+Lemma rank_of_single : ∀a ⋵ 𝐖𝐅, rank {a,} = (rank a)⁺.
 Proof. intros a H. apply rank_of_pair_p; auto. Qed.
 
 (* 有序对的秩 *)
@@ -646,7 +646,7 @@ Qed.
 (* 并集的秩 *)
 Lemma rank_of_union : ∀a ⋵ 𝐖𝐅, rank (⋃ a) ⋸ rank a.
 Proof with eauto.
-  intros a Hgnd. apply ord_leq_iff_sub...
+  intros a Hgnd. apply ord_le_iff_sub...
   apply rank_is_ord. apply union_grounded...
   rewrite rank_recurrence, rank_recurrence...
   intros x Hx. apply FUnionE in Hx as [y [Hy Hx]].

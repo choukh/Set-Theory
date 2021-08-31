@@ -103,7 +103,7 @@ Proof with eauto; try congruence.
     specialize Hub with B as [u [Hu Hle]]...
     apply Harc in Hu as [v [Hv Hlt]].
     exists v. apply SepI... intros b Hb.
-    apply Hle in Hb. eapply relLe_lt_tranr... apply Hpo.
+    apply Hle in Hb. eapply relLe_lt_trans... apply Hpo.
   }
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
@@ -185,7 +185,7 @@ Proof with eauto; try congruence.
     specialize Hub with B as [u [Hu Hle]]...
     apply Harc in Hu as [v [Hv Hlt]].
     exists v. apply SepI... intros b Hb.
-    apply Hle in Hb. eapply relLe_lt_tranr...
+    apply Hle in Hb. eapply relLe_lt_trans...
   }
   (* 上界函数 *)
   set (Func ℬ A (λ B, F[Upper B])) as f.
@@ -232,7 +232,7 @@ Proof with eauto; try congruence.
     + intros x Hx. apply SepE in Hx as [Hx Hxb].
       contra as Hx'.
       assert (x ∈ B - C). apply SepI... apply Hble in H.
-      eapply (lo_irrefl _ B)... eapply relLt_le_tranr...
+      eapply (lo_irrefl _ B)... eapply relLt_le_trans...
       apply HloB. apply SepI... apply CPrdI...
     + contra as Hnsub.
       pose proof (HminC (C - seg b B)) as [c [Hc Hcle]]... {
@@ -255,21 +255,21 @@ Proof with eauto; try congruence.
           apply SepE in Hx as [Hx Hxk].
           assert (Hx': x ∈ B - seg c C). apply SepI...
           apply Hdle in Hx'. eapply (lo_irrefl _ B)...
-          eapply relLt_le_tranr... apply HloB.
+          eapply relLt_le_trans... apply HloB.
           apply SepI... apply CPrdI...
         - apply SepE in Hx as [Hx Hxc].
           destruct (classic (d = b)) as [|Hnq]. {
             subst d. contra.
             assert (Hx': x ∈ C - seg b B). apply SepI...
             apply Hcle in Hx'. eapply (lo_irrefl _ C)...
-            eapply relLt_le_tranr... apply HloC.
+            eapply relLt_le_trans... apply HloC.
             apply SepI... apply CPrdI...
           }
           assert (HdC: d ∈ C). {
             contra as HdC.
             assert (HdB: d ∈ B - C). apply SepI... 
             apply Hble in HdB as []; destruct Hdb...
-            eapply (lo_irrefl _ B)... eapply relLt_tranr... apply HloB.
+            eapply (lo_irrefl _ B)... eapply relLt_trans... apply HloB.
           }
           assert (HxB: x ∈ B). {
             contra.
@@ -277,14 +277,14 @@ Proof with eauto; try congruence.
               apply SepI... intros H'. apply H. apply SepE1 in H'...
             }
             apply Hcle in Hx'. eapply (lo_irrefl _ C)...
-            eapply relLt_le_tranr... apply HloC.
+            eapply relLt_le_trans... apply HloC.
             apply SepI... apply CPrdI...
           }
           apply SepI...
           destruct (classic (d = c)). subst...
           eapply lo_connected in H as []; eauto; apply SepE1 in H.
           + exfalso. apply Hd'. apply SepI...
-          + eapply relLt_tranr...
+          + eapply relLt_trans...
       }
       destruct Hdb... apply SepE1 in H.
       apply Hc'. apply SepI... subst...
@@ -300,7 +300,7 @@ Proof with eauto; try congruence.
     destruct H as [[t [Ht Hseg]]|[t [Ht Hseg]]]; subst.
     - apply SepE1 in HyC...
     - apply Hy'. apply SepE2 in Hx.
-      apply SepI... eapply relLt_tranr...
+      apply SepI... eapply relLt_trans...
   }
   set {B ∊ 𝒫 A | good B} as 𝒞.
   assert (Hsubu: ⋃ 𝒞 ⊆ A). {
@@ -376,7 +376,7 @@ Proof with eauto; try congruence.
   assert (Hu: ⋃ 𝒞 ∈ ℬ). {
     apply SepI. apply PowerAx... apply union_lo.
   }
-  set (⋃ 𝒞 ∪ ⎨f[⋃ 𝒞]⎬) as S.
+  set (⋃ 𝒞 ∪ {f[⋃ 𝒞],}) as S.
   assert (Hsubs: S ⊆ A). {
     intros x Hx. apply BUnionE in Hx as []. apply Hsubu...
     apply SingE in H. subst. eapply ap_ran...
@@ -437,7 +437,7 @@ Proof with eauto; try congruence.
         apply SepI... apply BUnionE in Hx as []...
         apply SingE in H. subst. rewrite Heqt in Hxt.
         exfalso. eapply relLt_irrefl...
-        eapply relLt_tranr... apply f_strict...
+        eapply relLt_trans... apply f_strict...
     - apply SingE in Ht. rewrite Ht at 1. f_equal.
       ext Hx.
       + apply SepI. apply BUnionI1...
@@ -529,10 +529,10 @@ Proof with eauto; try congruence.
   destruct (classic ((u <ᵣ d) Q))... exfalso.
   assert (HdC: d ∈ C). {
     apply HC... intros b Hb Hbd. apply Hle in Hb.
-    eapply relLe_lt_tranr... apply Hpo.
+    eapply relLe_lt_trans... apply Hpo.
   }
   apply Hle in HdC. eapply relLt_irrefl. apply Hpo.
-  eapply relLe_lt_tranr... apply Hpo.
+  eapply relLe_lt_trans... apply Hpo.
 Qed.
 
 End ImportWoStruct.
@@ -557,7 +557,7 @@ Proof with eauto; try congruence.
       apply binRelE2 in Huv as [Hu [_ [[H11 H11'] [H12 H13]]]].
       apply binRelE2 in Hvw as [_ [Hw [[H21 H21'] [H22 H23]]]].
       apply binRelI... repeat split.
-      + eapply sub_tran...
+      + eapply sub_trans...
       + intros Heq. rewrite Heq in H11.
         apply H21'. eapply sub_antisym...
       + ext Hx.
@@ -636,7 +636,7 @@ Proof with eauto; try congruence.
             apply op_iff in H as []; subst.
             apply Hsub in HC. apply SepE2 in HC. zfc_simple.
             apply binRelI... exists D, RD. split...
-            eapply relLt_tranr... apply HC.
+            eapply relLt_trans... apply HC.
           }
           eapply lo_connected in H as [];
           [| |apply Hlo|auto..]; apply SepE1 in H;
@@ -651,7 +651,7 @@ Proof with eauto; try congruence.
           exists B, RB; split; auto; [
             rewrite H in Huv; apply SepE1 in Huv|
             rewrite H in Hvw; apply SepE1 in Hvw
-          ]; eapply relLt_tranr; eauto; apply HwoB.
+          ]; eapply relLt_trans; eauto; apply HwoB.
         + intros u Hp. apply binRelE3 in Hp as [C [RC [Hlt Hp]]].
           apply Hsub in Hp. apply SepE2 in Hp. zfc_simple.
           eapply lo_irrefl. apply Hp. apply Hlt.
@@ -754,8 +754,8 @@ Proof with eauto; try congruence.
   assert (Hpsub: M ⊂ X). split...
   apply comp_nonempty in Hpsub as [s Hs].
   apply SepE in Hs as [Hs Hs'].
-  set (M ∪ ⎨s⎬) as M'.
-  set (BinRel (M ∪ ⎨s⎬) (λ x y,
+  set (M ∪ {s,}) as M'.
+  set (BinRel (M ∪ {s,}) (λ x y,
     match (ixm (x = s)) with
     | inl _ => False
     | inr _ =>
@@ -807,7 +807,7 @@ Proof with eauto; try congruence.
         destruct (ixm (x = s));
         destruct (ixm (y = s));
         destruct (ixm (z = s))...
-        * eapply relLt_tranr... apply Hwo.
+        * eapply relLt_trans... apply Hwo.
         * exfalso...
       + intros x Hp. apply binRelE2 in Hp as [Hx [_ H]].
         apply BUnionE in Hx as [Hx|Hx].
@@ -817,9 +817,9 @@ Proof with eauto; try congruence.
           destruct (ixm (x = s))...
     - (* has min *)
       intros A [a Ha] HAM'.
-      destruct (classic (A - ⎨s⎬ = ∅)) as [|Hne]. {
+      destruct (classic (A - {s,} = ∅)) as [|Hne]. {
         exists a. split... intros x Hx. right.
-        replace A with ⎨a⎬ in Hx.
+        replace A with {a,} in Hx.
         apply SingE in Hx... clear x Hx.
         ext Hx.
         - apply SingE in Hx...
@@ -828,7 +828,7 @@ Proof with eauto; try congruence.
           apply H in Ha. apply SingE in Ha. subst...
       }
       destruct Hwo as [_ Hmin].
-      pose proof (Hmin (A - ⎨s⎬)) as [m [Hm Hle]].
+      pose proof (Hmin (A - {s,})) as [m [Hm Hle]].
       + apply EmptyNE...
       + intros x Hx. apply SepE in Hx as [Hx Hx'].
         apply SingNE in Hx'. apply HAM' in Hx.
@@ -839,7 +839,7 @@ Proof with eauto; try congruence.
         apply binRelI; [apply HAM'..|]...
         destruct (ixm (m = s))...
         destruct (ixm (x = s))...
-        assert (x ∈ A - ⎨s⎬). apply SepI... apply SingNI...
+        assert (x ∈ A - {s,}). apply SepI... apply SingNI...
         apply Hle in H as []...
   }
   apply Hmax in HM' as H.
