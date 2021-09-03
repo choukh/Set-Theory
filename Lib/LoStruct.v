@@ -5,7 +5,7 @@ Set Warnings "-unrecognized-unicode".
 Require Import Relation_Definitions.
 Require Import RelationClasses.
 Require Import ZFC.Lib.Real.
-Require Export ZFC.Theory.EST7_3.
+Require Export ZFC.Elements.EST7_3.
 
 Declare Scope LoStruct_scope.
 Delimit Scope LoStruct_scope with lo.

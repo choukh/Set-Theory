@@ -3,7 +3,7 @@
 Require Import ZFC.Lib.NatIsomorphism.
 Require Import ZFC.Lib.Algebra.Inj_2n3m.
 Require Import ZFC.Lib.IndexedFamilyUnion.
-Require Export ZFC.Theory.EST6_1.
+Require Export ZFC.Elements.EST6_1.
 
 (* 集合的支配关系 *)
 Definition Dominate : set → set → Prop := λ A B, ∃ f, f: A ⇔ B.

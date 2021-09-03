@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Nov 2020 **)
 
-Require Export ZFC.Theory.EX6_3.
+Require Export ZFC.Elements.EX6_3.
 Require Import ZFC.Lib.OrdFacts.
 Require Import ZFC.Lib.WosetMin.
 Import WosetMin.FullVer.

@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export ZFC.Theory.EST5_7.
+Require Export ZFC.Elements.EST5_7.
 Require Import ZFC.Lib.FuncFacts.
 
 Lemma int_injective : ∀ n m : nat, Int n = Int m → n = m.

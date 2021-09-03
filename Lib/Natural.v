@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Aug 2020 **)
 
-Require Export ZFC.Theory.EX4.
+Require Export ZFC.Elements.EX4.
 
 Definition woset := λ A R, wellOrder R A.
 

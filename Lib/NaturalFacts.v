@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Oct 2020 **)
 
-Require Import ZFC.Theory.EX6_1.
+Require Import ZFC.Elements.EX6_1.
 Require Import ZFC.Lib.Dominate.
 Require Import ZFC.Lib.WosetMin.
 Import WosetMin.SimpleVer.

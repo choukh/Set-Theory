@@ -1,7 +1,7 @@
 (** Coq coding by choukh, Jan 2021 **)
 
-Require Import ZFC.Theory.EST7_4.
-Require Import ZFC.Theory.EST6_2.
+Require Import ZFC.Elements.EST7_4.
+Require Import ZFC.Elements.EST6_2.
 Require Import ZFC.Lib.FuncFacts.
 
 (* 有限序数 *)
@@ -78,8 +78,7 @@ Qed.
 Lemma nat_iff_finord : ∀ n, n ∈ ω ↔ n ⋵ 𝐎𝐍ᶠⁱⁿ.
 Proof with neauto.
   split. {
-    intros Hn. split.
-    apply ω_is_ords... apply nat_finite...
+    intros Hn. split... apply nat_finite...
   }
   intros [Hord [k [Hk Hqn]]].
   generalize dependent n.

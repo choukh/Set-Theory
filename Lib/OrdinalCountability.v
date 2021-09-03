@@ -2,7 +2,7 @@
 
 Require Import ZFC.Lib.ChoiceFacts.
 Require Import ZFC.Lib.FuncFacts.
-Require Import ZFC.Theory.EST8_7.
+Require Import ZFC.Elements.EST8_7.
 
 Local Hint Resolve ordAdd_ran ordMul_ran ordExp_ran : core.
 

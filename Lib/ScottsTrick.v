@@ -3,7 +3,7 @@
 Require Import FinFun.
 Require Import Relation_Definitions.
 Require Import RelationClasses.
-Require Import ZFC.Theory.EST7_6.
+Require Import ZFC.Elements.EST7_6.
 Import RegularityConsequences.
 
 Module ForAnyType.
