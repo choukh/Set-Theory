@@ -159,10 +159,12 @@ Proof.
   apply trans_union_suc in Hk. congruence.
 Qed.
 
-Ltac ω_destruct n :=
-  destruct (classic (n = ∅)) as [|Hωdes]; [|
-    apply pred_exists in Hωdes as [?n' [?Hn' ?Hn'eq]]; auto
-  ].
+Ltac ω_destruct n := match goal with | Hn: n ∈ ω |- _ =>
+  let H := fresh "H" in let p := fresh "p" in
+  let Hp := fresh "Hp" in let Heq := fresh "Heq" in
+  destruct (classic (n = ∅)) as [|H]; [|
+    apply (pred_exists n Hn) in H as [p [Hp Heq]]
+  ]; subst n; [|rename p into n] end.
 
 (* 集合对函数封闭 *)
 Definition close := λ S A, ∀x ∈ A, S[x] ∈ A.
@@ -216,8 +218,8 @@ Proof with eauto.
       apply op_iff in Hp as [_ H].
       eapply suc_neq_0...
     + apply SepE in Hy as [Hy H0].
-      ω_destruct y; subst y. exfalso. apply H0...
-      eapply ranI. apply ReplAx. exists n'. split... 
+      ω_destruct y. exfalso. apply H0...
+      eapply ranI. apply ReplAx. exists y. split... 
 Qed.
 
 Lemma σ_ap : ∀n ∈ ω, σ[n] = n⁺.
@@ -508,15 +510,14 @@ Proof with eauto; try congruence.
     ω_induction n.
     + intros y m Hp1 Hp2. apply domI in Hp2 as Hdm.
       apply func_ap in Hp1... apply func_ap in Hp2...
-      ω_destruct m... exfalso. subst m. eapply Hnq0...
+      rewrite Hd in Hdm. ω_destruct m... exfalso. eapply Hnq0...
     + intros y k Hp1 Hp2. apply domI in Hp2 as Hdk.
       apply func_ap in Hp1... apply func_ap in Hp2...
-      ω_destruct k... subst k. exfalso. eapply Hnq0...
-      subst k. clear Hdk.
-      apply H3 in Hm as Heq1. apply H3 in Hn' as Heq2.
-      assert (S[h[n']] = S[h[m]]) by congruence.
-      cut (m = n')... eapply IH. apply func_correct...
-      cut (h[n'] = h[m]). intros Heq.
+      rewrite Hd in Hdk. ω_destruct k... exfalso. apply (Hnq0 m)...
+      apply H3 in Hm as Heq1. apply H3 in Hp as Heq2.
+      assert (S[h[k]] = S[h[m]]) by congruence.
+      cut (m = k)... eapply IH. apply func_correct...
+      cut (h[k] = h[m]). intros Heq.
       rewrite <- Heq. apply func_correct...
       destruct HS as [HSf [HSd _]].
       eapply injectiveE; eauto; rewrite HSd; apply Hr;

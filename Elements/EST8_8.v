@@ -117,7 +117,7 @@ Qed.
 (* 有限层塔大于等于ω *)
 Lemma ω_tower_n_le_ω : ∀n ∈ ω, ω ⋸ ω ^^ n.
 Proof with auto.
-  intros n Hn. ω_destruct n; subst.
+  intros n Hn. ω_destruct n.
   - right. rewrite ordTet_0...
   - left. rewrite <- ordTet_0 at 1...
     apply ω_tower_n_monotone... apply suc_has_0...
@@ -135,12 +135,12 @@ Qed.
 Lemma ω_tower_n_injective : ∀ m n ∈ ω, ω ^^ m = ω ^^ n → m = n.
 Proof with neauto.
   intros n Hn. ω_induction n; intros k Hk H.
-  - ω_destruct k... subst. rename n' into k.
+  - ω_destruct k...
     rewrite ordTet_0, ordTet_suc in H...
     rewrite <- ordExp_1_r in H at 1...
     apply ordExp_cancel in H...
-    exfalso. apply (ω_tower_n_neq_nat k Hn' 1)...
-  - ω_destruct k; subst.
+    exfalso. apply (ω_tower_n_neq_nat k Hp 1)...
+  - ω_destruct k.
     + rewrite ordTet_suc, ordTet_0 in H...
       rewrite <- ordExp_1_r in H...
       apply ordExp_cancel in H...
@@ -334,6 +334,23 @@ Proof with auto.
     intros H. apply ReplAx in H as [x [Hx _]]. exfalso0.
   - apply ε₀_is_the_least_ε_number...
 Qed.
+
+(* ε运算单调 *)
+Theorem ε_monotone : monotone ε.
+Proof. apply enum_monotone; auto. Qed.
+
+(* ε运算具有单射性 *)
+Theorem ε_injective : class_injective ε 𝐎𝐍.
+Proof. apply enum_injective; auto. Qed.
+
+(* ε数都被ε运算枚举 *)
+Theorem ε_surjective : class_surjective ε 𝐎𝐍 ε_number.
+Proof. apply enum_surjective; auto. Qed.
+
+(* ε运算等价于ε数 *)
+Theorem ε_iff_ε_number :
+  ∀ ξ, ξ ⋵ ε_number ↔ ∃ α, α ⋵ 𝐎𝐍 ∧ ε α = ξ.
+Proof. apply enum_iff_class; auto. Qed.
 
 (* ε是规范运算 *)
 Theorem ε_normal : normal ε.

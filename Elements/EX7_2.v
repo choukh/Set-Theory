@@ -107,7 +107,7 @@ Lemma ω_embed_ran_nn : ∀n ∈ ω, ω_Embed[n] ∈ ℤ⁰⁺.
 Proof with eauto.
   intros n Hn. apply SepI.
   - eapply ap_ran... apply ω_embed_function.
-  - ω_destruct n; subst n.
+  - ω_destruct n.
     + right. rewrite <- zero, ω_embed...
     + left. rewrite suc_isomorphic_ω, ω_embed... apply intPos_sn.
 Qed.
