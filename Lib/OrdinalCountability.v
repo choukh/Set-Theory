@@ -3,10 +3,20 @@
 Require Import ZFC.Lib.ChoiceFacts.
 Require Import ZFC.Lib.FuncFacts.
 Require Import ZFC.Elements.EST8_7.
+Require Export ZFC.Lib.OrdFacts.
 
 Local Hint Resolve ordAdd_ran ordMul_ran ordExp_ran : core.
 
 (*** 序数的可数性 ***)
+
+(* 可数非零极限序数是可数无穷 *)
+Theorem countable_limit_ordinal_cntinf :
+  ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ → countable 𝜆 → 𝜆 ≈ ω.
+Proof with auto.
+  intros 𝜆 H𝜆 Hne Hcnt.
+  apply limord_is_inford in H𝜆 as [H𝜆 Hinf]...
+  apply countable_iff in Hcnt as []... exfalso...
+Qed.
 
 (* 可数集除去任意多个元素仍是可数集 *)
 Lemma remove_members_from_cnt :
@@ -14,6 +24,14 @@ Lemma remove_members_from_cnt :
 Proof.
   intros A B Hcnt. eapply dominate_trans. 2: apply Hcnt.
   apply dominate_sub. auto.
+Qed.
+
+(* 序数可数如果其后继可数 *)
+Corollary ord_cnt_if_suc_cnt :
+  ∀α ⋵ 𝐎𝐍, countable α⁺ → countable α.
+Proof with auto.
+  intros α Hα Hcnt. rewrite <- (add_one_member_then_remove α α).
+  apply remove_members_from_cnt... apply ord_irrefl...
 Qed.
 
 (* 往可数无穷加入可数多个元素仍是可数无穷 *)

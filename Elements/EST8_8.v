@@ -1,7 +1,7 @@
 (** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Aug 2021 **)
 
-Require ZFC.Lib.ChoiceFacts ZFC.Lib.OrdinalCountability.
+Require ZFC.Lib.OrdinalCountability.
 Require Export ZFC.Elements.EST8_7.
 Import OrdinalClass 𝐎𝐍Separation 𝐎𝐍Operation VeblenFixedPoint.
 
@@ -87,7 +87,7 @@ Proof. rewrite pred, ω_tower_suc, ω_tower_0; auto. Qed.
 Lemma ω_tower_limit : continuous (Tetration ω).
 Proof. apply ordTet_limit; auto. Qed.
 
-(* 指数塔是序数 *)
+(* ω塔是序数 *)
 Lemma ω_tower_ran : ∀α ⋵ 𝐎𝐍, ω ^^ α ⋵ 𝐎𝐍.
 Proof. apply ordTet_ran; auto. Qed.
 Local Hint Resolve ω_tower_ran : core.
@@ -167,22 +167,22 @@ Proof with neauto; try congruence.
     eapply ord_trans...
 Qed.
 
-(* ε₀定义为ω层塔 *)
-Definition ε₀ := ω ^^ ω.
+(* ε₀定义为有限层塔序列的上界 *)
+Definition ε₀ := sup {ω ^^ n | n ∊ ω}.
 
-(* ε₀是有限层塔序列的上界 *)
-Remark ε₀_is_sup : ε₀ = sup{ω ^^ n | n ∊ ω}.
-Proof. apply ω_tower_limit; nauto. Qed.
+(* ε₀是ω层塔 *)
+Remark ε₀_is_tower : ε₀ = ω ^^ ω.
+Proof. symmetry. apply ω_tower_limit; nauto. Qed.
 
 (* ε₀是序数 *)
 Lemma ε₀_is_ord : ε₀ ⋵ 𝐎𝐍.
-Proof. apply operation_operative; auto. Qed.
+Proof. rewrite ε₀_is_tower. apply operation_operative; auto. Qed.
 Local Hint Resolve ε₀_is_ord : core.
 
 (* ε₀里有0层塔 *)
 Lemma ε₀_has_tower_0 : ω ∈ ε₀.
 Proof with nauto.
-  rewrite ε₀_is_sup. apply (FUnionI _ _ 1)...
+  apply (FUnionI _ _ 1)...
   rewrite ω_tower_1. rewrite <- (ordExp_1_r) at 1...
   apply ordExp_preserve_lt...
 Qed.
@@ -190,9 +190,8 @@ Qed.
 (* ε₀里有任意有限层塔 *)
 Lemma ε₀_has_tower_n : ∀n ∈ ω, ω ^^ n ∈ ε₀.
 Proof with nauto.
-  intros n Hn. rewrite ε₀_is_sup.
-  eapply (FUnionI _ _ n⁺)... apply ω_inductive...
-  apply ω_tower_n_ascending...
+  intros n Hn. eapply (FUnionI _ _ n⁺)...
+  apply ω_inductive... apply ω_tower_n_ascending...
 Qed.
 
 (* ε₀里有任意有限层塔里的元素 *)
@@ -205,10 +204,7 @@ Local Notation ε₀I := ε₀_has_those_of_tower_n.
 
 (* ε₀的任意元素都在某有限层塔里 *)
 Lemma ε₀_has_only_those_of_tower_n : ∀α ∈ ε₀, ∃n ∈ ω, α ∈ ω ^^ n.
-Proof.
-  intros α Hα. rewrite ε₀_is_sup in Hα.
-  apply FUnionE in Hα; auto.
-Qed.
+Proof. intros α Hα. apply FUnionE in Hα; auto. Qed.
 Local Notation ε₀E := ε₀_has_only_those_of_tower_n.
 
 (* ε₀里有且只有那些有限层塔里的元素 *)
@@ -221,7 +217,7 @@ Qed.
 (* ε₀是极限序数 *)
 Lemma ε₀_is_limord : ε₀ ⋵ 𝐎𝐍ˡⁱᵐ.
 Proof with nauto.
-  rewrite ε₀_is_sup. apply union_of_limords_is_limord.
+  apply union_of_limords_is_limord.
   intros x Hx. apply ReplAx in Hx as [n [Hn H]]. subst.
   apply ord_tower_is_limord...
 Qed.
@@ -370,7 +366,7 @@ Qed.
 End EpsilonNumber.
 
 Module Countability.
-Import ZFC.Lib.Choice ZFC.Lib.OrdinalCountability.
+Import Choice OrdinalCountability.
 Open Scope OrdArith_scope.
 
 (* 有限层塔是可数无穷 *)
@@ -403,8 +399,7 @@ Qed.
 (* ε₀是可数无穷 *)
 Theorem ε₀_cntinf : AC_II → |ε₀| = ℵ₀.
 Proof with nauto.
-  intros AC2. rewrite ε₀_is_sup.
-  apply countable_union_of_cntinf...
+  intros AC2. apply countable_union_of_cntinf...
   - exists ω. apply ReplAx. exists 0. split... rewrite ordTet_0...
   - apply countableI2, eqnum_repl. reflexivity.
     apply ω_tower_n_injective.
