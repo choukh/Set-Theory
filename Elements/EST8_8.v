@@ -5,8 +5,7 @@ Require ZFC.Lib.OrdinalCountability.
 Require Export ZFC.Elements.EST8_7.
 Import OrdinalClass 𝐎𝐍Separation 𝐎𝐍Operation VeblenFixedPoint.
 
-Local Hint Resolve
-  enum_operative operation_operative ordExp_ran : core.
+Local Hint Resolve enum_operative ordExp_ran : core.
 
 (*** EST第八章8：迭代幂次，ε数 ***)
 
@@ -24,7 +23,7 @@ Theorem ordTet_limit : ∀α ⋵ 𝐎𝐍, continuous (Tetration α).
 Proof. intros α Hα. apply operation_limit; auto. Qed.
 
 Theorem ordTet_ran : ∀ α β ⋵ 𝐎𝐍, α ^^ β ⋵ 𝐎𝐍.
-Proof. intros α Hα β Hβ. apply operation_operative; auto. Qed.
+Proof. intros α Hα β Hβ. auto. apply operation_operative; auto. Qed.
 Local Hint Resolve ordTet_ran : core.
 
 Fact ord_tower_eq_0 : ∀ α β ⋵ 𝐎𝐍, α ^^ β = 0 → α = 0.
@@ -43,14 +42,6 @@ Proof with eauto.
       assert (Hoγ: γ ⋵ 𝐎𝐍). eapply ord_is_ords...
       apply sucord_in_limord in Hγ...
       eapply repl_eq_1 in Hγ as H0...
-Qed.
-
-(* 极限序数集的并是极限序数 *)
-Lemma union_of_limords_is_limord : ∀ A, A ⪽ 𝐎𝐍ˡⁱᵐ → ⋃ A ⋵ 𝐎𝐍ˡⁱᵐ.
-Proof with eauto; try congruence.
-  intros A Hlim.
-  destruct (classic (sup A ∈ A)) as []. apply Hlim...
-  apply sup_ords_out_impl_is_limord...
 Qed.
 
 Fact ord_tower_is_limord : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ 0 → 𝜆 ^^ α ⋵ 𝐎𝐍ˡⁱᵐ.
@@ -150,37 +141,28 @@ Proof with neauto.
       apply IH in H... subst...
 Qed.
 
-(* 有限层塔的元素小于其以ω为底的幂 *)
-Lemma ω_tower_n_upstairs : ∀n ∈ ω, ∀α ∈ ω ^^ n, α ∈ ω ^ α.
-Proof with neauto; try congruence.
-  intros n Hn. ω_induction n; intros x Hx.
-  + destruct (classic (x = 0)). {
-      subst. rewrite ordExp_0_r, pred, pred...
-    }
-    rewrite <- zero, ω_tower_0 in Hx.
-    apply ordExp_enlarge_lt...
-  + destruct (classic (x ∈ ω ^^ m)). apply IH...
-    assert (Hox: x ⋵ 𝐎𝐍). apply (ord_is_ords (ω ^^ m⁺))...
-    rewrite ω_tower_suc in Hx...
-    apply ord_le_iff_not_gt in H as []...
-    apply (ordExp_preserve_lt ω) in H...
-    eapply ord_trans...
-Qed.
-
 (* ε₀定义为有限层塔序列的上界 *)
 Definition ε₀ := sup {ω ^^ n | n ∊ ω}.
 
 (* ε₀是ω层塔 *)
-Remark ε₀_is_tower : ε₀ = ω ^^ ω.
+Remark ε₀_normal_form : ε₀ = ω ^^ ω.
 Proof. symmetry. apply ω_tower_limit; nauto. Qed.
 
 (* ε₀是序数 *)
 Lemma ε₀_is_ord : ε₀ ⋵ 𝐎𝐍.
-Proof. rewrite ε₀_is_tower. apply operation_operative; auto. Qed.
+Proof. rewrite ε₀_normal_form; auto. Qed.
 Local Hint Resolve ε₀_is_ord : core.
 
+(* ε₀是极限序数 *)
+Lemma ε₀_is_limord : ε₀ ⋵ 𝐎𝐍ˡⁱᵐ.
+Proof.
+  rewrite ε₀_normal_form.
+  apply ord_tower_is_limord; nauto.
+Qed.
+Local Hint Resolve ε₀_is_limord : core.
+
 (* ε₀里有0层塔 *)
-Lemma ε₀_has_tower_0 : ω ∈ ε₀.
+Fact ε₀_has_tower_0 : ω ∈ ε₀.
 Proof with nauto.
   apply (FUnionI _ _ 1)...
   rewrite ω_tower_1. rewrite <- (ordExp_1_r) at 1...
@@ -209,30 +191,34 @@ Local Notation ε₀E := ε₀_has_only_those_of_tower_n.
 
 (* ε₀里有且只有那些有限层塔里的元素 *)
 Fact ε₀_iff_of_tower_n : ∀α ⋵ 𝐎𝐍, α ∈ ε₀ ↔ ∃n ∈ ω, α ∈ ω ^^ n.
-Proof.
-  split. apply ε₀E.
-  intros [n [Hn Hα]]. apply (ε₀I n); auto.
-Qed.
-
-(* ε₀是极限序数 *)
-Lemma ε₀_is_limord : ε₀ ⋵ 𝐎𝐍ˡⁱᵐ.
-Proof with nauto.
-  apply union_of_limords_is_limord.
-  intros x Hx. apply ReplAx in Hx as [n [Hn H]]. subst.
-  apply ord_tower_is_limord...
-Qed.
-Local Hint Resolve ε₀_is_limord : core.
+Proof. split. apply ε₀E. intros [n [Hn Hα]]. apply (ε₀I n); auto. Qed.
 
 (* ε₀不等于0 *)
 Lemma ε₀_neq_0 : ε₀ ≠ 0.
 Proof.
-  pose proof ε₀_has_tower_0. intros Heq.
-  rewrite Heq in H. exfalso0.
+  rewrite ε₀_normal_form. intros H.
+  apply ord_tower_eq_0 in H; nauto.
 Qed.
 Local Hint Resolve ε₀_neq_0 : core.
 
-(* 以ω为底，以ε₀的任意元素为指数的幂也在ε₀里 *)
-Lemma ε₀_upstairs : ∀α ∈ ε₀, ω ^ α ∈ ε₀.
+(* 有限层塔的元素可以通过加层数变大 *)
+Lemma ω_exp_enlarge : ∀n ∈ ω, ∀α ∈ ω ^^ n, α ∈ ω ^ α.
+Proof with neauto; try congruence.
+  intros n Hn. ω_induction n; intros x Hx.
+  - destruct (classic (x = 0)). {
+      subst. rewrite ordExp_0_r, pred, pred...
+    }
+    rewrite <- zero, ω_tower_0 in Hx.
+    apply ordExp_enlarge_lt...
+  - destruct (classic (x ∈ ω ^^ m)). apply IH...
+    assert (Hox: x ⋵ 𝐎𝐍). apply (ord_is_ords (ω ^^ m⁺))...
+    rewrite ω_tower_suc in Hx...
+    apply ord_le_iff_not_gt in H as []...
+    apply (ordExp_preserve_lt ω) in H... eapply ord_trans...
+Qed.
+
+(* ε₀对ω指数运算封闭 *)
+Lemma ε₀_closed_under_ω_exp : ∀α ∈ ε₀, ω ^ α ∈ ε₀.
 Proof with nauto.
   intros α Hα.
   assert (Hoα: α ⋵ 𝐎𝐍). apply (ord_is_ords ε₀)...
@@ -251,11 +237,11 @@ Lemma ε₀_is_ε_number : ε₀ ⋵ ε_number.
 Proof with neauto.
   split... ext.
   - rewrite ordExp_limit in H...
-    apply FUnionE in H as [α [Hα Hx]].
-    eapply ord_trans... apply ε₀_upstairs...
+    apply FUnionE in H as [α [Hα Hx]]. eapply ord_trans...
+    apply ε₀_closed_under_ω_exp...
   - rewrite ordExp_limit... eapply FUnionI...
     apply ε₀E in H as [n [Hn Hx]].
-    eapply ω_tower_n_upstairs...
+    eapply ω_exp_enlarge...
 Qed.
 
 (* ε数不等于0 *)

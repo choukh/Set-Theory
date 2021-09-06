@@ -192,6 +192,14 @@ Proof with auto.
   exfalso. apply Hout. apply sup_ords_is_sucord_impl_in...
 Qed.
 
+(* 极限序数集的并是极限序数 *)
+Corollary union_of_limords_is_limord : ∀ A, A ⪽ 𝐎𝐍ˡⁱᵐ → ⋃ A ⋵ 𝐎𝐍ˡⁱᵐ.
+Proof with eauto; try congruence.
+  intros A Hlim.
+  destruct (classic (sup A ∈ A)) as []. apply Hlim...
+  apply sup_ords_out_impl_is_limord...
+Qed.
+
 (* ex8_6_b 序数规范运算的值域封闭 *)
 Lemma normal_operation_range_closed :
   ∀ F C, F:ᶜ 𝐎𝐍 ⟹ C → C ⫃ 𝐎𝐍 → normal F → closed C.
@@ -683,7 +691,7 @@ Qed.
 
 End 𝐎𝐍Operation.
 
-Module AlternativeDefinitionOfAleph.
+Module AlternativeAleph.
 Import 𝐎𝐍Operation.
 
 Definition ℵ' := Operation ℵ₀ (λ α, α₊).
@@ -702,7 +710,7 @@ Proof with auto.
     apply repl_ext. intros ξ Hξ. apply IH...
 Qed.
 
-End AlternativeDefinitionOfAleph.
+End AlternativeAleph.
 
 (* ℶ数 *)
 Section Beth.

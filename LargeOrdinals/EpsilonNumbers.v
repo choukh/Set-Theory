@@ -2,7 +2,7 @@
 
 Require ZFC.Lib.OrdinalCountability.
 Require Import ZFC.Elements.EST8_8.
-Import OrdinalClass VeblenFixedPoint EpsilonNumber.
+Export OrdinalClass VeblenFixedPoint EpsilonNumber.
 
 Local Hint Resolve
   ordAdd_ran ordMul_ran ordExp_ran ordTet_ran ε_operative : core.
