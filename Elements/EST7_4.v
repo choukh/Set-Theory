@@ -558,15 +558,6 @@ Proof with auto.
     right. apply ord_suc_injective...
 Qed.
 
-(* 后继序数大于零 *)
-Lemma ord_suc_has_0 : ∀α ⋵ 𝐎𝐍, ∅ ∈ α⁺.
-Proof with auto.
-  intros α Hα. destruct (classic (∅ = α)).
-  - apply BUnionI2. subst...
-  - apply ord_connected in H as []...
-    apply BUnionI1... exfalso0.
-Qed.
-
 (* 任意序数不等于其后继 *)
 Lemma ord_neq_suc : ∀α ⋵ 𝐎𝐍, α ≠ α⁺.
 Proof.
@@ -575,19 +566,29 @@ Proof.
 Qed.
 
 (* 不等于零的序数大于零 *)
-Lemma ord_neq_0_gt_0 : ∀α ⋵ 𝐎𝐍, α ≠ ∅ ↔ ∅ ∈ α.
-Proof with auto.
-  intros α Hα. split; intros.
-  - apply ord_connected in H as []... exfalso0.
-  - destruct (classic (α = ∅))... subst. exfalso0.
+Lemma ord_neq_0_gt_0 : ∀α ⋵ 𝐎𝐍, α ≠ ∅ → ∅ ∈ α.
+Proof.
+  intros α Hα H.
+  apply ord_connected in H as []; auto. exfalso0.
 Qed.
+Global Hint Immediate ord_neq_0_gt_0 :core.
+
+(* 后继序数大于零 *)
+Corollary ord_suc_gt_0 : ∀α ⋵ 𝐎𝐍, ∅ ∈ α⁺.
+Proof. intros α Hα. apply ord_neq_0_gt_0; auto. Qed.
+Global Hint Immediate ord_suc_gt_0 :core.
+
+(* 大于零的序数不等于零 *)
+Lemma ord_gt_0_neq_0 : ∀α ⋵ 𝐎𝐍, ∅ ∈ α → α ≠ ∅.
+Proof.
+  intros α Hα H.
+  destruct (classic (α = ∅)); auto. subst. exfalso0.
+Qed.
+Global Hint Immediate ord_gt_0_neq_0 :core.
 
 (* 后继序数不等于零 *)
-Corollary ord_suc_neq_0 : ∀α ⋵ 𝐎𝐍, α⁺ ≠ ∅.
-Proof with auto.
-  intros α Hα. eapply ord_neq_0_gt_0; revgoals...
-  apply ord_suc_has_0...
-Qed.
+Fact ord_suc_neq_0 : ∀α ⋵ 𝐎𝐍, α⁺ ≠ ∅.
+Proof. auto. Qed.
 
 (* 任意序数大于等于零 *)
 Lemma ord_ge_0 : ∀α ⋵ 𝐎𝐍, ∅ ⋸ α.
@@ -631,6 +632,22 @@ Proof with eauto.
   - intros Hlt. apply ord_lt_iff_not_sub in Hlt...
   - destruct (classic (α ⊆ β))...
     exfalso. apply H. apply ord_lt_iff_not_sub...
+Qed.
+
+(* 不等于零和一的序数大于一 *)
+Lemma ord_neq_0_1_gt_1 : ∀ α ⋵ 𝐎𝐍, α ≠ 0 → α ≠ 1 → 1 ∈ α.
+Proof with nauto.
+  intros α Hα H0 H1. contra.
+  apply ord_le_iff_not_gt in H as []...
+  rewrite one in H. apply SingE in H...
+Qed.
+Global Hint Resolve ord_neq_0_1_gt_1 :core.
+
+(* 大于一的序数不等于零和一 *)
+Lemma ord_gt_1_neq_0_1 : ∀ α ⋵ 𝐎𝐍, 1 ∈ α → α ≠ 0 ∧ α ≠ 1.
+Proof.
+  intros α Hα Hlt. split; intros H; subst.
+  exfalso0. eapply (ord_irrefl 1); auto.
 Qed.
 
 (* 序数不稠密 *)
