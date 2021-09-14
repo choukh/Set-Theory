@@ -91,5 +91,7 @@ Elements/EST8_7.v
 Lib/OrdinalCountability.v
 Elements/EST8_8.v
 
-LargeOrdinals/LowerFixedPoint.v
 LargeOrdinals/EpsilonNumbers.v
+LargeOrdinals/LowerFixedPoint.v
+LargeOrdinals/GeneralEpsilon.v
+LargeOrdinals/NormalTetration.v

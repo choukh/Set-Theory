@@ -397,22 +397,22 @@ Proof with auto.
 Qed.
 
 (* 两个序数的二元并等于它们中较大的一个 *)
-Lemma bunion_of_ords_eq_l : ∀ α β ⋵ 𝐎𝐍, α ⋸ β → α ∪ β = β.
-Proof with auto.
-  intros α Hoα β Hoβ Hle.
-  apply ord_le_iff_sub in Hle...
-  ext Hx.
-  - apply BUnionE in Hx as []...
-  - apply BUnionI2...
-Qed.
-
-Lemma bunion_of_ords_eq_r : ∀ α β ⋵ 𝐎𝐍, β ⋸ α → α ∪ β = α.
+Lemma ord_max_l : ∀ α β ⋵ 𝐎𝐍, β ⋸ α → α ∪ β = α.
 Proof with auto.
   intros α Hoα β Hoβ Hle.
   apply ord_le_iff_sub in Hle...
   ext Hx.
   - apply BUnionE in Hx as []...
   - apply BUnionI1...
+Qed.
+
+Lemma ord_max_r : ∀ α β ⋵ 𝐎𝐍, α ⋸ β → α ∪ β = β.
+Proof with auto.
+  intros α Hoα β Hoβ Hle.
+  apply ord_le_iff_sub in Hle...
+  ext Hx.
+  - apply BUnionE in Hx as []...
+  - apply BUnionI2...
 Qed.
 
 (* 后继序数是大于该序数的最小序数 *)
@@ -596,6 +596,7 @@ Proof with auto.
   intros α Hα. apply ord_le_iff_sub; auto.
   apply empty_sub_all.
 Qed.
+Global Hint Resolve ord_ge_0 : core.
 
 (* 序数的小于关系与真子集关系等价 *)
 Lemma ord_lt_iff_psub : ∀ α β ⋵ 𝐎𝐍, α ∈ β ↔ α ⊂ β.
