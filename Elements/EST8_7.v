@@ -5,6 +5,7 @@ Require Export ZFC.Elements.EST8_2.
 Import OrdinalClass 𝐎𝐍Operation.
 
 (*** EST第八章7：序数算术（递归定义） ***)
+(* please check /LargeOrdinals for tetration and epsilon numbers *)
 
 Declare Scope OrdArith_scope.
 Delimit Scope OrdArith_scope with oa.

@@ -220,10 +220,7 @@ make
 ## EST8_7.v
 - Ordinal Arithmetic (defined by recursion)
   - Addition, multiplication, exponentiation
-
-## EST8_8.v
-- Ordinal tetration
-- Epsilon numbers
+- Tetration, epsilon numbers
 
 ## EX{n}.v
 - Solution to exercises of Chapter n

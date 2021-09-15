@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Sep 2021 **)
 
-Require Export ZFC.Elements.EST8_8.
+Require Export ZFC.LargeOrdinals.SidedTetration.
 Require Import ZFC.LargeOrdinals.GeneralEpsilon.
 Import OrdinalClass 𝐎𝐍Operation.
 
@@ -178,4 +178,11 @@ Proof with nauto.
   }
   rewrite ordTet_suc... apply BUnionI2.
   apply ordExp_enlarge_r... apply ordTet_gt_1...
+Qed.
+
+Fact ordTet_is_limord_r : ∀α ⋵ 𝐎𝐍, ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 1 ∈ α → 𝜆 ≠ 0 → α ^^ 𝜆 ⋵ 𝐎𝐍ˡⁱᵐ.
+Proof with neauto.
+  intros α Hα 𝜆 H𝜆 H1 H2.
+  apply normal_operation_limit_is_limit...
+  apply ordTet_normal...
 Qed.

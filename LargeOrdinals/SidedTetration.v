@@ -1,4 +1,3 @@
-(** Adapted from "Elements of Set Theory" Chapter 8 **)
 (** Coq coding by choukh, Aug 2021 **)
 
 Require Export ZFC.Elements.EST8_7.
@@ -7,11 +6,6 @@ Import OrdinalClass 𝐎𝐍Operation.
 Local Hint Resolve
   add_ran mul_ran exp_ran
   ordAdd_ran ordMul_ran preOrdExp_ran ordExp_ran : core.
-
-(*** EST第八章8：迭代幂次，ε数 ***)
-
-(** ε数 **)
-(* please see LargeOrdinal/EpsilonNumbers.v *)
 
 (** 左迭代幂次 **)
 (* see also LargeOrdinals/NormalTetration.v *)

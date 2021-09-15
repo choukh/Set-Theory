@@ -1,6 +1,6 @@
 (** Coq coding by choukh, Sep 2021 **)
 
-Require Import ZFC.Elements.EST8_8.
+Require Import ZFC.LargeOrdinals.SidedTetration.
 Export OrdinalClass 𝐎𝐍Separation VeblenFixedPoint.
 
 Local Hint Resolve enum_operative ordAdd_ran ordMul_ran ordExp_ran : core.

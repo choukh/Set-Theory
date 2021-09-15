@@ -10,7 +10,7 @@ Local Hint Resolve ordAdd_ran ordMul_ran ordExp_ran : core.
 (*** 序数的可数性 ***)
 
 (* 可数非零极限序数是可数无穷 *)
-Theorem countable_limit_ordinal_cntinf :
+Theorem countable_limord_cntinf :
   ∀𝜆 ⋵ 𝐎𝐍ˡⁱᵐ, 𝜆 ≠ ∅ → countable 𝜆 → 𝜆 ≈ ω.
 Proof with auto.
   intros 𝜆 H𝜆 Hne Hcnt.
