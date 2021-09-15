@@ -32,25 +32,11 @@ Local Hint Resolve ω_tower_ran : core.
 
 (* 有限层塔递增 *)
 Lemma ω_tower_n_ascending : ∀n ∈ ω, ω ^^ᴸ n ∈ ω ^^ᴸ n⁺.
-Proof with nauto.
-  intros n Hn. ω_induction n.
-  - rewrite ω_tower_suc, <- zero, ω_tower_0...
-    apply ordExp_enlarge_r...
-  - rewrite ω_tower_suc, ω_tower_suc...
-    apply ordExp_preserve_lt...
-Qed.
+Proof. apply ordTetL_n_ascending; nauto. Qed.
 
 (* 有限层塔单调 *)
 Lemma ω_tower_n_monotone : ∀n ∈ ω, ∀m ∈ n, ω ^^ᴸ m ∈ ω ^^ᴸ n.
-Proof with eauto.
-  intros n Hn. ω_induction n; intros k Hlt.
-  - exfalso0.
-  - assert (Hk: k ∈ ω). eapply ω_trans... apply ω_inductive...
-    apply le_iff_lt_suc in Hlt as []...
-    + eapply ord_trans. auto. apply IH...
-      apply ω_tower_n_ascending...
-    + subst. apply ω_tower_n_ascending...
-Qed.
+Proof. apply ordTetL_n_monotone; nauto. Qed.
 
 (* 有限层塔大于等于ω *)
 Lemma ω_tower_n_ge_ω : ∀n ∈ ω, ω ⋸ ω ^^ᴸ n.
@@ -367,23 +353,11 @@ Local Hint Resolve ε_tower_ran : core.
 
 (* 有限层ε塔递增 *)
 Lemma ε_tower_n_ascending : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, ε α ^^ᴸ n ∈ ε α ^^ᴸ n⁺.
-Proof with neauto.
-  intros α Hα n Hn. ω_induction n.
-  - rewrite ε_tower_suc, <- zero, ε_tower_0... apply ordExp_enlarge_r...
-  - rewrite ε_tower_suc, ε_tower_suc... apply ordExp_preserve_lt...
-Qed.
+Proof. intros α Hα. apply ordTetL_n_ascending; nauto. Qed.
 
 (* 有限层ε塔单调 *)
 Lemma ε_tower_n_monotone : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, ∀m ∈ n, ε α ^^ᴸ m ∈ ε α ^^ᴸ n.
-Proof with neauto.
-  intros α Hα n Hn. ω_induction n; intros k Hlt.
-  - exfalso0.
-  - assert (Hk: k ∈ ω). eapply ω_trans... apply ω_inductive...
-    apply ord_le_iff_lt_suc in Hlt as []...
-    + eapply ord_trans. auto. apply IH...
-    apply ε_tower_n_ascending...
-    + subst. apply ε_tower_n_ascending...
-Qed.
+Proof. intros α Hα. apply ordTetL_n_monotone; nauto. Qed.
 
 (* 有限层ε塔大于ω *)
 Lemma ε_tower_n_has_ω : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, ω ∈ ε α ^^ᴸ n.

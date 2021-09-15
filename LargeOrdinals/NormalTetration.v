@@ -6,68 +6,176 @@ Import OrdinalClass 𝐎𝐍Operation.
 
 Local Hint Resolve
   add_ran mul_ran exp_ran ordAdd_ran ordMul_ran
-  preOrdExp_ran ordExp_ran ordTetL_ran : core.
+  preOrdExp_ran ordExp_ran ordTetL_ran
+  ε_operative bunion_of_ords_is_ord : core.
 
 (** 迭代幂次 **)
 (** Tetration **)
 (* adapted from https://math.stackexchange.com/a/3768438/815418 *)
-
-Definition OrdTetR := λ α, Operation α (λ ξ, ξ ^ α).
-Notation "α ^^ᴿ β" := (OrdTetR α β) (at level 25) : OrdArith_scope.
-
-Definition OrdTet := λ α β, α ^^ᴸ β ∪ α ^^ᴿ β.
+Definition OrdTet := λ α, Operation 1 (λ ξ, α ^ ξ ∪ ξ ^ α).
 Notation "α ^^ β" := (OrdTet α β) (at level 25) : OrdArith_scope.
 
-Theorem ordTetR_ran : ∀ α β ⋵ 𝐎𝐍, α ^^ᴿ β ⋵ 𝐎𝐍.
-Proof. intros α Hα β Hβ. apply operation_operative; auto. Qed.
-Local Hint Resolve ordTetR_ran : core.
+Theorem ordTet_0_r : ∀α ⋵ 𝐎𝐍, α ^^ 0 = 1.
+Proof. intros α H. apply operation_0; auto. Qed.
 
-Lemma ordTetL : ∀ α β ⋵ 𝐎𝐍, α ^^ᴿ β ⋸ α ^^ᴸ β → α ^^ β = α ^^ᴸ β.
-Proof.
-  intros α Hα β Hβ Hle. unfold OrdTet.
-  rewrite ord_max_l; auto.
-Qed.
+Theorem ordTet_suc : ∀ α β ⋵ 𝐎𝐍, α ^^ β⁺ = α ^ (α ^^ β) ∪ (α ^^ β) ^ α.
+Proof. intros α Hα β Hβ. apply operation_suc; auto. Qed.
 
-Lemma ordTetR : ∀ α β ⋵ 𝐎𝐍, α ^^ᴸ β ⋸ α ^^ᴿ β → α ^^ β = α ^^ᴿ β.
-Proof.
-  intros α Hα β Hβ Hle. unfold OrdTet.
-  rewrite ord_max_r; auto.
-Qed.
+Theorem ordTet_limit : ∀α ⋵ 𝐎𝐍, continuous (OrdTet α).
+Proof. intros α Hα. apply operation_limit; auto. Qed.
 
 Theorem ordTet_ran : ∀ α β ⋵ 𝐎𝐍, α ^^ β ⋵ 𝐎𝐍.
-Proof with auto.
-  intros α Hα β Hβ.
-  epose proof (ord_comparability (α ^^ᴸ β) _ (α ^^ᴿ β)) as []...
-  - rewrite ordTetR...
-  - rewrite ordTetL...
-  Unshelve. auto.
+Proof with nauto.
+  intros α Hα β Hβ. apply operation_operative...
 Qed.
 Local Hint Resolve ordTet_ran : core.
 
-Lemma ordTetR_0 : ∀α ⋵ 𝐎𝐍, α ^^ᴿ 0 = α.
-Proof. intros α H. apply operation_0; auto. Qed.
-
-Theorem ordTet_0 : ∀α ⋵ 𝐎𝐍, α ^^ 0 = α.
-Proof with auto.
-  intros α H. rewrite ordTetL, ordTetL_0...
-  rewrite ordTetL_0, ordTetR_0...
+Theorem ordTet_0_l : ∀α ⋵ 𝐎𝐍, 0 ^^ α = 1.
+Proof with neauto.
+  ord_induction. intros α Hα IH.
+  ord_destruct α.
+  - subst. apply ordTet_0_r...
+  - destruct Hsuc as [γ [Hγ H]]. subst.
+    rewrite ordTet_suc, IH, ordExp_0_l, ordExp_0_r, ord_max_r...
+  - rewrite ordTet_limit... ext.
+    + apply FUnionE in H as [β [Hβ H]]. rewrite IH in H...
+    + apply EmptyNE in H0 as [β Hβ]. eapply FUnionI... rewrite IH...
 Qed.
 
-Lemma ordTetR_suc : ∀ α β ⋵ 𝐎𝐍, α ^^ᴿ β⁺ = (α ^^ᴿ β) ^ α.
-Proof. intros α Hα β Hβ. apply operation_suc; auto. Qed.
-
-Lemma ordTetR_limit : ∀α ⋵ 𝐎𝐍, continuous (OrdTetR α).
-Proof. intros α Hα. apply operation_limit; auto. Qed.
-
-Lemma ordTetR_1_r : ∀α ⋵ 𝐎𝐍, α ^^ᴿ 1 = α ^ α.
-Proof.
-  intros α H. rewrite pred, ordTetR_suc, ordTetR_0; auto.
-Qed.
-
-Theorem ordTet_1_r : ∀α ⋵ 𝐎𝐍, α ^^ 1 = α ^ α.
+Theorem ordTet_1_r : ∀α ⋵ 𝐎𝐍, α ≠ 0 → α ^^ 1 = α.
 Proof with nauto.
-  intros α H. rewrite ordTetL, ordTetL_1_r...
-  rewrite ordTetL_1_r, ordTetR_1_r...
+  intros α H H0. rewrite pred, ordTet_suc...
+  rewrite ordTet_0_r, ordExp_1_r, ordExp_1_l, ord_max_l...
+  apply ord_suc_correct...
 Qed.
 
-(* TODO *)
+Theorem ordTet_1_l : ∀α ⋵ 𝐎𝐍, 1 ^^ α = 1.
+Proof with neauto.
+  ord_induction. intros α Hα IH.
+  ord_destruct α.
+  - subst. apply ordTet_0_r...
+  - destruct Hsuc as [γ [Hγ H]]. subst.
+    rewrite ordTet_suc, IH, ordExp_1_r, ord_max_r...
+  - rewrite ordTet_limit... ext.
+    + apply FUnionE in H as [β [Hβ H]]. rewrite IH in H...
+    + apply EmptyNE in H0 as [β Hβ]. eapply FUnionI... rewrite IH...
+Qed.
+
+Theorem ordTet_eq_L : ∀α ⋵ 𝐎𝐍, α ≠ 0 → ∀n ∈ ω, α ^^ n⁺ = α ^^ᴸ n.
+Proof with nauto.
+  intros α Hα Hα0 n Hn.
+  destruct (classic (α = 1)) as [|Hα1]. {
+    subst. rewrite ordTet_1_l, ordTetL_1_l...
+  }
+  destruct (classic (α = 2)) as [|Hα2]. {
+    subst. ω_induction n.
+    - rewrite ordTet_1_r, ordTetL_0...
+    - destruct (classic (m = 0)) as [|Hm0]. {
+        subst. rewrite ordTet_suc, IH...
+        rewrite ordTetL_suc, ordTetL_0, ord_max_l...
+      }
+      rewrite ordTet_suc, IH, ordTetL_suc, ord_max_l...
+      apply ordTetL_exp_r_le_l...
+  }
+  ω_induction n.
+  - rewrite ordTet_1_r, ordTetL_0...
+  - destruct (classic (m = 0)) as [|Hm0]. {
+      subst. rewrite ordTet_suc, IH...
+      rewrite ordTetL_suc, ordTetL_0, ord_max_l...
+    }
+    rewrite ordTet_suc, IH, ordTetL_suc, ord_max_l...
+    left. apply ordTetL_exp_r_lt_l... contra.
+    apply ord_le_iff_not_gt in H as []...
+    rewrite two in H. apply TwoE in H as []... rewrite <- one in H...
+Qed.
+
+Theorem ordTet_suc_l : ∀α ⋵ 𝐎𝐍, α ≠ 0 → ∀n ∈ ω, α ^^ n⁺ = α ^ (α ^^ n).
+Proof with auto.
+  intros α Hα Hα0 n Hn.
+  destruct (classic (α = 1)) as [|Hα1]. {
+    subst. rewrite ordTet_1_l, ordTet_1_l, ordExp_1_r...
+  }
+  ω_induction n.
+  - rewrite ordTet_1_r, ordTet_0_r, ordExp_1_r...
+  - rewrite ordTet_eq_L, ordTet_eq_L, ordTetL_suc...
+    apply ω_inductive...
+Qed.
+
+Theorem ordTet_ω_eq_ε_0 : ∀α ⋵ 𝐎𝐍, 1 ∈ α → α ^^ ω = ε α 0.
+Proof with neauto.
+  intros α Hα Hα1.
+  apply ord_gt_1_neq_0_1 in Hα1 as [Hα0 Hα1]...
+  rewrite ordTet_limit... ext.
+  - apply FUnionE in H as [n [Hn Hx]].
+    ω_destruct n.
+    + rewrite ordTet_0_r, one in Hx...
+      apply SingE in Hx. subst. apply ε_has_n...
+    + rewrite ε_0... rewrite ordTet_eq_L in Hx... eapply FUnionI...
+  - rewrite ε_0 in H... apply FUnionE in H as [n [Hn Hx]].
+    rewrite <- ordTet_eq_L in Hx...
+    eapply (FUnionI _ _ n⁺)... apply ω_inductive...
+Qed.
+
+Lemma ordTet_neq_0 : ∀ α β ⋵ 𝐎𝐍, α ^^ β ≠ 0.
+Proof with eauto.
+  intros α Hα. ord_induction. intros β Hβ IH H.
+  ord_destruct β.
+  - subst. rewrite ordTet_0_r in H...
+  - destruct Hsuc as [γ [Hγ Heq]]. subst.
+    rewrite ordTet_suc in H...
+    apply union_eq_empty in H as [].
+    + apply EmptyNI in H... exists (α ^ α ^^ γ)... apply PairI1.
+    + symmetry in H. apply single_eq_pair in H as [H Heq].
+      symmetry in H. apply ordExp_eq_0 in H...
+      subst. rewrite ordExp_0_l, ordExp_0_r in Heq...
+  - rewrite ordTet_limit in H...
+    apply union_eq_empty in H as [].
+    + apply repl_eq_empty in H. exfalso...
+    + apply EmptyNE in H0 as [γ Hγ].
+      assert (Hoγ: γ ⋵ 𝐎𝐍). eapply ord_is_ords...
+      apply sucord_in_limord in Hγ...
+      eapply repl_eq_1 in Hγ as H0... eapply IH...
+Qed.
+
+Lemma ordTet_gt_1 : ∀ α β ⋵ 𝐎𝐍, 1 ∈ α → β ≠ 0 → 1 ∈ α ^^ β.
+Proof with neauto.
+  intros α Hα. ord_induction. intros β Hβ IH Hα1 Hβ0.
+  ord_destruct β.
+  - subst...
+  - destruct Hsuc as [γ [Hγ Heq]]. subst.
+    destruct (classic (γ = 0)) as [|Hγ0]. {
+      subst. rewrite ordTet_1_r... apply ord_gt_1_neq_0_1...
+    }
+    rewrite ordTet_suc... eapply ord_trans... auto.
+    apply BUnionI1. apply ordExp_enlarge_r...
+  - rewrite ordTet_limit...
+    apply EmptyNE in H0 as [γ Hγ].
+    assert (Hoγ: γ ⋵ 𝐎𝐍). eapply ord_is_ords...
+    eapply FUnionI. apply sucord_in_limord...
+    destruct (classic (γ = 0)) as [|Hγ0]. {
+      subst. rewrite ordTet_1_r... apply ord_gt_1_neq_0_1...
+    }
+    eapply ord_trans_lt_le. auto. apply IH...
+    rewrite ordTet_suc... left. apply BUnionI2. apply ordExp_enlarge_r...
+Qed.
+
+Theorem ordTet_eq_1 : ∀ α β ⋵ 𝐎𝐍, α ^^ β = 1 → α = 0 ∨ α = 1 ∨ β = 0.
+Proof with neauto.
+  intros α Hα β Hβ H.
+  destruct (classic (α = 0))...
+  destruct (classic (α = 1))...
+  destruct (classic (β = 0))... exfalso.
+  apply (ord_irrefl 1)... rewrite <- H at 2.
+  apply ordTet_gt_1...
+Qed.
+
+Theorem ordTet_normal : ∀α ⋵ 𝐎𝐍, 1 ∈ α → normal (OrdTet α).
+Proof with nauto.
+  intros α Hα Hα1. apply operation_normal...
+  fold (OrdTet α). intros x Hx.
+  destruct (classic (x = 0)) as [|Hx0]. {
+    subst. rewrite ordTet_0_r, ordTet_1_r... apply ord_gt_1_neq_0_1...
+  }
+  rewrite ordTet_suc... apply BUnionI2.
+  apply ordExp_enlarge_r... apply ordTet_gt_1...
+Qed.

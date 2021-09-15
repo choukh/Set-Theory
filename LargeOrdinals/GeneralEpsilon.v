@@ -16,16 +16,6 @@ Local Hint Resolve ξ_is_ord : core.
 Local Hint Resolve ξ_neq_0 : core.
 Local Hint Resolve ξ_neq_1 : core.
 
-(* 有限层塔递增 *)
-Lemma ξ_tower_n_ascending : ∀n ∈ ω, ξ ^^ᴸ n ∈ ξ ^^ᴸ n⁺.
-Proof with nauto.
-  intros n Hn. ω_induction n.
-  - rewrite ordTetL_suc, <- zero, ordTetL_0...
-    apply ordExp_enlarge_r...
-  - rewrite ordTetL_suc, ordTetL_suc...
-    apply ordExp_preserve_lt...
-Qed.
-
 (* ε₀定义为有限层塔序列的上界 *)
 Definition ε₀ := sup {ξ ^^ᴸ n | n ∊ ω}.
 
@@ -46,7 +36,7 @@ Proof with neauto.
     apply FUnionE in H as [n [Hn H]].
     apply UnionAx. exists (ξ ^^ᴸ n). split...
     eapply FUnionI. apply ω_inductive. apply Hn.
-    apply ξ_tower_n_ascending...
+    apply ordTetL_n_ascending...
   - apply UnionAx in H as [y [Hy H]]. eapply ord_trans...
 Qed.
 Local Hint Resolve ε₀_is_limord : core.
@@ -63,7 +53,7 @@ Qed.
 Lemma ε₀_has_tower_n : ∀n ∈ ω, ξ ^^ᴸ n ∈ ε₀.
 Proof with nauto.
   intros n Hn. eapply (FUnionI _ _ n⁺)...
-  apply ω_inductive... apply ξ_tower_n_ascending...
+  apply ω_inductive... apply ordTetL_n_ascending...
 Qed.
 
 (* ε₀里有任意有限层塔里的元素 *)
@@ -319,20 +309,13 @@ Lemma ε_tower_ran : ∀ α β ⋵ 𝐎𝐍, ε α ^^ᴸ β ⋵ 𝐎𝐍.
 Proof. auto. Qed.
 Local Hint Resolve ε_tower_ran : core.
 
-(* 有限层ε塔递增 *)
-Lemma ε_tower_n_ascending : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, ε α ^^ᴸ n ∈ ε α ^^ᴸ n⁺.
-Proof with neauto.
-  intros α Hα n Hn. ω_induction n.
-  - rewrite ordTetL_suc, <- zero, ordTetL_0... apply ordExp_enlarge_r...
-  - rewrite ordTetL_suc, ordTetL_suc... apply ordExp_preserve_lt...
-Qed.
-
 (* 有限层ε塔不小于ω *)
 Lemma ε_tower_n_ge_ω : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, ω ⋸ ε α ^^ᴸ n.
-Proof with auto.
+Proof with nauto.
   intros α Hα n Hn. ω_induction n.
   - rewrite ordTetL_0... apply ε_ge_ω...
-  - eapply ord_trans_le. auto. apply IH. left. apply ε_tower_n_ascending...
+  - eapply ord_trans_le. auto. apply IH. left.
+    apply ordTetL_n_ascending...
 Qed.
 Local Hint Resolve ε_tower_n_ge_ω : core.
 
@@ -396,7 +379,7 @@ Proof with neauto.
     apply ordExp_preserve_lt...
   - apply FUnionE in H as [n [Hn Hx]].
     rewrite ordExp_limit... eapply FUnionI.
-    eapply FUnionI. apply ω_inductive, Hn. apply ε_tower_n_ascending...
+    eapply FUnionI. apply ω_inductive, Hn. apply ordTetL_n_ascending...
     generalize dependent Hx. generalize dependent x.
     apply ord_le_iff_sub...
     ω_induction n.
