@@ -64,6 +64,10 @@ Proof with auto.
   apply IH. apply suc_preserve_lt...
 Qed.
 
+Lemma ω_neq_n : ∀n ∈ ω, ω ≠ n.
+Proof. intros n Hn H. apply (nat_irrefl n); auto. congruence. Qed.
+Global Hint Resolve ω_neq_n : number_hint.
+
 Lemma nat_not_lt_gt : ∀ m n ∈ ω, m ∈ n → n ∈ m → False.
 Proof.
   intros m Hm n Hn Hlt Hgt. eapply nat_irrefl. apply Hm.

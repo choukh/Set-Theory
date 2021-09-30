@@ -433,6 +433,59 @@ Proof with eauto.
       eapply ord_trans... apply ordExp_preserve_lt...
 Qed.
 
+(** 指定首项迭代幂次 **)
+(* α ^ α ^ ... ^ α ^ ι *)
+Definition OrdTet0 := λ α β ι, Operation ι (OrdExp α) β.
+Notation "α ^^⁰ β" := (OrdTet0 α β) (at level 25) : OrdArith_scope.
+
+Theorem ordTet0_0 : ∀ ι α ⋵ 𝐎𝐍, (α ^^⁰ 0) ι = ι.
+Proof. intros ι Hι α Hα. apply operation_0; auto. Qed.
+
+Theorem ordTet0_suc : ∀ ι α β ⋵ 𝐎𝐍, (α ^^⁰ β⁺) ι = α ^ (α ^^⁰ β) ι.
+Proof. intros ι Hι α Hα β Hβ. apply operation_suc; auto. Qed.
+
+Theorem ordTet0_limit : ∀ ι α ⋵ 𝐎𝐍, continuous (λ β, (α ^^⁰ β) ι).
+Proof. intros ι Hι α Hα. apply operation_limit; auto. Qed.
+
+Theorem ordTet0_ran : ∀ ι α β ⋵ 𝐎𝐍, (α ^^⁰ β) ι ⋵ 𝐎𝐍.
+Proof. intros ι Hι α Hα β Hβ. apply operation_operative; auto. Qed.
+Local Hint Resolve ordTet0_ran : core.
+
+Theorem ordTet0_1 : ∀ ι α ⋵ 𝐎𝐍, (α ^^⁰ 1) ι = α ^ ι.
+Proof.
+  intros ι Hι α Hα. rewrite pred, ordTet0_suc, ordTet0_0; auto.
+Qed.
+
+Lemma ordTet0_lt_ordTetL_n : ∀ ξ ι ⋵ 𝐎𝐍, 1 ∈ ξ → ι ∈ ξ → ∀n ∈ ω, (ξ ^^⁰ n) ι ∈ ξ ^^ᴸ n.
+Proof with nauto.
+  intros ξ Hξ ι Hι Hξ1 Hιξ n Hn.
+  ω_induction n.
+  - rewrite ordTet0_0, ordTetL_0...
+  - rewrite ordTet0_suc, ordTetL_suc...
+    apply ordExp_preserve_lt...
+Qed.
+
+Lemma ordTet0_gt_ordTetL_n : ∀ ξ ι ⋵ 𝐎𝐍, 1 ∈ ι → ι ∈ ξ → ∀n ∈ ω, ξ ^^ᴸ n ∈ (ξ ^^⁰ n⁺) ι.
+Proof with neauto.
+  intros ξ Hξ ι Hι Hι1 Hιξ n Hn.
+  ω_induction n.
+  - rewrite ordTet0_1, ordTetL_0...
+    apply ordExp_enlarge_r... eapply ord_trans...
+  - rewrite ordTet0_suc, ordTetL_suc...
+    apply ordExp_preserve_lt... eapply ord_trans...
+Qed.
+
+Lemma ordTet0_eq_ordTetL_ω : ∀ ξ ι ⋵ 𝐎𝐍, 1 ∈ ι → ι ∈ ξ → (ξ ^^⁰ ω) ι = ξ ^^ᴸ ω.
+Proof with neauto.
+  intros ξ Hξ ι Hι Hι1 Hιξ.
+  rewrite ordTet0_limit, ordTetL_limit...
+  ext; apply FUnionE in H as [n [Hn H]].
+  - eapply FUnionI... eapply ord_trans...
+    apply ordTet0_lt_ordTetL_n... eapply ord_trans...
+  - apply (FUnionI _ _ n⁺). apply ω_inductive...
+    eapply ord_trans... apply ordTet0_gt_ordTetL_n...
+Qed.
+
 (** 无限结合律，左侧严格放大 **)
 
 Lemma ordAdd_arbitrary_assoc : ∀α ⋵ 𝐎𝐍, ∀n ∈ ω, α + α ⋅ n = α ⋅ n + α.
@@ -632,6 +685,6 @@ Qed.
 Fact ordTetR_ω_ω_lt_L : ω ^^ᴿ ω ∈ ω ^^ᴸ ω.
 Proof with nauto.
   rewrite ordTetL_limit, ordTetR_ω_ω_eq_L...
-  eapply (FUnionI _ _ 3)...
+  apply (FUnionI _ _ 3)...
   apply ordTetL_n_ascending...
 Qed.

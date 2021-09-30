@@ -23,7 +23,7 @@ Proof with auto.
   apply SepI... apply InfAx. intros x []...
 Qed.
 
-Fact ω_neq_0 : ω ≠ ∅.
+Lemma ω_neq_0 : ω ≠ ∅.
 Proof.
   intros H. assert (∅ ∈ ω). apply ω_has_0.
   rewrite H in H0. exfalso0.
